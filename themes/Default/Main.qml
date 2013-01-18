@@ -201,6 +201,9 @@ Rectangle {
 
 
     Component.onCompleted: {
-        name.focus = true
+        if (name.text == "")
+            name.focus = true
+        else
+            password.focus = true
     }
 }
