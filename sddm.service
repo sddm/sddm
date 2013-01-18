@@ -1,0 +1,10 @@
+[Unit]
+Description=Simple Desktop Display Manager
+After=systemd-user-sessions.service
+
+[Service]
+ExecStart=/usr/bin/sddm -nodaemon
+
+[Install]
+Alias=display-manager.service
+

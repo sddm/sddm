@@ -1,0 +1,12 @@
+SDDM - Simple Desktop Display Manager
+=====================================
+
+SDDM is a new simple display manager for X11 featuring QML based user interfaces. It is designed to be functional, good looking but simple.
+
+Authentication is done using PAM. A simple pam service file is provided with the codebase. Provided service file is simple, you should consider customizing it to your needs.
+
+SDDM backend is developed using C++ and depends on Qt. So memory requirements may be more than X11-only display manager. But if you use a Qt based desktop and application this should be a non-issue. Anyway, this is one of the reasons we prefer simple to light-weight as an adjective.
+
+User interfaces are done exclusively im QML. QML allows creation of visually appealing and animated user interfaces. Current version of SDDM depends on Qt4, so we can use only QtQuick1. We will port to Qt5 at a later timepoint, so we can use cool new QtQuick2 features like shaders etc. Since QML is a complete user interface design language, there is virtually no limit to what you can do in your themes.
+
+Default theme supplied in the distrubition is pretty simplistic. This is intentional. It is designed to be a reference theme to be learned from not to be a showcase.
