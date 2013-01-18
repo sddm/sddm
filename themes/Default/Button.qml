@@ -41,7 +41,7 @@ Rectangle {
 
     signal clicked()
 
-    color: (mouseDown | mouseOver) ? downColor : normalColor
+    color: (mouseDown | mouseOver | focus) ? downColor : normalColor
 
     Rectangle {
         id: border
