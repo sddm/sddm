@@ -230,7 +230,6 @@ namespace SDE {
             pam_putenv(d->pamh, join("DISPLAY", '=', d->display.toStdString().c_str()));
             pam_putenv(d->pamh, join("MAIL", '=', join(_PATH_MAILDIR, '/', pw->pw_name)));
             pam_putenv(d->pamh, join("XAUTHORITY", '=', xauthority));
-            pam_putenv(d->pamh, getenv("TERM") ? join("TERM", '=', getenv("TERM")) : "");
             pam_putenv(d->pamh, join("PATH", '=', Configuration::instance()->defaultPath().toStdString().c_str()));
             // change to the current dir
             chdir(pw->pw_dir);
