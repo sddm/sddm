@@ -54,7 +54,7 @@ namespace SDE {
         _instance = this;
         // set config path
         d->configPath = configPath;
-        // read configuration from disc
+        // create settings object
         QSettings settings(d->configPath, QSettings::IniFormat);
         // read settings
         d->defaultPath = settings.value("DefaultPath", "").toString();
@@ -73,6 +73,23 @@ namespace SDE {
     }
 
     Configuration::~Configuration() {
+        // create settings object
+        QSettings settings(d->configPath, QSettings::IniFormat);
+        // write settings back
+        settings.setValue("DefaultPath", d->defaultPath);
+        settings.setValue("ServerPath", d->serverPath);
+        settings.setValue("ServerArgs", d->serverArgs.join(" "));
+        settings.setValue("XauthPath", d->xauthPath);
+        settings.setValue("AuthFile", d->authFile);
+        settings.setValue("LockFile", d->lockFile);
+        settings.setValue("HaltCommand", d->haltCommand);
+        settings.setValue("RebootCommand", d->rebootCommand);
+        settings.setValue("SessionsDir", d->sessionsDir);
+        settings.setValue("LastSession", d->lastSession);
+        settings.setValue("ThemesDir", d->themesDir);
+        settings.setValue("CurrentTheme", d->currentTheme);
+        settings.setValue("LastUser", d->lastUser);
+        // clean up
         delete d;
     }
 
@@ -120,6 +137,10 @@ namespace SDE {
         return d->lastSession;
     }
 
+    void Configuration::setLastSession(const QString &lastSession) {
+        d->lastSession = lastSession;
+    }
+
     const QString &Configuration::themesDir() const {
         return d->themesDir;
     }
@@ -130,5 +151,9 @@ namespace SDE {
 
     const QString &Configuration::lastUser() const {
         return d->lastUser;
+    }
+
+    void Configuration::setLastUser(const QString &lastUser) {
+        d->lastUser = lastUser;
     }
 }

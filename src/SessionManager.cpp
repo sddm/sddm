@@ -33,6 +33,7 @@ using namespace SDE;
 namespace SDE {
     class SessionInfo {
     public:
+        QString file;
         QString name;
         QString exec;
         QString comment;
@@ -59,6 +60,7 @@ namespace SDE {
             if (inputFile.open(QIODevice::ReadOnly)) {
                 QTextStream in(&inputFile);
                 SessionInfo si;
+                si.file = session;
                 while (!in.atEnd()) {
                     QString line = in.readLine();
                     if (line.startsWith("Name="))
@@ -124,6 +126,9 @@ namespace SDE {
         }
         // emit login success signal
         emit success();
+        // save last session and last user
+        Configuration::instance()->setLastSession(d->sessions[sessionIndex].file);
+        Configuration::instance()->setLastUser(username);
         // login
         d->authenticator->login(d->sessions[sessionIndex].exec);
         // quit application

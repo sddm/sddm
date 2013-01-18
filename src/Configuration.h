@@ -48,12 +48,13 @@ namespace SDE {
 
         const QString &sessionsDir() const;
         const QString &lastSession() const;
+        void setLastSession(const QString &lastSession);
 
         const QString &themesDir() const;
         const QString &currentTheme() const;
 
         const QString &lastUser() const;
-
+        void setLastUser(const QString &lastUser);
 
     private:
         ConfigurationPrivate *d { nullptr };
