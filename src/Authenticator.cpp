@@ -218,7 +218,10 @@ namespace SDE {
             remove(xauthority);
             // add cookie
             d->cookie.add(d->display, xauthority);
-            // set up environment variables
+            // copy environment to pam environment
+            for (int i = 0; environ[i] != NULL; ++i)
+                pam_putenv(d->pamh, environ[i]);
+            // set some more environment variables
             pam_putenv(d->pamh, join("HOME", '=', pw->pw_dir));
             pam_putenv(d->pamh, join("PWD", '=', pw->pw_dir));
             pam_putenv(d->pamh, join("SHELL", '=', pw->pw_shell));
