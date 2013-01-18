@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
             // show view
             view.show();
             view.move(0, 0);
-            view.resize(1920, 1080);
+            view.resize(displayManager.width(), displayManager.height());
             // execute application
             app.exec();
         } else {
