@@ -73,6 +73,13 @@ namespace SDE {
     }
 
     Configuration::~Configuration() {
+        // save settings
+        save();
+        // clean up
+        delete d;
+    }
+
+    void Configuration::save() {
         // create settings object
         QSettings settings(d->configPath, QSettings::IniFormat);
         // write settings back
@@ -89,8 +96,6 @@ namespace SDE {
         settings.setValue("ThemesDir", d->themesDir);
         settings.setValue("CurrentTheme", d->currentTheme);
         settings.setValue("LastUser", d->lastUser);
-        // clean up
-        delete d;
     }
 
     Configuration *Configuration::instance() {

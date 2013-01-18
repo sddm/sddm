@@ -31,6 +31,8 @@ namespace SDE {
         Configuration(const QString &configPath = "/etc/sddm.conf");
         ~Configuration();
 
+        void save();
+
         static Configuration *instance();
 
         const QString &defaultPath() const;

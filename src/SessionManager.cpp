@@ -129,6 +129,7 @@ namespace SDE {
         // save last session and last user
         Configuration::instance()->setLastSession(d->sessions[sessionIndex].file);
         Configuration::instance()->setLastUser(username);
+        Configuration::instance()->save();
         // login
         d->authenticator->login(d->sessions[sessionIndex].exec);
         // quit application
