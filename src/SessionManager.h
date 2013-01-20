@@ -47,6 +47,8 @@ namespace SDE {
         void setCookie(const Cookie &cookie);
         void setDisplay(const QString &displayName);
 
+        void autoLogin();
+
     public slots:
         void login(const QString &username, const QString &password, const int sessionIndex);
         void shutdown();

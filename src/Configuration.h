@@ -61,6 +61,8 @@ namespace SDE {
         const QString &lastUser() const;
         void setLastUser(const QString &lastUser);
 
+        const QString &autoUser() const;
+
     private:
         ConfigurationPrivate *d { nullptr };
     };

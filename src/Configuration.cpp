@@ -49,6 +49,7 @@ namespace SDE {
         QString currentTheme { "" };
 
         QString lastUser { "" };
+        QString autoUser { "" };
     };
 
     Configuration::Configuration(const QString &configPath) : d(new ConfigurationPrivate()) {
@@ -72,6 +73,7 @@ namespace SDE {
         d->themesDir = settings.value("ThemesDir", "").toString();
         d->currentTheme = settings.value("CurrentTheme", "").toString();
         d->lastUser = settings.value("LastUser", "").toString();
+        d->autoUser = settings.value("AutoUser", "").toString();
     }
 
     Configuration::~Configuration() {
@@ -99,6 +101,7 @@ namespace SDE {
         settings.setValue("ThemesDir", d->themesDir);
         settings.setValue("CurrentTheme", d->currentTheme);
         settings.setValue("LastUser", d->lastUser);
+        settings.setValue("AutoUser", d->autoUser);
     }
 
     Configuration *Configuration::instance() {
@@ -167,5 +170,9 @@ namespace SDE {
 
     void Configuration::setLastUser(const QString &lastUser) {
         d->lastUser = lastUser;
+    }
+
+    const QString &Configuration::autoUser() const {
+        return d->autoUser;
     }
 }

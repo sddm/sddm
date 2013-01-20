@@ -100,6 +100,8 @@ int main(int argc, char **argv) {
     if ((testing == false) && (createLock(lockFile) == false))
         return 1;
 
+    bool first = true;
+
     while (true) {
         // create cookie
         Cookie cookie;
@@ -116,6 +118,15 @@ int main(int argc, char **argv) {
         SessionManager sessionManager;
         sessionManager.setDisplay(":0");
         sessionManager.setCookie(cookie);
+        // auto login
+        if (first && !Configuration::instance()->autoUser().isEmpty()) {
+            // restart flag
+            first = false;
+            // auto login
+            sessionManager.autoLogin();
+            // restart
+            continue;
+        }
         // create application
         QApplication app(argc, argv);
         // create declarative view

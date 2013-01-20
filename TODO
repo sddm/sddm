@@ -1,6 +1,5 @@
 Backend
 =======
-* Auto login.
 * Investigate suspend/hibernate.
 * List of available users with pictures, names etc.
 * Make more use of Qt if it results in cleaner code. QProcess, qError etc
