@@ -43,6 +43,7 @@ namespace SDE {
 
         QString sessionsDir { "" };
         QString lastSession { "" };
+        QString sessionCommand { "" };
 
         QString themesDir { "" };
         QString currentTheme { "" };
@@ -67,6 +68,7 @@ namespace SDE {
         d->rebootCommand = settings.value("RebootCommand", "").toString();
         d->sessionsDir = settings.value("SessionsDir", "").toString();
         d->lastSession = settings.value("LastSession", "").toString();
+        d->sessionCommand = settings.value("SessionCommand", "").toString();
         d->themesDir = settings.value("ThemesDir", "").toString();
         d->currentTheme = settings.value("CurrentTheme", "").toString();
         d->lastUser = settings.value("LastUser", "").toString();
@@ -93,6 +95,7 @@ namespace SDE {
         settings.setValue("RebootCommand", d->rebootCommand);
         settings.setValue("SessionsDir", d->sessionsDir);
         settings.setValue("LastSession", d->lastSession);
+        settings.setValue("SessionCommand", d->sessionCommand);
         settings.setValue("ThemesDir", d->themesDir);
         settings.setValue("CurrentTheme", d->currentTheme);
         settings.setValue("LastUser", d->lastUser);
@@ -140,6 +143,10 @@ namespace SDE {
 
     const QString &Configuration::lastSession() const {
         return d->lastSession;
+    }
+
+    const QString &Configuration::sessionCommand() const {
+        return d->sessionCommand;
     }
 
     void Configuration::setLastSession(const QString &lastSession) {

@@ -231,9 +231,11 @@ namespace SDE {
             pam_putenv(d->pamh, join("MAIL", '=', join(_PATH_MAILDIR, '/', pw->pw_name)));
             pam_putenv(d->pamh, join("XAUTHORITY", '=', xauthority));
             pam_putenv(d->pamh, join("PATH", '=', Configuration::instance()->defaultPath().toStdString().c_str()));
+            // execute session start script
+            QString sessionCommand = QString("%1 %2").arg(Configuration::instance()->sessionCommand()).arg(loginCommand);
             // change to the current dir
             chdir(pw->pw_dir);
-            execle(pw->pw_shell, pw->pw_shell, "-c", loginCommand.toStdString().c_str(), NULL, pam_getenvlist(d->pamh));
+            execle(pw->pw_shell, pw->pw_shell, "-c", sessionCommand.toStdString().c_str(), NULL, pam_getenvlist(d->pamh));
             // if we returned from exec, an error occured
             std::cerr << "error: could not execute login command" << std::endl;
             // exit

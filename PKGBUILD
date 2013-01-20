@@ -43,6 +43,10 @@ package() {
   mkdir -p $pkgdir/usr/lib/systemd/system/
   cp $srcdir/$_gitname/sddm.service $pkgdir/usr/lib/systemd/system/
 
+  mkdir -p $pkgdir/usr/share/config/sddm
+  cp $srcdir/_gitname/Xsession $pkgdir/usr/share/config/sddm
+  chmod +x $pkgdir/usr/share/config/sddm/Xsession
+
   mkdir -p $pkgdir/usr/share/apps/sddm/themes
   cp -r $srcdir/$_gitname/themes/* $pkgdir/usr/share/apps/sddm/themes
   

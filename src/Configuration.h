@@ -49,8 +49,11 @@ namespace SDE {
         const QString &rebootCommand() const;
 
         const QString &sessionsDir() const;
+
         const QString &lastSession() const;
         void setLastSession(const QString &lastSession);
+
+        const QString &sessionCommand() const;
 
         const QString &themesDir() const;
         const QString &currentTheme() const;
