@@ -1,5 +1,5 @@
-pkgname=sddm
-pkgver=20130118
+pkgname=sddm-git
+pkgver=20130120
 pkgrel=1
 pkgdesc="QML based X11 display manager" 
 arch=('i686' 'x86_64')
@@ -7,6 +7,7 @@ url="http://github.com/sddm/sddm"
 license=('GPL')
 depends=('pam' 'qt')
 makedepends=('cmake' 'git')
+replaces=('sddm')
 
 _gitroot="git://github.com/sddm/sddm.git"
 _gitname=sddm
@@ -44,7 +45,7 @@ package() {
   cp $srcdir/$_gitname/sddm.service $pkgdir/usr/lib/systemd/system/
 
   mkdir -p $pkgdir/usr/share/config/sddm
-  cp $srcdir/_gitname/Xsession $pkgdir/usr/share/config/sddm
+  cp $srcdir/$_gitname/Xsession $pkgdir/usr/share/config/sddm
   chmod +x $pkgdir/usr/share/config/sddm/Xsession
 
   mkdir -p $pkgdir/usr/share/apps/sddm/themes
