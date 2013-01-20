@@ -1,1 +1,17 @@
- 
+Backend
+=======
+* Auto login.
+* Investigate suspend/hibernate.
+* List of available users with pictures, names etc.
+* Make more use of Qt if it results in cleaner code. QProcess, qError etc
+
+Themes
+======
+* Add documentation theme creation.
+* Create another attractive/animated theme.
+
+Other
+=====
+* Add a graphical configuration interface.
+* Port to Qt5.
+
