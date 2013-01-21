@@ -122,7 +122,8 @@ namespace SDE {
         // set user name
         d->authenticator->setUsername(Configuration::instance()->autoUser());
         // login without authenticating
-        d->authenticator->login(d->sessions[d->lastSession].exec);
+        if ((d->lastSession >= 0) && (d->lastSession < d->sessions.size()))
+            d->authenticator->login(d->sessions[d->lastSession].exec);
     }
 
     void SessionManager::login(const QString &username, const QString &password, const int sessionIndex) {
@@ -143,7 +144,8 @@ namespace SDE {
         Configuration::instance()->setLastUser(username);
         Configuration::instance()->save();
         // login
-        d->authenticator->login(d->sessions[sessionIndex].exec);
+        if ((sessionIndex >= 0) && (sessionIndex < d->sessions.size()))
+            d->authenticator->login(d->sessions[sessionIndex].exec);
         // quit application
         qApp->quit();
     }
