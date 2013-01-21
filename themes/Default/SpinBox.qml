@@ -65,6 +65,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
 
         color: "black"
+        readOnly: true
 
         text: container.items[container.index]
 
