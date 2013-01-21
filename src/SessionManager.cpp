@@ -50,9 +50,13 @@ namespace SDE {
     };
 
     SessionManager::SessionManager() : d(new SessionManagerPrivate()) {
+        // add custom and failsafe session
+        d->sessions.push_back({ "custom", "Custom", "custom", "Custom Session" });
+        d->sessions.push_back({ "failsafe", "Failsafe", "failsafe", "Failsafe Session" });
+        d->sessionList << "Custom" << "Failsafe";
         // read session files
         QDir dir(Configuration::instance()->sessionsDir());
-        int i = 0;
+        // read session
         foreach (const QString &session, dir.entryList()) {
             if (!session.endsWith(".desktop"))
                 continue;
@@ -72,12 +76,13 @@ namespace SDE {
                 }
                 d->sessions.push_back(si);
                 d->sessionList << si.name;
-                // check last session index
-                if (session == Configuration::instance()->lastSession())
-                    d->lastSession = i;
-                i++;
             }
         }
+        // check last session index
+        d->lastSession = 0;
+        for (int i = 0; i < d->sessions.size(); ++i)
+            if (d->sessions.at(i).file == Configuration::instance()->lastSession())
+                d->lastSession = i;
         // get hostname
         char hostName[100];
         gethostname(hostName, 100);
