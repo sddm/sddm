@@ -33,6 +33,7 @@ SET(SOURCES
   src/Configuration.cpp
   src/Cookie.cpp
   src/DisplayManager.cpp
+  src/LockFile.cpp
   src/Main.cpp
   src/SessionManager.cpp
 )
