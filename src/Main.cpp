@@ -34,6 +34,11 @@
 using namespace SDE;
 
 int main(int argc, char **argv) {
+    QString display = ":0";
+    // grab DISPLAY environment variable if set
+    if (getenv("DISPLAY") != nullptr)
+        display = getenv("DISPLAY");
+
     QString configPath = "/etc/sddm.conf";
     QString themePath = "";
     bool testing = false;
@@ -66,7 +71,7 @@ int main(int argc, char **argv) {
         Cookie cookie;
         // create display manager
         DisplayManager displayManager;
-        displayManager.setDisplay(":0");
+        displayManager.setDisplay(display);
         displayManager.setCookie(cookie);
         // start the display manager, except when in test mode
         if ((testing == false) && (displayManager.start() == false)) {
@@ -75,7 +80,7 @@ int main(int argc, char **argv) {
         }
         // create session manager
         SessionManager sessionManager;
-        sessionManager.setDisplay(":0");
+        sessionManager.setDisplay(display);
         sessionManager.setCookie(cookie);
         // auto login
         if (first && !Configuration::instance()->autoUser().isEmpty()) {
