@@ -32,10 +32,6 @@ namespace SDE {
         DisplayManager(const QString &displayName = ":0");
         ~DisplayManager();
 
-        // returns width for the default screen
-        const int width() const;
-        const int height() const;
-
         void setCookie(const Cookie &cookie);
         void setDisplay(const QString &display);
 

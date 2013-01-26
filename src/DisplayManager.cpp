@@ -35,8 +35,6 @@ namespace SDE {
         int processID { 0 };
         bool started { false };
         QString displayName { ":0" };
-        int width { 0 };
-        int height { 0 };
     };
 
     DisplayManager::DisplayManager(const QString &displayName) : d(new DisplayManagerPrivate()) {
@@ -48,15 +46,6 @@ namespace SDE {
             stop();
         delete d;
     }
-
-    const int DisplayManager::width() const {
-        return d->width;
-    }
-
-    const int DisplayManager::height() const {
-        return d->height;
-    }
-
     void DisplayManager::setCookie(const Cookie &cookie) {
         d->cookie = cookie;
     }
@@ -124,11 +113,6 @@ namespace SDE {
             // return fail
             return false;
         }
-        // get default screen
-        Screen *screen = DefaultScreenOfDisplay(display);
-        // set width and height of the screen
-        d->width = WidthOfScreen(screen);
-        d->height = HeightOfScreen(screen);
         // close display
         XCloseDisplay(display);
         // set flag

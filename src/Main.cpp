@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
+#include <QDesktopWidget>
 
 #include <iostream>
 
@@ -101,8 +102,7 @@ int main(int argc, char **argv) {
             QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
             // show view
             view.show();
-            view.move(0, 0);
-            view.resize(displayManager.width(), displayManager.height());
+            view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
             // execute application
             app.exec();
         } else {
