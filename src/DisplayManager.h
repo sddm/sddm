@@ -29,7 +29,7 @@ namespace SDE {
 
     class DisplayManager {
     public:
-        DisplayManager(const QString &displayName = ":0");
+        DisplayManager();
         ~DisplayManager();
 
         void setCookie(const Cookie &cookie);

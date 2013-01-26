@@ -37,8 +37,7 @@ namespace SDE {
         QString displayName { ":0" };
     };
 
-    DisplayManager::DisplayManager(const QString &displayName) : d(new DisplayManagerPrivate()) {
-        d->displayName = displayName;
+    DisplayManager::DisplayManager() : d(new DisplayManagerPrivate()) {
     }
 
     DisplayManager::~DisplayManager() {
