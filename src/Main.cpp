@@ -44,9 +44,10 @@ int main(int argc, char **argv) {
     bool testing = false;
     // parse command line arguments
     for (int i = 0; i < argc; ++i) {
-        if ((strcmp(argv[i], "-t") == 0) && (i < argc - 1)) {
-            themePath = argv[i + 1];
+        if (strcmp(argv[i], "-t") == 0) {
             testing = true;
+            if (i < argc - 1)
+                themePath = argv[i + 1];
         } else if ((strcmp(argv[i], "-c") == 0) && (i < argc - 1)) {
             configPath = argv[i + 1];
         }
@@ -61,7 +62,7 @@ int main(int argc, char **argv) {
         return 1;
 
     // set theme
-    if (!testing)
+    if (themePath.isEmpty())
         themePath = Configuration::instance()->themesDir() + "/" + Configuration::instance()->currentTheme();
 
     bool first = true;
