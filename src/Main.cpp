@@ -25,9 +25,16 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QDesktopWidget>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QQuickView>
+#include <QQmlContext>
+#else
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
-#include <QDesktopWidget>
+#endif
+
 
 #include <iostream>
 
@@ -95,10 +102,17 @@ int main(int argc, char **argv) {
         // create application
         QApplication app(argc, argv);
         // create declarative view
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        QQuickView view;
+        view.setResizeMode(QQuickView::SizeRootObjectToView);
+        // add session manager to context
+        QQmlContext *context = view.rootContext();
+#else
         QDeclarativeView view;
         view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
         // add session manager to context
         QDeclarativeContext *context = view.rootContext();
+#endif
         context->setContextProperty("sessionManager", &sessionManager);
         // load qml file
         view.setSource(QUrl::fromLocalFile(QString("%1/Main.qml").arg(themePath)));

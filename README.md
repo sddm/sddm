@@ -10,7 +10,27 @@ __Dependencies__
 
 SDDM depends on PAM for authorization. SDDM uses a PAM service named "sddm" to authorize user. PAM services are created using simple config files installed into PAM config directory (e.g /etc/pam.d). A sample service file named "sddm.pam" is provided. You should copy this file into your PAM config directory and rename it to "sddm". Since the authorization procedure and available PAM modules may change depending on your distribution or your setup, we strongly advise reviewing this service file to see if it fits your needs.
 
-SDDM depends on Xlib for communicating to the X server. Also we depend on Qt4 for loading the user interface and event loop management, apart from other things.
+SDDM depends on Xlib for communicating to the X server. Also we depend on Qt for loading the user interface and event loop management, apart from other things.
+
+__Compilation__
+
+SDDM uses CMake for compile configuration. Typical compilation procedure for a cmake-based project is:
+
+`mkdir build && cd build && cmake .. && make`
+
+SDDM by default compiles for Qt4 but supports compiling for Qt5 too. If you want to use Qt5, USE_QT5 arguments must be given to cmake:
+
+`mkdir build && cd build && cmake .. -DUSE_QT5=true && make`
+
+Qt4 based themes and Qt5 based ones are incompatible, so if you select Qt5 during compilation, either use a Qt5 based theme, or change
+
+`import QtQuick 1.1`
+
+lines to
+
+`import QtQuick 2.0`
+
+in the qml files.
 
 __Configuration__
 
