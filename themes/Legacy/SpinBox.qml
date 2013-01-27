@@ -22,9 +22,9 @@
 *
 ***************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 1.1
 
-FocusScope {
+Item {
     id: container
     width: 80; height: 30
 
@@ -35,6 +35,8 @@ FocusScope {
     property alias textColor: textInput.color
     property variant items: [ "" ]
     property int index: 0
+
+    onFocusChanged: textInput.focus = focus
 
     function prevItem() {
         if (index > 0)
@@ -51,7 +53,7 @@ FocusScope {
         anchors.fill: parent
 
         color: container.color
-        border.color: container.activeFocus ? container.focusColor : container.borderColor
+        border.color: textInput.focus ? container.focusColor : container.borderColor
         border.width: 1
     }
 
@@ -62,9 +64,7 @@ FocusScope {
         anchors.leftMargin: 8
         anchors.verticalCenter: parent.verticalCenter
 
-        clip: true
         color: "black"
-        focus: true
         readOnly: true
 
         text: container.items[container.index]

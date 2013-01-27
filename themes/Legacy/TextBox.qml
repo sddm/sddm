@@ -22,9 +22,9 @@
 *
 ***************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 1.1
 
-FocusScope {
+Item {
     id: container
     width: 80; height: 30
 
@@ -36,12 +36,14 @@ FocusScope {
     property alias echoMode: textInput.echoMode
     property alias text: textInput.text
 
+    onFocusChanged: textInput.focus = focus
+
     Rectangle {
         id: border
         anchors.fill: parent
 
         color: container.color
-        border.color: container.activeFocus ? container.focusColor : container.borderColor
+        border.color: textInput.focus ? container.focusColor : container.borderColor
         border.width: 1
     }
 
@@ -51,9 +53,6 @@ FocusScope {
         anchors.centerIn: parent
 
         color: "black"
-
-        clip: true
-        focus: true
 
         passwordCharacter: "\u25cf"
     }

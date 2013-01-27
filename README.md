@@ -22,21 +22,15 @@ SDDM by default compiles for Qt4 but supports compiling for Qt5 too. If you want
 
 `mkdir build && cd build && cmake .. -DUSE_QT5=true && make`
 
-Qt4 based themes and Qt5 based ones are incompatible, so if you select Qt5 during compilation, either use a Qt5 based theme, or change
-
-`import QtQuick 1.1`
-
-lines to
-
-`import QtQuick 2.0`
-
-in the qml files.
+SDDM uses _Legacy_ theme by default, which is designed for Qt4 and is incompatible with Qt5. If you enable Qt5 during configuration, please use _Default_ theme or any other QtQuick2 based theme.
 
 __Configuration__
 
 SDDM configuration is done using a simple ini-style text file. Config file usually resides in /etc/sddm.conf. Location of the config file can be changed when compiling the project. You can use a different configuration file at runtime using the "-c" parameter.
 
 `sddm -c /etc/sddm-alternative.conf`
+
+Configuration file is self documented. See the comments in the file for available options.
 
 __Themes__
 

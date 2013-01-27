@@ -22,7 +22,7 @@
 *
 ***************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 1.1
 
 Rectangle {
     id: container
@@ -45,7 +45,7 @@ Rectangle {
 
     Rectangle {
         id: border
-        width: parent.width - 2; height: parent.height - 2
+        width: parent.width - 3; height: parent.height - 3
         anchors.centerIn: parent
 
         color: parent.color
