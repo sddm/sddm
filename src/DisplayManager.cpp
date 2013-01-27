@@ -21,28 +21,27 @@
 
 #include "Configuration.h"
 
+#include <QDebug>
+#include <QProcess>
+#include <QThread>
+
 #include <X11/Xlib.h>
 
-#include <iostream>
-
 #include <unistd.h>
-#include <wait.h>
 
 namespace SDE {
     class DisplayManagerPrivate {
     public:
         Cookie cookie;
-        int processID { 0 };
-        bool started { false };
         QString displayName { ":0" };
+        QProcess *serverProcess { nullptr };
     };
 
     DisplayManager::DisplayManager() : d(new DisplayManagerPrivate()) {
     }
 
     DisplayManager::~DisplayManager() {
-        if (d->started)
-            stop();
+        stop();
         delete d;
     }
     void DisplayManager::setCookie(const Cookie &cookie) {
@@ -54,8 +53,8 @@ namespace SDE {
     }
 
     bool DisplayManager::start() {
-        if (d->started)
-            stop();
+        if (d->serverProcess)
+            return false;
         // path of the server
         char *authPath = strdup(Configuration::instance()->authFile().toStdString().c_str());
         // set environment variables
@@ -65,37 +64,16 @@ namespace SDE {
         remove(authPath);
         // add cookie
         d->cookie.add(d->displayName, authPath);
-        // fork the process
-        d->processID = fork();
-        // check for result
-        if (d->processID == -1) {
-            // fork failed, return fail
-            return false;
-        } else if (d->processID == 0) {
-            // we are in the child process, replace it with display server process
-            // create arguments array
-            int size = Configuration::instance()->serverArgs().size();
-            char **arguments = (char **)malloc(sizeof(void *) * (size + 4));
-            memset(arguments, 0, sizeof(void *) * (size + 4));
-            // first argument is server path
-            int index = 0;
-            arguments[index++] = strdup(Configuration::instance()->serverPath().toStdString().c_str());
-            // copy arguments coming from configuration
-            for (const QString &arg: Configuration::instance()->serverArgs())
-                arguments[index++] = strdup(arg.toStdString().c_str());
-            // add mandatory auth option
-            arguments[index++] = (char *)"-auth";
-            arguments[index++] = authPath;
-            // end with null pointer
-            arguments[index++] = nullptr;
-            // execute command
-            execv(arguments[0], (char **)arguments);
-            // if execv returns, this means we failed, show error message
-            std::cerr << "error: could not start X." << std::endl;
-            // and exit
-            _exit(1);
-        }
-        // main process, connect to the display server
+        // create arguments array
+        QStringList arguments;
+        arguments << d->displayName << Configuration::instance()->serverArgs();
+        arguments << QString("-auth") << authPath;
+        // create process
+        d->serverProcess = new QProcess();
+        // start the process
+        d->serverProcess->start(Configuration::instance()->serverPath(), arguments);
+        d->serverProcess->waitForStarted();
+        // try to connect to the display server
         Display *display = nullptr;
         // try to open the display
         for (int i = 0; i < 5; ++i) {
@@ -108,46 +86,29 @@ namespace SDE {
         // quit, if display can not be opened
         if (display == nullptr) {
             // print error message
-            std::cerr << "error: could not connect to the X server." << std::endl;
+            qCritical() << "error: could not connect to the X server.";
             // return fail
             return false;
         }
         // close display
         XCloseDisplay(display);
-        // set flag
-        d->started = true;
         // return success
         return true;
     }
 
-    void DisplayManager::stop() {
-        if (!d->started)
-            return;
-
-        // check process id
-        if (d->processID < 0)
-            return;
-
-        // send SIGTERM to server
-        killpg(d->processID, SIGTERM);
-
-        // wait for x server to shut down
-        for (int i = 0; i < 10; ++i) {
-            // sleep for a second
-            sleep(1);
-            // try to open display
-            Display *display = nullptr;
-            if ((display = XOpenDisplay(d->displayName.toStdString().c_str())) == nullptr) {
-                d->started = false;
-                return;
-            }
-            // close display
-            XCloseDisplay(display);
-        }
-
+    bool DisplayManager::stop() {
+        if (!d->serverProcess)
+            return false;
+        // send terminate signal
+        d->serverProcess->terminate();
+        // wait for finished
+        d->serverProcess->waitForFinished();
         // send kill signal
-        killpg(d->processID, SIGKILL);
-        // reset flag
-        d->started = false;
+        d->serverProcess->kill();
+        // clean up
+        delete d->serverProcess;
+        d->serverProcess = nullptr;
+        // return success
+        return true;
     }
 }

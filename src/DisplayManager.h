@@ -36,7 +36,7 @@ namespace SDE {
         void setDisplay(const QString &display);
 
         bool start();
-        void stop();
+        bool stop();
 
     private:
         DisplayManagerPrivate *d { nullptr };
