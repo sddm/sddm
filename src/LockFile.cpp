@@ -19,12 +19,12 @@
 
 #include "LockFile.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
 
 #include <fstream>
 
-#include <unistd.h>
 #include <signal.h>
 
 namespace SDE {
@@ -71,7 +71,7 @@ namespace SDE {
             return;
         }
         // write pid into the file
-        lock << getpid() << std::endl;
+        lock << qApp->applicationPid() << std::endl;
         // close file
         lock.close();
     }
