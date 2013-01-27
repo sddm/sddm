@@ -25,6 +25,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QProcess>
 #include <QTextStream>
 
 #include <unistd.h>
@@ -151,10 +152,10 @@ namespace SDE {
     }
 
     void SessionManager::shutdown() {
-        system(Configuration::instance()->haltCommand().toStdString().c_str());
+        QProcess::execute(Configuration::instance()->haltCommand());
     }
 
     void SessionManager::reboot() {
-        system(Configuration::instance()->rebootCommand().toStdString().c_str());
+        QProcess::execute(Configuration::instance()->rebootCommand());
     }
 }
