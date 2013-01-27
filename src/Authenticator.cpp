@@ -22,13 +22,9 @@
 #include "Configuration.h"
 #include "Cookie.h"
 
-#include <security/pam_appl.h>
+#include <QDebug>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <malloc.h>
+#include <security/pam_appl.h>
 
 #include <grp.h>
 #include <paths.h>
@@ -209,7 +205,7 @@ namespace SDE {
         if (pid == 0) {
             // set user groups, group id and user id
             if ((initgroups(pw->pw_name, pw->pw_gid) != 0) || (setgid(pw->pw_gid) != 0) || (setuid(pw->pw_uid) != 0)) {
-                std::cerr << "error: could not switch user id" << std::endl;
+                qCritical() << "error: could not switch user id.";
                 _exit(1);
             }
             // authority file path
@@ -237,7 +233,7 @@ namespace SDE {
             chdir(pw->pw_dir);
             execle(pw->pw_shell, pw->pw_shell, "-c", sessionCommand.toStdString().c_str(), NULL, pam_getenvlist(d->pamh));
             // if we returned from exec, an error occured
-            std::cerr << "error: could not execute login command" << std::endl;
+            qCritical() << "error: could not execute login command.";
             // exit
             _exit(1);
         }
