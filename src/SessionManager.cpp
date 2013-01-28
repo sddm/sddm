@@ -41,7 +41,7 @@ namespace SDE {
 
     class SessionManagerPrivate {
     public:
-        Authenticator *authenticator { new Authenticator("sddm") };
+        Authenticator authenticator { "sddm" };
 
         std::vector<SessionInfo> sessions;
         int lastSession { 0 };
@@ -89,7 +89,6 @@ namespace SDE {
     }
 
     SessionManager::~SessionManager() {
-        delete d->authenticator;
         delete d;
     }
 
@@ -110,27 +109,27 @@ namespace SDE {
     }
 
     void SessionManager::setCookie(const Cookie &cookie) {
-        d->authenticator->setCookie(cookie);
+        d->authenticator.setCookie(cookie);
     }
 
     void SessionManager::setDisplay(const QString &displayName) {
-        d->authenticator->setDisplay(displayName);
+        d->authenticator.setDisplay(displayName);
     }
 
     void SessionManager::autoLogin() {
         // set user name
-        d->authenticator->setUsername(Configuration::instance()->autoUser());
+        d->authenticator.setUsername(Configuration::instance()->autoUser());
         // login without authenticating
         if ((d->lastSession >= 0) && (d->lastSession < d->sessions.size()))
-            d->authenticator->login(d->sessions[d->lastSession].exec);
+            d->authenticator.login(d->sessions[d->lastSession].exec);
     }
 
     void SessionManager::login(const QString &username, const QString &password, const int sessionIndex) {
         // set user name and password
-        d->authenticator->setUsername(username);
-        d->authenticator->setPassword(password);
+        d->authenticator.setUsername(username);
+        d->authenticator.setPassword(password);
         // try to authenticate
-        if (!d->authenticator->authenticate()) {
+        if (!d->authenticator.authenticate()) {
             // emit login fail signal
             emit fail();
             // return
@@ -144,7 +143,7 @@ namespace SDE {
         Configuration::instance()->save();
         // login
         if ((sessionIndex >= 0) && (sessionIndex < d->sessions.size()))
-            d->authenticator->login(d->sessions[sessionIndex].exec);
+            d->authenticator.login(d->sessions[sessionIndex].exec);
         // quit application
         qApp->quit();
     }
