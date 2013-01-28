@@ -44,6 +44,7 @@ namespace SDE {
         stop();
         delete d;
     }
+
     void DisplayManager::setCookie(const Cookie &cookie) {
         d->cookie = cookie;
     }
@@ -101,7 +102,7 @@ namespace SDE {
             return false;
         // send terminate signal
         d->serverProcess->terminate();
-	d->serverProcess->waitForFinished(1000);
+        d->serverProcess->waitForFinished(1000);
         // send kill signal
         d->serverProcess->kill();
         d->serverProcess->waitForFinished();

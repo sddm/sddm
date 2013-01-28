@@ -35,7 +35,6 @@
 #include <QDeclarativeContext>
 #endif
 
-
 #include <iostream>
 
 using namespace SDE;
@@ -105,15 +104,12 @@ int main(int argc, char **argv) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         QQuickView view;
         view.setResizeMode(QQuickView::SizeRootObjectToView);
-        // add session manager to context
-        QQmlContext *context = view.rootContext();
 #else
         QDeclarativeView view;
         view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-        // add session manager to context
-        QDeclarativeContext *context = view.rootContext();
 #endif
-        context->setContextProperty("sessionManager", &sessionManager);
+        // add session manager to context
+        view.rootContext()->setContextProperty("sessionManager", &sessionManager);
         // load qml file
         view.setSource(QUrl::fromLocalFile(QString("%1/Main.qml").arg(themePath)));
         // show view
