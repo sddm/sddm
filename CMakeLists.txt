@@ -33,6 +33,7 @@ if (USE_QT5)
   qt5_use_modules(sddm Widgets Quick)
 else()
   find_package(Qt4 REQUIRED)
+  set(QT_USE_QTNETWORK TRUE)
   set(QT_USE_QTDECLARATIVE TRUE)
   include(${QT_USE_FILE})
 
