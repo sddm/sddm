@@ -30,7 +30,7 @@ namespace SDE {
         bool add(const QString &displayName, const QString &authPath) const;
 
     private:
-        char cookie[33];
+        char cookie[33] { 0 };
     };
 }
 

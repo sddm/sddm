@@ -23,20 +23,17 @@
 
 #include <QCoreApplication>
 
+#include <random>
+
 namespace SDE {
     Cookie::Cookie() {
-        // create random seed
-        struct timespec ts;
-        if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
-            ts.tv_sec = ts.tv_nsec = 0;
-        // initialize random seed
-        srandom(qApp->applicationPid() + time(nullptr) + (ts.tv_sec ^ ts.tv_nsec));
-        // initialize cookie
-        strcpy(cookie, "0123456789abcdef0123456789abcdef");
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 15);
         // create a random hexadecimal number
         const char *digits = "0123456789abcdef";
         for (size_t i = 0; i < 32; ++i)
-            cookie[i] = digits[random() & 0x000f];
+            cookie[i] = digits[dis(gen)];
     }
 
     bool Cookie::add(const QString &displayName, const QString &authPath) const {
