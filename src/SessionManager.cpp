@@ -53,7 +53,6 @@ namespace SDE {
         // add custom and failsafe session
         d->sessions.push_back({ "custom", "Custom", "custom", "Custom Session" });
         d->sessions.push_back({ "failsafe", "Failsafe", "failsafe", "Failsafe Session" });
-        d->sessionList << "Custom" << "Failsafe";
         // read session files
         QDir dir(Configuration::instance()->sessionsDir());
         dir.setNameFilters(QStringList() << "*.desktop");
@@ -74,16 +73,18 @@ namespace SDE {
                 if (line.startsWith("Comment="))
                     si.comment = line.mid(8);
             }
+            // add to sessions list
             d->sessions.push_back(si);
-            d->sessionList << si.name;
             // close file
             inputFile.close();
         }
         // check last session index
         d->lastSession = 0;
-        for (int i = 0; i < d->sessions.size(); ++i)
+        for (int i = 0; i < d->sessions.size(); ++i) {
+            d->sessionList << d->sessions.at(i).name;
             if (d->sessions.at(i).file == Configuration::instance()->lastSession())
                 d->lastSession = i;
+        }
         // get hostname
         d->hostName = QHostInfo::localHostName();
     }
