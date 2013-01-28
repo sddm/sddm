@@ -142,8 +142,8 @@ Rectangle {
                     width: parent.width; height: 30
                     font.pixelSize: 14
 
-                    items: sessionManager.sessions
-                    index: sessionManager.lastSession
+                    items: sessionManager.sessionNames
+                    index: sessionManager.lastSessionIndex
 
                     Keys.onPressed: {
                         if (event.key === Qt.Key_Return) {

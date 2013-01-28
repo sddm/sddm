@@ -44,8 +44,8 @@ namespace SDE {
         Authenticator authenticator { "sddm" };
 
         std::vector<SessionInfo> sessions;
-        int lastSession { 0 };
-        QStringList sessionList;
+        int lastSessionIndex { 0 };
+        QStringList sessionNames;
         QString hostName { "" };
     };
 
@@ -79,11 +79,11 @@ namespace SDE {
             inputFile.close();
         }
         // check last session index
-        d->lastSession = 0;
+        d->lastSessionIndex = 0;
         for (int i = 0; i < d->sessions.size(); ++i) {
-            d->sessionList << d->sessions.at(i).name;
+            d->sessionNames << d->sessions.at(i).name;
             if (d->sessions.at(i).file == Configuration::instance()->lastSession())
-                d->lastSession = i;
+                d->lastSessionIndex = i;
         }
         // get hostname
         d->hostName = QHostInfo::localHostName();
@@ -93,12 +93,12 @@ namespace SDE {
         delete d;
     }
 
-    const int SessionManager::lastSession() const {
-        return d->lastSession;
+    const int SessionManager::lastSessionIndex() const {
+        return d->lastSessionIndex;
     }
 
-    const QStringList &SessionManager::sessions() const {
-        return d->sessionList;
+    const QStringList &SessionManager::sessionNames() const {
+        return d->sessionNames;
     }
 
     const QString &SessionManager::hostName() const {
@@ -121,8 +121,8 @@ namespace SDE {
         // set user name
         d->authenticator.setUsername(Configuration::instance()->autoUser());
         // login without authenticating
-        if ((d->lastSession >= 0) && (d->lastSession < d->sessions.size()))
-            d->authenticator.login(d->sessions[d->lastSession].exec);
+        if ((d->lastSessionIndex >= 0) && (d->lastSessionIndex < d->sessions.size()))
+            d->authenticator.login(d->sessions[d->lastSessionIndex].exec);
     }
 
     void SessionManager::login(const QString &username, const QString &password, const int sessionIndex) {

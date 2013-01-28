@@ -30,16 +30,16 @@ namespace SDE {
 
     class SessionManager : public QObject {
         Q_OBJECT
-        Q_PROPERTY(int lastSession READ lastSession CONSTANT)
-        Q_PROPERTY(QStringList sessions READ sessions CONSTANT)
+        Q_PROPERTY(int lastSessionIndex READ lastSessionIndex CONSTANT)
+        Q_PROPERTY(QStringList sessionNames READ sessionNames CONSTANT)
         Q_PROPERTY(QString hostName READ hostName CONSTANT)
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
     public:
         SessionManager();
         ~SessionManager();
 
-        const int lastSession() const;
-        const QStringList &sessions() const;
+        const int lastSessionIndex() const;
+        const QStringList &sessionNames() const;
 
         const QString &hostName() const;
         const QString &lastUser() const;
