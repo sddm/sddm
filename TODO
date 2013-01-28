@@ -2,7 +2,7 @@ Backend
 =======
 * Investigate suspend/hibernate.
 * List of available users with pictures, names etc.
-* Make more use of Qt if it results in cleaner code. QProcess, qError etc
+* Remembering last username, last session should be configurable.
 
 Themes
 ======
@@ -11,5 +11,4 @@ Themes
 Other
 =====
 * Add a graphical configuration interface.
-* Port to Qt5.
-
+* Handle term/kill signals, exit gracefully.
