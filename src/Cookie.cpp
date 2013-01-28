@@ -21,19 +21,16 @@
 
 #include "Configuration.h"
 
-#include <unistd.h>
+#include <QCoreApplication>
 
 namespace SDE {
     Cookie::Cookie() {
         // create random seed
         struct timespec ts;
-        long pid = getpid();
-        long tm = time(NULL);
-
         if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0)
             ts.tv_sec = ts.tv_nsec = 0;
         // initialize random seed
-        srandom(pid + tm + (ts.tv_sec ^ ts.tv_nsec));
+        srandom(qApp->applicationPid() + time(nullptr) + (ts.tv_sec ^ ts.tv_nsec));
         // initialize cookie
         strcpy(cookie, "0123456789abcdef0123456789abcdef");
         // create a random hexadecimal number
