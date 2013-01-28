@@ -61,23 +61,23 @@ namespace SDE {
         // read session
         foreach (const QString &session, dir.entryList()) {
             QFile inputFile(dir.absoluteFilePath(session));
-            if (inputFile.open(QIODevice::ReadOnly)) {
-                SessionInfo si { session, "", "", "" };
-                QTextStream in(&inputFile);
-                while (!in.atEnd()) {
-                    QString line = in.readLine();
-                    if (line.startsWith("Name="))
-                        si.name = line.mid(5);
-                    if (line.startsWith("Exec="))
-                        si.exec = line.mid(5);
-                    if (line.startsWith("Comment="))
-                        si.comment = line.mid(8);
-                }
-                d->sessions.push_back(si);
-                d->sessionList << si.name;
-                // close file
-                inputFile.close();
+            if (!inputFile.open(QIODevice::ReadOnly))
+                continue;
+            SessionInfo si { session, "", "", "" };
+            QTextStream in(&inputFile);
+            while (!in.atEnd()) {
+                QString line = in.readLine();
+                if (line.startsWith("Name="))
+                    si.name = line.mid(5);
+                if (line.startsWith("Exec="))
+                    si.exec = line.mid(5);
+                if (line.startsWith("Comment="))
+                    si.comment = line.mid(8);
             }
+            d->sessions.push_back(si);
+            d->sessionList << si.name;
+            // close file
+            inputFile.close();
         }
         // check last session index
         d->lastSession = 0;
