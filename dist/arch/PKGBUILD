@@ -38,14 +38,14 @@ package() {
   cp $srcdir/build/sddm $pkgdir/usr/bin
 
   mkdir -p $pkgdir/etc/pam.d
-  cp $srcdir/$_gitname/sddm.conf $pkgdir/etc
-  cp $srcdir/$_gitname/sddm.pam $pkgdir/etc/pam.d/sddm
+  cp $srcdir/$_gitname/scripts/sddm.conf $pkgdir/etc
+  cp $srcdir/$_gitname/scripts/sddm.pam $pkgdir/etc/pam.d/sddm
   
   mkdir -p $pkgdir/usr/lib/systemd/system/
-  cp $srcdir/$_gitname/sddm.service $pkgdir/usr/lib/systemd/system/
+  cp $srcdir/$_gitname/scripts/sddm.service $pkgdir/usr/lib/systemd/system/
 
   mkdir -p $pkgdir/usr/share/config/sddm
-  cp $srcdir/$_gitname/Xsession $pkgdir/usr/share/config/sddm
+  cp $srcdir/$_gitname/scripts/Xsession $pkgdir/usr/share/config/sddm
   chmod +x $pkgdir/usr/share/config/sddm/Xsession
 
   mkdir -p $pkgdir/usr/share/apps/sddm/themes
