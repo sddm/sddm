@@ -56,15 +56,14 @@ namespace SDE {
         d->sessionList << "Custom" << "Failsafe";
         // read session files
         QDir dir(Configuration::instance()->sessionsDir());
+        dir.setNameFilters(QStringList() << "*.desktop");
+        dir.setFilter(QDir::Files);
         // read session
         foreach (const QString &session, dir.entryList()) {
-            if (!session.endsWith(".desktop"))
-                continue;
             QFile inputFile(dir.absoluteFilePath(session));
             if (inputFile.open(QIODevice::ReadOnly)) {
+                SessionInfo si { session, "", "", "" };
                 QTextStream in(&inputFile);
-                SessionInfo si;
-                si.file = session;
                 while (!in.atEnd()) {
                     QString line = in.readLine();
                     if (line.startsWith("Name="))
@@ -76,6 +75,8 @@ namespace SDE {
                 }
                 d->sessions.push_back(si);
                 d->sessionList << si.name;
+                // close file
+                inputFile.close();
             }
         }
         // check last session index
