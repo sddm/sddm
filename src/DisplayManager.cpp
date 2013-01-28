@@ -20,6 +20,7 @@
 #include "DisplayManager.h"
 
 #include "Configuration.h"
+#include "Cookie.h"
 
 #include <QDebug>
 #include <QProcess>
@@ -32,7 +33,7 @@
 namespace SDE {
     class DisplayManagerPrivate {
     public:
-        Cookie cookie;
+        const char *cookie;
         QString displayName { ":0" };
         QProcess *serverProcess { nullptr };
     };
@@ -45,7 +46,7 @@ namespace SDE {
         delete d;
     }
 
-    void DisplayManager::setCookie(const Cookie &cookie) {
+    void DisplayManager::setCookie(const char *cookie) {
         d->cookie = cookie;
     }
 
@@ -64,7 +65,7 @@ namespace SDE {
         // remove authority file
         remove(authPath);
         // add cookie
-        d->cookie.add(d->displayName, authPath);
+        Cookie::add(d->cookie, d->displayName, authPath);
         // create arguments array
         QStringList arguments;
         arguments << d->displayName << Configuration::instance()->serverArgs();

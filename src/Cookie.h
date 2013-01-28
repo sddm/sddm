@@ -25,12 +25,10 @@
 namespace SDE {
     class Cookie {
     public:
-        Cookie();
+        Cookie() = delete;
 
-        bool add(const QString &displayName, const QString &authPath) const;
-
-    private:
-        char cookie[33] { 0 };
+        static void generate(char *cookie);
+        static bool add(const char *cookie, const QString &displayName, const QString &authPath);
     };
 }
 

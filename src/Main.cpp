@@ -19,6 +19,7 @@
 
 #include "Authenticator.h"
 #include "Configuration.h"
+#include "Cookie.h"
 #include "DisplayManager.h"
 #include "LockFile.h"
 #include "SessionManager.h"
@@ -74,8 +75,9 @@ int main(int argc, char **argv) {
     bool first = true;
 
     while (true) {
-        // create cookie
-        Cookie cookie;
+        // generate cookie
+        char cookie[33] { 0 };
+        Cookie::generate(cookie);
         // create display manager
         DisplayManager displayManager;
         displayManager.setDisplay(display);

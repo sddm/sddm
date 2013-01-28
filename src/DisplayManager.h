@@ -20,8 +20,6 @@
 #ifndef SDE_DISPLAYMANAGER_H
 #define SDE_DISPLAYMANAGER_H
 
-#include "Cookie.h"
-
 #include <QString>
 
 namespace SDE {
@@ -32,7 +30,7 @@ namespace SDE {
         DisplayManager();
         ~DisplayManager();
 
-        void setCookie(const Cookie &cookie);
+        void setCookie(const char *cookie);
         void setDisplay(const QString &display);
 
         bool start();

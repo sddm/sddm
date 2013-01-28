@@ -26,7 +26,7 @@
 #include <random>
 
 namespace SDE {
-    Cookie::Cookie() {
+    void Cookie::generate(char *cookie) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 15);
@@ -36,7 +36,7 @@ namespace SDE {
             cookie[i] = digits[dis(gen)];
     }
 
-    bool Cookie::add(const QString &displayName, const QString &authPath) const {
+    bool Cookie::add(const char *cookie, const QString &displayName, const QString &authPath) {
         QString cmd = QString("%1 -f %2 -q").arg(Configuration::instance()->xauthPath()).arg(authPath);
         // execute xauth
         FILE *fp = popen(cmd.toStdString().c_str(), "w");

@@ -24,14 +24,13 @@
 
 namespace SDE {
     class AuthenticatorPrivate;
-    class Cookie;
 
     class Authenticator {
     public:
         Authenticator(const QString &service);
         ~Authenticator();
 
-        void setCookie(const Cookie &cookie);
+        void setCookie(const char *cookie);
         void setDisplay(const QString &displayName);
         void setUsername(const QString &username);
         void setPassword(const QString &password);

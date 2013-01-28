@@ -26,7 +26,6 @@
 
 namespace SDE {
     class SessionManagerPrivate;
-    class Cookie;
 
     class SessionManager : public QObject {
         Q_OBJECT
@@ -44,7 +43,7 @@ namespace SDE {
         const QString &hostName() const;
         const QString &lastUser() const;
 
-        void setCookie(const Cookie &cookie);
+        void setCookie(const char *cookie);
         void setDisplay(const QString &displayName);
 
         void autoLogin();

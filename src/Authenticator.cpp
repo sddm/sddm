@@ -37,7 +37,7 @@ namespace SDE {
 
     class AuthenticatorPrivate {
     public:
-        Cookie cookie;
+        const char *cookie { nullptr };
 
         QString service { "" };
         QString display { "" };
@@ -117,7 +117,7 @@ namespace SDE {
         pam_end(d->pamh, d->pam_err);
     }
 
-    void Authenticator::setCookie(const Cookie &cookie) {
+    void Authenticator::setCookie(const char *cookie) {
         d->cookie = cookie;
     }
 
@@ -213,7 +213,7 @@ namespace SDE {
             // remove authority file
             remove(xauthority);
             // add cookie
-            d->cookie.add(d->display, xauthority);
+            Cookie::add(d->cookie, d->display, xauthority);
             // copy environment to pam environment
             for (int i = 0; environ[i] != NULL; ++i)
                 pam_putenv(d->pamh, environ[i]);
