@@ -101,10 +101,10 @@ namespace SDE {
             return false;
         // send terminate signal
         d->serverProcess->terminate();
-        // wait for finished
-        d->serverProcess->waitForFinished();
+	d->serverProcess->waitForFinished(1000);
         // send kill signal
         d->serverProcess->kill();
+        d->serverProcess->waitForFinished();
         // clean up
         delete d->serverProcess;
         d->serverProcess = nullptr;
