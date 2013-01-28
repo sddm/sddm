@@ -25,9 +25,10 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-#include <QHostInfo>
 #include <QProcess>
 #include <QTextStream>
+
+#include <unistd.h>
 
 using namespace SDE;
 namespace SDE {
@@ -86,7 +87,9 @@ namespace SDE {
                 d->lastSessionIndex = i;
         }
         // get hostname
-        d->hostName = QHostInfo::localHostName();
+        char hostName[100];
+        gethostname(hostName, 100);
+        d->hostName = hostName;
     }
 
     SessionManager::~SessionManager() {
