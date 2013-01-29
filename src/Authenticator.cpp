@@ -21,6 +21,7 @@
 
 #include "Configuration.h"
 #include "Cookie.h"
+#include "Util.h"
 
 #include <QDebug>
 
@@ -29,8 +30,6 @@
 #include <grp.h>
 #include <paths.h>
 #include <pwd.h>
-#include <unistd.h>
-#include <wait.h>
 
 namespace SDE {
     typedef int (conv_func)(int, const struct pam_message **, struct pam_response **, void *);
@@ -201,10 +200,9 @@ namespace SDE {
             endusershell();
         }
 
-        // start login process
-        pid_t pid = fork();
-
-        if (pid == 0) {
+        // execute session start script
+        QString sessionCommand = QString("%1 %2").arg(Configuration::instance()->sessionCommand()).arg(loginCommand);
+        pid_t pid = Util::execute(pw->pw_shell, QStringList() << "-c" << sessionCommand, [&] {
             // set user groups, group id and user id
             if ((initgroups(pw->pw_name, pw->pw_gid) != 0) || (setgid(pw->pw_gid) != 0) || (setuid(pw->pw_uid) != 0)) {
                 qCritical() << "error: could not switch user id.";
@@ -217,7 +215,7 @@ namespace SDE {
             // add cookie
             Cookie::add(d->cookie, d->display, xauthority);
             // copy environment to pam environment
-            for (int i = 0; environ[i] != NULL; ++i)
+            for (int i = 0; environ[i] != nullptr; ++i)
                 pam_putenv(d->pamh, environ[i]);
             // set some more environment variables
             pam_putenv(d->pamh, join("HOME", '=', pw->pw_dir));
@@ -229,33 +227,24 @@ namespace SDE {
             pam_putenv(d->pamh, join("MAIL", '=', join(_PATH_MAILDIR, '/', pw->pw_name)));
             pam_putenv(d->pamh, join("XAUTHORITY", '=', xauthority));
             pam_putenv(d->pamh, join("PATH", '=', Configuration::instance()->defaultPath().toStdString().c_str()));
-            // execute session start script
-            QString sessionCommand = QString("%1 %2").arg(Configuration::instance()->sessionCommand()).arg(loginCommand);
             // change to the current dir
             chdir(pw->pw_dir);
-            execle(pw->pw_shell, pw->pw_shell, "-c", sessionCommand.toStdString().c_str(), NULL, pam_getenvlist(d->pamh));
-            // if we returned from exec, an error occured
-            qCritical() << "error: could not execute login command.";
-            // exit
-            _exit(1);
-        }
+            // set environment
+            char **envlist = pam_getenvlist(d->pamh);
+            for (int i = 0; envlist[i] != nullptr; ++i)
+                putenv(envlist[i]);
+        });
 
         // wait until login processs ends
-        int status;
-        while (wait(&status) != pid);
+        Util::wait(pid);
+
+        // terminate process group
+        Util::terminate(pid);
 
         // close session
         pam_close_session(d->pamh, 0);
         // delete creds
         pam_setcred(d->pamh, PAM_DELETE_CRED);
-
-        // send SIGHUP to client group
-        killpg(pid, SIGHUP);
-
-        // send SIGTERM to client group
-        // if error, send SIGKILL group
-        if (killpg(pid, SIGTERM))
-            killpg(pid, SIGKILL);
 
         return true;
     }

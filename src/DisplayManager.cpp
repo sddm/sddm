@@ -21,21 +21,18 @@
 
 #include "Configuration.h"
 #include "Cookie.h"
+#include "Util.h"
 
 #include <QDebug>
-#include <QProcess>
-#include <QThread>
 
 #include <X11/Xlib.h>
-
-#include <unistd.h>
 
 namespace SDE {
     class DisplayManagerPrivate {
     public:
         const char *cookie;
         QString displayName { ":0" };
-        QProcess *serverProcess { nullptr };
+        pid_t pid { 0 };
     };
 
     DisplayManager::DisplayManager() : d(new DisplayManagerPrivate()) {
@@ -43,6 +40,7 @@ namespace SDE {
 
     DisplayManager::~DisplayManager() {
         stop();
+        // clean up
         delete d;
     }
 
@@ -55,7 +53,7 @@ namespace SDE {
     }
 
     bool DisplayManager::start() {
-        if (d->serverProcess)
+        if (d->pid)
             return false;
         // path of the server
         char *authPath = strdup(Configuration::instance()->authFile().toStdString().c_str());
@@ -69,10 +67,7 @@ namespace SDE {
         arguments << d->displayName << Configuration::instance()->serverArgs();
         arguments << QString("-auth") << authPath;
         // create process
-        d->serverProcess = new QProcess();
-        // start the process
-        d->serverProcess->start(Configuration::instance()->serverPath(), arguments);
-        d->serverProcess->waitForStarted();
+        d->pid = Util::execute(Configuration::instance()->serverPath(), arguments, [] {});
         // try to connect to the display server
         Display *display = nullptr;
         // try to open the display
@@ -97,17 +92,12 @@ namespace SDE {
     }
 
     bool DisplayManager::stop() {
-        if (!d->serverProcess)
+        if (!d->pid)
             return false;
-        // send terminate signal
-        d->serverProcess->terminate();
-        d->serverProcess->waitForFinished(1000);
-        // send kill signal
-        d->serverProcess->kill();
-        d->serverProcess->waitForFinished();
-        // clean up
-        delete d->serverProcess;
-        d->serverProcess = nullptr;
+        // terminate server
+        Util::terminate(d->pid);
+        // reset server pid
+        d->pid = 0;
         // return success
         return true;
     }

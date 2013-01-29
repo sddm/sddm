@@ -17,6 +17,7 @@ set(SOURCES
   src/LockFile.cpp
   src/Main.cpp
   src/SessionManager.cpp
+  src/Util.cpp
 )
 
 # PAM
