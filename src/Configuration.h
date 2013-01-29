@@ -28,9 +28,10 @@ namespace SDE {
 
     class Configuration {
     public:
-        Configuration(const QString &configPath = "/etc/sddm.conf");
+        Configuration(const QString &configPath);
         ~Configuration();
 
+        void load();
         void save();
 
         static Configuration *instance();

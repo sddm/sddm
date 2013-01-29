@@ -56,6 +56,18 @@ namespace SDE {
         _instance = this;
         // set config path
         d->configPath = configPath;
+        // load settings
+        load();
+    }
+
+    Configuration::~Configuration() {
+        // save settings
+        save();
+        // clean up
+        delete d;
+    }
+
+    void Configuration::load() {
         // create settings object
         QSettings settings(d->configPath, QSettings::IniFormat);
         // read settings
@@ -74,13 +86,6 @@ namespace SDE {
         d->currentTheme = settings.value("CurrentTheme", "").toString();
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
-    }
-
-    Configuration::~Configuration() {
-        // save settings
-        save();
-        // clean up
-        delete d;
     }
 
     void Configuration::save() {
