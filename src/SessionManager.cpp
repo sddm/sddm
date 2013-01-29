@@ -43,7 +43,7 @@ namespace SDE {
     public:
         Authenticator authenticator { "sddm" };
 
-        std::vector<SessionInfo> sessions;
+        QList<SessionInfo> sessions;
         int lastSessionIndex { 0 };
         QStringList sessionNames;
         QString hostName { "" };
