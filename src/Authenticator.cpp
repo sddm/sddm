@@ -115,6 +115,8 @@ namespace SDE {
 
     Authenticator::~Authenticator() {
         pam_end(d->pamh, d->pam_err);
+        // clean up
+        delete d;
     }
 
     void Authenticator::setCookie(const char *cookie) {
