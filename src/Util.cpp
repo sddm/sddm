@@ -37,6 +37,17 @@ namespace SDE {
         return array;
     }
 
+    pid_t Util::execute(std::function<void ()> function) {
+        pid_t pid = fork();
+
+        // child process
+        if (pid == 0)
+            function();
+
+        // main process
+        return pid;
+    }
+
     pid_t Util::execute(const QString &program, const QStringList &arguments, std::function<void ()> function) {
         pid_t pid = fork();
 

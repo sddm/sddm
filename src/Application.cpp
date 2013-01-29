@@ -24,6 +24,7 @@
 #include "DisplayManager.h"
 #include "LockFile.h"
 #include "SessionManager.h"
+#include "Util.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -147,27 +148,35 @@ namespace SDE {
                 continue;
             }
 
-            // create application
-            QApplication app(d->argc, d->argv);
-            // create declarative view
+            // execute user interface in a seperate process
+            // this is needed because apperantly we can create a QApplication
+            // instance multiple times in the same process. if this changes in
+            // a future version of Qt, this workaround should be removed.
+            pid_t pid = Util::execute([&] {
+                // create application
+                QApplication app(d->argc, d->argv);
+                // create declarative view
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-            QQuickView view;
-            view.setResizeMode(QQuickView::SizeRootObjectToView);
+                QQuickView view;
+                view.setResizeMode(QQuickView::SizeRootObjectToView);
 #else
-            QDeclarativeView view;
-            view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
+                QDeclarativeView view;
+                view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #endif
-            // add session manager to context
-            view.rootContext()->setContextProperty("sessionManager", &sessionManager);
-            // load qml file
-            view.setSource(QUrl::fromLocalFile(currentTheme));
-            // close view on successful login
-            QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
-            // show view
-            view.show();
-            view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
-            // execute application
-            app.exec();
+                // add session manager to context
+                view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+                // load qml file
+                view.setSource(QUrl::fromLocalFile(currentTheme));
+                // close view on successful login
+                QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
+                // show view
+                view.show();
+                view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
+                // execute application
+                app.exec();
+            });
+            // wait for process to end
+            Util::wait(pid);
         }
     }
 }

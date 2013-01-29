@@ -32,6 +32,7 @@ namespace SDE {
     public:
         Util() = delete;
 
+        static pid_t execute(std::function<void (void)> function);
         static pid_t execute(const QString &program, const QStringList &arguments, std::function<void (void)> function);
         static int wait(pid_t pid);
         static int terminate(pid_t pid);
