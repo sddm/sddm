@@ -59,8 +59,6 @@ namespace SDE {
             return false;
         // path of the server
         char *authPath = strdup(Configuration::instance()->authFile().toStdString().c_str());
-        // set environment variables
-        setenv("DISPLAY", d->displayName.toStdString().c_str(), 1);
         setenv("XAUTHORITY", authPath, 1);
         // remove authority file
         remove(authPath);

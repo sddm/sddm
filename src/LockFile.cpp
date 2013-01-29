@@ -31,18 +31,11 @@ namespace SDE {
     class LockFilePrivate {
     public:
         QString path { "" };
-        bool testing { false };
-
         bool success { true };
-        QString errorMessage { "" };
     };
 
-    LockFile::LockFile(const QString &path, bool testing) : d(new LockFilePrivate) {
+    LockFile::LockFile(const QString &path) : d(new LockFilePrivate()) {
         d->path = path;
-        d->testing = testing;
-        // if testing, return
-        if (d->testing)
-            return;
         // check if lock file exists
         if (QFile::exists(path)) {
             // if exists, read pid from it
@@ -77,8 +70,7 @@ namespace SDE {
     }
 
     LockFile::~LockFile() {
-        if (!d->testing)
-            QFile::remove(d->path);
+        QFile::remove(d->path);
         // clean up
         delete d;
     }

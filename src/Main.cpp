@@ -17,121 +17,41 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#include "Authenticator.h"
-#include "Configuration.h"
-#include "Cookie.h"
-#include "DisplayManager.h"
-#include "LockFile.h"
-#include "SessionManager.h"
-
-#include <QApplication>
-#include <QDebug>
-#include <QDesktopWidget>
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <QQuickView>
-#include <QQmlContext>
-#else
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#endif
-
-#include <iostream>
-
-using namespace SDE;
+#include "Application.h"
 
 int main(int argc, char **argv) {
-    QString display = ":0";
-    // grab DISPLAY environment variable if set
-    if (getenv("DISPLAY") != nullptr)
-        display = getenv("DISPLAY");
+    SDE::Application app(argc, argv);
 
+    // get arguments
+    const QStringList &arguments = app.arguments();
+
+    // check for config argument
     QString configPath = "/etc/sddm.conf";
-    QString themePath = "";
+    int configIndex = arguments.indexOf("-c");
+    if (configIndex >= 0) {
+        if ((configIndex < arguments.size() - 1) && !arguments.at(configIndex + 1).startsWith("-"))
+            configPath = arguments.at(configIndex + 1);
+    }
+
+    // check for test argument
     bool testing = false;
-    // parse command line arguments
-    for (int i = 0; i < argc; ++i) {
-        if (strcmp(argv[i], "-t") == 0) {
-            testing = true;
-            if (i < argc - 1)
-                themePath = argv[i + 1];
-        } else if ((strcmp(argv[i], "-c") == 0) && (i < argc - 1)) {
-            configPath = argv[i + 1];
-        }
+    QString testTheme = "";
+    int testIndex = arguments.indexOf("-t");
+    if (testIndex != -1) {
+        testing = true;
+        if ((testIndex < arguments.size() - 1) && !arguments.at(testIndex + 1).startsWith("-"))
+            testTheme = arguments.at(testIndex + 1);
     }
 
-    // create configuration instance
-    Configuration configuration(configPath);
+    // init
+    app.init(configPath);
 
-    // create lock file
-    LockFile lock(Configuration::instance()->lockFile(), testing);
-    if (!lock.success())
-        return 1;
+    // run app
+    if (testing)
+        app.test(testTheme);
+    else
+        app.run();
 
-    // set theme
-    if (themePath.isEmpty())
-        themePath = Configuration::instance()->themesDir() + "/" + Configuration::instance()->currentTheme();
-
-    bool first = true;
-
-    while (true) {
-        // generate cookie
-        char cookie[33] { 0 };
-        Cookie::generate(cookie);
-        // create display manager
-        DisplayManager displayManager;
-        displayManager.setDisplay(display);
-        displayManager.setCookie(cookie);
-        // start the display manager, except when in test mode
-        if ((testing == false) && (displayManager.start() == false)) {
-            qCritical() << "error: could not start display manager.";
-            return 1;
-        }
-        // create session manager
-        SessionManager sessionManager;
-        sessionManager.setDisplay(display);
-        sessionManager.setCookie(cookie);
-        // auto login
-        if (first && !Configuration::instance()->autoUser().isEmpty()) {
-            // restart flag
-            first = false;
-            // auto login
-            sessionManager.autoLogin();
-            // restart
-            continue;
-        }
-        // create application
-        QApplication app(argc, argv);
-        // create declarative view
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-        QQuickView view;
-        view.setResizeMode(QQuickView::SizeRootObjectToView);
-#else
-        QDeclarativeView view;
-        view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-#endif
-        // add session manager to context
-        view.rootContext()->setContextProperty("sessionManager", &sessionManager);
-        // load qml file
-        view.setSource(QUrl::fromLocalFile(QString("%1/Main.qml").arg(themePath)));
-        // show view
-        if (!testing) {
-            // close view on successful login
-            QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
-            // show view
-            view.show();
-            view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
-            // execute application
-            app.exec();
-        } else {
-            // show application
-            view.showFullScreen();
-            // execute application
-            app.exec();
-            // in test mode, we want to quit when the window is closed
-            break;
-        }
-    }
     // return success
     return 0;
 }

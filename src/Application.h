@@ -17,24 +17,29 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_LOCKFILE_H
-#define SDE_LOCKFILE_H
+#ifndef SDE_APPLICATION_H
+#define SDE_APPLICATION_H
 
 #include <QString>
+#include <QStringList>
 
 namespace SDE {
-    class LockFilePrivate;
+    class ApplicationPrivate;
 
-    class LockFile {
+    class Application {
     public:
-        LockFile(const QString &path);
-        ~LockFile();
+        Application(int argc, char **argv);
+        ~Application();
 
-        bool success() const;
+        const QStringList &arguments() const;
 
-    private :
-        LockFilePrivate *d;
+        void init(const QString &config);
+        void test(const QString &theme);
+        void run();
+
+    private:
+        ApplicationPrivate *d;
     };
 }
 
-#endif // SDE_LOCKFILE_H
+#endif // SDE_APPLICATION_H

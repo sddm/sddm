@@ -9,6 +9,7 @@ set(CMAKE_AUTOMOC ON)
 add_definitions(-Wall -march=native -O2 -g -std=c++11)
 
 set(SOURCES
+  src/Application.cpp
   src/Authenticator.cpp
   src/Configuration.cpp
   src/Cookie.cpp
