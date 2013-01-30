@@ -23,6 +23,7 @@
 ***************************************************************************/
 
 import QtQuick 2.0
+import QtMultimedia 5.0
 
 Rectangle {
     width: 640
@@ -42,12 +43,13 @@ Rectangle {
         }
     }
     
-    Image {
-        anchors.centerIn: parent
-        source: "background.png"
-        fillMode: Image.Tile
+    Background {
+        id: background
+        anchors.fill: parent
+        image: "background.png"
+        // video: "video.avi"
     }
-    
+
     Rectangle {
         anchors.centerIn: parent
         width: 320; height: 320
