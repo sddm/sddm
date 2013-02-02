@@ -76,6 +76,20 @@ __Licensing__
 
 Source code of SDDM is licensed under GNU GPL version 2 or later (at your opinion). Scripts and configuration files are public domain. QML files are MIT licensed and images are CC BY 3.0.
 
+__Resources__
+
+Git Repository:
+    https://github.com/sddm/sddm
+
+Mailing List:
+    https://groups.google.com/group/sde-devel
+
+Bug Reports:
+    https://github.com/sddm/sddm/issues
+
+Wiki:
+    https://github.com/sddm/sddm/wiki
+
 __Screenshots__
 
 ![sample screenshot](http://s14.postimage.org/kkm44obf5/sddm1.png)
