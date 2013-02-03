@@ -23,11 +23,15 @@
 ***************************************************************************/
 
 import QtQuick 2.0
-import QtMultimedia 5.0
 
 Rectangle {
+    id: container
     width: 640
     height: 480
+
+    property color textColor: "white"
+    property string textFont: "geo sans light"
+    property var dateTime: new Date()
 
     Connections {
         target: sessionManager
@@ -46,20 +50,53 @@ Rectangle {
     Background {
         id: background
         anchors.fill: parent
-        image: "background.png"
+        image: "background.jpg"
         // video: "video.avi"
     }
+    
+    Timer {
+        interval: 100; running: true; repeat: true;
+        onTriggered: container.dateTime = new Date()
+    }
 
-    Rectangle {
+    Item {
+        width: 350; height: 300
+        anchors.top: parent.top
+        anchors.right: parent.right
+
+        Text {
+            id: time
+
+            anchors.top: parent.top; anchors.right: parent.right
+            anchors.rightMargin: 10
+
+            color: textColor
+
+            font.family:textFont; font.pointSize: 72
+
+            text : Qt.formatTime(container.dateTime, "hh:mm")
+        }
+
+        Text {
+            id: date
+
+            anchors.top: time.bottom
+            anchors.horizontalCenter: time.horizontalCenter
+
+            color: textColor
+
+            font.family:textFont; font.pointSize: 24
+
+            text : Qt.formatDate(container.dateTime, "dddd, MMM dd")
+        }
+    }
+
+    Image {
+        id: rectangle
         anchors.centerIn: parent
         width: 320; height: 320
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#c3c3c3" }
-            GradientStop { position: 0.5; color: "#e5e5e5" }
-            GradientStop { position: 1.0; color: "#c3c3c3" }
-        }
-        border.color: "#ababab"
-        border.width: 1
+
+        source: "rectangle.png"
 
         Column {
             anchors.centerIn: parent
