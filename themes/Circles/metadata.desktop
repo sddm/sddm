@@ -1,6 +1,6 @@
 [SddmGreeterTheme]
-Name=Circles (Legacy)
-Description=Legacy circles theme
+Name=Circles
+Description=Circles Theme
 Author=Abdurrahman AVCI
 Copyright=(c) 2013, Abdurrahman AVCI
 License=CC-BY-SA
@@ -11,4 +11,4 @@ Screenshot=screenshot.png
 Theme-API=1
 MainScript=Main.qml
 Email=abdurrahmanavci@gmail.com
-Theme-Id=legacy
+Theme-Id=circles
