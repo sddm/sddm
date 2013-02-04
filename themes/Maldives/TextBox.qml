@@ -31,6 +31,7 @@ FocusScope {
     property color color: "white"
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
+    property color hoverColor: "#990b678c"
     property alias font: textInput.font
     property alias textColor: textInput.color
     property alias echoMode: textInput.echoMode
@@ -43,6 +44,14 @@ FocusScope {
         color: container.color
         border.color: container.activeFocus ? container.focusColor : container.borderColor
         border.width: 1
+
+        MouseArea {
+            hoverEnabled: true
+            anchors.fill: parent
+
+            onEntered: parent.border.color = container.hoverColor
+            onExited: parent.border.color = textInput.focus ? container.focusColor : container.borderColor
+        }
     }
 
     TextInput {
