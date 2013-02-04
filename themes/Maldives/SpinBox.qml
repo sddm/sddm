@@ -31,6 +31,7 @@ FocusScope {
     property color color: "white"
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
+    property color hoverColor: "#5692c4"
     property alias font: textInput.font
     property alias textColor: textInput.color
     property variant items: [ "" ]
@@ -48,11 +49,24 @@ FocusScope {
 
     Rectangle {
         id: main
+
+        property bool hover: false
+
         anchors.fill: parent
 
         color: container.color
-        border.color: container.activeFocus ? container.focusColor : container.borderColor
+        border.color: hover ? container.hoverColor : (container.activeFocus ? container.focusColor : container.borderColor)
         border.width: 1
+
+        Behavior on border.color { ColorAnimation { duration: 200 } }
+
+        MouseArea {
+            hoverEnabled: true
+            anchors.fill: parent
+
+            onEntered: parent.hover = true
+            onExited: parent.hover = false
+        }
     }
 
     TextInput {
