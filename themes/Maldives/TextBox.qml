@@ -48,6 +48,8 @@ FocusScope {
         border.color: hover ? container.hoverColor : (container.activeFocus ? container.focusColor : container.borderColor)
         border.width: 1
 
+        Behavior on border.color { ColorAnimation { duration: 200 } }
+
         MouseArea {
             hoverEnabled: true
             anchors.fill: parent
