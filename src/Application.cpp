@@ -29,6 +29,7 @@
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopWidget>
+#include <QSettings>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QQuickView>
@@ -75,8 +76,18 @@ namespace SDE {
     }
 
     void Application::test(const QString &theme) {
-        QString testTheme = QString("%1/Main.qml").arg(theme);
-        QString currentTheme = QString("%1/%2/Main.qml").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
+        QString themePath = theme;
+
+        // if theme is empty, use current theme
+        if (themePath.isEmpty())
+            themePath = QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
+
+        // read main script of the theme
+        QSettings metadata(QString("%1/metadata.desktop").arg(themePath), QSettings::IniFormat);
+        QString mainScript = metadata.value("SddmGreeterTheme/MainScript", "Main.qml").toString();
+
+        // set theme main script
+        QString main = QString("%1/%2").arg(themePath).arg(mainScript);
 
         // create application
         QApplication app(d->argc, d->argv);
@@ -92,10 +103,7 @@ namespace SDE {
         SessionManager sessionManager;
         view.rootContext()->setContextProperty("sessionManager", &sessionManager);
         // load theme
-        if (!theme.isEmpty())
-            view.setSource(QUrl::fromLocalFile(testTheme));
-        else
-            view.setSource(QUrl::fromLocalFile(currentTheme));
+        view.setSource(QUrl::fromLocalFile(main));
         // show application
         view.showFullScreen();
         // execute application
@@ -103,7 +111,15 @@ namespace SDE {
     }
 
     void Application::run() {
-        QString currentTheme = QString("%1/%2/Main.qml").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
+        QString themePath = QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
+
+        // read main script of the theme
+        QSettings metadata(QString("%1/metadata.desktop").arg(themePath), QSettings::IniFormat);
+        QString mainScript = metadata.value("SddmGreeterTheme/MainScript", "Main.qml").toString();
+
+        // set theme main script
+        QString main = QString("%1/%2").arg(themePath).arg(mainScript);
+
         // create lock file
         LockFile lock(Configuration::instance()->lockFile());
         if (!lock.success())
@@ -166,7 +182,7 @@ namespace SDE {
                 // add session manager to context
                 view.rootContext()->setContextProperty("sessionManager", &sessionManager);
                 // load qml file
-                view.setSource(QUrl::fromLocalFile(currentTheme));
+                view.setSource(QUrl::fromLocalFile(main));
                 // close view on successful login
                 QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
                 // show view
