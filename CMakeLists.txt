@@ -6,7 +6,21 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-add_definitions(-Wall -march=native -O2 -g -std=c++11)
+add_definitions(-Wall -march=native -std=c++11)
+
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES [Dd]ebug)
+	message(STATUS "Debug build")
+	add_definitions(-DDEBUG)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+else()
+	message(STATUS "Release build")
+	add_definitions(-DNDEBUG)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+endif()
 
 set(SOURCES
   src/Application.cpp
