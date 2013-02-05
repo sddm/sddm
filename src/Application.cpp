@@ -105,7 +105,7 @@ namespace SDE {
         // load theme
         view.setSource(QUrl::fromLocalFile(main));
         // show application
-        view.showFullScreen();
+        view.show();
         // execute application
         app.exec();
     }
@@ -165,8 +165,8 @@ namespace SDE {
             }
 
             // execute user interface in a seperate process
-            // this is needed because apperantly we can create a QApplication
-            // instance multiple times in the same process. if this changes in
+            // this is needed because apperantly we can't create multiple
+            // QApplication instances in the same process. if this changes in
             // a future version of Qt, this workaround should be removed.
             pid_t pid = Util::execute([&] {
                 // create application
