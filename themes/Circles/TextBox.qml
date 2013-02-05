@@ -24,35 +24,38 @@
 
 import QtQuick 1.1
 
-Item {
+FocusScope {
     id: container
     width: 80; height: 30
 
     property color color: "white"
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
-    property color hoverColor: "#990b678c"
+    property color hoverColor: "#5692c4"
     property alias font: textInput.font
     property alias textColor: textInput.color
     property alias echoMode: textInput.echoMode
     property alias text: textInput.text
 
-    onFocusChanged: textInput.focus = focus
-
     Rectangle {
         id: border
+
+        property bool hover: false
+
         anchors.fill: parent
 
         color: container.color
-        border.color: textInput.focus ? container.focusColor : container.borderColor
+        border.color: hover ? container.hoverColor : (container.activeFocus ? container.focusColor : container.borderColor)
         border.width: 1
+
+        Behavior on border.color { ColorAnimation { duration: 200 } }
 
         MouseArea {
             hoverEnabled: true
             anchors.fill: parent
 
-            onEntered: parent.border.color = container.hoverColor
-            onExited: parent.border.color = textInput.focus ? container.focusColor : container.borderColor
+            onEntered: parent.hover = true
+            onExited: parent.hover = false
         }
     }
 
@@ -62,6 +65,9 @@ Item {
         anchors.centerIn: parent
 
         color: "black"
+
+        clip: true
+        focus: true
 
         passwordCharacter: "\u25cf"
     }

@@ -24,19 +24,18 @@
 
 import QtQuick 1.1
 
-Item {
+FocusScope {
     id: container
     width: 80; height: 30
 
     property color color: "white"
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
+    property color hoverColor: "#5692c4"
     property alias font: textInput.font
     property alias textColor: textInput.color
     property variant items: [ "" ]
     property int index: 0
-
-    onFocusChanged: textInput.focus = focus
 
     function prevItem() {
         if (index > 0)
@@ -50,11 +49,24 @@ Item {
 
     Rectangle {
         id: main
+
+        property bool hover: false
+
         anchors.fill: parent
 
         color: container.color
-        border.color: textInput.focus ? container.focusColor : container.borderColor
+        border.color: hover ? container.hoverColor : (container.activeFocus ? container.focusColor : container.borderColor)
         border.width: 1
+
+        Behavior on border.color { ColorAnimation { duration: 200 } }
+
+        MouseArea {
+            hoverEnabled: true
+            anchors.fill: parent
+
+            onEntered: parent.hover = true
+            onExited: parent.hover = false
+        }
     }
 
     TextInput {
@@ -64,7 +76,9 @@ Item {
         anchors.leftMargin: 8
         anchors.verticalCenter: parent.verticalCenter
 
+        clip: true
         color: "black"
+        focus: true
         readOnly: true
 
         text: container.items[container.index]
