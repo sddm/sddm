@@ -228,7 +228,8 @@ namespace SDE {
             pam_putenv(d->pamh, join("XAUTHORITY", '=', xauthority));
             pam_putenv(d->pamh, join("PATH", '=', Configuration::instance()->defaultPath().toStdString().c_str()));
             // change to the current dir
-            chdir(pw->pw_dir);
+            int ignore_result = chdir(pw->pw_dir);
+            static_cast<void>(ignore_result);
             // set environment
             char **envlist = pam_getenvlist(d->pamh);
             for (int i = 0; envlist[i] != nullptr; ++i)
