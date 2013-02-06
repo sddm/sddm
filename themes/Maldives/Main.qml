@@ -200,7 +200,7 @@ Rectangle {
                 Text {
                     id: errorMessage
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Enter your user name password.")
+                    text: qsTr("Enter your user name and password.")
                     font.pixelSize: 10
                 }
             }
