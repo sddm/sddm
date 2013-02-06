@@ -56,3 +56,17 @@ else()
   add_executable(sddm ${SOURCES})
   target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB} ${QT_LIBRARIES})
 endif(USE_QT5)
+
+# TODO: fix hardcoded paths
+# install binary
+install(TARGETS sddm DESTINATION /usr/bin)
+# install config file
+install(FILES scripts/sddm.conf DESTINATION /etc)
+# install pam service
+install(FILES scripts/sddm.pam DESTINATION /etc/pam.d RENAME sddm)
+#install session script
+install(FILES scripts/Xsession DESTINATION /usr/share/config/sddm)
+# install themes
+install(DIRECTORY themes DESTINATION /usr/share/apps/sddm)
+# install systemd service file
+install(FILES scripts/sddm.service DESTINATION /usr/lib/systemd/system)
