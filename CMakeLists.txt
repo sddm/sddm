@@ -65,7 +65,11 @@ install(FILES scripts/sddm.conf DESTINATION /etc)
 # install pam service
 install(FILES scripts/sddm.pam DESTINATION /etc/pam.d RENAME sddm)
 #install session script
-install(FILES scripts/Xsession DESTINATION /usr/share/config/sddm)
+install(FILES scripts/Xsession
+        DESTINATION /usr/share/config/sddm 
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE 
+        WORLD_READ WORLD_EXECUTE)
 # install themes
 install(DIRECTORY themes DESTINATION /usr/share/apps/sddm)
 # install systemd service file
