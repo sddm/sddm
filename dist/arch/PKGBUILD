@@ -1,5 +1,5 @@
 pkgname=sddm-git
-pkgver=20130120
+pkgver=20130207
 pkgrel=1
 pkgdesc="QML based X11 display manager" 
 arch=('i686' 'x86_64')
@@ -34,22 +34,6 @@ build() {
 }
 
 package() {
-  mkdir -p $pkgdir/usr/bin
-  cp $srcdir/build/sddm $pkgdir/usr/bin
-
-  mkdir -p $pkgdir/etc/pam.d
-  cp $srcdir/$_gitname/scripts/sddm.conf $pkgdir/etc
-  cp $srcdir/$_gitname/scripts/sddm.pam $pkgdir/etc/pam.d/sddm
-  
-  mkdir -p $pkgdir/usr/lib/systemd/system/
-  cp $srcdir/$_gitname/scripts/sddm.service $pkgdir/usr/lib/systemd/system/
-
-  mkdir -p $pkgdir/usr/share/config/sddm
-  cp $srcdir/$_gitname/scripts/Xsession $pkgdir/usr/share/config/sddm
-  chmod +x $pkgdir/usr/share/config/sddm/Xsession
-
-  mkdir -p $pkgdir/usr/share/apps/sddm/themes
-  cp -r $srcdir/$_gitname/themes/* $pkgdir/usr/share/apps/sddm/themes
-  
-  rm -rf $srcdir/build
+  cd ${srcdir}/build
+  make DESTDIR="${pkgdir}" install
 }
