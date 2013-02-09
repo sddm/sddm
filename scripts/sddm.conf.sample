@@ -37,7 +37,7 @@ SessionCommand=/usr/share/config/sddm/Xsession
 ThemesDir=/usr/share/apps/sddm/themes
 
 # Name of the current theme
-CurrentTheme=Circles
+CurrentTheme=${THEME}
 
 # Name of last logged-in user. This username will be
 # preselected/shown when the login screen shows up.

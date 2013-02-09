@@ -22,7 +22,7 @@ SDDM by default compiles for Qt4 but supports compiling for Qt5 too. If you want
 
 `mkdir build && cd build && cmake .. -DUSE_QT5=true && make`
 
-SDDM uses _Legacy_ theme by default, which is designed for Qt4 and is incompatible with Qt5. If you enable Qt5 during configuration, please use _Default_ theme or any other QtQuick2 based theme.
+Qt4 and Qt5 based themes are incompatible. SDDM chooses correct theme on installation.
 
 __Configuration__
 

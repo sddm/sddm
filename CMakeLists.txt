@@ -47,6 +47,8 @@ if (USE_QT5)
   target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB})
 
   qt5_use_modules(sddm Widgets Quick)
+
+  set(THEME Maldives)
 else()
   find_package(Qt4 REQUIRED)
   set(QT_USE_QTNETWORK TRUE)
@@ -55,14 +57,18 @@ else()
 
   add_executable(sddm ${SOURCES})
   target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB} ${QT_LIBRARIES})
+
+  set(THEME Circles)
 endif(USE_QT5)
+
+configure_file(${CMAKE_SOURCE_DIR}/scripts/sddm.conf.sample sddm.conf)
 
 # TODO: fix hardcoded paths
 # install binary
 install(TARGETS sddm DESTINATION /usr/bin)
 # install config file
+install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc)
 install(FILES scripts/sddm.conf.sample DESTINATION /etc)
-install(FILES scripts/sddm.conf.sample DESTINATION /etc RENAME sddm.conf)
 # install pam service
 install(FILES scripts/sddm.pam DESTINATION /etc/pam.d RENAME sddm)
 #install session script
