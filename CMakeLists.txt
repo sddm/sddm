@@ -61,7 +61,8 @@ endif(USE_QT5)
 # install binary
 install(TARGETS sddm DESTINATION /usr/bin)
 # install config file
-install(FILES scripts/sddm.conf DESTINATION /etc)
+install(FILES scripts/sddm.conf.sample DESTINATION /etc)
+install(FILES scripts/sddm.conf.sample DESTINATION /etc RENAME sddm.conf)
 # install pam service
 install(FILES scripts/sddm.pam DESTINATION /etc/pam.d RENAME sddm)
 #install session script
