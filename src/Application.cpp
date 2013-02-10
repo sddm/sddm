@@ -26,17 +26,19 @@
 #include "SessionManager.h"
 #include "Util.h"
 
-#include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QSettings>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QGuiApplication>
 #include <QQuickView>
 #include <QQmlContext>
+#include <QScreen>
 #else
+#include <QApplication>
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
+#include <QDesktopWidget>
 #endif
 
 namespace SDE {
@@ -89,13 +91,16 @@ namespace SDE {
         // set theme main script
         QString main = QString("%1/%2").arg(themePath).arg(mainScript);
 
-        // create application
-        QApplication app(d->argc, d->argv);
-        // create declarative view
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        // create application
+        QGuiApplication app(d->argc, d->argv);
+        // create view
         QQuickView view;
         view.setResizeMode(QQuickView::SizeRootObjectToView);
 #else
+        // create application
+        QApplication app(d->argc, d->argv);
+        // create view
         QDeclarativeView view;
         view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #endif
@@ -169,13 +174,16 @@ namespace SDE {
             // QApplication instances in the same process. if this changes in
             // a future version of Qt, this workaround should be removed.
             pid_t pid = Util::execute([&] {
-                // create application
-                QApplication app(d->argc, d->argv);
-                // create declarative view
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                // create application
+                QGuiApplication app(d->argc, d->argv);
+                // create view
                 QQuickView view;
                 view.setResizeMode(QQuickView::SizeRootObjectToView);
 #else
+                // create application
+                QApplication app(d->argc, d->argv);
+                // create view
                 QDeclarativeView view;
                 view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #endif
@@ -187,7 +195,11 @@ namespace SDE {
                 QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
                 // show view
                 view.show();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                view.setGeometry(QGuiApplication::primaryScreen()->geometry());
+#else
                 view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
+#endif
                 // execute application
                 app.exec();
             });

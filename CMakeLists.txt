@@ -46,7 +46,7 @@ if (USE_QT5)
   add_executable(sddm ${SOURCES})
   target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB})
 
-  qt5_use_modules(sddm Widgets Quick)
+  qt5_use_modules(sddm Quick)
 
   set(THEME Maldives)
 else()
