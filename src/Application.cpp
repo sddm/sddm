@@ -169,24 +169,17 @@ namespace SDE {
                 continue;
             }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             // execute user interface in a seperate process
             // this is needed because apperantly we can't create multiple
-            // QApplication instances in the same process. if this changes in
-            // a future version of Qt, this workaround should be removed.
+            // QApplication instances in the same process. if this changes
+            // in a future version of Qt, this workaround should be removed.
             pid_t pid = Util::execute([&] {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
                 // create application
                 QGuiApplication app(d->argc, d->argv);
                 // create view
                 QQuickView view;
                 view.setResizeMode(QQuickView::SizeRootObjectToView);
-#else
-                // create application
-                QApplication app(d->argc, d->argv);
-                // create view
-                QDeclarativeView view;
-                view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-#endif
                 // add session manager to context
                 view.rootContext()->setContextProperty("sessionManager", &sessionManager);
                 // load qml file
@@ -195,16 +188,30 @@ namespace SDE {
                 QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
                 // show view
                 view.show();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
                 view.setGeometry(QGuiApplication::primaryScreen()->geometry());
-#else
-                view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
-#endif
                 // execute application
                 app.exec();
             });
             // wait for process to end
             Util::wait(pid);
+#else
+            // create application
+            QApplication app(d->argc, d->argv);
+            // create view
+            QDeclarativeView view;
+            view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
+            // add session manager to context
+            view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+            // load qml file
+            view.setSource(QUrl::fromLocalFile(main));
+            // close view on successful login
+            QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
+            // show view
+            view.show();
+            view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
+            // execute application
+            app.exec();
+#endif
         }
     }
 }
