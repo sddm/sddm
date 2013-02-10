@@ -1,14 +1,9 @@
-Backend
-=======
 * Investigate suspend/hibernate.
 * List of available users with pictures, names etc.
 * Remembering last username, last session should be configurable.
-
-Themes
-======
-* Create another attractive/animated theme.
-
-Other
-=====
-* Add a graphical configuration interface.
+* Create a component library, to be used by themes.
+* Enable creation of configurable themes. Themes may provide a
+  config file and if such a config file exists settings module
+  may show appropriate tools to change them.
 * Handle term/kill signals, exit gracefully.
+
