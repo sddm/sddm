@@ -133,6 +133,8 @@ namespace SDE {
         bool first = true;
 
         while (true) {
+            // reload configuration
+            Configuration::instance()->load();
             // set DISPLAY environment variable if not set
             if (getenv("DISPLAY") == nullptr)
                 setenv("DISPLAY", ":0", 1);
