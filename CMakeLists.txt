@@ -40,8 +40,9 @@ find_package(PAM REQUIRED)
 # X11
 find_package(X11 REQUIRED)
 
-if (USE_QT5)
+if(USE_QT5)
   find_package(Qt5Core REQUIRED)
+  add_definitions(-fPIE)
 
   add_executable(sddm ${SOURCES})
   target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB})
