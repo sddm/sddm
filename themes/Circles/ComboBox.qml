@@ -107,10 +107,10 @@ Rectangle {
     ComboBoxContentView {
         id: comboboxContent
         contentWidth: main.width
+        index: root.index
 
         Component.onCompleted: {
             textInput.text= root.model.get(index).name
-            comboboxContent.index=index
         }
 
         onItemClicked: {
