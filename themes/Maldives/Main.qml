@@ -31,7 +31,6 @@ Rectangle {
 
     property color textColor: "white"
     property string textFont: "geo sans light"
-    property var dateTime: new Date()
 
     Connections {
         target: sessionManager
@@ -53,44 +52,12 @@ Rectangle {
         image: "background.jpg"
         // video: "video.avi"
     }
+
+    Clock {
+        id: clock
+        anchors.fill: parent
+    }
     
-    Timer {
-        interval: 100; running: true; repeat: true;
-        onTriggered: container.dateTime = new Date()
-    }
-
-    Item {
-        width: 350; height: 300
-        anchors.top: parent.top
-        anchors.right: parent.right
-
-        Text {
-            id: time
-
-            anchors.top: parent.top; anchors.right: parent.right
-            anchors.rightMargin: 10
-
-            color: textColor
-
-            font.family:textFont; font.pointSize: 72
-
-            text : Qt.formatTime(container.dateTime, "hh:mm")
-        }
-
-        Text {
-            id: date
-
-            anchors.top: time.bottom
-            anchors.horizontalCenter: time.horizontalCenter
-
-            color: textColor
-
-            font.family:textFont; font.pointSize: 24
-
-            text : Qt.formatDate(container.dateTime, "dddd, MMM dd")
-        }
-    }
-
     Image {
         id: rectangle
         anchors.centerIn: parent
