@@ -29,9 +29,6 @@ Rectangle {
     width: 640
     height: 480
 
-    property color textColor: "white"
-    property string textFont: "geo sans light"
-
     Connections {
         target: sessionManager
 
@@ -204,7 +201,6 @@ Rectangle {
             }
         }
     }
-
 
     Component.onCompleted: {
         if (name.text == "")

@@ -28,6 +28,8 @@ Item {
     id: container
 
     property var dateTime: new Date()
+    property color textColor: "white"
+    property string textFont: "geo sans light"
 
     Timer {
         interval: 100; running: true; repeat: true;
