@@ -1,5 +1,4 @@
 * Investigate suspend/hibernate.
-* List of available users with pictures, names etc.
 * Remembering last username, last session should be configurable.
 * Create a component library, to be used by themes.
 * Enable creation of configurable themes. Themes may provide a

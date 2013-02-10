@@ -48,6 +48,8 @@ namespace SDE {
         QString themesDir { "" };
         QString currentTheme { "" };
 
+        int minimumUid { 0 };
+
         QString lastUser { "" };
         QString autoUser { "" };
     };
@@ -84,6 +86,7 @@ namespace SDE {
         d->sessionCommand = settings.value("SessionCommand", "").toString();
         d->themesDir = settings.value("ThemesDir", "").toString();
         d->currentTheme = settings.value("CurrentTheme", "").toString();
+        d->minimumUid = settings.value("MinimumUid", "0").toInt();
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
     }
@@ -105,6 +108,7 @@ namespace SDE {
         settings.setValue("SessionCommand", d->sessionCommand);
         settings.setValue("ThemesDir", d->themesDir);
         settings.setValue("CurrentTheme", d->currentTheme);
+        settings.setValue("MinimumUid", d->minimumUid);
         settings.setValue("LastUser", d->lastUser);
         settings.setValue("AutoUser", d->autoUser);
     }
@@ -167,6 +171,10 @@ namespace SDE {
 
     const QString &Configuration::currentTheme() const {
         return d->currentTheme;
+    }
+
+    const int Configuration::minimumUid() const {
+        return d->minimumUid;
     }
 
     const QString &Configuration::lastUser() const {

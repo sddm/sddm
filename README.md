@@ -4,7 +4,7 @@ SDDM is a new lightweight display manager for X11 aiming to be fast, simple and 
 
 One of the distinctive features of SDDM is the ability to use QML for user interface creation. QML is a JavaScript-based, declarative language for designing user interface–centric applications. It is designed to provide highly customizable user interfaces with fluid animations. It supports images, gradients, color/size/opacity/property animations, hardware acceleration and lots of other stuff needed to create beatiful interfaces by today's standards.
 
-SDDM's code base is tiny: under 1000 lines of code.
+SDDM has a small, simple and hackable codebase.
 
 __Dependencies__
 

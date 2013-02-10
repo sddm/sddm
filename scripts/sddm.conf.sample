@@ -39,6 +39,10 @@ ThemesDir=/usr/share/apps/sddm/themes
 # Name of the current theme
 CurrentTheme=${THEME}
 
+# Minimum user id of the users to be listed in the
+# user interface
+MinimumUid=1000
+
 # Name of last logged-in user. This username will be
 # preselected/shown when the login screen shows up.
 LastUser=

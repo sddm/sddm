@@ -24,6 +24,7 @@
 #include "DisplayManager.h"
 #include "LockFile.h"
 #include "SessionManager.h"
+#include "UserModel.h"
 #include "Util.h"
 
 #include <QDebug>
@@ -104,13 +105,17 @@ namespace SDE {
         QDeclarativeView view;
         view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #endif
-        // add session manager to context
+        // create session manager
         SessionManager sessionManager;
+        // create user model
+        UserModel userModel;
+        // set context properties
         view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+        view.rootContext()->setContextProperty("userModel", &userModel);
         // load theme
         view.setSource(QUrl::fromLocalFile(main));
         // show application
-        view.show();
+        view.showFullScreen();
         // execute application
         app.exec();
     }
@@ -171,6 +176,9 @@ namespace SDE {
                 continue;
             }
 
+            // create user model
+            UserModel userModel;
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             // execute user interface in a seperate process
             // this is needed because apperantly we can't create multiple
@@ -182,8 +190,9 @@ namespace SDE {
                 // create view
                 QQuickView view;
                 view.setResizeMode(QQuickView::SizeRootObjectToView);
-                // add session manager to context
+                // set context properties
                 view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+                view.rootContext()->setContextProperty("userModel", &userModel);
                 // load qml file
                 view.setSource(QUrl::fromLocalFile(main));
                 // close view on successful login
@@ -202,8 +211,9 @@ namespace SDE {
             // create view
             QDeclarativeView view;
             view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-            // add session manager to context
+            // set context properties
             view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+            view.rootContext()->setContextProperty("userModel", &userModel);
             // load qml file
             view.setSource(QUrl::fromLocalFile(main));
             // close view on successful login

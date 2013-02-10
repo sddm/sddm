@@ -59,6 +59,8 @@ namespace SDE {
         const QString &themesDir() const;
         const QString &currentTheme() const;
 
+        const int minimumUid() const;
+
         const QString &lastUser() const;
         void setLastUser(const QString &lastUser);
 
