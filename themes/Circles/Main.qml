@@ -47,7 +47,7 @@ Rectangle {
         source: "background.png"
         fillMode: Image.Tile
     }
-    
+
     Rectangle {
         anchors.centerIn: parent
         width: 320; height: 320
@@ -137,13 +137,17 @@ Rectangle {
                     font.pixelSize: 12
                 }
 
-                SpinBox {
+                ComboBox {
                     id: session
                     width: parent.width; height: 30
+                    model: sessionModel
+                    index: sessionManager.lastSessionIndex
                     font.pixelSize: 14
 
-                    items: sessionManager.sessionNames
-                    index: sessionManager.lastSessionIndex
+                    /*onItemClicked: {
+                        console.log("clicked item: " + index + ", name:" + sessionModel.get(index).name)
+
+                    }*/
 
                     Keys.onPressed: {
                         if (event.key === Qt.Key_Return) {
@@ -205,5 +209,15 @@ Rectangle {
             name.focus = true
         else
             password.focus = true
+        initSessionModel();
+    }
+
+    function initSessionModel(){
+        for (var ii=0; ii<sessionManager.sessionNames.length; ii++)
+            sessionModel.append({"name":sessionManager.sessionNames[ii]});
+    }
+
+    ListModel {
+         id: sessionModel
     }
 }
