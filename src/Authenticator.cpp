@@ -92,7 +92,8 @@ namespace SDE {
                     free(aresp[i].resp);
                 }
             }
-            memset(aresp, 0, n * sizeof * aresp);
+            memset(aresp, 0, n * sizeof(struct pam_response));
+            free(aresp);
             *resp = nullptr;
             return PAM_CONV_ERR;
         }
