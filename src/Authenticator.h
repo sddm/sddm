@@ -36,7 +36,8 @@ namespace SDE {
         void setPassword(const QString &password);
 
         bool authenticate();
-        bool login(const QString &loginCommand);
+        void startSession(const QString &loginCommand);
+        void endSession();
     private:
         AuthenticatorPrivate *d { nullptr };
     };

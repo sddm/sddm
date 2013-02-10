@@ -46,6 +46,8 @@ namespace SDE {
         struct pam_conv pamc;
         pam_handle_t *pamh { nullptr };
         int pam_err { PAM_SUCCESS };
+
+        pid_t pid { -1 };
     };
 
     int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
@@ -169,10 +171,10 @@ namespace SDE {
         return true;
     }
 
-    bool Authenticator::login(const QString &loginCommand) {
+    void Authenticator::startSession(const QString &loginCommand) {
         // set credentials
         if ((d->pam_err = pam_setcred(d->pamh, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
-            return false;
+            return;
 
         // get tty name
         const char *tty = ttyname(0);
@@ -180,20 +182,20 @@ namespace SDE {
             tty = d->display.toStdString().c_str();
         // set tty name
         if ((d->pam_err = pam_set_item(d->pamh, PAM_TTY, tty)) != PAM_SUCCESS)
-            return false;
+            return;
 
         // open session
         if ((d->pam_err = pam_open_session(d->pamh, 0)) != PAM_SUCCESS)
-            return false;
+            return;
 
         // get mapped user name; PAM may have changed it
         char *user;
         if ((d->pam_err = pam_get_item(d->pamh, PAM_USER, (const void **)&user)) != PAM_SUCCESS)
-            return false;
+            return;
 
         struct passwd *pw;
         if ((pw = getpwnam(user)) == nullptr)
-            return false;
+            return;
 
         if (pw->pw_shell[0] == '\0') {
             setusershell();
@@ -203,7 +205,7 @@ namespace SDE {
 
         // execute session start script
         QString sessionCommand = QString("%1 %2").arg(Configuration::instance()->sessionCommand()).arg(loginCommand);
-        pid_t pid = Util::execute(pw->pw_shell, QStringList() << "-c" << sessionCommand, [&] {
+        d->pid = Util::execute(pw->pw_shell, QStringList() << "-c" << sessionCommand, [&] {
             // set user groups, group id and user id
             if ((initgroups(pw->pw_name, pw->pw_gid) != 0) || (setgid(pw->pw_gid) != 0) || (setuid(pw->pw_uid) != 0)) {
                 qCritical() << "error: could not switch user id.";
@@ -236,18 +238,20 @@ namespace SDE {
             for (int i = 0; envlist[i] != nullptr; ++i)
                 putenv(envlist[i]);
         });
+    }
 
-        // wait until login processs ends
-        Util::wait(pid);
+    void Authenticator::endSession() {
+        if (d->pid > 0) {
+            // wait until login processs ends
+            Util::wait(d->pid);
 
-        // terminate process group
-        Util::terminate(pid);
+            // terminate process group
+            Util::terminate(d->pid);
+        }
 
         // close session
         pam_close_session(d->pamh, 0);
         // delete creds
         pam_setcred(d->pamh, PAM_DELETE_CRED);
-
-        return true;
     }
 }

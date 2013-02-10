@@ -121,8 +121,11 @@ namespace SDE {
         // set user name
         d->authenticator.setUsername(Configuration::instance()->autoUser());
         // login without authenticating
-        if ((d->lastSessionIndex >= 0) && (d->lastSessionIndex < d->sessions.size()))
-            d->authenticator.login(d->sessions[d->lastSessionIndex].exec);
+        if ((d->lastSessionIndex >= 0) && (d->lastSessionIndex < d->sessions.size())) {
+            d->authenticator.startSession(d->sessions[d->lastSessionIndex].exec);
+            // wait for session to end
+            d->authenticator.endSession();
+        }
     }
 
     void SessionManager::login(const QString &username, const QString &password, const int sessionIndex) {
@@ -136,15 +139,18 @@ namespace SDE {
             // return
             return;
         }
-        // emit login success signal
-        emit success();
         // save last session and last user
         Configuration::instance()->setLastSession(d->sessions[sessionIndex].file);
         Configuration::instance()->setLastUser(username);
         Configuration::instance()->save();
         // login
-        if ((sessionIndex >= 0) && (sessionIndex < d->sessions.size()))
-            d->authenticator.login(d->sessions[sessionIndex].exec);
+        if ((sessionIndex >= 0) && (sessionIndex < d->sessions.size())) {
+            d->authenticator.startSession(d->sessions[sessionIndex].exec);
+            // emit login success signal
+            emit success();
+            // wait for session to end
+            d->authenticator.endSession();
+        }
         // quit application
         qApp->quit();
     }
