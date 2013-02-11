@@ -9,17 +9,17 @@ set(CMAKE_AUTOMOC ON)
 add_definitions(-Wall -march=native -std=c++11)
 
 if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Release)
+        set(CMAKE_BUILD_TYPE Release)
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES [Dd]ebug)
-	message(STATUS "Debug build")
-	add_definitions(-DDEBUG)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+        message(STATUS "Debug build")
+        add_definitions(-DDEBUG)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 else()
-	message(STATUS "Release build")
-	add_definitions(-DNDEBUG)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+        message(STATUS "Release build")
+        add_definitions(-DNDEBUG)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
 set(SOURCES
@@ -62,25 +62,31 @@ else()
   set(THEME Circles)
 endif(USE_QT5)
 
-configure_file(${CMAKE_SOURCE_DIR}/scripts/sddm.conf.sample sddm.conf)
+# set paths
+set(BIN_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX}/bin)
+set(DATA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/apps/sddm)
 
-# TODO: fix hardcoded paths
+# replace variables in the config file
+configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)
+
 # install binary
-install(TARGETS sddm DESTINATION /usr/bin)
+install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
+
 # install config file
 install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc)
-install(FILES scripts/sddm.conf.sample DESTINATION /etc)
-# install pam service
-install(FILES scripts/sddm.pam DESTINATION /etc/pam.d RENAME sddm)
-#install session script
-install(FILES scripts/Xsession
-        DESTINATION /usr/share/config/sddm 
+install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc RENAME sddm.conf.sample)
+
+# install service files
+install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d RENAME sddm)
+install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION /usr/lib/systemd/system RENAME sddm.service)
+
+# install data files
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/faces  DESTINATION ${DATA_INSTALL_DIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/themes DESTINATION ${DATA_INSTALL_DIR})
+
+# install scripts
+install(FILES ${CMAKE_SOURCE_DIR}/data/scripts/Xsession
+        DESTINATION ${DATA_INSTALL_DIR}/scripts
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-        GROUP_READ GROUP_EXECUTE 
+        GROUP_READ GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE)
-# install themes
-install(DIRECTORY themes DESTINATION /usr/share/apps/sddm)
-# install faces
-install(DIRECTORY faces DESTINATION /usr/share/apps/sddm)
-# install systemd service file
-install(FILES scripts/sddm.service DESTINATION /usr/lib/systemd/system)

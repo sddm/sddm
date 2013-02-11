@@ -3,7 +3,6 @@ DefaultPath=/bin:/usr/bin:/usr/local/bin
 
 # Name of the cursor theme to be set before starting
 # the display server
-# Default is ""
 CursorTheme=""
 
 # Path of the X server
@@ -36,15 +35,14 @@ SessionsDir=/usr/share/xsessions
 LastSession=
 
 # Path of script to execute when starting the desktop session
-SessionCommand=/usr/share/config/sddm/Xsession
+SessionCommand=${DATA_INSTALL_DIR}/scripts/Xsession
 
 # Path of the directory containing face files
 # Face files should be in username.face.icon format
-# Default is "/usr/share/apps/sddm/faces"
-FacesDir=/usr/share/apps/sddm/faces
+FacesDir=${DATA_INSTALL_DIR}/faces
 
 # Path of the directory containing theme files
-ThemesDir=/usr/share/apps/sddm/themes
+ThemesDir=${DATA_INSTALL_DIR}/themes
 
 # Name of the current theme
 CurrentTheme=${THEME}
