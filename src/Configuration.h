@@ -36,6 +36,8 @@ namespace SDE {
 
         static Configuration *instance();
 
+        const QString &cursorTheme() const;
+
         const QString &defaultPath() const;
 
         const QString &serverPath() const;

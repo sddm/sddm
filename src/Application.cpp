@@ -146,6 +146,9 @@ namespace SDE {
             // get DISPLAY
             QString display = getenv("DISPLAY");
 
+            // set cursor theme
+            setenv("XCURSOR_THEME", Configuration::instance()->cursorTheme().toStdString().c_str(), 1);
+
             // generate cookie
             char cookie[33] { 0 };
             Cookie::generate(cookie);

@@ -1,6 +1,11 @@
 # Default path to set after successfully logging in
 DefaultPath=/bin:/usr/bin:/usr/local/bin
 
+# Name of the cursor theme to be set before starting
+# the display server
+# Default is ""
+CursorTheme=""
+
 # Path of the X server
 ServerPath=/usr/bin/X
 

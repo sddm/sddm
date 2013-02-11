@@ -28,6 +28,8 @@ namespace SDE {
     public:
         QString configPath { "" };
 
+        QString cursorTheme { "" };
+
         QString defaultPath { "" };
 
         QString serverPath { "" };
@@ -73,6 +75,7 @@ namespace SDE {
         // create settings object
         QSettings settings(d->configPath, QSettings::IniFormat);
         // read settings
+        d->cursorTheme = settings.value("CursorTheme", "").toString();
         d->defaultPath = settings.value("DefaultPath", "").toString();
         d->serverPath = settings.value("ServerPath", "").toString();
         d->serverArgs = settings.value("ServerArgs", "").toString().split(" ");
@@ -95,6 +98,7 @@ namespace SDE {
         // create settings object
         QSettings settings(d->configPath, QSettings::IniFormat);
         // write settings back
+        settings.setValue("CursorTheme", d->cursorTheme);
         settings.setValue("DefaultPath", d->defaultPath);
         settings.setValue("ServerPath", d->serverPath);
         settings.setValue("ServerArgs", d->serverArgs.join(" "));
@@ -115,6 +119,10 @@ namespace SDE {
 
     Configuration *Configuration::instance() {
         return _instance;
+    }
+
+    const QString &Configuration::cursorTheme() const {
+        return d->cursorTheme;
     }
 
     const QString &Configuration::defaultPath() const {
