@@ -96,9 +96,7 @@ namespace SDE {
                 user->icon = QString("%1/default.face.icon").arg(Configuration::instance()->facesDir());
 
             // add user
-            beginInsertRows(QModelIndex(), rowCount(), rowCount());
             d->users << user;
-            endInsertRows();
         }
 
         // close file
