@@ -92,10 +92,10 @@ Rectangle {
         border.width: 1
 
         Image {
-            anchors.fill: parent
-            anchors.margins: 2
-            source: "caret-down.png"
-            fillMode: Image.PreserveAspectFit
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: 2
+            source: "chevron-down.png"
+            scale: 0.5
         }
 
         MouseArea {

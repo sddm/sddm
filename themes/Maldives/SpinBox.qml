@@ -104,7 +104,7 @@ FocusScope {
 
             Image {
                 anchors.fill: parent
-                source: "caret-up.png"
+                source: "chevron-up.png"
                 fillMode: Image.PreserveAspectFit
             }
 
@@ -126,7 +126,7 @@ FocusScope {
 
             Image {
                 anchors.fill: parent
-                source: "caret-down.png"
+                source: "chevron-down.png"
                 fillMode: Image.PreserveAspectFit
             }
 
