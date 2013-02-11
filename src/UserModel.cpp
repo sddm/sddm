@@ -101,6 +101,9 @@ namespace SDE {
 
         // close file
         file.close();
+
+        // sort users by username
+        std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->userName < u2->userName; } );
     }
 
     UserModel::~UserModel() {
