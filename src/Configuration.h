@@ -58,6 +58,8 @@ namespace SDE {
 
         const QString &sessionCommand() const;
 
+        const QString &facesDir() const;
+
         const QString &themesDir() const;
         const QString &currentTheme() const;
 

@@ -80,5 +80,7 @@ install(FILES scripts/Xsession
         WORLD_READ WORLD_EXECUTE)
 # install themes
 install(DIRECTORY themes DESTINATION /usr/share/apps/sddm)
+# install faces
+install(DIRECTORY faces DESTINATION /usr/share/apps/sddm)
 # install systemd service file
 install(FILES scripts/sddm.service DESTINATION /usr/lib/systemd/system)

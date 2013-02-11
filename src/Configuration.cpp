@@ -47,6 +47,8 @@ namespace SDE {
         QString lastSession { "" };
         QString sessionCommand { "" };
 
+        QString facesDir { "" };
+
         QString themesDir { "" };
         QString currentTheme { "" };
 
@@ -87,6 +89,7 @@ namespace SDE {
         d->sessionsDir = settings.value("SessionsDir", "").toString();
         d->lastSession = settings.value("LastSession", "").toString();
         d->sessionCommand = settings.value("SessionCommand", "").toString();
+        d->facesDir = settings.value("FacesDir", "").toString();
         d->themesDir = settings.value("ThemesDir", "").toString();
         d->currentTheme = settings.value("CurrentTheme", "").toString();
         d->minimumUid = settings.value("MinimumUid", "0").toInt();
@@ -110,6 +113,7 @@ namespace SDE {
         settings.setValue("SessionsDir", d->sessionsDir);
         settings.setValue("LastSession", d->lastSession);
         settings.setValue("SessionCommand", d->sessionCommand);
+        settings.setValue("FacesDir", d->facesDir);
         settings.setValue("ThemesDir", d->themesDir);
         settings.setValue("CurrentTheme", d->currentTheme);
         settings.setValue("MinimumUid", d->minimumUid);
@@ -171,6 +175,10 @@ namespace SDE {
 
     void Configuration::setLastSession(const QString &lastSession) {
         d->lastSession = lastSession;
+    }
+
+    const QString &Configuration::facesDir() const {
+        return d->facesDir;
     }
 
     const QString &Configuration::themesDir() const {

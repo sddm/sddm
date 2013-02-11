@@ -81,13 +81,20 @@ namespace SDE {
             if (fields.at(2).toInt() < Configuration::instance()->minimumUid())
                 continue;
 
+            // create user
             UserPtr user { new User() };
             user->userName = fields.at(0);
             user->realName = fields.at(4).split(",").first();
             user->uid = fields.at(2).toInt();
             user->gid = fields.at(3).toInt();
-            // TODO: set user icon
-            user->icon = "/usr/share/apps/kdm/faces/root.face.icon";
+
+            // search for face icon
+            QString userFace = QString("%1/%2.face.icon").arg(Configuration::instance()->facesDir()).arg(user->userName);
+            if (QFile::exists(userFace))
+                user->icon = userFace;
+            else
+                user->icon = QString("%1/default.face.icon").arg(Configuration::instance()->facesDir());
+
             // add user
             beginInsertRows(QModelIndex(), rowCount(), rowCount());
             d->users << user;

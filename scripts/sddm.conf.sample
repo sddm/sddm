@@ -38,6 +38,11 @@ LastSession=
 # Path of script to execute when starting the desktop session
 SessionCommand=/usr/share/config/sddm/Xsession
 
+# Path of the directory containing face files
+# Face files should be in username.face.icon format
+# Default is "/usr/share/apps/sddm/faces"
+FacesDir=/usr/share/apps/sddm/faces
+
 # Path of the directory containing theme files
 ThemesDir=/usr/share/apps/sddm/themes
 
