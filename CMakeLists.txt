@@ -31,6 +31,7 @@ set(SOURCES
   src/LockFile.cpp
   src/Main.cpp
   src/SessionManager.cpp
+  src/SessionModel.cpp
   src/UserModel.cpp
   src/Util.cpp
 )

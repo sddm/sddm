@@ -24,6 +24,7 @@
 #include "DisplayManager.h"
 #include "LockFile.h"
 #include "SessionManager.h"
+#include "SessionModel.h"
 #include "UserModel.h"
 #include "Util.h"
 
@@ -109,8 +110,10 @@ namespace SDE {
         SessionManager sessionManager;
         // create user model
         UserModel userModel;
+        SessionModel sessionModel;
         // set context properties
         view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+        view.rootContext()->setContextProperty("sessionModel", &sessionModel);
         view.rootContext()->setContextProperty("userModel", &userModel);
         // load theme
         view.setSource(QUrl::fromLocalFile(main));
@@ -181,6 +184,8 @@ namespace SDE {
 
             // create user model
             UserModel userModel;
+            // create session model
+            SessionModel sessionModel;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             // execute user interface in a seperate process
@@ -195,6 +200,7 @@ namespace SDE {
                 view.setResizeMode(QQuickView::SizeRootObjectToView);
                 // set context properties
                 view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+                view.rootContext()->setContextProperty("sessionModel", &sessionModel);
                 view.rootContext()->setContextProperty("userModel", &userModel);
                 // load qml file
                 view.setSource(QUrl::fromLocalFile(main));
@@ -216,6 +222,7 @@ namespace SDE {
             view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
             // set context properties
             view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+            view.rootContext()->setContextProperty("sessionModel", &sessionModel);
             view.rootContext()->setContextProperty("userModel", &userModel);
             // load qml file
             view.setSource(QUrl::fromLocalFile(main));

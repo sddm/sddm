@@ -17,20 +17,20 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_USERMODEL_H
-#define SDE_USERMODEL_H
+#ifndef SESSIONMODEL_H
+#define SESSIONMODEL_H
 
 #include <QAbstractListModel>
 #include <QHash>
 
 namespace SDE {
-    class UserModelPrivate;
+    class SessionModelPrivate;
 
-    class UserModel : public QAbstractListModel {
+    class SessionModel : public QAbstractListModel {
         Q_OBJECT
     public:
-        UserModel(QObject *parent = 0);
-        ~UserModel();
+        SessionModel(QObject *parent = 0);
+        ~SessionModel();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         QHash<int, QByteArray> roleNames() const override;
@@ -40,8 +40,8 @@ namespace SDE {
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     private:
-        UserModelPrivate *d { nullptr };
+        SessionModelPrivate *d { nullptr };
     };
 }
 
-#endif // SDE_USERMODEL_H
+#endif // SESSIONMODEL_H

@@ -1,0 +1,132 @@
+/***************************************************************************
+* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the
+* Free Software Foundation, Inc.,
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+***************************************************************************/
+
+#include "SessionModel.h"
+
+#include "Configuration.h"
+
+#include <QDir>
+#include <QFile>
+#include <QList>
+#include <QTextStream>
+
+#include <memory>
+
+namespace SDE {
+    class Session {
+    public:
+        QString file;
+        QString name;
+        QString exec;
+        QString comment;
+    };
+
+    typedef std::shared_ptr<Session> SessionPtr;
+
+    class SessionModelPrivate {
+    public:
+        QList<SessionPtr> sessions;
+    };
+
+    SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        // set role names
+        QHash<int, QByteArray> roleNames;
+        roleNames[Qt::UserRole + 1] = "file";
+        roleNames[Qt::UserRole + 2] = "name";
+        roleNames[Qt::UserRole + 3] = "comment";
+        // set role names
+        setRoleNames(roleNames);
+#endif
+        // add custom and failsafe session
+        d->sessions << SessionPtr { new Session {"custom", "Custom", "custom", "Custom Session"} };
+        d->sessions << SessionPtr { new Session {"failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
+        // read session files
+        QDir dir(Configuration::instance()->sessionsDir());
+        dir.setNameFilters(QStringList() << "*.desktop");
+        dir.setFilter(QDir::Files);
+        // read session
+        foreach(const QString &session, dir.entryList()) {
+            QFile inputFile(dir.absoluteFilePath(session));
+            if (!inputFile.open(QIODevice::ReadOnly))
+                continue;
+            SessionPtr si { new Session { session, "", "", "" } };
+            QTextStream in(&inputFile);
+            while (!in.atEnd()) {
+                QString line = in.readLine();
+                if (line.startsWith("Name="))
+                    si->name = line.mid(5);
+                if (line.startsWith("Exec="))
+                    si->exec = line.mid(5);
+                if (line.startsWith("Comment="))
+                    si->comment = line.mid(8);
+            }
+            // add to sessions list
+            d->sessions.push_back(si);
+            // close file
+            inputFile.close();
+        }
+//        // check last session index
+//        d->lastSessionIndex = 0;
+//        for (int i = 0; i < d->sessions.size(); ++i) {
+//            d->sessionNames << d->sessions.at(i).name;
+//            if (d->sessions.at(i).file == Configuration::instance()->lastSession())
+//                d->lastSessionIndex = i;
+//        }
+    }
+
+    SessionModel::~SessionModel() {
+        delete d;
+    }
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QHash<int, QByteArray> SessionModel::roleNames() const {
+        // set role names
+        QHash<int, QByteArray> roleNames;
+        roleNames[Qt::UserRole + 1] = "file";
+        roleNames[Qt::UserRole + 2] = "name";
+        roleNames[Qt::UserRole + 3] = "comment";
+
+        return roleNames;
+    }
+#endif
+
+    int SessionModel::rowCount(const QModelIndex &parent) const {
+        return d->sessions.length();
+    }
+
+    QVariant SessionModel::data(const QModelIndex &index, int role) const {
+        if (index.row() < 0 || index.row() > d->sessions.count())
+            return QVariant();
+
+        // get session
+        SessionPtr session = d->sessions[index.row()];
+
+        // return correct value
+        if (role == (Qt::UserRole + 1))
+            return session->file;
+        else if (role == (Qt::UserRole + 2))
+            return session->name;
+        else if (role == (Qt::UserRole + 3))
+            return session->comment;
+
+        // return empty value
+        return QVariant();
+    }
+}
