@@ -16,11 +16,11 @@ __Compilation__
 
 SDDM uses CMake for compile configuration. Typical compilation procedure for a cmake-based project is:
 
-`mkdir build && cd build && cmake .. && make`
+`mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make`
 
 SDDM by default compiles for Qt4 but supports compiling for Qt5 too. If you want to use Qt5, USE_QT5 arguments must be given to cmake:
 
-`mkdir build && cd build && cmake .. -DUSE_QT5=true && make`
+`mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true && make`
 
 Qt4 and Qt5 based themes are incompatible. SDDM chooses correct theme on installation.
 
