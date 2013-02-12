@@ -41,7 +41,7 @@ Rectangle {
             errorMessage.text = qsTr("Login failed.")
         }
     }
-    
+
     Image {
         anchors.centerIn: parent
         source: "background.png"
@@ -64,9 +64,12 @@ Rectangle {
             spacing: 12
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
                 color: "black"
                 text: qsTr("Welcome to ") + sessionManager.hostName
                 font.pixelSize: 24
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
             }
 
             Column {
