@@ -43,6 +43,8 @@ Rectangle {
         }
     }
 
+    FontLoader { id: clockFont; source: "GeosansLight.ttf" }
+
     Background {
         id: background
         anchors.fill: parent
@@ -53,6 +55,7 @@ Rectangle {
     Clock {
         id: clock
         anchors.fill: parent
+        textFont: clockFont.name
     }
 
     Image {

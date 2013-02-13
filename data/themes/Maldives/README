@@ -4,6 +4,12 @@ chevron icons are extracted from Font Awesome by Dave Gandy - http://fortawesome
 
 rectangle.png is from KDM ariya theme.
 
-Background image is by Dan Grady, downloaded from: http://interfacelift.com/wallpaper/details/3170/baros_maldives.html
+The wallpaper was taken from here:
+  http://interfacelift.com/wallpaper/details/3170/baros_maldives.html
+It was made by Dan Grady.
 
-QML files are MIT licensed and license headers are included in each file.
+GeosansLight font is downloaded from here:
+	http://www.dafont.com/geo-sans-light.font
+It was made by Manfred Klein, http://manfred-klein.ina-mar.com/.
+
+QML files contain license headers.
