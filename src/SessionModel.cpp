@@ -48,9 +48,9 @@ namespace SDE {
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[Qt::UserRole + 1] = "file";
-        roleNames[Qt::UserRole + 2] = "name";
-        roleNames[Qt::UserRole + 3] = "comment";
+        roleNames[FileRole] = "file";
+        roleNames[NameRole] = "name";
+        roleNames[CommentRole] = "comment";
         // set role names
         setRoleNames(roleNames);
 #endif
@@ -99,9 +99,9 @@ namespace SDE {
     QHash<int, QByteArray> SessionModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[Qt::UserRole + 1] = "file";
-        roleNames[Qt::UserRole + 2] = "name";
-        roleNames[Qt::UserRole + 3] = "comment";
+        roleNames[FileRole] = "file";
+        roleNames[NameRole] = "name";
+        roleNames[CommentRole] = "comment";
 
         return roleNames;
     }
@@ -119,11 +119,11 @@ namespace SDE {
         SessionPtr session = d->sessions[index.row()];
 
         // return correct value
-        if (role == (Qt::UserRole + 1))
+        if (role == FileRole)
             return session->file;
-        else if (role == (Qt::UserRole + 2))
+        else if (role == NameRole)
             return session->name;
-        else if (role == (Qt::UserRole + 3))
+        else if (role == CommentRole)
             return session->comment;
 
         // return empty value

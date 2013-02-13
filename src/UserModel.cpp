@@ -49,10 +49,10 @@ namespace SDE {
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[Qt::UserRole + 1] = "userName";
-        roleNames[Qt::UserRole + 2] = "realName";
-        roleNames[Qt::UserRole + 3] = "homeDir";
-        roleNames[Qt::UserRole + 4] = "icon";
+        roleNames[UserNameRole] = "userName";
+        roleNames[RealNameRole] = "realName";
+        roleNames[HomeDirRole] = "homeDir";
+        roleNames[IconRole] = "icon";
         // set role names
         setRoleNames(roleNames);
 #endif
@@ -120,10 +120,10 @@ namespace SDE {
     QHash<int, QByteArray> UserModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[Qt::UserRole + 1] = "userName";
-        roleNames[Qt::UserRole + 2] = "realName";
-        roleNames[Qt::UserRole + 3] = "homeDir";
-        roleNames[Qt::UserRole + 4] = "icon";
+        roleNames[UserNameRole] = "userName";
+        roleNames[RealNameRole] = "realName";
+        roleNames[HomeDirRole] = "homeDir";
+        roleNames[IconRole] = "icon";
 
         return roleNames;
     }
@@ -141,13 +141,13 @@ namespace SDE {
         UserPtr user = d->users[index.row()];
 
         // return correct value
-        if (role == (Qt::UserRole + 1))
+        if (role == UserNameRole)
             return user->userName;
-        else if (role == (Qt::UserRole + 2))
+        else if (role == RealNameRole)
             return user->realName;
-        else if (role == (Qt::UserRole + 3))
+        else if (role == HomeDirRole)
             return user->homeDir;
-        else if (role == (Qt::UserRole + 4))
+        else if (role == IconRole)
             return user->icon;
 
         // return empty value

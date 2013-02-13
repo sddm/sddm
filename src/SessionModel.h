@@ -29,6 +29,12 @@ namespace SDE {
     class SessionModel : public QAbstractListModel {
         Q_OBJECT
     public:
+        enum SessionRole {
+            FileRole = Qt::UserRole + 1,
+            NameRole,
+            CommentRole
+        };
+
         SessionModel(QObject *parent = 0);
         ~SessionModel();
 

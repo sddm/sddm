@@ -29,6 +29,13 @@ namespace SDE {
     class UserModel : public QAbstractListModel {
         Q_OBJECT
     public:
+        enum UserRoles {
+            UserNameRole = Qt::UserRole + 1,
+            RealNameRole,
+            HomeDirRole,
+            IconRole
+        };
+
         UserModel(QObject *parent = 0);
         ~UserModel();
 
