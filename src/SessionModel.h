@@ -28,6 +28,7 @@ namespace SDE {
 
     class SessionModel : public QAbstractListModel {
         Q_OBJECT
+        Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
     public:
         enum SessionRole {
             FileRole = Qt::UserRole + 1,
@@ -41,6 +42,8 @@ namespace SDE {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         QHash<int, QByteArray> roleNames() const override;
 #endif
+
+        const int lastIndex() const;
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

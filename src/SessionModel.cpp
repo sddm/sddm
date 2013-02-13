@@ -41,6 +41,7 @@ namespace SDE {
 
     class SessionModelPrivate {
     public:
+        int lastIndex { 0 };
         QList<SessionPtr> sessions;
     };
 
@@ -82,13 +83,11 @@ namespace SDE {
             // close file
             inputFile.close();
         }
-//        // check last session index
-//        d->lastSessionIndex = 0;
-//        for (int i = 0; i < d->sessions.size(); ++i) {
-//            d->sessionNames << d->sessions.at(i).name;
-//            if (d->sessions.at(i).file == Configuration::instance()->lastSession())
-//                d->lastSessionIndex = i;
-//        }
+        // find out index of the last session
+        for (int i = 0; i < d->sessions.size(); ++i) {
+            if (d->sessions.at(i)->file == Configuration::instance()->lastSession())
+                d->lastIndex = i;
+        }
     }
 
     SessionModel::~SessionModel() {
@@ -106,6 +105,10 @@ namespace SDE {
         return roleNames;
     }
 #endif
+
+    const int SessionModel::lastIndex() const {
+        return d->lastIndex;
+    }
 
     int SessionModel::rowCount(const QModelIndex &parent) const {
         return d->sessions.length();
