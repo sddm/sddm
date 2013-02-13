@@ -27,25 +27,24 @@ import QtMultimedia 5.0
 
 Item {
     id: container
-    property string image: ""
-    property string video: ""
+    property alias image: image.source
+    property alias video: video.source
 
     Image {
+			  id: image
         anchors.fill: parent
-        source: container.image
         fillMode: Image.PreserveAspectCrop
         visible: parent.video == ""
     }
 
     VideoOutput {
         anchors.fill: parent
-        source: mediaplayer
+        source: video
         visible: parent.video != ""
     }
 
     MediaPlayer {
-        id: mediaplayer
-        source: container.video
+        id: video
         autoLoad: true
         autoPlay: true
         loops: -1
