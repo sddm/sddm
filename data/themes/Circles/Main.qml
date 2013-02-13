@@ -130,6 +130,7 @@ Rectangle {
             }
 
             Column {
+                z: 100
                 width: parent.width
                 spacing : 4
                 Text {
@@ -144,13 +145,8 @@ Rectangle {
                     id: session
                     width: parent.width; height: 30
                     model: sessionModel
-                    index: sessionManager.lastSessionIndex
+                    index: sessionModel.lastIndex
                     font.pixelSize: 14
-
-                    /*onItemClicked: {
-                        console.log("clicked item: " + index + ", name:" + sessionModel.get(index).name)
-
-                    }*/
 
                     Keys.onPressed: {
                         if (event.key === Qt.Key_Return) {
@@ -212,15 +208,5 @@ Rectangle {
             name.focus = true
         else
             password.focus = true
-        initSessionModel();
-    }
-
-    function initSessionModel(){
-        for (var ii=0; ii<sessionManager.sessionNames.length; ii++)
-            sessionModel.append({"name":sessionManager.sessionNames[ii]});
-    }
-
-    ListModel {
-         id: sessionModel
     }
 }

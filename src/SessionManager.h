@@ -22,23 +22,17 @@
 
 #include <QObject>
 #include <QString>
-#include <QStringList>
 
 namespace SDE {
     class SessionManagerPrivate;
 
     class SessionManager : public QObject {
         Q_OBJECT
-        Q_PROPERTY(int lastSessionIndex READ lastSessionIndex CONSTANT)
-        Q_PROPERTY(QStringList sessionNames READ sessionNames CONSTANT)
         Q_PROPERTY(QString hostName READ hostName CONSTANT)
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
     public:
         SessionManager();
         ~SessionManager();
-
-        const int lastSessionIndex() const;
-        const QStringList &sessionNames() const;
 
         const QString &hostName() const;
         const QString &lastUser() const;

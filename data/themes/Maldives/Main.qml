@@ -42,7 +42,7 @@ Rectangle {
             errorMessage.text = qsTr("Login failed.")
         }
     }
-    
+
     Background {
         id: background
         anchors.fill: parent
@@ -54,7 +54,7 @@ Rectangle {
         id: clock
         anchors.fill: parent
     }
-    
+
     Image {
         id: rectangle
         anchors.centerIn: parent
@@ -130,6 +130,7 @@ Rectangle {
             }
 
             Column {
+                z: 100
                 width: parent.width
                 spacing : 4
                 Text {
@@ -140,13 +141,13 @@ Rectangle {
                     font.pixelSize: 12
                 }
 
-                SpinBox {
+                ComboBox {
                     id: session
                     width: parent.width; height: 30
                     font.pixelSize: 14
 
-                    items: sessionManager.sessionNames
-                    index: sessionManager.lastSessionIndex
+                    model: sessionModel
+                    index: sessionModel.lastIndex
 
                     Keys.onPressed: {
                         if (event.key === Qt.Key_Return) {

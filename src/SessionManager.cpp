@@ -45,7 +45,6 @@ namespace SDE {
 
         QList<SessionInfo> sessions;
         int lastSessionIndex { 0 };
-        QStringList sessionNames;
         QString hostName { "" };
     };
 
@@ -81,7 +80,6 @@ namespace SDE {
         // check last session index
         d->lastSessionIndex = 0;
         for (int i = 0; i < d->sessions.size(); ++i) {
-            d->sessionNames << d->sessions.at(i).name;
             if (d->sessions.at(i).file == Configuration::instance()->lastSession())
                 d->lastSessionIndex = i;
         }
@@ -91,14 +89,6 @@ namespace SDE {
 
     SessionManager::~SessionManager() {
         delete d;
-    }
-
-    const int SessionManager::lastSessionIndex() const {
-        return d->lastSessionIndex;
-    }
-
-    const QStringList &SessionManager::sessionNames() const {
-        return d->sessionNames;
     }
 
     const QString &SessionManager::hostName() const {
