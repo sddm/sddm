@@ -32,6 +32,7 @@ namespace SDE {
     public:
         QString userName { "" };
         QString realName { "" };
+        QString homeDir { "" };
         QString icon { "" };
         int uid { 0 };
         int gid { 0 };
@@ -50,7 +51,8 @@ namespace SDE {
         QHash<int, QByteArray> roleNames;
         roleNames[Qt::UserRole + 1] = "userName";
         roleNames[Qt::UserRole + 2] = "realName";
-        roleNames[Qt::UserRole + 3] = "icon";
+        roleNames[Qt::UserRole + 3] = "homeDir";
+        roleNames[Qt::UserRole + 4] = "icon";
         // set role names
         setRoleNames(roleNames);
 #endif
@@ -85,13 +87,17 @@ namespace SDE {
             UserPtr user { new User() };
             user->userName = fields.at(0);
             user->realName = fields.at(4).split(",").first();
+            user->homeDir = fields.at(5);
             user->uid = fields.at(2).toInt();
             user->gid = fields.at(3).toInt();
 
             // search for face icon
-            QString userFace = QString("%1/%2.face.icon").arg(Configuration::instance()->facesDir()).arg(user->userName);
+            QString userFace = QString("%1/.face.icon").arg(user->homeDir);
+            QString systemFace = QString("%1/%2.face.icon").arg(Configuration::instance()->facesDir()).arg(user->userName);
             if (QFile::exists(userFace))
                 user->icon = userFace;
+            else if (QFile::exists(systemFace))
+                user->icon = systemFace;
             else
                 user->icon = QString("%1/default.face.icon").arg(Configuration::instance()->facesDir());
 
@@ -116,7 +122,8 @@ namespace SDE {
         QHash<int, QByteArray> roleNames;
         roleNames[Qt::UserRole + 1] = "userName";
         roleNames[Qt::UserRole + 2] = "realName";
-        roleNames[Qt::UserRole + 3] = "icon";
+        roleNames[Qt::UserRole + 3] = "homeDir";
+        roleNames[Qt::UserRole + 4] = "icon";
 
         return roleNames;
     }
@@ -139,6 +146,8 @@ namespace SDE {
         else if (role == (Qt::UserRole + 2))
             return user->realName;
         else if (role == (Qt::UserRole + 3))
+            return user->homeDir;
+        else if (role == (Qt::UserRole + 4))
             return user->icon;
 
         // return empty value
