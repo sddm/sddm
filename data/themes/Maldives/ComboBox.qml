@@ -109,6 +109,7 @@ FocusScope {
         id: dropDown
         width: container.width; height: 0
         anchors.top: container.bottom
+        anchors.topMargin: -1
 
         clip: true
 
