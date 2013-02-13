@@ -92,4 +92,4 @@ Wiki:
 
 __Screenshots__
 
-![sample screenshot](https://raw.github.com/sddm/sddm/master/themes/Maldives/screenshot.jpg)
+![sample screenshot](https://raw.github.com/sddm/sddm-themes/master/Maui/screenshot.jpg)
