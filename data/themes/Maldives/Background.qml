@@ -40,7 +40,7 @@ Item {
     VideoOutput {
         anchors.fill: parent
         source: video
-        visible: parent.video != ""
+        visible: source != ""
     }
 
     MediaPlayer {
