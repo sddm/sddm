@@ -32,35 +32,51 @@ FocusScope {
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
     property color hoverColor: "#5692c4"
-    property alias font: textInput.font
-    property alias textColor: textInput.color
-    property alias echoMode: textInput.echoMode
-    property alias text: textInput.text
+    property alias font: txtMain.font
+    property alias textColor: txtMain.color
+    property alias echoMode: txtMain.echoMode
+    property alias text: txtMain.text
 
     Rectangle {
-        id: border
-
-        property bool hover: false
+        id: main
 
         anchors.fill: parent
 
         color: container.color
-        border.color: hover ? container.hoverColor : (container.activeFocus ? container.focusColor : container.borderColor)
+        border.color: container.borderColor
         border.width: 1
 
-        Behavior on border.color { ColorAnimation { duration: 200 } }
+        states: [
+            State {
+                name: "hover"; when: mouseArea.containsMouse
+                PropertyChanges { target: main; border.width: 1; border.color: container.hoverColor }
+            },
+            State {
+                name: "focus"; when: container.activeFocus && !mouseArea.containsMouse
+                PropertyChanges { target: main; border.width: 1; border.color: container.focusColor }
+            }
+        ]
 
-        MouseArea {
-            hoverEnabled: true
-            anchors.fill: parent
+        transitions: [
+            Transition {
+                ColorAnimation { target: main; properties: "border.color"; duration: 200 }
+            }
+        ]
+    }
 
-            onEntered: parent.hover = true
-            onExited: parent.hover = false
-        }
+    MouseArea {
+        id: mouseArea
+        anchors.fill: container
+
+        hoverEnabled: true
+
+        onEntered: if (main.state == "") main.state = "hover";
+        onExited: if (main.state == "hover") main.state = "";
+        onClicked: container.focus = true;
     }
 
     TextInput {
-        id: textInput
+        id: txtMain
         width: parent.width - 16
         anchors.centerIn: parent
 
