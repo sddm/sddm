@@ -28,8 +28,8 @@ Item {
     id: container
 
     property var dateTime: new Date()
-    property color textColor: "white"
-    property string textFont: "geo sans light"
+    property color color: "white"
+    property string font: ""
 
     Timer {
         interval: 100; running: true; repeat: true;
@@ -45,23 +45,22 @@ Item {
             id: time
             anchors.horizontalCenter: parent.horizontalCenter
 
-            color: textColor
+            color: container.color
 
             text : Qt.formatTime(container.dateTime, "hh:mm")
 
-            font.family:textFont; font.pointSize: 72
-            horizontalAlignment: Text.AlignHCenter
+            font.family: container.font; font.pointSize: 72
         }
 
         Text {
             id: date
             anchors.horizontalCenter: parent.horizontalCenter
 
-            color: textColor
+            color: container.color
 
             text : Qt.formatDate(container.dateTime, "dddd, MMM dd")
 
-            font.family:textFont; font.pointSize: 24
+            font.family: container.font; font.pointSize: 24
         }
     }
 }

@@ -45,17 +45,19 @@ Rectangle {
 
     FontLoader { id: clockFont; source: "GeosansLight.ttf" }
 
-    Background {
+    Image {
         id: background
         anchors.fill: parent
-        image: "background.jpg"
-        // video: "video.avi"
+        source: "background.jpg"
+        fillMode: Image.PreserveAspectCrop
     }
 
     Clock {
         id: clock
         anchors.fill: parent
-        textFont: clockFont.name
+
+        color: "white"
+        font: clockFont.name
     }
 
     Image {
