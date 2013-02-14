@@ -152,13 +152,6 @@ Rectangle {
                     model: sessionModel
                     index: sessionModel.lastIndex
 
-                    Keys.onPressed: {
-                        if (event.key === Qt.Key_Return) {
-                            sessionManager.login(name.text, password.text, session.index)
-                            event.accepted = true
-                        }
-                    }
-
                     KeyNavigation.backtab: password; KeyNavigation.tab: loginButton
                 }
             }

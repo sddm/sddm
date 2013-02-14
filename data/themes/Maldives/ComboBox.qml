@@ -37,6 +37,8 @@ FocusScope {
     property alias model: listView.model
     property alias index: listView.currentIndex
 
+    onFocusChanged: if (!container.activeFocus) dropDown.state = ""
+
     Rectangle {
         id: main
 
@@ -74,6 +76,7 @@ FocusScope {
         color: "black"
         focus: true
         elide: Text.ElideRight
+        text: listView.currentItem.text
 
         verticalAlignment: Text.AlignVCenter
     }
@@ -103,6 +106,29 @@ FocusScope {
         onEntered: if (main.state == "") main.state = "hover";
         onExited: if (main.state == "hover") main.state = "";
         onClicked: { container.focus = true; if (dropDown.state == "") dropDown.state = "visible"; else dropDown.state = ""; }
+        onWheel: {
+            if (wheel.angleDelta.y > 0)
+                prevItem();
+            else
+                nextItem();
+        }
+    }
+
+    Keys.onPressed: {
+        if (event.key === Qt.Key_Up) {
+            prevItem();
+        } else if (event.key === Qt.Key_Down) {
+            if (event.modifiers === Qt.AltModifier) {
+                if (dropDown.state == "")
+                    dropDown.state = "visible";
+                else
+                    dropDown.state = "";
+            } else {
+                nextItem();
+            }
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Escape) {
+            dropDown.state = "";
+        }
     }
 
     Rectangle {
@@ -116,10 +142,11 @@ FocusScope {
         Component {
             id: myDelegate
 
-
             Rectangle {
                 width: dropDown.width; height: container.height
-                color: (index == ListView.view.currentIndex) ? container.focusColor : (delegateMouseArea.containsMouse ? container.hoverColor : container.color)
+                color: "transparent"
+
+                property string text: model.name
 
                 Text {
                     id: textDelegate
@@ -137,12 +164,8 @@ FocusScope {
                     id: delegateMouseArea
                     anchors.fill: parent
                     hoverEnabled: true
-                    onClicked: { listView.currentIndex = index; txtMain.text = model.name; dropDown.state = ""; }
-                }
-
-                Component.onCompleted: {
-                    if (listView.currentIndex == index)
-                        txtMain.text = model.name
+                    onEntered: listView.currentIndex = index
+                    onClicked: dropDown.state = ""
                 }
             }
         }
@@ -151,6 +174,7 @@ FocusScope {
             id: listView
             width: container.width; height: container.height * count
             delegate: myDelegate
+            highlight: Rectangle { anchors.horizontalCenter: parent.horizontalCenter; color: container.hoverColor }
         }
 
         Rectangle {
@@ -171,5 +195,13 @@ FocusScope {
         transitions: Transition {
             NumberAnimation { target: dropDown; properties: "height"; duration: 200 }
         }
+    }
+
+    function prevItem() {
+        listView.currentIndex = Math.max(0, listView.currentIndex - 1)
+    }
+
+    function nextItem() {
+        listView.currentIndex = Math.min(listView.count - 1, listView.currentIndex + 1)
     }
 }
