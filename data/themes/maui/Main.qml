@@ -36,6 +36,7 @@ Rectangle {
         }
 
         onFail: {
+            txtMessage.text = qsTr("Login failed. Please try again.")
         }
     }
 
@@ -90,11 +91,12 @@ Rectangle {
             clip: true
 
             Item {
-                anchors.fill: parent
+                id: usersContainer
+                width: parent.width; height: 300
+                anchors.verticalCenter: parent.verticalCenter
 
                 ImageButton {
                     id: prevUser
-                    width: 50; height: 200
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.margins: 10
@@ -106,6 +108,7 @@ Rectangle {
                     id: listView
                     height: parent.height
                     anchors.left: prevUser.right; anchors.right: nextUser.left
+                    anchors.verticalCenter: parent.verticalCenter
                     anchors.margins: 10
 
                     clip: true
@@ -121,13 +124,23 @@ Rectangle {
 
                 ImageButton {
                     id: nextUser
-                    width: 50; height: 200
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.margins: 10
                     source: "angle-right.png"
                     onClicked: listView.incrementCurrentIndex()
                 }
+            }
+
+            Text {
+                id: txtMessage
+                anchors.top: usersContainer.bottom;
+                anchors.margins: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: "white"
+                text: qsTr("Enter your user name and password.")
+
+                font.pixelSize: 20
             }
         }
     }
@@ -148,14 +161,14 @@ Rectangle {
                 height: parent.height
                 anchors.verticalCenter: parent.verticalCenter
 
-                text: qsTr("Sessions:")
+                text: qsTr("Session:")
                 font.pixelSize: 16
                 verticalAlignment: Text.AlignVCenter
             }
 
             ComboBox {
                 id: session
-                width: 270
+                width: 245
                 anchors.verticalCenter: parent.verticalCenter
 
                 arrowIcon: "angle-down.png"
