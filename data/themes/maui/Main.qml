@@ -63,7 +63,7 @@ Rectangle {
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
-                onEntered: { listView.currentIndex = index; listView.positionViewAtIndex(index, ListView.Contain) }
+                onEntered: listView.currentIndex = index
                 onClicked: listView.focus = true
             }
         }
