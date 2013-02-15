@@ -1,3 +1,4 @@
+[General]
 # Default path to set after successfully logging in
 DefaultPath=/bin:/usr/bin:/usr/local/bin
 
