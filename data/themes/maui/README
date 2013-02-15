@@ -1,0 +1,14 @@
+This theme is part of the Simple Desktop Display Manager distribution. This theme is based QtQuick2.
+
+This theme is inspired by the mockup from the Maui community:
+	http://www.youtube.com/watch?v=BoOOa1Br7n4
+
+The wallpaper was taken from here:
+  http://gnome-look.org/content/show.php/Simple+blue+widescreen+%28no+debian+logo%29?content=96640
+It was made by Dacian Stanciu.
+
+GeosansLight font is downloaded from here:
+	http://www.dafont.com/geo-sans-light.font
+It was made by Manfred Klein, http://manfred-klein.ina-mar.com/.
+
+QML files contain license headers.

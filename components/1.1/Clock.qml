@@ -22,31 +22,39 @@
 *
 ***************************************************************************/
 
-import QtQuick 2.0
-import QtMultimedia 5.0
+import QtQuick 1.1
 
-Item {
+Column {
     id: container
-    property alias image: image.source
-    property alias video: video.source
 
-    Image {
-			  id: image
-        anchors.fill: parent
-        fillMode: Image.PreserveAspectCrop
-        visible: parent.video == ""
+    property date dateTime: new Date()
+    property color color: "white"
+    property string font: ""
+
+    Timer {
+        interval: 100; running: true; repeat: true;
+        onTriggered: container.dateTime = new Date()
     }
 
-    VideoOutput {
-        anchors.fill: parent
-        source: video
-        visible: source != ""
+    Text {
+        id: time
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        color: container.color
+
+        text : Qt.formatTime(container.dateTime, "hh:mm")
+
+        font.family: container.font; font.pointSize: 72
     }
 
-    MediaPlayer {
-        id: video
-        autoLoad: true
-        autoPlay: true
-        loops: -1
+    Text {
+        id: date
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        color: container.color
+
+        text : Qt.formatDate(container.dateTime, "dddd, MMM dd")
+
+        font.family: container.font; font.pointSize: 24
     }
 }

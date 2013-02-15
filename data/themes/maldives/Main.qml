@@ -22,9 +22,11 @@
 *
 ***************************************************************************/
 
-import QtQuick 1.1
+import QtQuick ${COMPONENTS_VERSION}
+import SddmComponents ${COMPONENTS_VERSION}
 
 Rectangle {
+    id: container
     width: 640
     height: 480
 
@@ -42,34 +44,39 @@ Rectangle {
         }
     }
 
+    FontLoader { id: clockFont; source: "GeosansLight.ttf" }
+
     Image {
-        anchors.centerIn: parent
-        source: "background.png"
-        fillMode: Image.Tile
+        id: background
+        anchors.fill: parent
+        source: "background.jpg"
+        fillMode: Image.PreserveAspectCrop
     }
 
-    Rectangle {
+		Clock {
+				id: clock
+				anchors.margins: 5
+				anchors.top: parent.top; anchors.right: parent.right
+
+				color: "white"
+				font: clockFont.name
+		}
+			
+    Image {
+        id: rectangle
         anchors.centerIn: parent
         width: 320; height: 320
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#c3c3c3" }
-            GradientStop { position: 0.5; color: "#e5e5e5" }
-            GradientStop { position: 1.0; color: "#c3c3c3" }
-        }
-        border.color: "#ababab"
-        border.width: 1
+
+        source: "rectangle.png"
 
         Column {
             anchors.centerIn: parent
             spacing: 12
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width
                 color: "black"
                 text: qsTr("Welcome to ") + sessionManager.hostName
                 font.pixelSize: 24
-                elide: Text.ElideRight
-                horizontalAlignment: Text.AlignHCenter
             }
 
             Column {
@@ -144,9 +151,12 @@ Rectangle {
                 ComboBox {
                     id: session
                     width: parent.width; height: 30
+                    font.pixelSize: 14
+
+                    arrowIcon: "angle-down.png"
+
                     model: sessionModel
                     index: sessionModel.lastIndex
-                    font.pixelSize: 14
 
                     KeyNavigation.backtab: password; KeyNavigation.tab: loginButton
                 }
@@ -194,7 +204,6 @@ Rectangle {
             }
         }
     }
-
 
     Component.onCompleted: {
         if (name.text == "")

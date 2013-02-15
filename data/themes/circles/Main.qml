@@ -22,10 +22,11 @@
 *
 ***************************************************************************/
 
-import QtQuick 2.0
+
+import QtQuick ${COMPONENTS_VERSION}
+import SddmComponents ${COMPONENTS_VERSION}
 
 Rectangle {
-    id: container
     width: 640
     height: 480
 
@@ -43,38 +44,35 @@ Rectangle {
         }
     }
 
-    FontLoader { id: clockFont; source: "GeosansLight.ttf" }
-
     Image {
-        id: background
-        anchors.fill: parent
-        source: "background.jpg"
-        fillMode: Image.PreserveAspectCrop
+        anchors.centerIn: parent
+        source: "background.png"
+        fillMode: Image.Tile
     }
 
-    Clock {
-        id: clock
-        anchors.fill: parent
-
-        color: "white"
-        font: clockFont.name
-    }
-
-    Image {
-        id: rectangle
+    Rectangle {
         anchors.centerIn: parent
         width: 320; height: 320
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#c3c3c3" }
+            GradientStop { position: 0.5; color: "#e5e5e5" }
+            GradientStop { position: 1.0; color: "#c3c3c3" }
+        }
 
-        source: "rectangle.png"
+        border.color: "#ababab"
+        border.width: 1
 
         Column {
             anchors.centerIn: parent
             spacing: 12
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
                 color: "black"
                 text: qsTr("Welcome to ") + sessionManager.hostName
                 font.pixelSize: 24
+                elide: Text.ElideRight
+                horizontalAlignment: Text.AlignHCenter
             }
 
             Column {
@@ -149,10 +147,13 @@ Rectangle {
                 ComboBox {
                     id: session
                     width: parent.width; height: 30
-                    font.pixelSize: 14
+
+                    arrowIcon: "angle-down.png"
 
                     model: sessionModel
                     index: sessionModel.lastIndex
+
+                    font.pixelSize: 14
 
                     KeyNavigation.backtab: password; KeyNavigation.tab: loginButton
                 }
@@ -202,7 +203,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        if (name.text == "")
+        if (name.text === "")
             name.focus = true
         else
             password.focus = true

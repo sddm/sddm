@@ -22,7 +22,7 @@
 *
 ***************************************************************************/
 
-import QtQuick 1.1
+import QtQuick 2.0
 
 FocusScope {
     id: container
@@ -36,6 +36,7 @@ FocusScope {
     property alias textColor: txtMain.color
     property alias model: listView.model
     property alias index: listView.currentIndex
+    property alias arrowIcon: arrowIcon.source
 
     onFocusChanged: if (!container.activeFocus) dropDown.state = ""
 
@@ -90,9 +91,10 @@ FocusScope {
         border.width: main.border.width
 
         Image {
+            id: arrowIcon
             anchors.fill: parent
-            anchors.margins: 3
-            source: "chevron-down.png"
+            clip: true
+            smooth: true
             fillMode: Image.PreserveAspectFit
         }
     }
@@ -101,11 +103,19 @@ FocusScope {
         id: mouseArea
         anchors.fill: container
 
+        cursorShape: Qt.PointingHandCursor
+
         hoverEnabled: true
 
         onEntered: if (main.state == "") main.state = "hover";
         onExited: if (main.state == "hover") main.state = "";
         onClicked: { container.focus = true; if (dropDown.state == "") dropDown.state = "visible"; else dropDown.state = ""; }
+        onWheel: {
+            if (wheel.angleDelta.y > 0)
+                prevItem();
+            else
+                nextItem();
+        }
     }
 
     Keys.onPressed: {
@@ -157,6 +167,9 @@ FocusScope {
                 MouseArea {
                     id: delegateMouseArea
                     anchors.fill: parent
+
+                    cursorShape: Qt.PointingHandCursor
+
                     hoverEnabled: true
                     onEntered: listView.currentIndex = index
                     onClicked: dropDown.state = ""

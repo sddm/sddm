@@ -1,0 +1,46 @@
+[SddmGreeterTheme]
+Name=Elarun
+Name[ca]=Elarun
+Name[da]=Elarun
+Name[de]=Elarun
+Name[el]=Elarun
+Name[es]=Elarun
+Name[et]=Elarun
+Name[fi]=Elarun
+Name[ga]=Elarun
+Name[gl]=Elarun
+Name[hu]=Elarun
+Name[ia]=Elarun
+Name[kk]=Еларун
+Name[ko]=Elarun
+Name[mr]=एलारन
+Name[nb]=Elarun
+Name[nl]=Elarun
+Name[pl]=Elarun
+Name[pt]=Elarun
+Name[pt_BR]=Elarun
+Name[ro]=Elarun
+Name[ru]=Эларан
+Name[sk]=Elarun
+Name[sl]=Elarun
+Name[sr]=Еларун
+Name[sr@ijekavian]=Еларун
+Name[sr@ijekavianlatin]=Elarun
+Name[sr@latin]=Elarun
+Name[sv]=Elarun
+Name[uk]=Еларан
+Name[x-test]=xxElarunxx
+Name[zh_CN]=Elarun
+Name[zh_TW]=Elarun
+
+Description=Elarun theme ported to SDDM
+Type=sddm-theme
+Author=Reza Fatahilah Shah
+Copyright=(c) 2013, Reza Fatahilah Shah
+Screenshot=screenshot.png
+License=GPL
+Version=0.1
+MainScript=Main.qml
+Theme-Id=elarun
+Theme-API=${COMPONENTS_VERSION}
+

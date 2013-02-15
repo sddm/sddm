@@ -65,8 +65,11 @@ Rectangle {
 
     MouseArea {
         id: mouseArea
-        hoverEnabled: true
         anchors.fill: parent
+        
+        cursorShape: Qt.PointingHandCursor
+        
+        hoverEnabled: true
 
         onEntered: container.mouseOver = true
         onExited: container.mouseOver = false

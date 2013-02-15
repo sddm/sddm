@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2013 Reza Fatahilah Shah <rshah0385@kireihana.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * Permission is hereby granted, free of charge, to any person
@@ -22,45 +23,45 @@
 *
 ***************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 1.1
 
-Item {
+Image {
     id: container
 
-    property var dateTime: new Date()
-    property color color: "white"
-    property string font: ""
+    opacity: 0.6
 
-    Timer {
-        interval: 100; running: true; repeat: true;
-        onTriggered: container.dateTime = new Date()
-    }
+    signal clicked()
 
-    Column {
-        id: column
-        anchors.margins: 5
-        anchors.right: parent.right; anchors.top: parent.top
-
-        Text {
-            id: time
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            color: container.color
-
-            text : Qt.formatTime(container.dateTime, "hh:mm")
-
-            font.family: container.font; font.pointSize: 72
+    states: [
+        State {
+            name: "hovered"; when: mouseArea.containsMouse && !mouseArea.pressed
+            PropertyChanges { target: container; opacity: 1.0 }
+        },
+        State {
+            name: "pressed"; when: mouseArea.pressed
+            PropertyChanges { target: container; opacity: 1.0 }
         }
+    ]
 
-        Text {
-            id: date
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            color: container.color
-
-            text : Qt.formatDate(container.dateTime, "dddd, MMM dd")
-
-            font.family: container.font; font.pointSize: 24
+    transitions: [
+        Transition {
+            NumberAnimation { target: container; properties: "opacity"; duration: 200 }
         }
+    ]
+
+    clip: true
+    smooth: true
+    fillMode: Image.PreserveAspectFit
+
+    MouseArea {
+        id: mouseArea
+
+        anchors.fill: parent
+
+        hoverEnabled: true
+
+        acceptedButtons: Qt.LeftButton
+
+        onClicked: container.clicked()
     }
 }

@@ -50,7 +50,11 @@ if (USE_QT5)
 
   qt5_use_modules(sddm Quick)
 
-  set(THEME Maldives)
+  # find qt5 imports dir
+  get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
+  exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_IMPORTS" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
+
+  set(COMPONENTS_VERSION 2.0)
 else()
   find_package(Qt4 REQUIRED)
   set(QT_USE_QTNETWORK TRUE)
@@ -60,15 +64,28 @@ else()
   add_executable(sddm ${SOURCES})
   target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB} ${QT_LIBRARIES})
 
-  set(THEME Circles)
+  set(COMPONENTS_VERSION 1.1)
 endif(USE_QT5)
 
 # set paths
 set(BIN_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX}/bin)
 set(DATA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/apps/sddm)
 
-# replace variables in the config file
+# configure config file
 configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)
+
+#configure themes
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/circles/Main.qml          data/themes/circles/Main.qml)
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/circles/metadata.desktop  data/themes/circles/metadata.desktop)
+
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/elarun/Main.qml           data/themes/elarun/Main.qml)
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/elarun/metadata.desktop   data/themes/elarun/metadata.desktop)
+
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/maldives/Main.qml         data/themes/maldives/Main.qml)
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/maldives/metadata.desktop data/themes/maldives/metadata.desktop)
+
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/maui/Main.qml             data/themes/maui/Main.qml)
+configure_file(${CMAKE_SOURCE_DIR}/data/themes/maui/metadata.desktop     data/themes/maui/metadata.desktop)
 
 # install binary
 install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
@@ -81,9 +98,17 @@ install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc RENAME sddm.conf.sa
 install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d RENAME sddm)
 install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION /usr/lib/systemd/system RENAME sddm.service)
 
+# install components
+if(USE_QT5)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/2.0 DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
+else()
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/1.1 DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
+endif(USE_QT5)
+
 # install data files
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/faces  DESTINATION ${DATA_INSTALL_DIR})
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/themes DESTINATION ${DATA_INSTALL_DIR})
+install(DIRECTORY ${CMAKE_BINARY_DIR}/data/themes DESTINATION ${DATA_INSTALL_DIR})
 
 # install scripts
 install(FILES ${CMAKE_SOURCE_DIR}/data/scripts/Xsession

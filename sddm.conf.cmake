@@ -45,7 +45,7 @@ FacesDir=${DATA_INSTALL_DIR}/faces
 ThemesDir=${DATA_INSTALL_DIR}/themes
 
 # Name of the current theme
-CurrentTheme=${THEME}
+CurrentTheme=maui
 
 # Minimum user id of the users to be listed in the
 # user interface

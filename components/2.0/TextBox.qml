@@ -68,6 +68,8 @@ FocusScope {
         id: mouseArea
         anchors.fill: container
 
+        cursorShape: Qt.IBeamCursor
+
         hoverEnabled: true
 
         onEntered: if (main.state == "") main.state = "hover";
