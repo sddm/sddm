@@ -92,14 +92,14 @@ Rectangle {
             Item {
                 anchors.fill: parent
 
-                Image {
+                ImageButton {
                     id: prevUser
-                    width: 50; height: parent.height;
+                    width: 50; height: 200
                     anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
                     anchors.margins: 10
-                    smooth: true
                     source: "angle-left.png"
-                    fillMode: Image.PreserveAspectFit
+                    onClicked: listView.decrementCurrentIndex()
                 }
 
                 ListView {
@@ -119,14 +119,14 @@ Rectangle {
                     currentIndex: 0
                 }
 
-                Image {
+                ImageButton {
                     id: nextUser
-                    width: 50; height: parent.height;
+                    width: 50; height: 200
                     anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
                     anchors.margins: 10
-                    smooth: true
                     source: "angle-right.png"
-                    fillMode: Image.PreserveAspectFit
+                    onClicked: listView.incrementCurrentIndex()
                 }
             }
         }
