@@ -100,9 +100,9 @@ install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION /usr/lib/sys
 
 # install components
 if(USE_QT5)
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/2.0 DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/2.0/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
 else()
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/1.1 DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/1.1/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
 endif(USE_QT5)
 
 # install data files
