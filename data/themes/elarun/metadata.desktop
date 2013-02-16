@@ -41,6 +41,7 @@ Screenshot=elarun.jpg
 License=GPL
 Version=0.1
 MainScript=Main.qml
+ConfigFile=theme.conf
 Theme-Id=elarun
 Theme-API=${COMPONENTS_VERSION}
 

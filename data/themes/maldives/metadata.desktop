@@ -9,6 +9,7 @@ Version=0.1
 Website=https://github.com/sddm/sddm
 Screenshot=maldives.jpg
 MainScript=Main.qml
+ConfigFile=theme.conf
 Email=abdurrahmanavci@gmail.com
 Theme-Id=maldives
 Theme-API=${COMPONENTS_VERSION}
