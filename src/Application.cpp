@@ -198,13 +198,16 @@ namespace SDE {
 
             // auto login
             if (first && !Configuration::instance()->autoUser().isEmpty()) {
-                // restart flag
+                // reset flag
                 first = false;
                 // auto login
                 sessionManager.autoLogin();
                 // restart
                 continue;
             }
+
+            // reset flag
+            first = false;
 
             // create user model
             UserModel userModel;
