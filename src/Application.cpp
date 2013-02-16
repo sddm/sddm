@@ -30,6 +30,7 @@
 
 #include <QDebug>
 #include <QSettings>
+#include <QVariantMap>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QGuiApplication>
@@ -93,6 +94,17 @@ namespace SDE {
         // set theme main script
         QString main = QString("%1/%2").arg(themePath).arg(mainScript);
 
+        // config options
+        QVariantMap config;
+        // read config file
+        QString configFile = metadata.value("SddmGreeterTheme/ConfigFile", "").toString();
+
+        if (!configFile.isEmpty()) {
+            QSettings themeConfig(QString("%1/%2").arg(themePath).arg(configFile), QSettings::IniFormat);
+            for (const QString &key: themeConfig.allKeys())
+                config.insert(key, themeConfig.value(key));
+        }
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         // create application
         QGuiApplication app(d->argc, d->argv);
@@ -115,6 +127,7 @@ namespace SDE {
         view.rootContext()->setContextProperty("sessionManager", &sessionManager);
         view.rootContext()->setContextProperty("sessionModel", &sessionModel);
         view.rootContext()->setContextProperty("userModel", &userModel);
+        view.rootContext()->setContextProperty("config", config);
         // load theme
         view.setSource(QUrl::fromLocalFile(main));
         // show application
@@ -132,6 +145,17 @@ namespace SDE {
 
         // set theme main script
         QString main = QString("%1/%2").arg(themePath).arg(mainScript);
+
+        // config options
+        QVariantMap config;
+        // read config file
+        QString configFile = metadata.value("SddmGreeterTheme/ConfigFile", "").toString();
+
+        if (!configFile.isEmpty()) {
+            QSettings themeConfig(QString("%1/%2").arg(themePath).arg(configFile), QSettings::IniFormat);
+            for (const QString &key: themeConfig.allKeys())
+                config.insert(key, themeConfig.value(key));
+        }
 
         // create lock file
         LockFile lock(Configuration::instance()->lockFile());
@@ -202,6 +226,7 @@ namespace SDE {
                 view.rootContext()->setContextProperty("sessionManager", &sessionManager);
                 view.rootContext()->setContextProperty("sessionModel", &sessionModel);
                 view.rootContext()->setContextProperty("userModel", &userModel);
+                view.rootContext()->setContextProperty("config", config);
                 // load qml file
                 view.setSource(QUrl::fromLocalFile(main));
                 // close view on successful login
@@ -224,6 +249,7 @@ namespace SDE {
             view.rootContext()->setContextProperty("sessionManager", &sessionManager);
             view.rootContext()->setContextProperty("sessionModel", &sessionModel);
             view.rootContext()->setContextProperty("userModel", &userModel);
+            view.rootContext()->setContextProperty("config", config);
             // load qml file
             view.setSource(QUrl::fromLocalFile(main));
             // close view on successful login
