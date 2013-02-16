@@ -38,11 +38,10 @@ Rectangle {
         }
     }
 
-    Image {
+    Background {
         anchors.fill: parent
         source: "images/background.png"
         fillMode: Image.PreserveAspectCrop
-        smooth: true
     }
 
     MouseArea {

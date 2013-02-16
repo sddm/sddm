@@ -42,7 +42,7 @@ Rectangle {
 
     FontLoader { id: clockFont; source: "GeosansLight.ttf" }
 
-    Image {
+    Background {
         anchors.fill: parent
         source: "background.png"
         fillMode: Image.PreserveAspectCrop

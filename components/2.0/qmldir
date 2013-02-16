@@ -1,5 +1,6 @@
 module SddmComponents
 
+Background  2.0 Background.qml
 Button      2.0 Button.qml
 Clock       2.0 Clock.qml
 ComboBox    2.0 ComboBox.qml

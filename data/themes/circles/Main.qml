@@ -44,8 +44,8 @@ Rectangle {
         }
     }
 
-    Image {
-        anchors.centerIn: parent
+    Background {
+        anchors.fill: parent
         source: "background.png"
         fillMode: Image.Tile
     }
