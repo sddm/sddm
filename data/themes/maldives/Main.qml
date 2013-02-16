@@ -53,14 +53,14 @@ Rectangle {
         fillMode: Image.PreserveAspectCrop
     }
 
-        Clock {
-                id: clock
-                anchors.margins: 5
-                anchors.top: parent.top; anchors.right: parent.right
+    Clock {
+        id: clock
+        anchors.margins: 5
+        anchors.top: parent.top; anchors.right: parent.right
 
-                color: "white"
-                font: clockFont.name
-        }
+        color: "white"
+        font: clockFont.name
+    }
 
     Image {
         id: rectangle
