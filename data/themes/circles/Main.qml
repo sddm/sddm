@@ -89,7 +89,7 @@ Rectangle {
                 TextBox {
                     id: name
                     width: parent.width; height: 30
-                    text: sessionManager.lastUser
+                    text: userModel.lastUser
                     font.pixelSize: 14
 
                     KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password

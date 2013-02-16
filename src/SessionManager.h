@@ -29,13 +29,11 @@ namespace SDE {
     class SessionManager : public QObject {
         Q_OBJECT
         Q_PROPERTY(QString hostName READ hostName CONSTANT)
-        Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
     public:
         SessionManager();
         ~SessionManager();
 
         const QString &hostName() const;
-        const QString &lastUser() const;
 
         void setCookie(const char *cookie);
         void setDisplay(const QString &displayName);

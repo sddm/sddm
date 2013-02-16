@@ -95,10 +95,6 @@ namespace SDE {
         return d->hostName;
     }
 
-    const QString &SessionManager::lastUser() const {
-        return Configuration::instance()->lastUser();
-    }
-
     void SessionManager::setCookie(const char *cookie) {
         d->authenticator.setCookie(cookie);
     }

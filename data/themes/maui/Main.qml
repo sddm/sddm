@@ -119,7 +119,7 @@ Rectangle {
                     model: userModel
                     delegate: userDelegate
                     orientation: ListView.Horizontal
-                    currentIndex: 0
+                    currentIndex: userModel.lastIndex
                 }
 
                 ImageButton {

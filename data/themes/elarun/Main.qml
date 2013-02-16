@@ -98,7 +98,7 @@ Rectangle {
                         width: 150; height: 30
                         anchors.verticalCenter: parent.verticalCenter;
 
-                        text: sessionManager.lastUser
+                        text: userModel.lastUser
 
                         font.pixelSize: 14
 

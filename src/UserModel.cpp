@@ -42,6 +42,7 @@ namespace SDE {
 
     class UserModelPrivate {
     public:
+        int lastIndex { 0 };
         QList<UserPtr> users;
     };
 
@@ -110,6 +111,12 @@ namespace SDE {
 
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->userName < u2->userName; });
+
+        // find out index of the last user
+        for (int i = 0; i < d->users.size(); ++i) {
+            if (d->users.at(i)->userName == Configuration::instance()->lastUser())
+                d->lastIndex = i;
+        }
     }
 
     UserModel::~UserModel() {
@@ -128,6 +135,14 @@ namespace SDE {
         return roleNames;
     }
 #endif
+
+    const int UserModel::lastIndex() const {
+        return d->lastIndex;
+    }
+
+    const QString &UserModel::lastUser() const {
+        return Configuration::instance()->lastUser();
+    }
 
     int UserModel::rowCount(const QModelIndex &parent) const {
         return d->users.length();

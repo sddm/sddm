@@ -28,6 +28,8 @@ namespace SDE {
 
     class UserModel : public QAbstractListModel {
         Q_OBJECT
+        Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
+        Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
     public:
         enum UserRoles {
             UserNameRole = Qt::UserRole + 1,
@@ -42,6 +44,9 @@ namespace SDE {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         QHash<int, QByteArray> roleNames() const override;
 #endif
+
+        const int lastIndex() const;
+        const QString &lastUser() const;
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

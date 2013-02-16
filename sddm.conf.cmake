@@ -56,7 +56,6 @@ MinimumUid=1000
 # preselected/shown when the login screen shows up.
 LastUser=
 
-
 # Name of the user to automatically log in when the
 # system starts first time.
 AutoUser=
