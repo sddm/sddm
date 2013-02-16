@@ -87,11 +87,11 @@ FocusScope {
         Text {
             id: name
             height: 20
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors { left: parent.left; right: parent.right }
             color: "#666666"
-            clip: true
-
-            font.bold: true; font.capitalization: Font.AllUppercase
+            elide: Text.ElideRight
+            font { bold: true; capitalization: Font.AllUppercase }
+            horizontalAlignment: Text.AlignHCenter
         }
 
         TextBox {
