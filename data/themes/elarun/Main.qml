@@ -39,9 +39,8 @@ Rectangle {
     }
 
     Image {
-        id: background
         anchors.fill: parent
-        source: "../images/background.png"
+        source: "images/background.png"
         fillMode: Image.PreserveAspectCrop
         smooth: true
     }
@@ -59,12 +58,12 @@ Rectangle {
 
         Image {
             anchors.fill: parent
-            source: "../images/rectangle.png"
+            source: "images/rectangle.png"
         }
 
         Image {
             anchors.fill: parent
-            source: "../images/rectangle_overlay.png"
+            source: "images/rectangle_overlay.png"
             opacity: 0.1
         }
 
@@ -90,7 +89,7 @@ Rectangle {
                 anchors.centerIn: parent
 
                 Row {
-                    Image { source: "../images/user_icon.png" }
+                    Image { source: "images/user_icon.png" }
 
                     TextBox {
                         id: user_entry
@@ -108,7 +107,7 @@ Rectangle {
 
                 Row {
 
-                    Image { source: "../images/lock.png" }
+                    Image { source: "images/lock.png" }
 
                     TextBox {
                         id: pw_entry
@@ -130,15 +129,15 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.margins: 20
 
-                source: "../images/login_normal.png"
+                source: "images/login_normal.png"
 
                 MouseArea {
                     id: mouseArea
                     hoverEnabled: true
                     anchors.fill: parent
 
-                    onEntered: login_button.source = "../images/login_active.png"
-                    onExited: login_button.source = "../images/login_normal.png"
+                    onEntered: login_button.source = "images/login_active.png"
+                    onExited: login_button.source = "images/login_normal.png"
                     onClicked: {
                         if (mouse.button === Qt.LeftButton)
                             sessionManager.login(user_entry.text, pw_entry.text, menu_session.index)
@@ -162,7 +161,7 @@ Rectangle {
 
                     ImageButton {
                         id: session_button
-                        source: "../images/session_normal.png"
+                        source: "images/session_normal.png"
                         onClicked: if (menu_session.state === "visible") menu_session.state = ""; else menu_session.state = "visible"
 
                         KeyNavigation.backtab: login_button; KeyNavigation.tab: system_button
@@ -170,7 +169,7 @@ Rectangle {
 
                     ImageButton {
                         id: system_button
-                        source: "../images/system_normal.png"
+                        source: "images/system_normal.png"
                         onClicked: sessionManager.shutdown()
 
                         KeyNavigation.backtab: session_button; KeyNavigation.tab: reboot_button
@@ -178,7 +177,7 @@ Rectangle {
 
                     ImageButton {
                         id: reboot_button
-                        source: "../images/system_reboot.png"
+                        source: "images/system_reboot.png"
                         onClicked: sessionManager.reboot()
 
                         KeyNavigation.backtab: system_button; KeyNavigation.tab: user_entry
