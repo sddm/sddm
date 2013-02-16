@@ -138,7 +138,7 @@ Rectangle {
                 anchors.margins: 20
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: "white"
-                text: qsTr("Enter your user name and password.")
+                text: qsTr("Select your user and enter password.")
 
                 font.pixelSize: 20
             }
