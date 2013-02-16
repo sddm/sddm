@@ -22,8 +22,8 @@
 *
 ***************************************************************************/
 
-import QtQuick 1.1
-import SddmComponents 1.1
+import QtQuick ${COMPONENTS_VERSION}
+import SddmComponents ${COMPONENTS_VERSION}
 
 Rectangle {
     id: container
