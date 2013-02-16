@@ -1,6 +1,5 @@
 * Investigate suspend/hibernate.
 * Remembering last username, last session should be configurable.
-* Create a component library, to be used by themes.
 * Enable creation of configurable themes. Themes may provide a
   config file and if such a config file exists settings module
   may show appropriate tools to change them.
