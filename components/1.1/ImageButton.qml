@@ -30,28 +30,27 @@ Image {
 
     opacity: 0.6
 
+    property bool enabled: true
+    property bool spaceDown: false
+
+    signal pressed()
+    signal released()
     signal clicked()
 
     states: [
         State {
-            name: "hovered"; when: mouseArea.containsMouse && !mouseArea.pressed
+            name: "disabled"; when: (container.enabled === false)
+        },
+        State {
+            name: "active"; when: container.enabled && (container.activeFocus || (mouseArea.containsMouse && !mouseArea.pressed))
             PropertyChanges { target: container; opacity: 1.0 }
         },
         State {
-            name: "pressed"; when: mouseArea.pressed
-            PropertyChanges { target: container; opacity: 1.0 }
-        },
-        State {
-            name: "focused"; when: container.focus
-            PropertyChanges { target: container; opacity: 1.0 }
+            name: "pressed"; when: container.enabled && (mouseArea.pressed || container.spaceDown)
         }
     ]
 
-    transitions: [
-        Transition {
-            NumberAnimation { target: container; properties: "opacity"; duration: 200 }
-        }
-    ]
+    Behavior on opacity { NumberAnimation { duration: 200 } }
 
     clip: true
     smooth: true
@@ -66,6 +65,28 @@ Image {
 
         acceptedButtons: Qt.LeftButton
 
-        onClicked: container.clicked()
+        onPressed: { container.focus = true; container.pressed() }
+        onClicked: { container.focus = true; container.clicked() }
+        onReleased: { container.focus = true; container.released() }
+    }
+
+    Keys.onPressed: {
+        if (event.key === Qt.Key_Space) {
+            container.spaceDown = true;
+            container.pressed()
+            event.accepted = true
+        } else if (event.key === Qt.Key_Return) {
+            container.clicked()
+            event.accepted = true
+        }
+    }
+
+    Keys.onReleased: {
+        if (event.key === Qt.Key_Space) {
+            container.spaceDown = false;
+            container.released()
+            container.clicked()
+            event.accepted = true
+        }
     }
 }
