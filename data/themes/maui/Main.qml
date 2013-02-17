@@ -102,6 +102,8 @@ Rectangle {
                     anchors.margins: 10
                     source: "angle-left.png"
                     onClicked: listView.decrementCurrentIndex()
+
+                    KeyNavigation.backtab: btnShutdown; KeyNavigation.tab: listView
                 }
 
                 ListView {
@@ -120,6 +122,8 @@ Rectangle {
                     delegate: userDelegate
                     orientation: ListView.Horizontal
                     currentIndex: userModel.lastIndex
+
+                    KeyNavigation.backtab: prevUser; KeyNavigation.tab: nextUser
                 }
 
                 ImageButton {
@@ -129,6 +133,7 @@ Rectangle {
                     anchors.margins: 10
                     source: "angle-right.png"
                     onClicked: listView.incrementCurrentIndex()
+                    KeyNavigation.backtab: listView; KeyNavigation.tab: session
                 }
             }
 
@@ -177,6 +182,8 @@ Rectangle {
                 index: sessionModel.lastIndex
 
                 font.pixelSize: 14
+
+                KeyNavigation.backtab: nextUser; KeyNavigation.tab: btnReboot
             }
         }
 
@@ -187,17 +194,24 @@ Rectangle {
             spacing: 5
 
             ImageButton {
+                id: btnReboot
                 height: parent.height
                 source: "reboot.png"
+
                 onClicked: sessionManager.reboot()
+
+                KeyNavigation.backtab: session; KeyNavigation.tab: btnShutdown
             }
 
             ImageButton {
+                id: btnShutdown
                 height: parent.height
                 source: "shutdown.png"
+
                 onClicked: sessionManager.shutdown()
+
+                KeyNavigation.backtab: btnReboot; KeyNavigation.tab: prevUser
             }
         }
-
     }
 }
