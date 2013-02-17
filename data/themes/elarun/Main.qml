@@ -117,7 +117,14 @@ Rectangle {
 
                         font.pixelSize: 14
 
-                        KeyNavigation.backtab: pw_entry; KeyNavigation.tab: login_button
+                        KeyNavigation.backtab: user_entry; KeyNavigation.tab: login_button
+
+                        Keys.onPressed: {
+                            if (event.key === Qt.Key_Return) {
+                                sessionManager.login(user_entry.text, pw_entry.text, menu_session.index)
+                                event.accepted = true
+                            }
+                        }
                     }
                 }
             }
