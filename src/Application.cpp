@@ -137,26 +137,6 @@ namespace SDE {
     }
 
     void Application::run() {
-        QString themePath = QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
-
-        // read main script of the theme
-        QSettings metadata(QString("%1/metadata.desktop").arg(themePath), QSettings::IniFormat);
-        QString mainScript = metadata.value("SddmGreeterTheme/MainScript", "Main.qml").toString();
-
-        // set theme main script
-        QString main = QString("%1/%2").arg(themePath).arg(mainScript);
-
-        // config options
-        QVariantMap config;
-        // read config file
-        QString configFile = metadata.value("SddmGreeterTheme/ConfigFile", "").toString();
-
-        if (!configFile.isEmpty()) {
-            QSettings themeConfig(QString("%1/%2").arg(themePath).arg(configFile), QSettings::IniFormat);
-            for (const QString &key: themeConfig.allKeys())
-                config.insert(key, themeConfig.value(key));
-        }
-
         // create lock file
         LockFile lock(Configuration::instance()->lockFile());
         if (!lock.success())
@@ -167,6 +147,28 @@ namespace SDE {
         while (true) {
             // reload configuration
             Configuration::instance()->load();
+
+            // get theme path
+            QString themePath = QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
+
+            // read main script of the theme
+            QSettings metadata(QString("%1/metadata.desktop").arg(themePath), QSettings::IniFormat);
+            QString mainScript = metadata.value("SddmGreeterTheme/MainScript", "Main.qml").toString();
+
+            // set theme main script
+            QString main = QString("%1/%2").arg(themePath).arg(mainScript);
+
+            // config options
+            QVariantMap config;
+            // read config file
+            QString configFile = metadata.value("SddmGreeterTheme/ConfigFile", "").toString();
+
+            if (!configFile.isEmpty()) {
+                QSettings themeConfig(QString("%1/%2").arg(themePath).arg(configFile), QSettings::IniFormat);
+                for (const QString &key: themeConfig.allKeys())
+                    config.insert(key, themeConfig.value(key));
+            }
+
             // set DISPLAY environment variable if not set
             if (getenv("DISPLAY") == nullptr)
                 setenv("DISPLAY", ":0", 1);
