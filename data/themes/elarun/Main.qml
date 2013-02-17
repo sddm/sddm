@@ -117,7 +117,7 @@ Rectangle {
 
                         font.pixelSize: 14
 
-                        KeyNavigation.backtab: pw_entry; KeyNavigation.tab: login_button
+                        KeyNavigation.backtab: user_entry; KeyNavigation.tab: login_button
                     }
                 }
             }
