@@ -129,7 +129,7 @@ Rectangle {
                 }
             }
 
-            Image {
+            ImageButton {
                 id: login_button
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
@@ -137,18 +137,7 @@ Rectangle {
 
                 source: "images/login_normal.png"
 
-                MouseArea {
-                    id: mouseArea
-                    hoverEnabled: true
-                    anchors.fill: parent
-
-                    onEntered: login_button.source = "images/login_active.png"
-                    onExited: login_button.source = "images/login_normal.png"
-                    onClicked: {
-                        if (mouse.button === Qt.LeftButton)
-                            sessionManager.login(user_entry.text, pw_entry.text, menu_session.index)
-                    }
-                }
+                onClicked: sessionManager.login(user_entry.text, pw_entry.text, menu_session.index)
 
                 KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session_button
             }
