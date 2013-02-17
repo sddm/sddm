@@ -67,6 +67,16 @@ else()
   set(COMPONENTS_VERSION 1.1)
 endif(USE_QT5)
 
+# include pkg-config
+find_package(PkgConfig)
+
+# check systemd
+pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
+
+# find systemd unit dir
+execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
+string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+
 # set paths
 set(BIN_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX}/bin)
 set(DATA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/apps/sddm)
@@ -94,9 +104,13 @@ install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
 install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc)
 install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc RENAME sddm.conf.sample)
 
-# install service files
+# install pam service file
 install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d RENAME sddm)
-install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION /usr/lib/systemd/system RENAME sddm.service)
+
+# install systemd service file
+if(SYSTEMD_SYSTEM_UNIT_DIR)
+    install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR} RENAME sddm.service)
+endif(SYSTEMD_SYSTEM_UNIT_DIR)
 
 # install components
 if(USE_QT5)
