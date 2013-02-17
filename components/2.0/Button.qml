@@ -28,23 +28,50 @@ Rectangle {
     id: container
     width: 80; height: 30
 
-    property alias borderColor: border.color
+    property alias borderColor: main.color
     property alias textColor: textArea.color
     property alias font: textArea.font
     property alias text: textArea.text
 
-    property color normalColor: "#4682b4"
-    property color downColor: "#266294"
+    color: "#4682b4"
+    property color disabledColor: "#888888"
+    property color activeColor: "#266294"
+    property color pressedColor: "#064264"
 
-    property bool mouseOver: false
-    property bool mouseDown: false
+    property bool enabled: true
+    property bool spaceDown: false
+    property bool isFocused: activeFocus || mouseArea.containsMouse
+    property bool isPressed: spaceDown || mouseArea.pressed
 
+    signal pressed()
+    signal released()
     signal clicked()
 
-    color: (mouseDown | mouseOver | focus) ? downColor : normalColor
+    states: [
+        State {
+            name: "disabled"; when: (container.enabled === false)
+            PropertyChanges { target: container; color: disabledColor }
+            PropertyChanges { target: main; color: disabledColor }
+        },
+        State {
+            name: "active"; when: container.enabled && container.isFocused && !container.isPressed
+            PropertyChanges { target: container; color: activeColor }
+            PropertyChanges { target: main; color: activeColor }
+        },
+        State {
+            name: "pressed"; when: container.enabled && container.isPressed
+            PropertyChanges { target: container; color: pressedColor }
+            PropertyChanges { target: main; color: pressedColor }
+        }
+    ]
+
+    Behavior on color { NumberAnimation { duration: 200 } }
+
+    clip: true
+    smooth: true
 
     Rectangle {
-        id: border
+        id: main
         width: parent.width - 2; height: parent.height - 2
         anchors.centerIn: parent
 
@@ -52,7 +79,7 @@ Rectangle {
         border.color: "white"
         border.width: 1
 
-        visible: container.focus
+        visible: container.isFocused
     }
 
     Text {
@@ -65,29 +92,37 @@ Rectangle {
 
     MouseArea {
         id: mouseArea
+
         anchors.fill: parent
-        
+
         cursorShape: Qt.PointingHandCursor
-        
+
         hoverEnabled: true
 
-        onEntered: container.mouseOver = true
-        onExited: container.mouseOver = false
-        onPressed: { container.mouseDown = true; container.focus = true }
-        onReleased: { container.mouseDown = false }
-        onClicked: { if (mouse.button === Qt.LeftButton) container.clicked() }
+        acceptedButtons: Qt.LeftButton
+
+        onPressed: { container.focus = true; container.pressed() }
+        onClicked: { container.focus = true; container.clicked() }
+        onReleased: { container.focus = true; container.released() }
     }
 
     Keys.onPressed: {
-        if ((event.key === Qt.Key_Space) || (event.key === Qt.Key_Return))  {
-            container.mouseDown = true
+        if (event.key === Qt.Key_Space) {
+            container.spaceDown = true;
+            container.pressed()
+            event.accepted = true
+        } else if (event.key === Qt.Key_Return) {
+            container.clicked()
+            event.accepted = true
         }
     }
 
     Keys.onReleased: {
-        if ((event.key === Qt.Key_Space) || (event.key === Qt.Key_Return)) {
-            container.mouseDown = false
+        if (event.key === Qt.Key_Space) {
+            container.spaceDown = false;
+            container.released()
             container.clicked()
+            event.accepted = true
         }
     }
 }
