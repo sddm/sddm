@@ -32,6 +32,8 @@ Image {
 
     property bool enabled: true
     property bool spaceDown: false
+    property bool isFocused: activeFocus || mouseArea.containsMouse
+    property bool isPressed: spaceDown || mouseArea.pressed
 
     signal pressed()
     signal released()
@@ -42,11 +44,11 @@ Image {
             name: "disabled"; when: (container.enabled === false)
         },
         State {
-            name: "active"; when: container.enabled && (container.activeFocus || (mouseArea.containsMouse && !mouseArea.pressed))
+            name: "active"; when: container.enabled && container.isFocused && !container.isPressed
             PropertyChanges { target: container; opacity: 1.0 }
         },
         State {
-            name: "pressed"; when: container.enabled && (mouseArea.pressed || container.spaceDown)
+            name: "pressed"; when: container.enabled && container.isPressed
         }
     ]
 
