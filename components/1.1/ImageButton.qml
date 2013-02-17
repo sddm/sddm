@@ -41,6 +41,10 @@ Image {
             name: "pressed"; when: mouseArea.pressed
             PropertyChanges { target: container; opacity: 1.0 }
         }
+        State {
+            name: "focused"; when: container.focus
+            PropertyChanges { target: container; opacity: 1.0 }
+        }
     ]
 
     transitions: [
