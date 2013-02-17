@@ -33,7 +33,7 @@ Name[x-test]=xxElarunxx
 Name[zh_CN]=Elarun
 Name[zh_TW]=Elarun
 
-Description=Elarun theme ported to SDDM
+Description=Elarun KDM theme ported to SDDM. \nThe original theme is based on work of Roman Shtylman & Nuno Pinheiro
 Type=sddm-theme
 Author=Reza Fatahilah Shah
 Copyright=(c) 2013, Reza Fatahilah Shah
