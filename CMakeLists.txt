@@ -79,7 +79,7 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 find_package(PkgConfig)
 
 # check systemd
-pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
+pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon")
 
 # find systemd unit dir
 execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
