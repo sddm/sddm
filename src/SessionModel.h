@@ -17,8 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SESSIONMODEL_H
-#define SESSIONMODEL_H
+#ifndef SDE_SESSIONMODEL_H
+#define SDE_SESSIONMODEL_H
 
 #include <QAbstractListModel>
 #include <QHash>
@@ -53,4 +53,4 @@ namespace SDE {
     };
 }
 
-#endif // SESSIONMODEL_H
+#endif // SDE_SESSIONMODEL_H
