@@ -30,7 +30,7 @@
 namespace SDE {
     class User {
     public:
-        QString userName { "" };
+        QString name { "" };
         QString realName { "" };
         QString homeDir { "" };
         QString icon { "" };
@@ -50,7 +50,7 @@ namespace SDE {
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[UserNameRole] = "userName";
+        roleNames[NameRole] = "name";
         roleNames[RealNameRole] = "realName";
         roleNames[HomeDirRole] = "homeDir";
         roleNames[IconRole] = "icon";
@@ -86,7 +86,7 @@ namespace SDE {
 
             // create user
             UserPtr user { new User() };
-            user->userName = fields.at(0);
+            user->name = fields.at(0);
             user->realName = fields.at(4).split(",").first();
             user->homeDir = fields.at(5);
             user->uid = fields.at(2).toInt();
@@ -94,7 +94,7 @@ namespace SDE {
 
             // search for face icon
             QString userFace = QString("%1/.face.icon").arg(user->homeDir);
-            QString systemFace = QString("%1/%2.face.icon").arg(Configuration::instance()->facesDir()).arg(user->userName);
+            QString systemFace = QString("%1/%2.face.icon").arg(Configuration::instance()->facesDir()).arg(user->name);
             if (QFile::exists(userFace))
                 user->icon = userFace;
             else if (QFile::exists(systemFace))
@@ -110,11 +110,11 @@ namespace SDE {
         file.close();
 
         // sort users by username
-        std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->userName < u2->userName; });
+        std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
 
         // find out index of the last user
         for (int i = 0; i < d->users.size(); ++i) {
-            if (d->users.at(i)->userName == Configuration::instance()->lastUser())
+            if (d->users.at(i)->name == Configuration::instance()->lastUser())
                 d->lastIndex = i;
         }
     }
@@ -127,7 +127,7 @@ namespace SDE {
     QHash<int, QByteArray> UserModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[UserNameRole] = "userName";
+        roleNames[NameRole] = "name";
         roleNames[RealNameRole] = "realName";
         roleNames[HomeDirRole] = "homeDir";
         roleNames[IconRole] = "icon";
@@ -156,8 +156,8 @@ namespace SDE {
         UserPtr user = d->users[index.row()];
 
         // return correct value
-        if (role == UserNameRole)
-            return user->userName;
+        if (role == NameRole)
+            return user->name;
         else if (role == RealNameRole)
             return user->realName;
         else if (role == HomeDirRole)

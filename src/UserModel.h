@@ -32,7 +32,7 @@ namespace SDE {
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
     public:
         enum UserRoles {
-            UserNameRole = Qt::UserRole + 1,
+            NameRole = Qt::UserRole + 1,
             RealNameRole,
             HomeDirRole,
             IconRole

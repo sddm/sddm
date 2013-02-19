@@ -53,7 +53,7 @@ Rectangle {
 
         PictureBox {
             anchors.verticalCenter: parent.verticalCenter
-            name: (model.realName === "") ? model.userName : model.realName
+            name: (model.realName === "") ? model.name : model.realName
             icon: model.icon
 
             focus: (listView.currentIndex === index) ? true : false
