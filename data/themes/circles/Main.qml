@@ -185,7 +185,7 @@ Rectangle {
                     id: shutdownButton
                     text: qsTr("Shutdown")
 
-                    onClicked: sessionManager.shutdown()
+                    onClicked: powerManager.powerOff()
 
                     KeyNavigation.backtab: loginButton; KeyNavigation.tab: rebootButton
                 }
@@ -194,7 +194,7 @@ Rectangle {
                     id: rebootButton
                     text: qsTr("Reboot")
 
-                    onClicked: sessionManager.reboot()
+                    onClicked: powerManager.reboot()
 
                     KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: name
                 }

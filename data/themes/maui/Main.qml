@@ -198,7 +198,7 @@ Rectangle {
                 height: parent.height
                 source: "reboot.png"
 
-                onClicked: sessionManager.reboot()
+                onClicked: powerManager.reboot()
 
                 KeyNavigation.backtab: session; KeyNavigation.tab: btnShutdown
             }
@@ -208,7 +208,7 @@ Rectangle {
                 height: parent.height
                 source: "shutdown.png"
 
-                onClicked: sessionManager.shutdown()
+                onClicked: powerManager.powerOff()
 
                 KeyNavigation.backtab: btnReboot; KeyNavigation.tab: prevUser
             }

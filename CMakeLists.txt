@@ -30,6 +30,7 @@ set(SOURCES
   src/DisplayManager.cpp
   src/LockFile.cpp
   src/Main.cpp
+  src/PowerManager.cpp
   src/SessionManager.cpp
   src/SessionModel.cpp
   src/UserModel.cpp
@@ -48,7 +49,7 @@ if (USE_QT5)
   add_executable(sddm ${SOURCES})
   target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB})
 
-  qt5_use_modules(sddm Quick)
+  qt5_use_modules(sddm Quick DBus)
 
   # find qt5 imports dir
   get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
@@ -59,6 +60,7 @@ else()
   find_package(Qt4 REQUIRED)
   set(QT_USE_QTNETWORK TRUE)
   set(QT_USE_QTDECLARATIVE TRUE)
+  set(QT_USE_QTDBUS TRUE)
   include(${QT_USE_FILE})
 
   add_executable(sddm ${SOURCES})

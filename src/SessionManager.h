@@ -42,8 +42,6 @@ namespace SDE {
 
     public slots:
         void login(const QString &username, const QString &password, const int sessionIndex);
-        void shutdown();
-        void reboot();
 
     signals:
         void fail();

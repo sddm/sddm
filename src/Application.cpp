@@ -23,6 +23,7 @@
 #include "Cookie.h"
 #include "DisplayManager.h"
 #include "LockFile.h"
+#include "PowerManager.h"
 #include "SessionManager.h"
 #include "SessionModel.h"
 #include "UserModel.h"
@@ -120,11 +121,13 @@ namespace SDE {
 #endif
         // create session manager
         SessionManager sessionManager;
+        PowerManager powerManager;
         // create user model
         UserModel userModel;
         SessionModel sessionModel;
         // set context properties
         view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+        view.rootContext()->setContextProperty("powerManager", &powerManager);
         view.rootContext()->setContextProperty("sessionModel", &sessionModel);
         view.rootContext()->setContextProperty("userModel", &userModel);
         view.rootContext()->setContextProperty("config", config);
@@ -211,6 +214,7 @@ namespace SDE {
             // reset flag
             first = false;
 
+            PowerManager powerManager;
             // create user model
             UserModel userModel;
             // create session model
@@ -229,6 +233,7 @@ namespace SDE {
                 view.setResizeMode(QQuickView::SizeRootObjectToView);
                 // set context properties
                 view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+                view.rootContext()->setContextProperty("powerManager", &powerManager);
                 view.rootContext()->setContextProperty("sessionModel", &sessionModel);
                 view.rootContext()->setContextProperty("userModel", &userModel);
                 view.rootContext()->setContextProperty("config", config);
@@ -252,6 +257,7 @@ namespace SDE {
             view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
             // set context properties
             view.rootContext()->setContextProperty("sessionManager", &sessionManager);
+            view.rootContext()->setContextProperty("powerManager", &powerManager);
             view.rootContext()->setContextProperty("sessionModel", &sessionModel);
             view.rootContext()->setContextProperty("userModel", &userModel);
             view.rootContext()->setContextProperty("config", config);

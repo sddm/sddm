@@ -165,7 +165,7 @@ Rectangle {
                     ImageButton {
                         id: system_button
                         source: "images/system_normal.png"
-                        onClicked: sessionManager.shutdown()
+                        onClicked: powerManager.powerOff()
 
                         KeyNavigation.backtab: session_button; KeyNavigation.tab: reboot_button
                     }
@@ -173,7 +173,7 @@ Rectangle {
                     ImageButton {
                         id: reboot_button
                         source: "images/system_reboot.png"
-                        onClicked: sessionManager.reboot()
+                        onClicked: powerManager.reboot()
 
                         KeyNavigation.backtab: system_button; KeyNavigation.tab: user_entry
                     }

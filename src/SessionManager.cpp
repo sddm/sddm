@@ -26,7 +26,6 @@
 #include <QDir>
 #include <QFile>
 #include <QHostInfo>
-#include <QProcess>
 #include <QTextStream>
 
 using namespace SDE;
@@ -139,13 +138,5 @@ namespace SDE {
         }
         // quit application
         qApp->quit();
-    }
-
-    void SessionManager::shutdown() {
-        QProcess::execute(Configuration::instance()->haltCommand());
-    }
-
-    void SessionManager::reboot() {
-        QProcess::execute(Configuration::instance()->rebootCommand());
     }
 }
