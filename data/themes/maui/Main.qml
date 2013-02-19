@@ -59,7 +59,7 @@ Rectangle {
             focus: (listView.currentIndex === index) ? true : false
             state: (listView.currentIndex === index) ? "active" : ""
 
-            onLogin: { sessionManager.login(model.userName, password, session.index); password = "" }
+            onLogin: { sessionManager.login(model.name, password, session.index); password = "" }
 
             MouseArea {
                 anchors.fill: parent
