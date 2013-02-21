@@ -1,12 +1,13 @@
 pkgname=sddm-git
-pkgver=20130207
+pkgver=20130221
 pkgrel=1
 pkgdesc="QML based X11 display manager" 
 arch=('i686' 'x86_64')
 url="http://github.com/sddm/sddm"
 license=('GPL')
-depends=('pam' 'qt')
+depends=('pam' 'qt' 'libx11')
 makedepends=('cmake' 'git')
+provides=('sddm')
 replaces=('sddm')
 
 _gitroot="git://github.com/sddm/sddm.git"
@@ -29,7 +30,7 @@ build() {
   mkdir -p build
   cd build
 
-  cmake ../${_gitname} -DCMAKE_INSTALL_PREFIX=/usr
+  cmake ../${_gitname} -DCMAKE_INSTALL_PREFIX=/usr -DUSE_SYSTEMD=true
   make
 }
 
