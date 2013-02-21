@@ -46,6 +46,8 @@ FocusScope {
         border.color: container.borderColor
         border.width: 1
 
+        Behavior on border.color { ColorAnimation { duration: 100 } }
+
         states: [
             State {
                 name: "hover"; when: mouseArea.containsMouse
@@ -54,12 +56,6 @@ FocusScope {
             State {
                 name: "focus"; when: container.activeFocus && !mouseArea.containsMouse
                 PropertyChanges { target: main; border.width: 1; border.color: container.focusColor }
-            }
-        ]
-
-        transitions: [
-            Transition {
-                ColorAnimation { target: main; properties: "border.color"; duration: 200 }
             }
         ]
     }

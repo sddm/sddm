@@ -36,16 +36,12 @@ FocusScope {
 
     signal login()
 
+    Behavior on height { NumberAnimation { duration: 100 } }
+
     states: [
         State {
             name: "active"
             PropertyChanges { target: container; height: 225 }
-        }
-    ]
-
-    transitions: [
-        Transition {
-            NumberAnimation { target: container; properties: "height"; duration: 100 }
         }
     ]
 
