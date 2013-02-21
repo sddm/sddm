@@ -16,11 +16,27 @@ __COMPILATION__
 
 SDDM uses CMake for compile configuration. Typical compilation procedure for a cmake-based project is:
 
-`mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make`
+`mkdir build`
 
-SDDM can be compiled with Qt4 or Qt5. Default is Qt4. But setting USE_QT5 flag you can compile with Qt5.
+`cd build`
 
-`mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true && make`
+`cmake .. -DCMAKE_INSTALL_PREFIX=/usr`
+
+`make`
+
+There are several flags that can be used to modify compilation:
+
+* To build with Qt5 instead of Qt4 use `-DUSE_QT5=true`
+
+* To enable systemd support use `-DUSE_SYSTEMD=true`
+
+* To enable upower support use `-DUSE_UPOWER=true`
+
+Note that in order to have working suspend and hibernate, you need to have either systemd or upower support built. If both options are given systemd is preferred.
+
+Also note that if any of systemd or upower support has been built, HaltCommand and RebootCommand config entries have no effect. Instead systemd or upower is called to carry out the command.
+
+To install simply call`sudo make install`.
 
 __CONFIGURATION__
 

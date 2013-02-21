@@ -43,7 +43,7 @@ find_package(PAM REQUIRED)
 # X11
 find_package(X11 REQUIRED)
 
-if (USE_QT5)
+if(USE_QT5)
   find_package(Qt5Core REQUIRED)
 
   add_executable(sddm ${SOURCES})
@@ -77,15 +77,24 @@ configure_file(
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-# include pkg-config
-find_package(PkgConfig)
+if(USE_SYSTEMD)
+    # include pkg-config
+    find_package(PkgConfig)
 
-# check systemd
-pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon")
+    # check systemd
+    pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
 
-# find systemd unit dir
-execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
-string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+    # find systemd unit dir
+    execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
+    string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+
+    # add install command
+    install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR} RENAME sddm.service)
+
+    add_definitions(-DUSE_SYSTEMD=true)
+elseif(USE_UPOWER)
+    add_definitions(-DUSE_UPOWER=true)
+endif(USE_SYSTEMD)
 
 # set paths
 set(BIN_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX}/bin)
@@ -116,11 +125,6 @@ install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc RENAME sddm.conf.sa
 
 # install pam service file
 install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d RENAME sddm)
-
-# install systemd service file
-if(SYSTEMD_SYSTEM_UNIT_DIR)
-    install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR} RENAME sddm.service)
-endif(SYSTEMD_SYSTEM_UNIT_DIR)
 
 # install components
 if(USE_QT5)
