@@ -35,10 +35,10 @@ FocusScope {
     property alias font: txtMain.font
     property alias textColor: txtMain.color
     property alias model: listView.model
-    property alias index: listView.currentIndex
+    property int index: 0
     property alias arrowIcon: arrowIcon.source
 
-    onFocusChanged: if (!container.activeFocus) dropDown.state = ""
+    onFocusChanged: if (!container.activeFocus) close(false)
 
     Rectangle {
         id: main
@@ -73,7 +73,7 @@ FocusScope {
         color: "black"
         focus: true
         elide: Text.ElideRight
-        text: listView.currentItem.text
+        text: ""
 
         verticalAlignment: Text.AlignVCenter
     }
@@ -105,7 +105,7 @@ FocusScope {
 
         onEntered: if (main.state == "") main.state = "hover";
         onExited: if (main.state == "hover") main.state = "";
-        onClicked: { container.focus = true; if (dropDown.state == "") dropDown.state = "visible"; else dropDown.state = ""; }
+        onClicked: { container.focus = true; toggle() }
         onWheel: {
             if (wheel.angleDelta.y > 0)
                 listView.decrementCurrentIndex()
@@ -118,16 +118,14 @@ FocusScope {
         if (event.key === Qt.Key_Up) {
             listView.decrementCurrentIndex()
         } else if (event.key === Qt.Key_Down) {
-            if (event.modifiers === Qt.AltModifier) {
-                if (dropDown.state == "")
-                    dropDown.state = "visible";
-                else
-                    dropDown.state = "";
-            } else {
+            if (event.modifiers !== Qt.AltModifier)
                 listView.incrementCurrentIndex()
-            }
-        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Escape) {
-            dropDown.state = "";
+            else
+                toggle()
+        } else if (event.key === Qt.Key_Enter || event.key === Qt.Key_Return) {
+            close(true)
+        } else if (event.key === Qt.Key_Escape) {
+            close(false)
         }
     }
 
@@ -170,7 +168,7 @@ FocusScope {
 
                     hoverEnabled: true
                     onEntered: listView.currentIndex = index
-                    onClicked: dropDown.state = ""
+                    onClicked: close(true)
                 }
             }
         }
@@ -196,5 +194,30 @@ FocusScope {
                 PropertyChanges { target: dropDown; height: container.height * listView.count }
             }
         ]
+    }
+
+    function toggle() {
+        if (dropDown.state === "visible")
+            close(false)
+        else
+            open()
+    }
+
+    function open() {
+        dropDown.state = "visible"
+        listView.currentIndex = container.index
+    }
+
+    function close(update) {
+        dropDown.state = ""
+
+        if (update) {
+            container.index = listView.currentIndex
+            txtMain.text = listView.currentItem.text
+        }
+    }
+
+    Component.onCompleted: {
+        close(true)
     }
 }
