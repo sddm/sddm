@@ -174,7 +174,7 @@ Rectangle {
             Row {
                 spacing: 4
                 anchors.horizontalCenter: parent.horizontalCenter
-                Button {
+                ImageButton {
                     id: loginButton
                     text: qsTr("Login")
 

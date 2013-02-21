@@ -100,7 +100,7 @@ Rectangle {
 
                         font.pixelSize: 14
 
-                        KeyNavigation.backtab: reboot_button; KeyNavigation.tab: pw_entry
+                        KeyNavigation.backtab: hibernate_button; KeyNavigation.tab: pw_entry
                     }
                 }
 
@@ -164,7 +164,7 @@ Rectangle {
 
                     ImageButton {
                         id: system_button
-                        source: "images/system_normal.png"
+                        source: "images/system_shutdown.png"
                         onClicked: powerManager.powerOff()
 
                         KeyNavigation.backtab: session_button; KeyNavigation.tab: reboot_button
@@ -175,7 +175,25 @@ Rectangle {
                         source: "images/system_reboot.png"
                         onClicked: powerManager.reboot()
 
-                        KeyNavigation.backtab: system_button; KeyNavigation.tab: user_entry
+                        KeyNavigation.backtab: system_button; KeyNavigation.tab: suspend_button
+                    }
+
+                    ImageButton {
+                        id: suspend_button
+                        source: "images/system_suspend.png"
+                        visible: powerManager.canSuspend()
+                        onClicked: powerManager.suspend()
+
+                        KeyNavigation.backtab: reboot_button; KeyNavigation.tab: hibernate_button
+                    }
+
+                    ImageButton {
+                        id: hibernate_button
+                        source: "images/system_hibernate.png"
+                        visible: powerManager.canHibernate()
+                        onClicked: powerManager.hibernate()
+
+                        KeyNavigation.backtab: suspend_button; KeyNavigation.tab: user_entry
                     }
                 }
 
