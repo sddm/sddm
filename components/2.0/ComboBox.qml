@@ -108,15 +108,15 @@ FocusScope {
         onClicked: { container.focus = true; if (dropDown.state == "") dropDown.state = "visible"; else dropDown.state = ""; }
         onWheel: {
             if (wheel.angleDelta.y > 0)
-                prevItem();
+                listView.decrementCurrentIndex()
             else
-                nextItem();
+                listView.incrementCurrentIndex()
         }
     }
 
     Keys.onPressed: {
         if (event.key === Qt.Key_Up) {
-            prevItem();
+            listView.decrementCurrentIndex()
         } else if (event.key === Qt.Key_Down) {
             if (event.modifiers === Qt.AltModifier) {
                 if (dropDown.state == "")
@@ -124,7 +124,7 @@ FocusScope {
                 else
                     dropDown.state = "";
             } else {
-                nextItem();
+                listView.incrementCurrentIndex()
             }
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Escape) {
             dropDown.state = "";
@@ -196,13 +196,5 @@ FocusScope {
                 PropertyChanges { target: dropDown; height: container.height * listView.count }
             }
         ]
-    }
-
-    function prevItem() {
-        listView.currentIndex = Math.max(0, listView.currentIndex - 1)
-    }
-
-    function nextItem() {
-        listView.currentIndex = Math.min(listView.count - 1, listView.currentIndex + 1)
     }
 }
