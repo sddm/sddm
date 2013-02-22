@@ -24,6 +24,7 @@
 #include "DisplayManager.h"
 #include "LockFile.h"
 #include "PowerManager.h"
+#include "ScreenModel.h"
 #include "SessionManager.h"
 #include "SessionModel.h"
 #include "UserModel.h"
@@ -37,12 +38,10 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #include <QQmlContext>
-#include <QScreen>
 #else
 #include <QApplication>
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
-#include <QDesktopWidget>
 #endif
 
 namespace SDE {
@@ -121,14 +120,17 @@ namespace SDE {
 #endif
         // create session manager
         SessionManager sessionManager;
+        // create power manager
         PowerManager powerManager;
-        // create user model
-        UserModel userModel;
+        // create models
         SessionModel sessionModel;
+        ScreenModel screenModel;
+        UserModel userModel;
         // set context properties
         view.rootContext()->setContextProperty("sessionManager", &sessionManager);
         view.rootContext()->setContextProperty("powerManager", &powerManager);
         view.rootContext()->setContextProperty("sessionModel", &sessionModel);
+        view.rootContext()->setContextProperty("screenModel", &screenModel);
         view.rootContext()->setContextProperty("userModel", &userModel);
         view.rootContext()->setContextProperty("config", config);
         // load theme
@@ -214,12 +216,6 @@ namespace SDE {
             // reset flag
             first = false;
 
-            PowerManager powerManager;
-            // create user model
-            UserModel userModel;
-            // create session model
-            SessionModel sessionModel;
-
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             // execute user interface in a seperate process
             // this is needed because apperantly we can't create multiple
@@ -231,10 +227,24 @@ namespace SDE {
                 // create view
                 QQuickView view;
                 view.setResizeMode(QQuickView::SizeRootObjectToView);
+#else
+                // create application
+                QApplication app(d->argc, d->argv);
+                // create view
+                QDeclarativeView view;
+                view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
+#endif
+                // create power manager
+                PowerManager powerManager;
+                // create models
+                SessionModel sessionModel;
+                ScreenModel screenModel;
+                UserModel userModel;
                 // set context properties
                 view.rootContext()->setContextProperty("sessionManager", &sessionManager);
                 view.rootContext()->setContextProperty("powerManager", &powerManager);
                 view.rootContext()->setContextProperty("sessionModel", &sessionModel);
+                view.rootContext()->setContextProperty("screenModel", &screenModel);
                 view.rootContext()->setContextProperty("userModel", &userModel);
                 view.rootContext()->setContextProperty("config", config);
                 // load qml file
@@ -243,33 +253,13 @@ namespace SDE {
                 QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
                 // show view
                 view.show();
-                view.setGeometry(QGuiApplication::primaryScreen()->geometry());
+                view.setGeometry(screenModel.geometry());
                 // execute application
                 app.exec();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             });
             // wait for process to end
             Util::wait(pid);
-#else
-            // create application
-            QApplication app(d->argc, d->argv);
-            // create view
-            QDeclarativeView view;
-            view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-            // set context properties
-            view.rootContext()->setContextProperty("sessionManager", &sessionManager);
-            view.rootContext()->setContextProperty("powerManager", &powerManager);
-            view.rootContext()->setContextProperty("sessionModel", &sessionModel);
-            view.rootContext()->setContextProperty("userModel", &userModel);
-            view.rootContext()->setContextProperty("config", config);
-            // load qml file
-            view.setSource(QUrl::fromLocalFile(main));
-            // close view on successful login
-            QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
-            // show view
-            view.show();
-            view.setGeometry(QApplication::desktop()->screenGeometry(QApplication::desktop()->primaryScreen()));
-            // execute application
-            app.exec();
 #endif
         }
     }
