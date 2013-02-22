@@ -218,6 +218,7 @@ FocusScope {
     }
 
     Component.onCompleted: {
-        close(true)
+        listView.currentIndex = container.index
+        txtMain.text = listView.currentItem.text
     }
 }
