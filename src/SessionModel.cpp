@@ -51,6 +51,7 @@ namespace SDE {
         QHash<int, QByteArray> roleNames;
         roleNames[FileRole] = "file";
         roleNames[NameRole] = "name";
+        roleNames[ExecRole] = "exec";
         roleNames[CommentRole] = "comment";
         // set role names
         setRoleNames(roleNames);
@@ -100,6 +101,7 @@ namespace SDE {
         QHash<int, QByteArray> roleNames;
         roleNames[FileRole] = "file";
         roleNames[NameRole] = "name";
+        roleNames[ExecRole] = "exec";
         roleNames[CommentRole] = "comment";
 
         return roleNames;
@@ -126,6 +128,8 @@ namespace SDE {
             return session->file;
         else if (role == NameRole)
             return session->name;
+        else if (role == ExecRole)
+            return session->exec;
         else if (role == CommentRole)
             return session->comment;
 

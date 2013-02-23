@@ -33,6 +33,7 @@ namespace SDE {
         enum SessionRole {
             FileRole = Qt::UserRole + 1,
             NameRole,
+            ExecRole,
             CommentRole
         };
 
