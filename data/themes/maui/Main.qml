@@ -42,175 +42,184 @@ Rectangle {
 
     FontLoader { id: clockFont; source: "GeosansLight.ttf" }
 
-    Background {
-        anchors.fill: parent
-        source: config.background
-        fillMode: Image.PreserveAspectCrop
-    }
-
-    Component {
-        id: userDelegate
-
-        PictureBox {
-            anchors.verticalCenter: parent.verticalCenter
-            name: (model.realName === "") ? model.name : model.realName
-            icon: model.icon
-
-            focus: (listView.currentIndex === index) ? true : false
-            state: (listView.currentIndex === index) ? "active" : ""
-
-            onLogin: { sessionManager.login(model.name, password, session.index); password = "" }
-
-            MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                onEntered: listView.currentIndex = index
-                onClicked: listView.focus = true
-            }
-        }
-    }
-
-    Row {
-        anchors.fill: parent
-
-        Rectangle {
-            width: parent.width / 2; height: parent.height
-            color: "#00000000"
-
-            Clock {
-                id: clock
-                anchors.centerIn: parent
-                color: "white"
-                font: clockFont.name
-            }
-        }
-
-        Rectangle {
-            width: parent.width / 2; height: parent.height
-            color: "#22000000"
-            clip: true
-
-            Item {
-                id: usersContainer
-                width: parent.width; height: 300
-                anchors.verticalCenter: parent.verticalCenter
-
-                ImageButton {
-                    id: prevUser
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.margins: 10
-                    source: "angle-left.png"
-                    onClicked: listView.decrementCurrentIndex()
-
-                    KeyNavigation.backtab: btnShutdown; KeyNavigation.tab: listView
-                }
-
-                ListView {
-                    id: listView
-                    height: parent.height
-                    anchors.left: prevUser.right; anchors.right: nextUser.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.margins: 10
-
-                    clip: true
-                    focus: true
-
-                    spacing: 5
-
-                    model: userModel
-                    delegate: userDelegate
-                    orientation: ListView.Horizontal
-                    currentIndex: userModel.lastIndex
-
-                    KeyNavigation.backtab: prevUser; KeyNavigation.tab: nextUser
-                }
-
-                ImageButton {
-                    id: nextUser
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.margins: 10
-                    source: "angle-right.png"
-                    onClicked: listView.incrementCurrentIndex()
-                    KeyNavigation.backtab: listView; KeyNavigation.tab: session
-                }
-            }
-
-            Text {
-                id: txtMessage
-                anchors.top: usersContainer.bottom;
-                anchors.margins: 20
-                anchors.horizontalCenter: parent.horizontalCenter
-                color: "white"
-                text: qsTr("Select your user and enter password.")
-
-                font.pixelSize: 20
-            }
+    Repeater {
+        model: screenModel
+        Background {
+            x: geometry.x; y: geometry.y; width: geometry.width; height:geometry.height
+            source: config.background
+            fillMode: Image.PreserveAspectCrop
         }
     }
 
     Rectangle {
-        id: actionBar
-        anchors.top: parent.top;
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width; height: 40
+        property variant geometry: screenModel.geometry(screenModel.primary)
+        x: geometry.x; y: geometry.y; width: geometry.width; height: geometry.height
+        color: "transparent"
 
-        Row {
-            anchors.left: parent.left
-            anchors.margins: 5
-            height: parent.height
-            spacing: 5
+        Component {
+            id: userDelegate
 
-            Text {
-                height: parent.height
+            PictureBox {
                 anchors.verticalCenter: parent.verticalCenter
+                name: (model.realName === "") ? model.name : model.realName
+                icon: model.icon
 
-                text: qsTr("Session:")
-                font.pixelSize: 16
-                verticalAlignment: Text.AlignVCenter
-            }
+                focus: (listView.currentIndex === index) ? true : false
+                state: (listView.currentIndex === index) ? "active" : ""
 
-            ComboBox {
-                id: session
-                width: 245
-                anchors.verticalCenter: parent.verticalCenter
+                onLogin: { sessionManager.login(model.name, password, session.index); password = "" }
 
-                arrowIcon: "angle-down.png"
-
-                model: sessionModel
-                index: sessionModel.lastIndex
-
-                font.pixelSize: 14
-
-                KeyNavigation.backtab: nextUser; KeyNavigation.tab: btnReboot
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: listView.currentIndex = index
+                    onClicked: listView.focus = true
+                }
             }
         }
 
         Row {
-            height: parent.height
-            anchors.right: parent.right
-            anchors.margins: 5
-            spacing: 5
+            anchors.fill: parent
 
-            ImageButton {
-                id: btnReboot
-                height: parent.height
-                source: "reboot.png"
+            Rectangle {
+                width: parent.width / 2; height: parent.height
+                color: "#00000000"
 
-                onClicked: powerManager.reboot()
-
-                KeyNavigation.backtab: session; KeyNavigation.tab: btnShutdown
+                Clock {
+                    id: clock
+                    anchors.centerIn: parent
+                    color: "white"
+                    font: clockFont.name
+                }
             }
 
-            ImageButton {
-                id: btnShutdown
+            Rectangle {
+                width: parent.width / 2; height: parent.height
+                color: "#22000000"
+                clip: true
+
+                Item {
+                    id: usersContainer
+                    width: parent.width; height: 300
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    ImageButton {
+                        id: prevUser
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.margins: 10
+                        source: "angle-left.png"
+                        onClicked: listView.decrementCurrentIndex()
+
+                        KeyNavigation.backtab: btnShutdown; KeyNavigation.tab: listView
+                    }
+
+                    ListView {
+                        id: listView
+                        height: parent.height
+                        anchors.left: prevUser.right; anchors.right: nextUser.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.margins: 10
+
+                        clip: true
+                        focus: true
+
+                        spacing: 5
+
+                        model: userModel
+                        delegate: userDelegate
+                        orientation: ListView.Horizontal
+                        currentIndex: userModel.lastIndex
+
+                        KeyNavigation.backtab: prevUser; KeyNavigation.tab: nextUser
+                    }
+
+                    ImageButton {
+                        id: nextUser
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.margins: 10
+                        source: "angle-right.png"
+                        onClicked: listView.incrementCurrentIndex()
+                        KeyNavigation.backtab: listView; KeyNavigation.tab: session
+                    }
+                }
+
+                Text {
+                    id: txtMessage
+                    anchors.top: usersContainer.bottom;
+                    anchors.margins: 20
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: "white"
+                    text: qsTr("Select your user and enter password.")
+
+                    font.pixelSize: 20
+                }
+            }
+        }
+
+        Rectangle {
+            id: actionBar
+            anchors.top: parent.top;
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width; height: 40
+
+            Row {
+                anchors.left: parent.left
+                anchors.margins: 5
                 height: parent.height
-                source: "shutdown.png"
+                spacing: 5
 
-                onClicked: powerManager.powerOff()
+                Text {
+                    height: parent.height
+                    anchors.verticalCenter: parent.verticalCenter
 
-                KeyNavigation.backtab: btnReboot; KeyNavigation.tab: prevUser
+                    text: qsTr("Session:")
+                    font.pixelSize: 16
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                ComboBox {
+                    id: session
+                    width: 245
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    arrowIcon: "angle-down.png"
+
+                    model: sessionModel
+                    index: sessionModel.lastIndex
+
+                    font.pixelSize: 14
+
+                    KeyNavigation.backtab: nextUser; KeyNavigation.tab: btnReboot
+                }
+            }
+
+            Row {
+                height: parent.height
+                anchors.right: parent.right
+                anchors.margins: 5
+                spacing: 5
+
+                ImageButton {
+                    id: btnReboot
+                    height: parent.height
+                    source: "reboot.png"
+
+                    onClicked: powerManager.reboot()
+
+                    KeyNavigation.backtab: session; KeyNavigation.tab: btnShutdown
+                }
+
+                ImageButton {
+                    id: btnShutdown
+                    height: parent.height
+                    source: "shutdown.png"
+
+                    onClicked: powerManager.powerOff()
+
+                    KeyNavigation.backtab: btnReboot; KeyNavigation.tab: prevUser
+                }
             }
         }
     }
