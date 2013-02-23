@@ -44,6 +44,7 @@ namespace SDE {
         QString rebootCommand { "" };
 
         QString sessionsDir { "" };
+        bool rememberLastSession { true };
         QString lastSession { "" };
         QString sessionCommand { "" };
 
@@ -88,6 +89,7 @@ namespace SDE {
         d->haltCommand = settings.value("HaltCommand", "").toString();
         d->rebootCommand = settings.value("RebootCommand", "").toString();
         d->sessionsDir = settings.value("SessionsDir", "").toString();
+        d->rememberLastSession = settings.value("RememberLastSession", d->rememberLastSession).toBool();
         d->lastSession = settings.value("LastSession", "").toString();
         d->sessionCommand = settings.value("SessionCommand", "").toString();
         d->facesDir = settings.value("FacesDir", "").toString();
@@ -113,6 +115,7 @@ namespace SDE {
         settings.setValue("HaltCommand", d->haltCommand);
         settings.setValue("RebootCommand", d->rebootCommand);
         settings.setValue("SessionsDir", d->sessionsDir);
+        settings.setValue("RememberLastSession", d->rememberLastSession);
         settings.setValue("LastSession", d->lastSession);
         settings.setValue("SessionCommand", d->sessionCommand);
         settings.setValue("FacesDir", d->facesDir);
@@ -177,7 +180,8 @@ namespace SDE {
     }
 
     void Configuration::setLastSession(const QString &lastSession) {
-        d->lastSession = lastSession;
+        if (d->rememberLastSession)
+            d->lastSession = lastSession;
     }
 
     const QString &Configuration::facesDir() const {

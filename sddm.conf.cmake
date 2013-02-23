@@ -35,6 +35,12 @@ SessionsDir=/usr/share/xsessions
 # the login screen shows up.
 LastSession=
 
+# If this flag is true, LastSession value will updated
+# on every successfull login, if false last session value
+# wont be updated.
+# Default value is true
+RememberLastUser=true
+
 # Path of script to execute when starting the desktop session
 SessionCommand=${DATA_INSTALL_DIR}/scripts/Xsession
 
