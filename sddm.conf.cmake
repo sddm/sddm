@@ -56,6 +56,12 @@ MinimumUid=1000
 # preselected/shown when the login screen shows up.
 LastUser=
 
+# If this flag is true, LastUser value will updated
+# on every successfull login, if false last user value
+# wont be updated.
+# Default value is true
+RememberLastUser=false
+
 # Name of the user to automatically log in when the
 # system starts first time.
 AutoUser=
