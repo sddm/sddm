@@ -66,7 +66,7 @@ LastUser=
 # on every successfull login, if false last user value
 # wont be updated.
 # Default value is true
-RememberLastUser=false
+RememberLastUser=true
 
 # Name of the user to automatically log in when the
 # system starts first time.
