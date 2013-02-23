@@ -1,5 +1,4 @@
 * Find a way to save config file without losing comments
-* Remembering last username, last session should be configurable.
 * Handle term/kill signals, exit gracefully.
 * Don't execute shutdown, reboot etc in test mode.
 * Translation support for themes
