@@ -44,159 +44,168 @@ Rectangle {
         }
     }
 
-    Background {
-        anchors.fill: parent
-        source: config.background
-        fillMode: Image.Tile
+    Repeater {
+        model: screenModel
+        Background {
+            x: geometry.x; y: geometry.y; width: geometry.width; height:geometry.height
+            source: config.background
+            fillMode: Image.Tile
+        }
     }
 
     Rectangle {
-        anchors.centerIn: parent
-        width: 320; height: 320
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#c3c3c3" }
-            GradientStop { position: 0.5; color: "#e5e5e5" }
-            GradientStop { position: 1.0; color: "#c3c3c3" }
-        }
+        property variant geometry: screenModel.geometry(screenModel.primary)
+        x: geometry.x; y: geometry.y; width: geometry.width; height: geometry.height
+        color: "transparent"
 
-        border.color: "#ababab"
-        border.width: 1
-
-        Column {
+        Rectangle {
             anchors.centerIn: parent
-            spacing: 12
-            Text {
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width
-                color: "black"
-                text: qsTr("Welcome to ") + sessionManager.hostName
-                font.pixelSize: 24
-                elide: Text.ElideRight
-                horizontalAlignment: Text.AlignHCenter
+            width: 320; height: 320
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#c3c3c3" }
+                GradientStop { position: 0.5; color: "#e5e5e5" }
+                GradientStop { position: 1.0; color: "#c3c3c3" }
             }
 
-            Column {
-                width: parent.width
-                spacing: 4
-                Text {
-                    id: lblName
-                    width: 60
-                    text: qsTr("User name")
-                    font.bold: true
-                    font.pixelSize: 12
-                }
-
-                TextBox {
-                    id: name
-                    width: parent.width; height: 30
-                    text: userModel.lastUser
-                    font.pixelSize: 14
-
-                    KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password
-
-                    Keys.onPressed: {
-                        if (event.key === Qt.Key_Return) {
-                            sessionManager.login(name.text, password.text, session.index)
-                            event.accepted = true
-                        }
-                    }
-                }
-            }
+            border.color: "#ababab"
+            border.width: 1
 
             Column {
-                width: parent.width
-                spacing : 4
+                anchors.centerIn: parent
+                spacing: 12
                 Text {
-                    id: lblPassword
-                    width: 60
-                    text: qsTr("Password")
-                    font.bold: true
-                    font.pixelSize: 12
-                }
-
-                TextBox {
-                    id: password
-                    width: parent.width; height: 30
-                    font.pixelSize: 14
-
-                    echoMode: TextInput.Password
-
-                    KeyNavigation.backtab: name; KeyNavigation.tab: session
-
-                    Keys.onPressed: {
-                        if (event.key === Qt.Key_Return) {
-                            sessionManager.login(name.text, password.text, session.index)
-                            event.accepted = true
-                        }
-                    }
-                }
-            }
-
-            Column {
-                z: 100
-                width: parent.width
-                spacing : 4
-                Text {
-                    id: lblSession
-                    width: 60
-                    text: qsTr("Session")
-                    font.bold: true
-                    font.pixelSize: 12
-                }
-
-                ComboBox {
-                    id: session
-                    width: parent.width; height: 30
-
-                    arrowIcon: "angle-down.png"
-
-                    model: sessionModel
-                    index: sessionModel.lastIndex
-
-                    font.pixelSize: 14
-
-                    KeyNavigation.backtab: password; KeyNavigation.tab: loginButton
-                }
-            }
-
-            Column {
-                width: parent.width
-                Text {
-                    id: errorMessage
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Enter your user name and password.")
-                    font.pixelSize: 10
-                }
-            }
-
-            Row {
-                spacing: 4
-                anchors.horizontalCenter: parent.horizontalCenter
-                Button {
-                    id: loginButton
-                    text: qsTr("Login")
-
-                    onClicked: sessionManager.login(name.text, password.text, session.index)
-
-                    KeyNavigation.backtab: session; KeyNavigation.tab: shutdownButton
+                    width: parent.width
+                    color: "black"
+                    text: qsTr("Welcome to ") + sessionManager.hostName
+                    font.pixelSize: 24
+                    elide: Text.ElideRight
+                    horizontalAlignment: Text.AlignHCenter
                 }
 
-                Button {
-                    id: shutdownButton
-                    text: qsTr("Shutdown")
+                Column {
+                    width: parent.width
+                    spacing: 4
+                    Text {
+                        id: lblName
+                        width: 60
+                        text: qsTr("User name")
+                        font.bold: true
+                        font.pixelSize: 12
+                    }
 
-                    onClicked: powerManager.powerOff()
+                    TextBox {
+                        id: name
+                        width: parent.width; height: 30
+                        text: userModel.lastUser
+                        font.pixelSize: 14
 
-                    KeyNavigation.backtab: loginButton; KeyNavigation.tab: rebootButton
+                        KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password
+
+                        Keys.onPressed: {
+                            if (event.key === Qt.Key_Return) {
+                                sessionManager.login(name.text, password.text, session.index)
+                                event.accepted = true
+                            }
+                        }
+                    }
                 }
 
-                Button {
-                    id: rebootButton
-                    text: qsTr("Reboot")
+                Column {
+                    width: parent.width
+                    spacing : 4
+                    Text {
+                        id: lblPassword
+                        width: 60
+                        text: qsTr("Password")
+                        font.bold: true
+                        font.pixelSize: 12
+                    }
 
-                    onClicked: powerManager.reboot()
+                    TextBox {
+                        id: password
+                        width: parent.width; height: 30
+                        font.pixelSize: 14
 
-                    KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: name
+                        echoMode: TextInput.Password
+
+                        KeyNavigation.backtab: name; KeyNavigation.tab: session
+
+                        Keys.onPressed: {
+                            if (event.key === Qt.Key_Return) {
+                                sessionManager.login(name.text, password.text, session.index)
+                                event.accepted = true
+                            }
+                        }
+                    }
+                }
+
+                Column {
+                    z: 100
+                    width: parent.width
+                    spacing : 4
+                    Text {
+                        id: lblSession
+                        width: 60
+                        text: qsTr("Session")
+                        font.bold: true
+                        font.pixelSize: 12
+                    }
+
+                    ComboBox {
+                        id: session
+                        width: parent.width; height: 30
+
+                        arrowIcon: "angle-down.png"
+
+                        model: sessionModel
+                        index: sessionModel.lastIndex
+
+                        font.pixelSize: 14
+
+                        KeyNavigation.backtab: password; KeyNavigation.tab: loginButton
+                    }
+                }
+
+                Column {
+                    width: parent.width
+                    Text {
+                        id: errorMessage
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: qsTr("Enter your user name and password.")
+                        font.pixelSize: 10
+                    }
+                }
+
+                Row {
+                    spacing: 4
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Button {
+                        id: loginButton
+                        text: qsTr("Login")
+
+                        onClicked: sessionManager.login(name.text, password.text, session.index)
+
+                        KeyNavigation.backtab: session; KeyNavigation.tab: shutdownButton
+                    }
+
+                    Button {
+                        id: shutdownButton
+                        text: qsTr("Shutdown")
+
+                        onClicked: powerManager.powerOff()
+
+                        KeyNavigation.backtab: loginButton; KeyNavigation.tab: rebootButton
+                    }
+
+                    Button {
+                        id: rebootButton
+                        text: qsTr("Reboot")
+
+                        onClicked: powerManager.reboot()
+
+                        KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: name
+                    }
                 }
             }
         }
