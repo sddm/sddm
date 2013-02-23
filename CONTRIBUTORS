@@ -1,0 +1,12 @@
+This list contains list of contributors to the sddm. Names are sorted by number
+of commits at time of this writing. Commit data has been generated using:
+
+git shortlog -s -e -n
+
+Commit counts have ben removed, since they change pretty frequently.
+
+Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+Reza Fatahilah Shah <rshah0385@kireihana.com>
+Kuzma Shapran <kuzma.shapran@gmail.com>
+Petr Vanek <petr@scribus.info>
+
