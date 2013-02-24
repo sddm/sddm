@@ -118,17 +118,13 @@ namespace SDE {
         QDeclarativeView view;
         view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #endif
-        // create session manager
-        SessionManager sessionManager;
-        // create power manager
-        PowerManager powerManager;
         // create models
         SessionModel sessionModel;
         ScreenModel screenModel;
         UserModel userModel;
         // set context properties
-        view.rootContext()->setContextProperty("sessionManager", &sessionManager);
-        view.rootContext()->setContextProperty("powerManager", &powerManager);
+        view.rootContext()->setContextProperty("sessionManager", nullptr);
+        view.rootContext()->setContextProperty("powerManager", nullptr);
         view.rootContext()->setContextProperty("sessionModel", &sessionModel);
         view.rootContext()->setContextProperty("screenModel", &screenModel);
         view.rootContext()->setContextProperty("userModel", &userModel);

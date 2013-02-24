@@ -1,6 +1,5 @@
 * Find a way to save config file without losing comments
 * Handle term/kill signals, exit gracefully.
-* Don't execute shutdown, reboot etc in test mode.
 * Translation support for themes
 * Keyboard layout handling
 * On-screen keyboard
