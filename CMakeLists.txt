@@ -22,7 +22,6 @@ else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
-
 # PAM
 find_package(PAM REQUIRED)
 
@@ -62,9 +61,6 @@ if(USE_SYSTEMD)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
     string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
 
-    # add install command
-    install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.systemd DESTINATION ${SYSTEMD_SYSTEM_UNIT_DIR} RENAME sddm.service)
-
     add_definitions(-DUSE_SYSTEMD=true)
 elseif(USE_UPOWER)
     add_definitions(-DUSE_UPOWER=true)
@@ -81,11 +77,7 @@ configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)
 install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc)
 install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc RENAME sddm.conf.sample)
 
-# install pam service file
-install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d RENAME sddm)
-
-# install components
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/${COMPONENTS_VERSION}/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
-
+add_subdirectory(components)
 add_subdirectory(data)
+add_subdirectory(services)
 add_subdirectory(src)
