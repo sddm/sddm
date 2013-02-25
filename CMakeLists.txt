@@ -22,21 +22,6 @@ else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
-set(SOURCES
-  src/Application.cpp
-  src/Authenticator.cpp
-  src/Configuration.cpp
-  src/Cookie.cpp
-  src/DisplayManager.cpp
-  src/LockFile.cpp
-  src/Main.cpp
-  src/PowerManager.cpp
-  src/ScreenModel.cpp
-  src/SessionManager.cpp
-  src/SessionModel.cpp
-  src/UserModel.cpp
-  src/Util.cpp
-)
 
 # PAM
 find_package(PAM REQUIRED)
@@ -47,11 +32,6 @@ find_package(X11 REQUIRED)
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)
 
-  add_executable(sddm ${SOURCES})
-  target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB})
-
-  qt5_use_modules(sddm Quick DBus)
-
   # find qt5 imports dir
   get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
   exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_IMPORTS" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
@@ -59,16 +39,9 @@ if(USE_QT5)
   set(COMPONENTS_VERSION 2.0)
 else()
   find_package(Qt4 REQUIRED)
-  set(QT_USE_QTNETWORK TRUE)
-  set(QT_USE_QTDECLARATIVE TRUE)
-  set(QT_USE_QTDBUS TRUE)
-  include(${QT_USE_FILE})
-
-  add_executable(sddm ${SOURCES})
-  target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB} ${QT_LIBRARIES})
 
   set(COMPONENTS_VERSION 1.1)
-endif(USE_QT5)
+endif()
 
 # uninstall target
 configure_file(
@@ -95,7 +68,7 @@ if(USE_SYSTEMD)
     add_definitions(-DUSE_SYSTEMD=true)
 elseif(USE_UPOWER)
     add_definitions(-DUSE_UPOWER=true)
-endif(USE_SYSTEMD)
+endif()
 
 # set paths
 set(BIN_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX}/bin)
@@ -103,9 +76,6 @@ set(DATA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/apps/sddm)
 
 # configure config file
 configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)
-
-# install binary
-install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
 
 # install config file
 install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc)
@@ -118,3 +88,4 @@ install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d R
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/${COMPONENTS_VERSION}/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
 
 add_subdirectory(data)
+add_subdirectory(src)
