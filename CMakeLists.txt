@@ -104,19 +104,6 @@ set(DATA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/apps/sddm)
 # configure config file
 configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)
 
-#configure themes
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/circles/Main.qml          data/themes/circles/Main.qml)
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/circles/metadata.desktop  data/themes/circles/metadata.desktop)
-
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/elarun/Main.qml           data/themes/elarun/Main.qml)
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/elarun/metadata.desktop   data/themes/elarun/metadata.desktop)
-
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/maldives/Main.qml         data/themes/maldives/Main.qml)
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/maldives/metadata.desktop data/themes/maldives/metadata.desktop)
-
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/maui/Main.qml             data/themes/maui/Main.qml)
-configure_file(${CMAKE_SOURCE_DIR}/data/themes/maui/metadata.desktop     data/themes/maui/metadata.desktop)
-
 # install binary
 install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
 
@@ -130,14 +117,4 @@ install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d R
 # install components
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/${COMPONENTS_VERSION}/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
 
-# install data files
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/faces  DESTINATION ${DATA_INSTALL_DIR})
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/themes DESTINATION ${DATA_INSTALL_DIR})
-install(DIRECTORY ${CMAKE_BINARY_DIR}/data/themes DESTINATION ${DATA_INSTALL_DIR})
-
-# install scripts
-install(FILES ${CMAKE_SOURCE_DIR}/data/scripts/Xsession
-        DESTINATION ${DATA_INSTALL_DIR}/scripts
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-        GROUP_READ GROUP_EXECUTE
-        WORLD_READ WORLD_EXECUTE)
+add_subdirectory(data)
