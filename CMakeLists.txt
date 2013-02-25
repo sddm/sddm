@@ -128,11 +128,7 @@ install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc RENAME sddm.conf.sa
 install(FILES ${CMAKE_SOURCE_DIR}/services/sddm.pam     DESTINATION /etc/pam.d RENAME sddm)
 
 # install components
-if(USE_QT5)
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/2.0/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
-else()
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/1.1/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
-endif(USE_QT5)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/components/${COMPONENTS_VERSION}/ DESTINATION ${QT_IMPORTS_DIR}/SddmComponents)
 
 # install data files
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/faces  DESTINATION ${DATA_INSTALL_DIR})
