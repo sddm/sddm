@@ -21,8 +21,6 @@
 
 #include "Configuration.h"
 
-#include <QCoreApplication>
-
 #include <random>
 
 namespace SDE {
