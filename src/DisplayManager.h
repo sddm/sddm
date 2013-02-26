@@ -30,7 +30,7 @@ namespace SDE {
         DisplayManager();
         ~DisplayManager();
 
-        void setCookie(const char *cookie);
+        void setCookie(const QString &cookie);
         void setDisplay(const QString &display);
 
         bool start();

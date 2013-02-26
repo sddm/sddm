@@ -36,7 +36,7 @@ namespace SDE {
 
     class AuthenticatorPrivate {
     public:
-        const char *cookie { nullptr };
+        QString cookie { "" };
 
         QString service { "" };
         QString display { "" };
@@ -121,7 +121,7 @@ namespace SDE {
         delete d;
     }
 
-    void Authenticator::setCookie(const char *cookie) {
+    void Authenticator::setCookie(const QString &cookie) {
         d->cookie = cookie;
     }
 

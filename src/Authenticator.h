@@ -30,7 +30,7 @@ namespace SDE {
         Authenticator(const QString &service);
         ~Authenticator();
 
-        void setCookie(const char *cookie);
+        void setCookie(const QString &cookie);
         void setDisplay(const QString &displayName);
         void setUsername(const QString &username);
         void setPassword(const QString &password);

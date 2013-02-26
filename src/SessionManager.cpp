@@ -94,7 +94,7 @@ namespace SDE {
         return d->hostName;
     }
 
-    void SessionManager::setCookie(const char *cookie) {
+    void SessionManager::setCookie(const QString &cookie) {
         d->authenticator.setCookie(cookie);
     }
 

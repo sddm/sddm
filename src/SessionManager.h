@@ -35,7 +35,7 @@ namespace SDE {
 
         const QString &hostName() const;
 
-        void setCookie(const char *cookie);
+        void setCookie(const QString &cookie);
         void setDisplay(const QString &displayName);
 
         void autoLogin();

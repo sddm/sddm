@@ -24,17 +24,22 @@
 #include <random>
 
 namespace SDE {
-    void Cookie::generate(char *cookie) {
+    QString Cookie::generate() {
+        QString cookie;
+        cookie.reserve(32);
+
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 15);
         // create a random hexadecimal number
         const char *digits = "0123456789abcdef";
-        for (size_t i = 0; i < 32; ++i)
+        for (int i = 0; i < 32; ++i)
             cookie[i] = digits[dis(gen)];
+
+        return cookie;
     }
 
-    bool Cookie::add(const char *cookie, const QString &displayName, const QString &authPath) {
+    bool Cookie::add(const QString &cookie, const QString &displayName, const QString &authPath) {
         QString cmd = QString("%1 -f %2 -q").arg(Configuration::instance()->xauthPath()).arg(authPath);
         // execute xauth
         FILE *fp = popen(cmd.toStdString().c_str(), "w");
@@ -42,7 +47,7 @@ namespace SDE {
         if (!fp)
             return false;
         fprintf(fp, "remove %s\n", displayName.toStdString().c_str());
-        fprintf(fp, "add %s %s %s\n", displayName.toStdString().c_str(), ".", cookie);
+        fprintf(fp, "add %s %s %s\n", displayName.toStdString().c_str(), ".", cookie.toStdString().c_str());
         fprintf(fp, "exit\n");
         // close pipe
         pclose(fp);

@@ -27,8 +27,8 @@ namespace SDE {
     public:
         Cookie() = delete;
 
-        static void generate(char *cookie);
-        static bool add(const char *cookie, const QString &displayName, const QString &authPath);
+        static QString generate();
+        static bool add(const QString &cookie, const QString &displayName, const QString &authPath);
     };
 }
 

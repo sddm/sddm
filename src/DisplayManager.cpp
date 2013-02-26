@@ -30,7 +30,7 @@
 namespace SDE {
     class DisplayManagerPrivate {
     public:
-        const char *cookie;
+        QString cookie { "" };
         QString displayName { ":0" };
         pid_t pid { 0 };
     };
@@ -44,7 +44,7 @@ namespace SDE {
         delete d;
     }
 
-    void DisplayManager::setCookie(const char *cookie) {
+    void DisplayManager::setCookie(const QString &cookie) {
         d->cookie = cookie;
     }
 
