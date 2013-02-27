@@ -26,6 +26,7 @@ namespace SDE {
     class AuthenticatorPrivate;
 
     class Authenticator {
+        Q_DISABLE_COPY(Authenticator)
     public:
         Authenticator(const QString &service);
         ~Authenticator();

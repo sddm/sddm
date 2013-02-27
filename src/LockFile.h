@@ -26,6 +26,7 @@ namespace SDE {
     class LockFilePrivate;
 
     class LockFile {
+        Q_DISABLE_COPY(LockFile)
     public:
         LockFile(const QString &path);
         ~LockFile();

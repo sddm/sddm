@@ -26,6 +26,7 @@ namespace SDE {
     class DisplayManagerPrivate;
 
     class DisplayManager {
+        Q_DISABLE_COPY(DisplayManager)
     public:
         DisplayManager();
         ~DisplayManager();

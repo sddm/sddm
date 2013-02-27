@@ -27,6 +27,7 @@ namespace SDE {
     class ConfigurationPrivate;
 
     class Configuration {
+        Q_DISABLE_COPY(Configuration)
     public:
         Configuration(const QString &configPath);
         ~Configuration();

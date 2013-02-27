@@ -27,6 +27,7 @@ namespace SDE {
     class ApplicationPrivate;
 
     class Application {
+        Q_DISABLE_COPY(Application)
     public:
         Application(int argc, char **argv);
         ~Application();

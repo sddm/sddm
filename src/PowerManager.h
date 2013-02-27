@@ -8,6 +8,7 @@ namespace SDE {
 
     class PowerManager : public QObject {
         Q_OBJECT
+        Q_DISABLE_COPY(PowerManager)
     public:
         PowerManager();
         ~PowerManager();

@@ -28,6 +28,7 @@ namespace SDE {
 
     class SessionModel : public QAbstractListModel {
         Q_OBJECT
+        Q_DISABLE_COPY(SessionModel)
         Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
     public:
         enum SessionRole {

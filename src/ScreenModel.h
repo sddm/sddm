@@ -29,6 +29,7 @@ namespace SDE {
 
     class ScreenModel : public QAbstractListModel {
         Q_OBJECT
+        Q_DISABLE_COPY(ScreenModel)
         Q_PROPERTY(int primary READ primary CONSTANT)
     public:
         enum ScreenRoles {

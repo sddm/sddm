@@ -28,6 +28,7 @@ namespace SDE {
 
     class SessionManager : public QObject {
         Q_OBJECT
+        Q_DISABLE_COPY(SessionManager)
         Q_PROPERTY(QString hostName READ hostName CONSTANT)
     public:
         SessionManager();

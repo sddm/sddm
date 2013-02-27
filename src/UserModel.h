@@ -28,6 +28,7 @@ namespace SDE {
 
     class UserModel : public QAbstractListModel {
         Q_OBJECT
+        Q_DISABLE_COPY(UserModel)
         Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
     public:
