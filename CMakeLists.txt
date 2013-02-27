@@ -33,7 +33,7 @@ if(USE_QT5)
 
   # find qt5 imports dir
   get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
-  exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_IMPORTS" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
+  exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 
   set(COMPONENTS_VERSION 2.0)
 else()
