@@ -10,6 +10,8 @@ set(SOURCES
   ScreenModel.cpp
   SessionManager.cpp
   SessionModel.cpp
+  ThemeConfig.cpp
+  ThemeMetadata.cpp
   UserModel.cpp
   Util.cpp
 )

@@ -27,6 +27,8 @@
 #include "ScreenModel.h"
 #include "SessionManager.h"
 #include "SessionModel.h"
+#include "ThemeConfig.h"
+#include "ThemeMetadata.h"
 #include "UserModel.h"
 #include "Util.h"
 
@@ -87,23 +89,17 @@ namespace SDE {
         if (themePath.isEmpty())
             themePath = QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
 
-        // read main script of the theme
-        QSettings metadata(QString("%1/metadata.desktop").arg(themePath), QSettings::IniFormat);
-        QString mainScript = metadata.value("SddmGreeterTheme/MainScript", "Main.qml").toString();
+        // read theme metadata
+        ThemeMetadata metadata(QString("%1/metadata.desktop").arg(themePath));
 
-        // set theme main script
-        QString main = QString("%1/%2").arg(themePath).arg(mainScript);
+        // get theme main script
+        QString mainScript = QString("%1/%2").arg(themePath).arg(metadata.mainScript());
 
-        // config options
-        QVariantMap config;
-        // read config file
-        QString configFile = metadata.value("SddmGreeterTheme/ConfigFile", "").toString();
+        // get theme config file
+        QString configFile = QString("%1/%2").arg(themePath).arg(metadata.configFile());
 
-        if (!configFile.isEmpty()) {
-            QSettings themeConfig(QString("%1/%2").arg(themePath).arg(configFile), QSettings::IniFormat);
-            for (const QString &key: themeConfig.allKeys())
-                config.insert(key, themeConfig.value(key));
-        }
+        // read theme config
+        ThemeConfig config(configFile);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         // create application
@@ -130,7 +126,7 @@ namespace SDE {
         view.rootContext()->setContextProperty("userModel", &userModel);
         view.rootContext()->setContextProperty("config", config);
         // load theme
-        view.setSource(QUrl::fromLocalFile(main));
+        view.setSource(QUrl::fromLocalFile(mainScript));
         // show application
         view.showFullScreen();
         // execute application
@@ -153,23 +149,17 @@ namespace SDE {
             // get theme path
             QString themePath = QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme());
 
-            // read main script of the theme
-            QSettings metadata(QString("%1/metadata.desktop").arg(themePath), QSettings::IniFormat);
-            QString mainScript = metadata.value("SddmGreeterTheme/MainScript", "Main.qml").toString();
+            // read theme metadata
+            ThemeMetadata metadata(QString("%1/metadata.desktop").arg(themePath));
 
-            // set theme main script
-            QString main = QString("%1/%2").arg(themePath).arg(mainScript);
+            // get theme main script
+            QString mainScript = QString("%1/%2").arg(themePath).arg(metadata.mainScript());
 
-            // config options
-            QVariantMap config;
-            // read config file
-            QString configFile = metadata.value("SddmGreeterTheme/ConfigFile", "").toString();
+            // get theme config file
+            QString configFile = QString("%1/%2").arg(themePath).arg(metadata.configFile());
 
-            if (!configFile.isEmpty()) {
-                QSettings themeConfig(QString("%1/%2").arg(themePath).arg(configFile), QSettings::IniFormat);
-                for (const QString &key: themeConfig.allKeys())
-                    config.insert(key, themeConfig.value(key));
-            }
+            // read theme config
+            ThemeConfig config(configFile);
 
             // set DISPLAY environment variable if not set
             if (getenv("DISPLAY") == nullptr)
@@ -241,7 +231,7 @@ namespace SDE {
                 view.rootContext()->setContextProperty("userModel", &userModel);
                 view.rootContext()->setContextProperty("config", config);
                 // load qml file
-                view.setSource(QUrl::fromLocalFile(main));
+                view.setSource(QUrl::fromLocalFile(mainScript));
                 // close view on successful login
                 QObject::connect(&sessionManager, SIGNAL(success()), &view, SLOT(close()));
                 // show view
