@@ -19,34 +19,80 @@
 
 #include "PowerManager.h"
 
-#include "Configuration.h"
-
 #include <QDBusInterface>
 #include <QDBusReply>
 
-#if !USE_SYSTEMD
+#ifndef USE_SYSTEMD
+#include "Configuration.h"
+
 #include <QProcess>
 #endif
 
 namespace SDE {
     class PowerManagerPrivate {
     public:
-        PowerManagerPrivate() {
-#if USE_SYSTEMD
-            powerInterface = new QDBusInterface("org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", QDBusConnection::systemBus());
-#elif USE_UPOWER
-            powerInterface = new QDBusInterface("org.freedesktop.UPower", "/org/freedesktop/UPower", "org.freedesktop.UPower", QDBusConnection::systemBus());
-#endif
-        }
-
-        ~PowerManagerPrivate() {
-            delete powerInterface;
-        }
-
-        QDBusInterface *powerInterface { nullptr };
+        QDBusInterface *interface { nullptr };
     };
 
-    PowerManager::PowerManager() : d(new PowerManagerPrivate()) {
+#ifdef USE_SYSTEMD
+    PowerManager::PowerManager(QObject *parent) : QObject(parent), d(new PowerManagerPrivate()) {
+        d->interface = new QDBusInterface("org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", QDBusConnection::systemBus());
+    }
+
+    PowerManager::~PowerManager() {
+        delete d;
+    }
+
+
+    bool PowerManager::canPowerOff() const {
+        QDBusReply<QString> reply = d->interface->call("CanPowerOff");
+        return reply.isValid() && (reply.value() == "yes");
+    }
+
+    bool PowerManager::canReboot() const {
+        QDBusReply<QString> reply = d->interface->call("CanReboot");
+        return reply.isValid() && (reply.value() == "yes");
+    }
+
+    bool PowerManager::canSuspend() const {
+        QDBusReply<QString> reply = d->interface->call("CanSuspend");
+        return reply.isValid() && (reply.value() == "yes");
+    }
+
+    bool PowerManager::canHibernate() const {
+        QDBusReply<QString> reply = d->interface->call("CanHibernate");
+        return reply.isValid() && (reply.value() == "yes");
+    }
+
+
+    bool PowerManager::canHybridSleep() const {
+        QDBusReply<QString> reply = d->interface->call("CanHybridSleep");
+        return reply.isValid() && (reply.value() == "yes");
+    }
+
+    void PowerManager::powerOff() {
+        d->interface->call("PowerOff", true);
+    }
+
+    void PowerManager::reboot() {
+        d->interface->call("Reboot", true);
+    }
+
+    void PowerManager::suspend() {
+        d->interface->call("Suspend", true);
+    }
+
+    void PowerManager::hibernate() {
+        d->interface->call("Hibernate", true);
+    }
+
+    void PowerManager::hybridSleep() {
+        d->interface->call("HybridSleep", true);
+    }
+
+#else
+    PowerManager::PowerManager(QObject *parent) : QObject(parent), d(new PowerManagerPrivate()) {
+        d->interface = new QDBusInterface("org.freedesktop.UPower", "/org/freedesktop/UPower", "org.freedesktop.UPower", QDBusConnection::systemBus());
     }
 
     PowerManager::~PowerManager() {
@@ -54,92 +100,44 @@ namespace SDE {
     }
 
     bool PowerManager::canPowerOff() const {
-#if USE_SYSTEMD
-        QDBusReply<QString> reply = d->powerInterface->call("CanPowerOff");
-        return reply.isValid() && (reply.value() == "yes");
-#else
         return true;
-#endif
     }
 
     bool PowerManager::canReboot() const {
-#if USE_SYSTEMD
-        QDBusReply<QString> reply = d->powerInterface->call("CanReboot");
-        return reply.isValid() && (reply.value() == "yes");
-#else
         return true;
-#endif
     }
 
     bool PowerManager::canSuspend() const {
-#if USE_SYSTEMD
-        QDBusReply<QString> reply = d->powerInterface->call("CanSuspend");
-        return reply.isValid() && (reply.value() == "yes");
-#elif USE_UPOWER
-        QDBusReply<bool> reply = d->powerInterface->call("SuspendAllowed");
+        QDBusReply<bool> reply = d->interface->call("SuspendAllowed");
         return reply.isValid() && reply.value();
-#else
-        return false;
-#endif
     }
 
     bool PowerManager::canHibernate() const {
-#if USE_SYSTEMD
-        QDBusReply<QString> reply = d->powerInterface->call("CanHibernate");
-        return reply.isValid() && (reply.value() == "yes");
-#elif USE_UPOWER
-        QDBusReply<bool> reply = d->powerInterface->call("HibernateAllowed");
+        QDBusReply<bool> reply = d->interface->call("HibernateAllowed");
         return reply.isValid() && reply.value();
-#else
-        return false;
-#endif
     }
 
-
     bool PowerManager::canHybridSleep() const {
-#if USE_SYSTEMD
-        QDBusReply<QString> reply = d->powerInterface->call("CanHybridSleep");
-        return reply.isValid() && (reply.value() == "yes");
-#else
         return false;
-#endif
     }
 
     void PowerManager::powerOff() {
-#if USE_SYSTEMD
-        d->powerInterface->call("PowerOff", true);
-#else
         QProcess::execute(Configuration::instance()->haltCommand());
-#endif
     }
 
     void PowerManager::reboot() {
-#if USE_SYSTEMD
-        d->powerInterface->call("Reboot", true);
-#else
         QProcess::execute(Configuration::instance()->rebootCommand());
-#endif
     }
 
     void PowerManager::suspend() {
-#if USE_SYSTEMD
-        d->powerInterface->call("Suspend", true);
-#elif USE_UPOWER
-        d->powerInterface->call("Suspend");
-#endif
+        d->interface->call("Suspend");
     }
 
     void PowerManager::hibernate() {
-#if USE_SYSTEMD
-        d->powerInterface->call("Hibernate", true);
-#elif USE_UPOWER
-        d->powerInterface->call("Hibernate");
-#endif
+        d->interface->call("Hibernate");
     }
 
     void PowerManager::hybridSleep() {
-#if USE_SYSTEMD
-        d->powerInterface->call("HybridSleep", true);
-#endif
     }
+#endif
 }

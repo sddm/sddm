@@ -61,9 +61,7 @@ if(USE_SYSTEMD)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
     string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
 
-    add_definitions(-DUSE_SYSTEMD=true)
-elseif(USE_UPOWER)
-    add_definitions(-DUSE_UPOWER=true)
+    add_definitions(-DUSE_SYSTEMD)
 endif()
 
 # set paths

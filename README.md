@@ -30,11 +30,7 @@ There are several flags that can be used to modify compilation:
 
 * To enable systemd support use `-DUSE_SYSTEMD=true`
 
-* To enable upower support use `-DUSE_UPOWER=true`
-
-Note that in order to have working suspend and hibernate, you need to have either systemd or upower support built. If both options are given systemd is preferred.
-
-Also note that if any of systemd or upower support has been built, HaltCommand and RebootCommand config entries have no effect. Instead systemd or upower is called to carry out the command.
+If systemd support is built, it will be used for power management and HaltCommand and RebootCommand config entries will have no effect. Otherwise upower will be used for suspend and hibernate, for shutdown and reboot, HaltCommand and RebootCommand will be used respectively.
 
 To install simply call`sudo make install`.
 
@@ -52,7 +48,7 @@ SDDM themes are a collection of qml files and needed resources residing in a dir
 
 __SESSION MANAGER__
 
-This class contains several functions useful for the themes and can be accessed through a context property named _sessionManager_ within the themes. 
+This class contains several functions useful for the themes and can be accessed through a context property named _sessionManager_ within the themes.
 
 __hostName__: Host name of the computer SDDM running on. You can use this property, for example for a welcome message.
 

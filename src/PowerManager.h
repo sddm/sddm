@@ -29,7 +29,7 @@ namespace SDE {
         Q_OBJECT
         Q_DISABLE_COPY(PowerManager)
     public:
-        PowerManager();
+        PowerManager(QObject *parent = 0);
         ~PowerManager();
 
     public slots:
