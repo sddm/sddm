@@ -64,16 +64,17 @@ if(USE_SYSTEMD)
     add_definitions(-DUSE_SYSTEMD)
 endif()
 
-# set paths
-set(BIN_INSTALL_DIR  ${CMAKE_INSTALL_PREFIX}/bin)
-set(DATA_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/apps/sddm)
+# set constants
+set(BIN_INSTALL_DIR     "${CMAKE_INSTALL_PREFIX}/bin"               CACHE PATH  "System binary install directory")
+set(DATA_INSTALL_DIR    "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACHE PATH  "System data install directory")
+set(CONF_INSTALL_DIR    "/etc"                                      CACHE PATH  "System config directory")
 
 # configure config file
 configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)
 
 # install config file
-install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc)
-install(FILES ${CMAKE_BINARY_DIR}/sddm.conf DESTINATION /etc RENAME sddm.conf.sample)
+install(FILES           "${CMAKE_BINARY_DIR}/sddm.conf"             DESTINATION ${CONF_INSTALL_DIR})
+install(FILES           "${CMAKE_BINARY_DIR}/sddm.conf"             DESTINATION ${CONF_INSTALL_DIR} RENAME sddm.conf.sample)
 
 add_subdirectory(components)
 add_subdirectory(data)
