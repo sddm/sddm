@@ -24,6 +24,7 @@
 #include "Constants.h"
 #include "DaemonApp.h"
 #include "DisplayServer.h"
+#include "Messages.h"
 #include "PowerManager.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -68,7 +69,7 @@ namespace SDE {
         connect(m_socketServer, SIGNAL(hybridSleep()), this, SLOT(hybridSleep()));
 
         // connect signals
-        connect(this, SIGNAL(capabilities(QLocalSocket*,Capabilities)), m_socketServer, SLOT(capabilities(QLocalSocket*,Capabilities)));
+        connect(this, SIGNAL(capabilities(QLocalSocket*,quint32)), m_socketServer, SLOT(capabilities(QLocalSocket*,quint32)));
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
@@ -172,8 +173,33 @@ namespace SDE {
     }
 
     void Display::capabilities(QLocalSocket *socket) {
-        // log message
-        qDebug() << " DAEMON: IMPLEMENT CAPABILITIES.";
+        PowerManager *powerManager = qobject_cast<DaemonApp *>(qApp)->powerManager();
+
+        // init capabilities
+        quint32 caps = 0;
+
+        // power off
+        if (powerManager->canPowerOff())
+            caps |= quint32(Capabilities::PowerOff);
+
+        // reboot
+        if (powerManager->canReboot())
+            caps |= quint32(Capabilities::Reboot);
+
+        // suspend
+        if (powerManager->canSuspend())
+            caps |= quint32(Capabilities::Suspend);
+
+        // hibernate
+        if (powerManager->canHibernate())
+            caps |= quint32(Capabilities::Hibernate);
+
+        // hybrid sleep
+        if (powerManager->canHybridSleep())
+            caps |= quint32(Capabilities::HybridSleep);
+
+        // emit signal
+        emit capabilities(socket, caps);
     }
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {

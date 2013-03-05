@@ -182,8 +182,8 @@ namespace SDE {
         }
     }
 
-    void SocketServer::capabilities(QLocalSocket *socket, Capabilities capabilities) {
-        SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(capabilities);
+    void SocketServer::capabilities(QLocalSocket *socket, quint32 capabilities) {
+        SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << capabilities;
     }
 
     void SocketServer::loginFailed(QLocalSocket *socket) {

@@ -25,8 +25,6 @@
 class QLocalSocket;
 
 namespace SDE {
-    enum class Capabilities;
-
     class Authenticator;
     class DisplayServer;
     class SocketServer;
@@ -57,7 +55,7 @@ namespace SDE {
         void hybridSleep();
 
     signals:
-        void capabilities(QLocalSocket *socket, enum Capabilities capabilities);
+        void capabilities(QLocalSocket *socket, quint32 capabilities);
 
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);

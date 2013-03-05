@@ -27,8 +27,6 @@ class QLocalServer;
 class QLocalSocket;
 
 namespace SDE {
-    enum class Capabilities;
-
     class SocketServer : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(SocketServer)
@@ -44,7 +42,7 @@ namespace SDE {
         void newConnection();
         void readyRead();
 
-        void capabilities(QLocalSocket *socket, enum Capabilities capabilities);
+        void capabilities(QLocalSocket *socket, quint32 capabilities);
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
 
