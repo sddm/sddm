@@ -30,6 +30,8 @@ Rectangle {
     width: 1024
     height: 768
 
+    property int sessionIndex: session.index
+
     Connections {
         target: sddm
         onLoginSucceeded: {
@@ -68,7 +70,7 @@ Rectangle {
                 focus: (listView.currentIndex === index) ? true : false
                 state: (listView.currentIndex === index) ? "active" : ""
 
-                onLogin: sddm.login(model.name, password, session.file);
+                onLogin: sddm.login(model.name, password, sessionIndex);
 
                 MouseArea {
                     anchors.fill: parent
