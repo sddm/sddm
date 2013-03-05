@@ -59,18 +59,18 @@ namespace SDE {
         // log message
         qDebug() << " DAEMON: Greeter starting...";
 
-#if !TEST
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         env.insert("DISPLAY", m_display);
         env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
         process->setProcessEnvironment(env);
 
+#if !TEST
         // start greeter
         process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), { "--socket", m_socket, "--theme", m_theme });
 #else
         // start greeter
-        process->start("./sddm-greeter", { "--socket", m_socket, "--theme", m_theme });
+        process->start(QString("%1/sddm-greeter").arg("."), { "--socket", m_socket, "--theme", m_theme });
 #endif
         // wait for greeter to start
         if (!process->waitForStarted()) {
