@@ -127,7 +127,7 @@ namespace SDE {
 }
 
 int main(int argc, char **argv) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) && !TEST
     // install message handler
     qInstallMessageHandler(SDE::MessageHandler);
 #endif
