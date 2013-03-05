@@ -69,8 +69,6 @@ namespace SDE {
     }
 
     Configuration::~Configuration() {
-        // save settings
-        save();
         // clean up
         delete d;
     }
