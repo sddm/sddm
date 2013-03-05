@@ -19,11 +19,13 @@
 
 #include "UserModel.h"
 
+#include "Constants.h"
 #include "Configuration.h"
 
 #include <QFile>
 #include <QList>
 #include <QTextStream>
+#include <QStringList>
 
 #include <memory>
 
@@ -59,7 +61,7 @@ namespace SDE {
 #endif
 
         // create file object
-        QFile file("/etc/passwd");
+        QFile file(PASSWD_FILE);
         // open file
         if (!file.open(QIODevice::ReadOnly))
             return;

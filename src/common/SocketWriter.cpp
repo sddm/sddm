@@ -17,26 +17,29 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_UTIL_H
-#define SDE_UTIL_H
-
-#include <QString>
-#include <QStringList>
-
-#include <functional>
-
-#include <unistd.h>
+#include "SocketWriter.h"
 
 namespace SDE {
-    class Util {
-    public:
-        Util() = delete;
+    SocketWriter::SocketWriter(QLocalSocket *socket) : socket(socket) {
+        output = new QDataStream(&data, QIODevice::WriteOnly);
+    }
 
-        static pid_t execute(std::function<void (void)> function);
-        static pid_t execute(const QString &program, const QStringList &arguments, std::function<void (void)> function);
-        static int wait(pid_t pid);
-        static int terminate(pid_t pid);
-    };
+    SocketWriter::~SocketWriter() {
+        socket->write(data);
+        socket->flush();
+
+        delete output;
+    }
+
+    SocketWriter &SocketWriter::operator << (const quint32 &u) {
+        *output << u;
+
+        return *this;
+    }
+
+    SocketWriter &SocketWriter::operator << (const QString &s) {
+        *output << s;
+
+        return *this;
+    }
 }
-
-#endif // SDE_UTIL_H

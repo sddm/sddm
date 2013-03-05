@@ -17,39 +17,54 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SESSIONMANAGER_H
-#define SDE_SESSIONMANAGER_H
+#ifndef SDE_GREETERPROXY_H
+#define SDE_GREETERPROXY_H
 
 #include <QObject>
-#include <QString>
+
+class QLocalSocket;
 
 namespace SDE {
-    class SessionManagerPrivate;
+    class SessionModel;
 
-    class SessionManager : public QObject {
+    class GreeterProxyPrivate;
+    class GreeterProxy : public QObject {
         Q_OBJECT
-        Q_DISABLE_COPY(SessionManager)
-        Q_PROPERTY(QString hostName READ hostName CONSTANT)
+        Q_DISABLE_COPY(GreeterProxy)
     public:
-        SessionManager();
-        ~SessionManager();
+        explicit GreeterProxy(const QString &socket, QObject *parent = 0);
+        ~GreeterProxy();
 
-        const QString &hostName() const;
-
-        void setCookie(const QString &cookie);
-        void setDisplay(const QString &displayName);
-
-        void autoLogin();
+        void setSessionModel(SessionModel *model);
 
     public slots:
-        void login(const QString &username, const QString &password, const int sessionIndex);
+        bool canPowerOff() const;
+        bool canReboot() const;
+        bool canSuspend() const;
+        bool canHibernate() const;
+        bool canHybridSleep() const;
+
+        void powerOff();
+        void reboot();
+        void suspend();
+        void hibernate();
+        void hybridSleep();
+
+        void login(const QString &user, const QString &password, const int sessionIndex) const;
+
+    private slots:
+        void connected();
+        void disconnected();
+        void readyRead();
+        void error();
 
     signals:
-        void fail();
-        void success();
+        void loginFailed();
+        void loginSucceeded();
 
     private:
-        SessionManagerPrivate *d { nullptr };
+        GreeterProxyPrivate *d { nullptr };
     };
 }
-#endif // SDE_SESSIONMANAGER_H
+
+#endif // SDE_GREETERPROXY_H

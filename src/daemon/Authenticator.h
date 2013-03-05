@@ -20,26 +20,55 @@
 #ifndef SDE_AUTHENTICATOR_H
 #define SDE_AUTHENTICATOR_H
 
+#include <QObject>
 #include <QString>
 
 namespace SDE {
-    class AuthenticatorPrivate;
+    class SessionProcess;
 
-    class Authenticator {
+    class Credentials : public QObject {
+        Q_OBJECT
+    public:
+        Credentials(QObject *parent = 0) : QObject(parent) {
+        }
+
+        QString user { "" };
+        QString password { "" };
+    };
+
+    class AuthenticatorPrivate;
+    class Authenticator : public QObject {
+        Q_OBJECT
         Q_DISABLE_COPY(Authenticator)
     public:
-        Authenticator(const QString &service);
+        Authenticator(QObject *parent = 0);
         ~Authenticator();
 
-        void setCookie(const QString &cookie);
-        void setDisplay(const QString &displayName);
-        void setUsername(const QString &username);
-        void setPassword(const QString &password);
+    public slots:
+        void setDisplay(const QString &display);
 
-        bool authenticate();
-        void startSession(const QString &loginCommand);
-        void endSession();
+        void generateCookie();
+        void addCookie(const QString &file);
+
+        void putenv(const QString &value);
+
+        bool authenticate(const QString &user, const QString &password);
+
+        bool start(const QString &user, const QString &command);
+        void stop();
+        void finished();
+
+        void waitForFinished();
+
     private:
+        bool m_started { false };
+
+        QString m_display { "" };
+        QString m_cookie { "" };
+
+        Credentials *credentials { nullptr };
+        SessionProcess *process { nullptr };
+
         AuthenticatorPrivate *d { nullptr };
     };
 }

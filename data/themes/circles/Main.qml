@@ -31,14 +31,14 @@ Rectangle {
     height: 480
 
     Connections {
-        target: sessionManager
+        target: sddm
 
-        onSuccess: {
+        onLoginSucceeded: {
             errorMessage.color = "steelblue"
             errorMessage.text = qsTr("Login succeeded.")
         }
 
-        onFail: {
+        onLoginFailed: {
             errorMessage.color = "red"
             errorMessage.text = qsTr("Login failed.")
         }
@@ -77,7 +77,7 @@ Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width
                     color: "black"
-                    text: qsTr("Welcome to ") + sessionManager.hostName
+                    text: qsTr("Welcome to ") + sddm.hostName
                     font.pixelSize: 24
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignHCenter
@@ -104,7 +104,7 @@ Rectangle {
 
                         Keys.onPressed: {
                             if (event.key === Qt.Key_Return) {
-                                sessionManager.login(name.text, password.text, session.index)
+                                sddm.login(name.text, password.text, session.index)
                                 event.accepted = true
                             }
                         }
@@ -133,7 +133,7 @@ Rectangle {
 
                         Keys.onPressed: {
                             if (event.key === Qt.Key_Return) {
-                                sessionManager.login(name.text, password.text, session.index)
+                                sddm.login(name.text, password.text, session.index)
                                 event.accepted = true
                             }
                         }
@@ -184,7 +184,7 @@ Rectangle {
                         id: loginButton
                         text: qsTr("Login")
 
-                        onClicked: sessionManager.login(name.text, password.text, session.index)
+                        onClicked: sddm.login(name.text, password.text, session.index)
 
                         KeyNavigation.backtab: session; KeyNavigation.tab: shutdownButton
                     }
@@ -193,7 +193,7 @@ Rectangle {
                         id: shutdownButton
                         text: qsTr("Shutdown")
 
-                        onClicked: powerManager.powerOff()
+                        onClicked: sddm.powerOff()
 
                         KeyNavigation.backtab: loginButton; KeyNavigation.tab: rebootButton
                     }
@@ -202,7 +202,7 @@ Rectangle {
                         id: rebootButton
                         text: qsTr("Reboot")
 
-                        onClicked: powerManager.reboot()
+                        onClicked: sddm.reboot()
 
                         KeyNavigation.backtab: shutdownButton; KeyNavigation.tab: name
                     }

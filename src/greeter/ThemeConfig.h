@@ -17,25 +17,16 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_LOCKFILE_H
-#define SDE_LOCKFILE_H
+#ifndef SDE_THEMECONFIG_H
+#define SDE_THEMECONFIG_H
 
-#include <QString>
+#include <QVariantMap>
 
 namespace SDE {
-    class LockFilePrivate;
-
-    class LockFile {
-        Q_DISABLE_COPY(LockFile)
+    class ThemeConfig : public QVariantMap {
     public:
-        LockFile(const QString &path);
-        ~LockFile();
-
-        bool success() const;
-
-    private :
-        LockFilePrivate *d;
+        explicit ThemeConfig(const QString &path);
     };
 }
 
-#endif // SDE_LOCKFILE_H
+#endif // SDE_THEMECONFIG_H

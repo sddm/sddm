@@ -43,7 +43,6 @@ namespace SDE {
         delete d;
     }
 
-
     bool PowerManager::canPowerOff() const {
         QDBusReply<QString> reply = d->interface->call("CanPowerOff");
         return reply.isValid() && (reply.value() == "yes");

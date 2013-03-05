@@ -17,30 +17,35 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_APPLICATION_H
-#define SDE_APPLICATION_H
+#ifndef SDE_SIGNALHANDLER_H
+#define SDE_SIGNALHANDLER_H
 
-#include <QString>
-#include <QStringList>
+#include <QObject>
+
+class QSocketNotifier;
 
 namespace SDE {
-    class ApplicationPrivate;
-
-    class Application {
-        Q_DISABLE_COPY(Application)
+    class SignalHandler : public QObject {
+        Q_OBJECT
+        Q_DISABLE_COPY(SignalHandler)
     public:
-        Application(int argc, char **argv);
-        ~Application();
+        SignalHandler(QObject *parent = 0);
 
-        const QStringList &arguments() const;
+        static void initialize();
+        static void hupSignalHandler(int unused);
+        static void intSignalHandler(int unused);
 
-        void init(const QString &config);
-        void test(const QString &theme);
-        void run();
+    signals:
+        void sighupReceived();
+        void sigintReceived();
+
+    private slots:
+        void handleSighup();
+        void handleSigint();
 
     private:
-        ApplicationPrivate *d;
+        QSocketNotifier *snhup { nullptr };
+        QSocketNotifier *snint { nullptr };
     };
 }
-
-#endif // SDE_APPLICATION_H
+#endif // SDE_SIGNALHANDLER_H

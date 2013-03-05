@@ -31,10 +31,10 @@ Rectangle {
     height: 480
 
     Connections {
-        target: sessionManager
-        onSuccess: {
+        target: sddm
+        onLoginSucceeded: {
         }
-        onFail: {
+        onLoginFailed: {
         }
     }
 
@@ -81,7 +81,7 @@ Rectangle {
                     color: "#0b678c"
                     opacity: 0.75
 
-                    text: sessionManager.hostName
+                    text: sddm.hostName
 
                     font.bold: true
                     font.pixelSize: 18
@@ -124,7 +124,7 @@ Rectangle {
 
                             Keys.onPressed: {
                                 if (event.key === Qt.Key_Return) {
-                                    sessionManager.login(user_entry.text, pw_entry.text, menu_session.index)
+                                    sddm.login(user_entry.text, pw_entry.text, menu_session.index)
                                     event.accepted = true
                                 }
                             }
@@ -140,7 +140,7 @@ Rectangle {
 
                     source: "images/login_normal.png"
 
-                    onClicked: sessionManager.login(user_entry.text, pw_entry.text, menu_session.index)
+                    onClicked: sddm.login(user_entry.text, pw_entry.text, menu_session.index)
 
                     KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session_button
                 }
@@ -168,7 +168,7 @@ Rectangle {
                         ImageButton {
                             id: system_button
                             source: "images/system_shutdown.png"
-                            onClicked: powerManager.powerOff()
+                            onClicked: sddm.powerOff()
 
                             KeyNavigation.backtab: session_button; KeyNavigation.tab: reboot_button
                         }
@@ -176,7 +176,7 @@ Rectangle {
                         ImageButton {
                             id: reboot_button
                             source: "images/system_reboot.png"
-                            onClicked: powerManager.reboot()
+                            onClicked: sddm.reboot()
 
                             KeyNavigation.backtab: system_button; KeyNavigation.tab: suspend_button
                         }
@@ -184,8 +184,8 @@ Rectangle {
                         ImageButton {
                             id: suspend_button
                             source: "images/system_suspend.png"
-                            visible: powerManager.canSuspend()
-                            onClicked: powerManager.suspend()
+                            visible: sddm.canSuspend()
+                            onClicked: sddm.suspend()
 
                             KeyNavigation.backtab: reboot_button; KeyNavigation.tab: hibernate_button
                         }
@@ -193,8 +193,8 @@ Rectangle {
                         ImageButton {
                             id: hibernate_button
                             source: "images/system_hibernate.png"
-                            visible: powerManager.canHibernate()
-                            onClicked: powerManager.hibernate()
+                            visible: sddm.canHibernate()
+                            onClicked: sddm.hibernate()
 
                             KeyNavigation.backtab: suspend_button; KeyNavigation.tab: user_entry
                         }

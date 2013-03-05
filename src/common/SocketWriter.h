@@ -17,16 +17,27 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef THEMECONFIG_H
-#define THEMECONFIG_H
+#ifndef SDE_SOCKETWRITER_H
+#define SDE_SOCKETWRITER_H
 
-#include <QVariantMap>
+#include <QDataStream>
+#include <QLocalSocket>
 
 namespace SDE {
-    class ThemeConfig : public QVariantMap {
+    class SocketWriter {
+        Q_DISABLE_COPY(SocketWriter)
     public:
-        explicit ThemeConfig(const QString &path);
+        SocketWriter(QLocalSocket *socket);
+        ~SocketWriter();
+
+        SocketWriter &operator << (const quint32 &u);
+        SocketWriter &operator << (const QString &s);
+
+    private:
+        QByteArray data;
+        QDataStream *output;
+        QLocalSocket *socket;
     };
 }
 
-#endif // THEMECONFIG_H
+#endif // SDE_SOCKETWRITER_H

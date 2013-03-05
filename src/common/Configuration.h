@@ -20,16 +20,18 @@
 #ifndef SDE_CONFIGURATION_H
 #define SDE_CONFIGURATION_H
 
+#include <QObject>
 #include <QString>
 #include <QStringList>
 
 namespace SDE {
     class ConfigurationPrivate;
 
-    class Configuration {
+    class Configuration : public QObject {
+        Q_OBJECT
         Q_DISABLE_COPY(Configuration)
     public:
-        Configuration(const QString &configPath);
+        Configuration(const QString &configPath, QObject *parent = 0);
         ~Configuration();
 
         void load();
@@ -42,12 +44,10 @@ namespace SDE {
         const QString &defaultPath() const;
 
         const QString &serverPath() const;
-        const QStringList &serverArgs() const;
 
         const QString &xauthPath() const;
 
-        const QString &authFile() const;
-        const QString &lockFile() const;
+        const QString &authPath() const;
 
         const QString &haltCommand() const;
         const QString &rebootCommand() const;

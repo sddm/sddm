@@ -17,19 +17,27 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_COOKIE_H
-#define SDE_COOKIE_H
+#ifndef SDE_THEMEMETADATA_H
+#define SDE_THEMEMETADATA_H
 
-#include <QString>
+#include <QObject>
 
 namespace SDE {
-    class Cookie {
-    public:
-        Cookie() = delete;
+    class ThemeMetadataPrivate;
 
-        static QString generate();
-        static bool add(const QString &cookie, const QString &displayName, const QString &authPath);
+    class ThemeMetadata : public QObject {
+        Q_OBJECT
+        Q_DISABLE_COPY(ThemeMetadata)
+    public:
+        explicit ThemeMetadata(const QString &path, QObject *parent = 0);
+        ~ThemeMetadata();
+
+        const QString &mainScript() const;
+        const QString &configFile() const;
+
+    private:
+        ThemeMetadataPrivate *d { nullptr };
     };
 }
 
-#endif // SDE_COOKIE_H
+#endif // SDE_THEMEMETADATA_H

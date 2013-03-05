@@ -17,27 +17,45 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef THEMEMETADATA_H
-#define THEMEMETADATA_H
+#ifndef SDE_SESSIONMODEL_H
+#define SDE_SESSIONMODEL_H
 
-#include <QObject>
+#include <QAbstractListModel>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QHash>
+#endif
 
 namespace SDE {
-    class ThemeMetadataPrivate;
+    class SessionModelPrivate;
 
-    class ThemeMetadata : public QObject {
+    class SessionModel : public QAbstractListModel {
         Q_OBJECT
-        Q_DISABLE_COPY(ThemeMetadata)
+        Q_DISABLE_COPY(SessionModel)
+        Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
     public:
-        explicit ThemeMetadata(const QString &path, QObject *parent = 0);
-        ~ThemeMetadata();
+        enum SessionRole {
+            FileRole = Qt::UserRole + 1,
+            NameRole,
+            ExecRole,
+            CommentRole
+        };
 
-        const QString &mainScript() const;
-        const QString &configFile() const;
+        SessionModel(QObject *parent = 0);
+        ~SessionModel();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        QHash<int, QByteArray> roleNames() const override;
+#endif
+
+        const int lastIndex() const;
+
+        int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     private:
-        ThemeMetadataPrivate *d { nullptr };
+        SessionModelPrivate *d { nullptr };
     };
 }
 
-#endif // THEMEMETADATA_H
+#endif // SDE_SESSIONMODEL_H

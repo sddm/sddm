@@ -17,42 +17,47 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SESSIONMODEL_H
-#define SDE_SESSIONMODEL_H
+#ifndef SDE_SCREENMODEL_H
+#define SDE_SCREENMODEL_H
 
 #include <QAbstractListModel>
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QHash>
+#endif
+
+#include <QRect>
 
 namespace SDE {
-    class SessionModelPrivate;
+    class ScreenModelPrivate;
 
-    class SessionModel : public QAbstractListModel {
+    class ScreenModel : public QAbstractListModel {
         Q_OBJECT
-        Q_DISABLE_COPY(SessionModel)
-        Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
+        Q_DISABLE_COPY(ScreenModel)
+        Q_PROPERTY(int primary READ primary CONSTANT)
     public:
-        enum SessionRole {
-            FileRole = Qt::UserRole + 1,
-            NameRole,
-            ExecRole,
-            CommentRole
+        enum ScreenRoles {
+            NameRole = Qt::UserRole + 1,
+            GeometryRole
         };
 
-        SessionModel(QObject *parent = 0);
-        ~SessionModel();
+        ScreenModel(QObject *parent = 0);
+        ~ScreenModel();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         QHash<int, QByteArray> roleNames() const override;
 #endif
-
-        const int lastIndex() const;
+        const int primary() const;
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
+    public slots:
+        const QRect geometry(int index = -1) const;
+
     private:
-        SessionModelPrivate *d { nullptr };
+        ScreenModelPrivate *d { nullptr };
     };
 }
 
-#endif // SDE_SESSIONMODEL_H
+#endif // SDE_SCREENMODEL_H

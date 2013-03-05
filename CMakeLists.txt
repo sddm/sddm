@@ -65,9 +65,12 @@ if(USE_SYSTEMD)
 endif()
 
 # set constants
-set(BIN_INSTALL_DIR     "${CMAKE_INSTALL_PREFIX}/bin"               CACHE PATH  "System binary install directory")
-set(DATA_INSTALL_DIR    "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACHE PATH  "System data install directory")
-set(CONF_INSTALL_DIR    "/etc"                                      CACHE PATH  "System config directory")
+set(BIN_INSTALL_DIR     "${CMAKE_INSTALL_PREFIX}/bin"               CACHE PATH      "System binary install directory")
+set(DATA_INSTALL_DIR    "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACHE PATH      "System application data install directory")
+set(CONF_INSTALL_DIR    "/etc"                                      CACHE PATH      "System config directory")
+
+set(PASSWD_FILE         "${CONF_INSTALL_DIR}/passwd"                CACHE PATH      "Path of the passwd file")
+set(CONFIG_FILE         "${CONF_INSTALL_DIR}/sddm.conf"             CACHE PATH      "Path of the sddm config file")
 
 # configure config file
 configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)

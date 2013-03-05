@@ -33,11 +33,11 @@ namespace SDE {
         QString defaultPath { "" };
 
         QString serverPath { "" };
-        QStringList serverArgs;
 
         QString xauthPath { "" };
 
-        QString authFile { "" };
+        QString authPath { "" };
+
         QString lockFile { "" };
 
         QString haltCommand { "" };
@@ -60,7 +60,7 @@ namespace SDE {
         QString autoUser { "" };
     };
 
-    Configuration::Configuration(const QString &configPath) : d(new ConfigurationPrivate()) {
+    Configuration::Configuration(const QString &configPath, QObject *parent) : QObject(parent), d(new ConfigurationPrivate()) {
         _instance = this;
         // set config path
         d->configPath = configPath;
@@ -82,9 +82,8 @@ namespace SDE {
         d->cursorTheme = settings.value("CursorTheme", "").toString();
         d->defaultPath = settings.value("DefaultPath", "").toString();
         d->serverPath = settings.value("ServerPath", "").toString();
-        d->serverArgs = settings.value("ServerArgs", "").toString().split(" ");
         d->xauthPath = settings.value("XauthPath", "").toString();
-        d->authFile = settings.value("AuthFile", "").toString();
+        d->authPath = settings.value("AuthPath", "").toString();
         d->lockFile = settings.value("LockFile", "").toString();
         d->haltCommand = settings.value("HaltCommand", "").toString();
         d->rebootCommand = settings.value("RebootCommand", "").toString();
@@ -108,9 +107,8 @@ namespace SDE {
         settings.setValue("CursorTheme", d->cursorTheme);
         settings.setValue("DefaultPath", d->defaultPath);
         settings.setValue("ServerPath", d->serverPath);
-        settings.setValue("ServerArgs", d->serverArgs.join(" "));
         settings.setValue("XauthPath", d->xauthPath);
-        settings.setValue("AuthFile", d->authFile);
+        settings.setValue("AuthPath", d->authPath);
         settings.setValue("LockFile", d->lockFile);
         settings.setValue("HaltCommand", d->haltCommand);
         settings.setValue("RebootCommand", d->rebootCommand);
@@ -143,20 +141,12 @@ namespace SDE {
         return d->serverPath;
     }
 
-    const QStringList &Configuration::serverArgs() const {
-        return d->serverArgs;
-    }
-
     const QString &Configuration::xauthPath() const {
         return d->xauthPath;
     }
 
-    const QString &Configuration::authFile() const {
-        return d->authFile;
-    }
-
-    const QString &Configuration::lockFile() const {
-        return d->lockFile;
+    const QString &Configuration::authPath() const {
+        return d->authPath;
     }
 
     const QString &Configuration::haltCommand() const {

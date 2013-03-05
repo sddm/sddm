@@ -17,43 +17,33 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SCREENMODEL_H
-#define SDE_SCREENMODEL_H
+#ifndef SDE_SESSIONPROCESS_H
+#define SDE_SESSIONPROCESS_H
 
-#include <QAbstractListModel>
-#include <QHash>
-#include <QRect>
+#include <QProcess>
+#include <QString>
 
 namespace SDE {
-    class ScreenModelPrivate;
-
-    class ScreenModel : public QAbstractListModel {
+    class SessionProcess : public QProcess {
         Q_OBJECT
-        Q_DISABLE_COPY(ScreenModel)
-        Q_PROPERTY(int primary READ primary CONSTANT)
+        Q_DISABLE_COPY(SessionProcess)
     public:
-        enum ScreenRoles {
-            NameRole = Qt::UserRole + 1,
-            GeometryRole
-        };
+        explicit SessionProcess(QObject *parent = 0);
 
-        ScreenModel(QObject *parent = 0);
-        ~ScreenModel();
+        void setUser(const QString &user);
+        void setDir(const QString &dir);
+        void setUid(int uid);
+        void setGid(int gid);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-        QHash<int, QByteArray> roleNames() const override;
-#endif
-        const int primary() const;
-
-        int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-        QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
-    public slots:
-        const QRect geometry(int index = -1) const;
+    protected:
+        void setupChildProcess();
 
     private:
-        ScreenModelPrivate *d { nullptr };
+        QString m_user { "" };
+        QString m_dir { "" };
+        int m_uid { 0 };
+        int m_gid { 0 };
     };
 }
 
-#endif // SDE_SCREENMODEL_H
+#endif // SDE_SESSIONPROCESS_H

@@ -17,37 +17,63 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_POWERMANAGER_H
-#define SDE_POWERMANAGER_H
+#ifndef SDE_DISPLAY_H
+#define SDE_DISPLAY_H
 
 #include <QObject>
 
-namespace SDE {
-    class PowerManagerPrivate;
+class QLocalSocket;
 
-    class PowerManager : public QObject {
+namespace SDE {
+    enum class Capabilities;
+
+    class Authenticator;
+    class DisplayServer;
+    class SocketServer;
+    class Greeter;
+
+    class Display : public QObject {
         Q_OBJECT
-        Q_DISABLE_COPY(PowerManager)
+        Q_DISABLE_COPY(Display)
     public:
-        PowerManager(QObject *parent = 0);
-        ~PowerManager();
+        explicit Display(const QString &display, QObject *parent = 0);
+        ~Display();
+
+        const QString &name() const;
 
     public slots:
-        bool canPowerOff() const;
-        bool canReboot() const;
-        bool canSuspend() const;
-        bool canHibernate() const;
-        bool canHybridSleep() const;
+        void start();
+        void stop();
+
+        void capabilities(QLocalSocket *socket);
+
+        void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
 
         void powerOff();
         void reboot();
+
         void suspend();
         void hibernate();
         void hybridSleep();
 
+    signals:
+        void capabilities(QLocalSocket *socket, enum Capabilities capabilities);
+
+        void loginFailed(QLocalSocket *socket);
+        void loginSucceeded(QLocalSocket *socket);
+
     private:
-        PowerManagerPrivate *d;
+        bool m_started { false };
+
+        QString m_display { "" };
+        QString m_socket { "" };
+        QString m_authPath { "" };
+
+        Authenticator *m_authenticator { nullptr };
+        DisplayServer *m_displayServer { nullptr };
+        SocketServer *m_socketServer { nullptr };
+        Greeter *m_greeter { nullptr };
     };
 }
 
-#endif // SDE_POWERMANAGER_H
+#endif // SDE_DISPLAY_H

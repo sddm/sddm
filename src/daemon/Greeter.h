@@ -17,28 +17,40 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_DISPLAYMANAGER_H
-#define SDE_DISPLAYMANAGER_H
+#ifndef SDE_GREETER_H
+#define SDE_GREETER_H
 
-#include <QString>
+#include <QObject>
+
+class QProcess;
 
 namespace SDE {
-    class DisplayManagerPrivate;
 
-    class DisplayManager {
-        Q_DISABLE_COPY(DisplayManager)
+    class Greeter : public QObject {
+        Q_OBJECT
+        Q_DISABLE_COPY(Greeter)
     public:
-        DisplayManager();
-        ~DisplayManager();
+        explicit Greeter(QObject *parent = 0);
+        ~Greeter();
 
-        void setCookie(const QString &cookie);
         void setDisplay(const QString &display);
+        void setSocket(const QString &socket);
+        void setTheme(const QString &theme);
 
+    public slots:
         bool start();
-        bool stop();
+        void stop();
+        void finished();
 
     private:
-        DisplayManagerPrivate *d { nullptr };
+        bool m_started { false };
+
+        QString m_display { "" };
+        QString m_socket { "" };
+        QString m_theme { "" };
+
+        QProcess *process { nullptr };
     };
 }
-#endif // SDE_DISPLAYMANAGER_H
+
+#endif // SDE_GREETER_H

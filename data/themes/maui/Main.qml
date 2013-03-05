@@ -31,12 +31,13 @@ Rectangle {
     height: 768
 
     Connections {
-        target: sessionManager
-        onSuccess: {
+        target: sddm
+        onLoginSucceeded: {
         }
 
-        onFail: {
+        onLoginFailed: {
             txtMessage.text = qsTr("Login failed. Please try again.")
+            listView.currentItem.password.text = ""
         }
     }
 
@@ -67,7 +68,7 @@ Rectangle {
                 focus: (listView.currentIndex === index) ? true : false
                 state: (listView.currentIndex === index) ? "active" : ""
 
-                onLogin: { sessionManager.login(model.name, password, session.index); password = "" }
+                onLogin: sddm.login(model.name, password, session.file);
 
                 MouseArea {
                     anchors.fill: parent
@@ -206,7 +207,7 @@ Rectangle {
                     height: parent.height
                     source: "reboot.png"
 
-                    onClicked: powerManager.reboot()
+                    onClicked: sddm.reboot()
 
                     KeyNavigation.backtab: session; KeyNavigation.tab: btnShutdown
                 }
@@ -216,7 +217,7 @@ Rectangle {
                     height: parent.height
                     source: "shutdown.png"
 
-                    onClicked: powerManager.powerOff()
+                    onClicked: sddm.powerOff()
 
                     KeyNavigation.backtab: btnReboot; KeyNavigation.tab: prevUser
                 }
