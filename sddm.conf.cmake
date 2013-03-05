@@ -9,18 +9,11 @@ CursorTheme=""
 # Path of the X server
 ServerPath=/usr/bin/X
 
-# Arguments to be given to the X server. Note that
-# -auth parameter is appended automatically
-ServerArgs=-nolisten tcp vt07
-
 # Path of the Xauth
 XauthPath=/usr/bin/xauth
 
-# Path of the auth file to be passed to the X server
-AuthFile=/var/run/sddm.auth
-
-# Path of the lock file
-LockFile=/var/run/sddm.pid
+# Path of the directory to create auth files in
+AuthPath=/var/run/xauth
 
 # Halt and reboot commands
 HaltCommand=/sbin/shutdown -h -P now
