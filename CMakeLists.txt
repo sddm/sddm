@@ -71,6 +71,7 @@ set(CONF_INSTALL_DIR    "/etc"                                      CACHE PATH  
 
 set(PASSWD_FILE         "${CONF_INSTALL_DIR}/passwd"                CACHE PATH      "Path of the passwd file")
 set(CONFIG_FILE         "${CONF_INSTALL_DIR}/sddm.conf"             CACHE PATH      "Path of the sddm config file")
+set(LOG_FILE            "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")
 
 # configure config file
 configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)

@@ -17,7 +17,7 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#include "Configuration.h"
+#include "Constants.h"
 
 #include <QDateTime>
 #include <QFile>
@@ -26,12 +26,7 @@ namespace SDE {
     void MessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
         Q_UNUSED(context)
 
-        // TODO: log file path should be configurable
-#if !TEST
-        QFile file("/var/log/sddm.log");
-#else
-        QFile file("sddm.log");
-#endif
+        QFile file(LOG_FILE);
 
         // open file
         if (!file.open(QFile::Append | QFile::WriteOnly))
