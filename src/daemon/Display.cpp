@@ -53,11 +53,11 @@ namespace SDE {
     }
 
     Display::Display(const QString &display, QObject *parent) : QObject(parent),
-                                                                m_display(display),
-                                                                m_authenticator(new Authenticator(this)),
-                                                                m_displayServer(new DisplayServer(this)),
-                                                                m_socketServer(new SocketServer(this)),
-                                                                m_greeter(new Greeter(this)) {
+        m_display(display),
+        m_authenticator(new Authenticator(this)),
+        m_displayServer(new DisplayServer(this)),
+        m_socketServer(new SocketServer(this)),
+        m_greeter(new Greeter(this)) {
         // connect signals
         connect(m_socketServer, SIGNAL(capabilities(QLocalSocket*)), this, SLOT(capabilities(QLocalSocket*)));
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
@@ -177,23 +177,40 @@ namespace SDE {
     }
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {
-        // try to authenticate
-        if (m_authenticator->authenticate(user, password) && m_authenticator->start(user, session)) {
-            // emit signal
-            emit loginSucceeded(socket);
-
-            // wait until session ends
-            m_authenticator->waitForFinished();
-
-            // stop
-            stop();
-
-            // restart display
-            QTimer::singleShot(1, this, SLOT(start()));
-        } else {
+        // authenticate
+        if (!m_authenticator->authenticate(user, password)) {
             // emit signal
             emit loginFailed(socket);
+
+            // return
+            return;
         }
+
+        // start session
+        if (!m_authenticator->start(user, session)) {
+            // emit signal
+            emit loginFailed(socket);
+
+            // return
+            return;
+        }
+
+        // save last user and last session
+        Configuration::instance()->setLastUser(user);
+        Configuration::instance()->setLastSession(session);
+        Configuration::instance()->save();
+
+        // emit signal
+        emit loginSucceeded(socket);
+
+        // wait until session ends
+        m_authenticator->waitForFinished();
+
+        // stop
+        stop();
+
+        // restart display
+        QTimer::singleShot(1, this, SLOT(start()));
     }
 
     void Display::powerOff() {
