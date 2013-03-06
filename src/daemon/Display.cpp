@@ -30,6 +30,7 @@
 #include "Greeter.h"
 
 #include <QDebug>
+#include <QFile>
 #include <QTimer>
 
 namespace SDE {
@@ -168,6 +169,9 @@ namespace SDE {
 
         // stop display server
         m_displayServer->stop();
+
+        // remove authority file
+        QFile::remove(m_authPath);
 
         // reset flag
         m_started = false;
