@@ -141,6 +141,7 @@ namespace SDE {
 
         // set greeter params
         m_greeter->setDisplay(m_display);
+        m_greeter->setAuthPath(m_authPath);
         m_greeter->setSocket(m_socket);
         m_greeter->setTheme(QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme()));
 

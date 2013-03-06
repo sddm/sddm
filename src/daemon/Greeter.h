@@ -25,7 +25,6 @@
 class QProcess;
 
 namespace SDE {
-
     class Greeter : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(Greeter)
@@ -34,6 +33,7 @@ namespace SDE {
         ~Greeter();
 
         void setDisplay(const QString &display);
+        void setAuthPath(const QString &authPath);
         void setSocket(const QString &socket);
         void setTheme(const QString &theme);
 
@@ -46,6 +46,7 @@ namespace SDE {
         bool m_started { false };
 
         QString m_display { "" };
+        QString m_authPath { "" };
         QString m_socket { "" };
         QString m_theme { "" };
 
