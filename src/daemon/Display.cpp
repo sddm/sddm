@@ -114,8 +114,9 @@ namespace SDE {
         // start display server
         m_displayServer->start();
 
-        if (!Configuration::instance()->autoUser().isEmpty() && !Configuration::instance()->lastSession().isEmpty()) {
-            // set flag
+        if (m_first && !Configuration::instance()->autoUser().isEmpty() && !Configuration::instance()->lastSession().isEmpty()) {
+            // set flags
+            m_first = false;
             m_started = true;
 
             // start session
@@ -149,7 +150,8 @@ namespace SDE {
         // start greeter
         m_greeter->start();
 
-        // set flag
+        // set flags
+        m_first = false;
         m_started = true;
     }
 

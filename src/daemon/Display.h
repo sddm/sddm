@@ -61,6 +61,7 @@ namespace SDE {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
+        bool m_first { true };
         bool m_started { false };
 
         QString m_display { "" };
