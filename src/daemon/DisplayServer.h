@@ -42,6 +42,8 @@ namespace SDE {
         void finished();
 
     private:
+        bool waitForStarted(int msecs = 10000);
+
         bool m_started { false };
 
         QString m_display { "" };

@@ -25,6 +25,10 @@
 #include <QDebug>
 #include <QProcess>
 
+#include <X11/Xlib.h>
+
+#include <unistd.h>
+
 namespace SDE {
     DisplayServer::DisplayServer(QObject *parent) : QObject(parent) {
     }
@@ -75,6 +79,15 @@ namespace SDE {
             return false;
         }
 
+        // wait until we can connect to the display server
+        if (!this->waitForStarted()) {
+            // log message
+            qCritical() << " DAEMON: Failed to connect to the display server.";
+
+            // return fail
+            return false;
+        }
+
         // log message
         qDebug() << " DAEMON: Display server started.";
 
@@ -115,5 +128,32 @@ namespace SDE {
         // clean up
         process->deleteLater();
         process = nullptr;
+    }
+
+    bool DisplayServer::waitForStarted(int msecs) {
+        Display *display = nullptr;
+
+        // set xauthority
+        setenv("XAUTHORITY", qPrintable(m_authPath), 1);
+
+        // try to open the display
+        for (int i = 0; i < (msecs / 100); ++i) {
+            // try to open the display
+            if ((display = XOpenDisplay(qPrintable(m_display))) != nullptr)
+                break;
+
+            // sleep for a 100 miliseconds
+            usleep(100000);
+        }
+
+        // if display can't be opened return false
+        if (display == nullptr)
+            return false;
+
+        // close display
+        XCloseDisplay(display);
+
+        // return success
+        return true;
     }
 }
