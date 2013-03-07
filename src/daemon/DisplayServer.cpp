@@ -63,6 +63,8 @@ namespace SDE {
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         env.insert("DISPLAY", m_display);
+        env.insert("XAUTHORITY", m_authPath);
+        env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
         process->setProcessEnvironment(env);
 
         // start display server
