@@ -8,7 +8,7 @@ SDDM has a small, simple and hackable codebase.
 
 __DEPENDENCIES__
 
-SDDM depends on PAM for authorization. SDDM uses a PAM service named "sddm" to authorize user. PAM services are created using simple config files installed into PAM config directory (e.g /etc/pam.d). A sample service file named "sddm.pam" is provided. You should copy this file into your PAM config directory and rename it to "sddm". Since the authorization procedure and available PAM modules may change depending on your distribution or your setup, we strongly advise reviewing this service file to see if it fits your needs.
+SDDM depends on PAM for authorization. SDDM uses a PAM service named "sddm" to authorize user. PAM services are created using simple config files installed into PAM config directory (e.g `/etc/pam.d`). A sample service file named "sddm.pam" is provided. You should copy this file into your PAM config directory and rename it to "sddm". Since the authorization procedure and available PAM modules may change depending on your distribution or your setup, we strongly advise reviewing this service file to see if it fits your needs.
 
 SDDM depends on Xlib for communicating to the X server. Also we depend on Qt for loading the user interface and event loop management, apart from other things.
 
@@ -36,7 +36,7 @@ To install simply call`sudo make install`.
 
 __CONFIGURATION__
 
-SDDM configuration is done using a simple ini-style text file. Config file usually resides in /etc/sddm.conf. Location of the config file can be changed when compiling the project. You can use a different configuration file at runtime using the "-c" parameter.
+SDDM configuration is done using a simple ini-style text file. By default config file is installed as `/etc/sddm.conf`. Location of the config file can be changed in `CMakeListst.txt` during compilation. You can use a different configuration file at runtime using the "-c" parameter.
 
 `sddm -c /etc/sddm-alternative.conf`
 
@@ -82,7 +82,7 @@ __TESTING__
 
 To test your themes use the "-t" commandline parameter.
 
-`sddm -t /path/to/your/theme`
+`sddm-greeter --theme /path/to/your/theme`
 
 __LICENSING__
 
