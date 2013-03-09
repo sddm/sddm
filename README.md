@@ -24,13 +24,11 @@ SDDM uses CMake for compile configuration. Typical compilation procedure for a c
 
 `make`
 
-There are several flags that can be used to modify compilation:
+If you want to use Qt4 instead of Qt4 add `-DUSE_QT5=true` at the end of the cmake command.
 
-* To build with Qt5 instead of Qt4 use `-DUSE_QT5=true`
+SDDM can use systemd login manager or upower for power management. If any of them is found it will be used. Systemd login manager has precedence over upower.
 
-* To enable systemd support use `-DUSE_SYSTEMD=true`
-
-If systemd support is built, it will be used for power management and HaltCommand and RebootCommand config entries will have no effect. Otherwise upower will be used for suspend and hibernate, for shutdown and reboot, HaltCommand and RebootCommand will be used respectively.
+Note that, if systemd login manager is used, HaltCommand and RebootCommand config entries has no effect.
 
 To install simply call`sudo make install`.
 
