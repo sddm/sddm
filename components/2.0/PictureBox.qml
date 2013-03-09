@@ -40,6 +40,10 @@ FocusScope {
 
     states: [
         State {
+            name: ""
+            PropertyChanges { target: container; height: 180 }
+        },
+        State {
             name: "active"
             PropertyChanges { target: container; height: 225 }
         }
