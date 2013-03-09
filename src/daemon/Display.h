@@ -43,22 +43,9 @@ namespace SDE {
         void start();
         void stop();
 
-        void hostName(QLocalSocket *socket);
-        void capabilities(QLocalSocket *socket);
-
         void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
 
-        void powerOff();
-        void reboot();
-
-        void suspend();
-        void hibernate();
-        void hybridSleep();
-
     signals:
-        void hostName(QLocalSocket *socket, const QString &hostName);
-        void capabilities(QLocalSocket *socket, quint32 capabilities);
-
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
 

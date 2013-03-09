@@ -19,7 +19,9 @@
 
 #include "SocketServer.h"
 
+#include "DaemonApp.h"
 #include "Messages.h"
+#include "PowerManager.h"
 #include "SocketWriter.h"
 
 #include <QLocalServer>
@@ -99,7 +101,8 @@ namespace SDE {
     }
 
     void SocketServer::readyRead() {
-        // DaemonApp *app = qobject_cast<DaemonApp *>(qApp);
+        // get app pointer
+        DaemonApp *app = qobject_cast<DaemonApp *>(qApp);
 
         QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
 
@@ -119,9 +122,11 @@ namespace SDE {
                 // log message
                 qDebug() << " DAEMON: Message received from greeter: Connect";
 
-                // emit signal
-                emit capabilities(socket);
-                emit hostName(socket);
+                // send capabilities
+                SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(app->powerManager()->capabilities());
+
+                // send host name
+                SocketWriter(socket) << quint32(DaemonMessages::HostName) << app->hostName();
             }
             break;
             case GreeterMessages::Login: {
@@ -140,40 +145,40 @@ namespace SDE {
                 // log message
                 qDebug() << " DAEMON: Message received from greeter: PowerOff";
 
-                // emit signal
-                emit powerOff();
+                // power off
+                app->powerManager()->powerOff();
             }
             break;
             case GreeterMessages::Reboot: {
                 // log message
                 qDebug() << " DAEMON: Message received from greeter: Reboot";
 
-                // emit signal
-                emit reboot();
+                // reboot
+                app->powerManager()->reboot();
             }
             break;
             case GreeterMessages::Suspend: {
                 // log message
                 qDebug() << " DAEMON: Message received from greeter: Suspend";
 
-                // emit signal
-                emit suspend();
+                // suspend
+                app->powerManager()->suspend();
             }
             break;
             case GreeterMessages::Hibernate: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: Connect";
+                qDebug() << " DAEMON: Message received from greeter: Hibernate";
 
-                // emit signal
-                emit hibernate();
+                // hibernate
+                app->powerManager()->hibernate();
             }
             break;
             case GreeterMessages::HybridSleep: {
                 // log message
                 qDebug() << " DAEMON: Message received from greeter: HybridSleep";
 
-                // emit signal
-                emit hybridSleep();
+                // hybrid sleep
+                app->powerManager()->hybridSleep();
             }
             break;
             default: {
@@ -181,14 +186,6 @@ namespace SDE {
                 qWarning() << " DAEMON: Unknown message" << message;
             }
         }
-    }
-
-    void SocketServer::hostName(QLocalSocket *socket, const QString &hostName) {
-        SocketWriter(socket) << quint32(DaemonMessages::HostName) << hostName;
-    }
-
-    void SocketServer::capabilities(QLocalSocket *socket, quint32 capabilities) {
-        SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << capabilities;
     }
 
     void SocketServer::loginFailed(QLocalSocket *socket) {

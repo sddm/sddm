@@ -22,6 +22,8 @@
 
 #include <QObject>
 
+#include "Messages.h"
+
 namespace SDE {
     class PowerManagerPrivate;
 
@@ -33,11 +35,7 @@ namespace SDE {
         ~PowerManager();
 
     public slots:
-        bool canPowerOff() const;
-        bool canReboot() const;
-        bool canSuspend() const;
-        bool canHibernate() const;
-        bool canHybridSleep() const;
+        Capabilities capabilities() const;
 
         void powerOff();
         void reboot();

@@ -20,6 +20,7 @@
 #include "PowerManager.h"
 
 #include "Constants.h"
+#include "Messages.h"
 
 #include <QDBusInterface>
 #include <QDBusReply>
@@ -44,24 +45,8 @@ namespace SDE {
     PowerManager::~PowerManager() {
     }
 
-    bool PowerManager::canPowerOff() const {
-        return true;
-    }
-
-    bool PowerManager::canReboot() const {
-        return true;
-    }
-
-    bool PowerManager::canSuspend() const {
-        return true;
-    }
-
-    bool PowerManager::canHibernate() const {
-        return true;
-    }
-
-    bool PowerManager::canHybridSleep() const {
-        return true;
+    Capabilities PowerManager::capabilities() const {
+        return Capability::None;
     }
 
     void PowerManager::powerOff() {
@@ -77,7 +62,6 @@ namespace SDE {
     }
 
     void PowerManager::hybridSleep() {
-        d->interface->call("HybridSleep", true);
     }
 
 #elif LOGIN1_FOUND
@@ -90,30 +74,38 @@ namespace SDE {
         delete d;
     }
 
-    bool PowerManager::canPowerOff() const {
-        QDBusReply<QString> reply = d->interface->call("CanPowerOff");
-        return reply.isValid() && (reply.value() == "yes");
-    }
+    Capabilities PowerManager::capabilities() const {
+        Capabilities caps = Capability::None;
 
-    bool PowerManager::canReboot() const {
-        QDBusReply<QString> reply = d->interface->call("CanReboot");
-        return reply.isValid() && (reply.value() == "yes");
-    }
+        QDBusReply<QString> reply;
 
-    bool PowerManager::canSuspend() const {
-        QDBusReply<QString> reply = d->interface->call("CanSuspend");
-        return reply.isValid() && (reply.value() == "yes");
-    }
+        // power off
+        reply = d->interface->call("CanPowerOff");
+        if (reply.isValid() && (reply.value() == "yes"))
+            caps |= Capability::PowerOff;
 
-    bool PowerManager::canHibernate() const {
-        QDBusReply<QString> reply = d->interface->call("CanHibernate");
-        return reply.isValid() && (reply.value() == "yes");
-    }
+        // reboot
+        reply = d->interface->call("CanReboot");
+        if (reply.isValid() && (reply.value() == "yes"))
+            caps |= Capability::Reboot;
 
+        // suspend
+        reply = d->interface->call("CanSuspend");
+        if (reply.isValid() && (reply.value() == "yes"))
+            caps |= Capability::Suspend;
 
-    bool PowerManager::canHybridSleep() const {
-        QDBusReply<QString> reply = d->interface->call("CanHybridSleep");
-        return reply.isValid() && (reply.value() == "yes");
+        // hibernate
+        reply = d->interface->call("CanHibernate");
+        if (reply.isValid() && (reply.value() == "yes"))
+            caps |= Capability::Hibernate;
+
+        // hybrid sleep
+        reply = d->interface->call("CanHybridSleep");
+        if (reply.isValid() && (reply.value() == "yes"))
+            caps |= Capability::HybridSleep;
+
+        // return capabilities
+        return caps;
     }
 
     void PowerManager::powerOff() {
@@ -146,26 +138,23 @@ namespace SDE {
         delete d;
     }
 
-    bool PowerManager::canPowerOff() const {
-        return true;
-    }
+    Capabilities PowerManager::capabilities() const {
+        Capabilities caps = Capability::PowerOff | Capability::Reboot;
 
-    bool PowerManager::canReboot() const {
-        return true;
-    }
+        QDBusReply<bool> reply;
 
-    bool PowerManager::canSuspend() const {
-        QDBusReply<bool> reply = d->interface->call("SuspendAllowed");
-        return reply.isValid() && reply.value();
-    }
+        // suspend
+        reply = d->interface->call("SuspendAllowed");
+        if (reply.isValid() && reply.value())
+            caps |= Capability::Suspend;
 
-    bool PowerManager::canHibernate() const {
-        QDBusReply<bool> reply = d->interface->call("HibernateAllowed");
-        return reply.isValid() && reply.value();
-    }
+        // hibernate
+        reply = d->interface->call("HibernateAllowed");
+        if (reply.isValid() && reply.value())
+            caps |= Capability::Hibernate;
 
-    bool PowerManager::canHybridSleep() const {
-        return false;
+        // return capabilities
+        return caps;
     }
 
     void PowerManager::powerOff() {

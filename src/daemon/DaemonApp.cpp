@@ -30,6 +30,7 @@
 #endif
 
 #include <QDebug>
+#include <QHostInfo>
 #include <QProcess>
 #include <QTimer>
 
@@ -64,6 +65,10 @@ namespace SDE {
         // add a display
         addDisplay(":1");
 #endif
+    }
+
+    QString DaemonApp::hostName() const {
+        return QHostInfo::localHostName();
     }
 
     PowerManager *DaemonApp::powerManager() const {

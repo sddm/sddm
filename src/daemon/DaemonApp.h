@@ -36,6 +36,7 @@ namespace SDE {
     public:
         explicit DaemonApp(int argc, char **argv);
 
+        QString hostName() const;
         PowerManager *powerManager() const;
 
     public slots:

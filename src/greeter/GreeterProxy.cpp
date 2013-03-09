@@ -158,11 +158,11 @@ namespace SDE {
                     input >> capabilities;
 
                     // parse capabilities
-                    d->canPowerOff = capabilities & quint32(Capabilities::PowerOff);
-                    d->canReboot = capabilities & quint32(Capabilities::Reboot);
-                    d->canSuspend = capabilities & quint32(Capabilities::Suspend);
-                    d->canHibernate = capabilities & quint32(Capabilities::Hibernate);
-                    d->canHybridSleep = capabilities & quint32(Capabilities::HybridSleep);
+                    d->canPowerOff = capabilities & Capability::PowerOff;
+                    d->canReboot = capabilities & Capability::Reboot;
+                    d->canSuspend = capabilities & Capability::Suspend;
+                    d->canHibernate = capabilities & Capability::Hibernate;
+                    d->canHybridSleep = capabilities & Capability::HybridSleep;
                 }
                 break;
                 case DaemonMessages::HostName: {
