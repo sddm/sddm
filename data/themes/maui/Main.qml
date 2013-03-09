@@ -209,6 +209,8 @@ Rectangle {
                     height: parent.height
                     source: "reboot.png"
 
+                    visible: sddm.canReboot
+
                     onClicked: sddm.reboot()
 
                     KeyNavigation.backtab: session; KeyNavigation.tab: btnShutdown
@@ -218,6 +220,8 @@ Rectangle {
                     id: btnShutdown
                     height: parent.height
                     source: "shutdown.png"
+
+                    visible: sddm.canPowerOff
 
                     onClicked: sddm.powerOff()
 
