@@ -19,6 +19,8 @@
 
 #include "PowerManager.h"
 
+#include "Constants.h"
+
 #include <QDBusInterface>
 #include <QDBusReply>
 
@@ -34,7 +36,52 @@ namespace SDE {
         QDBusInterface *interface { nullptr };
     };
 
-#ifdef USE_SYSTEMD
+#if TEST
+    PowerManager::PowerManager(QObject *parent) : QObject(parent) {
+    }
+
+    PowerManager::~PowerManager() {
+    }
+
+    bool PowerManager::canPowerOff() const {
+        return true;
+    }
+
+    bool PowerManager::canReboot() const {
+        return true;
+    }
+
+    bool PowerManager::canSuspend() const {
+        return true;
+    }
+
+    bool PowerManager::canHibernate() const {
+        return true;
+    }
+
+
+    bool PowerManager::canHybridSleep() const {
+        return true;
+    }
+
+    void PowerManager::powerOff() {
+    }
+
+    void PowerManager::reboot() {
+    }
+
+    void PowerManager::suspend() {
+    }
+
+    void PowerManager::hibernate() {
+    }
+
+    void PowerManager::hybridSleep() {
+        d->interface->call("HybridSleep", true);
+    }
+
+#elif defined USE_SYSTEMD
+
     PowerManager::PowerManager(QObject *parent) : QObject(parent), d(new PowerManagerPrivate()) {
         d->interface = new QDBusInterface("org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", QDBusConnection::systemBus());
     }
@@ -90,6 +137,7 @@ namespace SDE {
     }
 
 #else
+
     PowerManager::PowerManager(QObject *parent) : QObject(parent), d(new PowerManagerPrivate()) {
         d->interface = new QDBusInterface("org.freedesktop.UPower", "/org/freedesktop/UPower", "org.freedesktop.UPower", QDBusConnection::systemBus());
     }
