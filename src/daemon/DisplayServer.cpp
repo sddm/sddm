@@ -135,6 +135,9 @@ namespace SDE {
     bool DisplayServer::waitForStarted(int msecs) {
         Display *display = nullptr;
 
+        // save xauth
+        char *xauth = getenv("XAUTHORITY");
+
         // set xauthority
         setenv("XAUTHORITY", qPrintable(m_authPath), 1);
 
@@ -149,11 +152,19 @@ namespace SDE {
         }
 
         // if display can't be opened return false
-        if (display == nullptr)
+        if (display == nullptr) {
+            // reset environment
+            setenv("XAUTHORITY", xauth, 1);
+
+            // return fail
             return false;
+        }
 
         // close display
         XCloseDisplay(display);
+
+        // reset environment
+        setenv("XAUTHORITY", xauth, 1);
 
         // return success
         return true;
