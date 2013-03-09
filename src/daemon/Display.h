@@ -43,6 +43,7 @@ namespace SDE {
         void start();
         void stop();
 
+        void hostName(QLocalSocket *socket);
         void capabilities(QLocalSocket *socket);
 
         void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
@@ -55,6 +56,7 @@ namespace SDE {
         void hybridSleep();
 
     signals:
+        void hostName(QLocalSocket *socket, const QString &hostName);
         void capabilities(QLocalSocket *socket, quint32 capabilities);
 
         void loginFailed(QLocalSocket *socket);

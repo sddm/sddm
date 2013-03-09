@@ -121,6 +121,7 @@ namespace SDE {
 
                 // emit signal
                 emit capabilities(socket);
+                emit hostName(socket);
             }
             break;
             case GreeterMessages::Login: {
@@ -180,6 +181,10 @@ namespace SDE {
                 qWarning() << " DAEMON: Unknown message" << message;
             }
         }
+    }
+
+    void SocketServer::hostName(QLocalSocket *socket, const QString &hostName) {
+        SocketWriter(socket) << quint32(DaemonMessages::HostName) << hostName;
     }
 
     void SocketServer::capabilities(QLocalSocket *socket, quint32 capabilities) {

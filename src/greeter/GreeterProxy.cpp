@@ -31,6 +31,7 @@ namespace SDE {
     public:
         SessionModel *sessionModel { nullptr };
         QLocalSocket *socket { nullptr };
+        QString hostName { "" };
         bool canPowerOff { false };
         bool canReboot { false };
         bool canSuspend { false };
@@ -53,6 +54,12 @@ namespace SDE {
     GreeterProxy::~GreeterProxy() {
         delete d->socket;
         delete d;
+    }
+
+    const QString &GreeterProxy::hostName() const {
+        qDebug() << "GreeterProxy::hostName() << d->hostName";
+
+        return d->hostName;
     }
 
     void GreeterProxy::setSessionModel(SessionModel *model) {
@@ -136,46 +143,59 @@ namespace SDE {
         // input stream
         QDataStream input(d->socket);
 
-        // read message
-        quint32 message;
-        input >> message;
+        while (input.device()->bytesAvailable()) {
+            // read message
+            quint32 message;
+            input >> message;
 
-        switch (DaemonMessages(message)) {
-            case DaemonMessages::Capabilities: {
-                // log message
-                qDebug() << "GREETER: Message received from daemon: Capabilities";
+            switch (DaemonMessages(message)) {
+                case DaemonMessages::Capabilities: {
+                    // log message
+                    qDebug() << "GREETER: Message received from daemon: Capabilities";
 
-                // read capabilities
-                quint32 capabilities;
-                input >> capabilities;
+                    // read capabilities
+                    quint32 capabilities;
+                    input >> capabilities;
 
-                // parse capabilities
-                d->canPowerOff = capabilities & quint32(Capabilities::PowerOff);
-                d->canReboot = capabilities & quint32(Capabilities::Reboot);
-                d->canSuspend = capabilities & quint32(Capabilities::Suspend);
-                d->canHibernate = capabilities & quint32(Capabilities::Hibernate);
-                d->canHybridSleep = capabilities & quint32(Capabilities::HybridSleep);
-            }
-            break;
-            case DaemonMessages::LoginSucceeded: {
-                // log message
-                qDebug() << "GREETER: Message received from daemon: LoginSucceeded";
+                    // parse capabilities
+                    d->canPowerOff = capabilities & quint32(Capabilities::PowerOff);
+                    d->canReboot = capabilities & quint32(Capabilities::Reboot);
+                    d->canSuspend = capabilities & quint32(Capabilities::Suspend);
+                    d->canHibernate = capabilities & quint32(Capabilities::Hibernate);
+                    d->canHybridSleep = capabilities & quint32(Capabilities::HybridSleep);
+                }
+                break;
+                case DaemonMessages::HostName: {
+                    // log message
+                    qDebug() << "GREETER: Message received from daemon: HostName";
 
-                // emit signal
-                emit loginSucceeded();
-            }
-            break;
-            case DaemonMessages::LoginFailed: {
-                // log message
-                qDebug() << "GREETER: Message received from daemon: LoginFailed";
+                    // read host name
+                    input >> d->hostName;
 
-                // emit signal
-                emit loginFailed();
-            }
-            break;
-            default: {
-                // log message
-                qWarning() << "GREETER: Unknown message received from daemon.";
+                    // emit signal
+                    emit hostNameChanged(d->hostName);
+                }
+                break;
+                case DaemonMessages::LoginSucceeded: {
+                    // log message
+                    qDebug() << "GREETER: Message received from daemon: LoginSucceeded";
+
+                    // emit signal
+                    emit loginSucceeded();
+                }
+                break;
+                case DaemonMessages::LoginFailed: {
+                    // log message
+                    qDebug() << "GREETER: Message received from daemon: LoginFailed";
+
+                    // emit signal
+                    emit loginFailed();
+                }
+                break;
+                default: {
+                    // log message
+                    qWarning() << "GREETER: Unknown message received from daemon.";
+                }
             }
         }
     }

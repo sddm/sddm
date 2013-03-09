@@ -32,6 +32,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QHostInfo>
 #include <QTimer>
 
 namespace SDE {
@@ -62,6 +63,7 @@ namespace SDE {
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
         // connect signals
+        connect(m_socketServer, SIGNAL(hostName(QLocalSocket*)), this, SLOT(hostName(QLocalSocket*)));
         connect(m_socketServer, SIGNAL(capabilities(QLocalSocket*)), this, SLOT(capabilities(QLocalSocket*)));
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
         connect(m_socketServer, SIGNAL(powerOff()), this, SLOT(powerOff()));
@@ -71,6 +73,7 @@ namespace SDE {
         connect(m_socketServer, SIGNAL(hybridSleep()), this, SLOT(hybridSleep()));
 
         // connect signals
+        connect(this, SIGNAL(hostName(QLocalSocket*,QString)), m_socketServer, SLOT(hostName(QLocalSocket*,QString)));
         connect(this, SIGNAL(capabilities(QLocalSocket*,quint32)), m_socketServer, SLOT(capabilities(QLocalSocket*,quint32)));
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
@@ -183,6 +186,10 @@ namespace SDE {
 
         // reset flag
         m_started = false;
+    }
+
+    void Display::hostName(QLocalSocket *socket) {
+        emit hostName(socket, QHostInfo::localHostName());
     }
 
     void Display::capabilities(QLocalSocket *socket) {

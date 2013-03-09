@@ -31,9 +31,13 @@ namespace SDE {
     class GreeterProxy : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(GreeterProxy)
+
+        Q_PROPERTY(QString hostName READ hostName NOTIFY hostNameChanged)
     public:
         explicit GreeterProxy(const QString &socket, QObject *parent = 0);
         ~GreeterProxy();
+
+        const QString &hostName() const;
 
         void setSessionModel(SessionModel *model);
 
@@ -59,6 +63,8 @@ namespace SDE {
         void error();
 
     signals:
+        void hostNameChanged(const QString &hostName);
+
         void loginFailed();
         void loginSucceeded();
 

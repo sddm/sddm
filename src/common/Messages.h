@@ -32,6 +32,7 @@ namespace SDE {
     };
 
     enum class DaemonMessages {
+        HostName,
         Capabilities,
         LoginSucceeded,
         LoginFailed
