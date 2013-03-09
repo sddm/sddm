@@ -30,7 +30,7 @@ build() {
   mkdir -p build
   cd build
 
-  cmake ../${_gitname} -DCMAKE_INSTALL_PREFIX=/usr -DUSE_SYSTEMD=true -DUSE_QT5=true
+  cmake ../${_gitname} -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true
   make
 }
 
