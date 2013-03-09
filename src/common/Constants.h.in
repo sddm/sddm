@@ -17,8 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_INSTALLPATHS_H
-#define SDE_INSTALLPATHS_H
+#ifndef SDE_CONSTANTS_H
+#define SDE_CONSTANTS_H
 
 #define TEST 0
 
@@ -30,4 +30,4 @@
 #define CONFIG_FILE         "@CONFIG_FILE@"
 #define LOG_FILE            "@LOG_FILE@"
 
-#endif // SDE_INSTALLPATHS_H
+#endif // SDE_CONSTANTS_H
