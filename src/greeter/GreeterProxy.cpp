@@ -163,6 +163,13 @@ namespace SDE {
                     d->canSuspend = capabilities & Capability::Suspend;
                     d->canHibernate = capabilities & Capability::Hibernate;
                     d->canHybridSleep = capabilities & Capability::HybridSleep;
+
+                    // emit signals
+                    emit canPowerOffChanged(d->canPowerOff);
+                    emit canRebootChanged(d->canReboot);
+                    emit canSuspendChanged(d->canSuspend);
+                    emit canHibernateChanged(d->canHibernate);
+                    emit canHybridSleepChanged(d->canHybridSleep);
                 }
                 break;
                 case DaemonMessages::HostName: {

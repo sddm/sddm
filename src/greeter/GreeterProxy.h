@@ -32,22 +32,28 @@ namespace SDE {
         Q_OBJECT
         Q_DISABLE_COPY(GreeterProxy)
 
-        Q_PROPERTY(QString hostName READ hostName NOTIFY hostNameChanged)
+        Q_PROPERTY(QString  hostName        READ hostName       NOTIFY hostNameChanged)
+        Q_PROPERTY(bool     canPowerOff     READ canPowerOff    NOTIFY canPowerOffChanged)
+        Q_PROPERTY(bool     canReboot       READ canReboot      NOTIFY canRebootChanged)
+        Q_PROPERTY(bool     canSuspend      READ canSuspend     NOTIFY canSuspendChanged)
+        Q_PROPERTY(bool     canHibernate    READ canHibernate   NOTIFY canHibernateChanged)
+        Q_PROPERTY(bool     canHybridSleep  READ canHybridSleep NOTIFY canHybridSleepChanged)
+
     public:
         explicit GreeterProxy(const QString &socket, QObject *parent = 0);
         ~GreeterProxy();
 
         const QString &hostName() const;
 
-        void setSessionModel(SessionModel *model);
-
-    public slots:
         bool canPowerOff() const;
         bool canReboot() const;
         bool canSuspend() const;
         bool canHibernate() const;
         bool canHybridSleep() const;
 
+        void setSessionModel(SessionModel *model);
+
+    public slots:
         void powerOff();
         void reboot();
         void suspend();
@@ -64,6 +70,11 @@ namespace SDE {
 
     signals:
         void hostNameChanged(const QString &hostName);
+        void canPowerOffChanged(bool canPowerOff);
+        void canRebootChanged(bool canReboot);
+        void canSuspendChanged(bool canSuspend);
+        void canHibernateChanged(bool canHibernate);
+        void canHybridSleepChanged(bool canHybridSleep);
 
         void loginFailed();
         void loginSucceeded();
