@@ -22,6 +22,9 @@ else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
+# PKG-CONFIG
+find_package(PkgConfig)
+
 # PAM
 find_package(PAM REQUIRED)
 
@@ -50,18 +53,18 @@ configure_file(
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-if(USE_SYSTEMD)
-    # include pkg-config
-    find_package(PkgConfig)
+# login1
+pkg_check_modules(LOGIN1 "libsystemd-login")
 
-    # check systemd
-    pkg_check_modules(SYSTEMD "libsystemd-login libsystemd-daemon" REQUIRED)
+# upower
+pkg_check_modules(UPOWER "upower-glib")
 
-    # find systemd unit dir
+# systemd
+pkg_check_modules(SYSTEMD "libsystemd-daemon")
+
+if(SYSTEMD_FOUND)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
     string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
-
-    add_definitions(-DUSE_SYSTEMD)
 endif()
 
 # set constants

@@ -24,7 +24,7 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 
-#ifndef USE_SYSTEMD
+#if !LOGIN1_FOUND
 #include "Configuration.h"
 
 #include <QProcess>
@@ -36,7 +36,8 @@ namespace SDE {
         QDBusInterface *interface { nullptr };
     };
 
-#if TEST
+#if TEST || (!LOGIN1_FOUND && !UPOWER_FOUND)
+
     PowerManager::PowerManager(QObject *parent) : QObject(parent) {
     }
 
@@ -59,7 +60,6 @@ namespace SDE {
         return true;
     }
 
-
     bool PowerManager::canHybridSleep() const {
         return true;
     }
@@ -80,7 +80,7 @@ namespace SDE {
         d->interface->call("HybridSleep", true);
     }
 
-#elif defined USE_SYSTEMD
+#elif LOGIN1_FOUND
 
     PowerManager::PowerManager(QObject *parent) : QObject(parent), d(new PowerManagerPrivate()) {
         d->interface = new QDBusInterface("org.freedesktop.login1", "/org/freedesktop/login1", "org.freedesktop.login1.Manager", QDBusConnection::systemBus());
@@ -136,7 +136,7 @@ namespace SDE {
         d->interface->call("HybridSleep", true);
     }
 
-#else
+#elif UPOWER_FOUND
 
     PowerManager::PowerManager(QObject *parent) : QObject(parent), d(new PowerManagerPrivate()) {
         d->interface = new QDBusInterface("org.freedesktop.UPower", "/org/freedesktop/UPower", "org.freedesktop.UPower", QDBusConnection::systemBus());
@@ -186,5 +186,6 @@ namespace SDE {
 
     void PowerManager::hybridSleep() {
     }
+
 #endif
 }
