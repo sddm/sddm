@@ -46,10 +46,9 @@ else()
 endif()
 
 # uninstall target
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+                                                         "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+                                                         IMMEDIATE @ONLY)
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
@@ -75,13 +74,6 @@ set(CONF_INSTALL_DIR    "/etc"                                      CACHE PATH  
 set(PASSWD_FILE         "${CONF_INSTALL_DIR}/passwd"                CACHE PATH      "Path of the passwd file")
 set(CONFIG_FILE         "${CONF_INSTALL_DIR}/sddm.conf"             CACHE PATH      "Path of the sddm config file")
 set(LOG_FILE            "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")
-
-# configure config file
-configure_file(${CMAKE_SOURCE_DIR}/sddm.conf.cmake sddm.conf)
-
-# install config file
-install(FILES           "${CMAKE_BINARY_DIR}/sddm.conf"             DESTINATION ${CONF_INSTALL_DIR})
-install(FILES           "${CMAKE_BINARY_DIR}/sddm.conf"             DESTINATION ${CONF_INSTALL_DIR} RENAME sddm.conf.sample)
 
 add_subdirectory(components)
 add_subdirectory(data)
