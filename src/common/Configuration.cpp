@@ -38,8 +38,6 @@ namespace SDE {
 
         QString authPath { "" };
 
-        QString lockFile { "" };
-
         QString haltCommand { "" };
         QString rebootCommand { "" };
 
@@ -82,7 +80,6 @@ namespace SDE {
         d->serverPath = settings.value("ServerPath", "").toString();
         d->xauthPath = settings.value("XauthPath", "").toString();
         d->authPath = settings.value("AuthPath", "").toString();
-        d->lockFile = settings.value("LockFile", "").toString();
         d->haltCommand = settings.value("HaltCommand", "").toString();
         d->rebootCommand = settings.value("RebootCommand", "").toString();
         d->sessionsDir = settings.value("SessionsDir", "").toString();
@@ -107,7 +104,6 @@ namespace SDE {
         settings.setValue("ServerPath", d->serverPath);
         settings.setValue("XauthPath", d->xauthPath);
         settings.setValue("AuthPath", d->authPath);
-        settings.setValue("LockFile", d->lockFile);
         settings.setValue("HaltCommand", d->haltCommand);
         settings.setValue("RebootCommand", d->rebootCommand);
         settings.setValue("SessionsDir", d->sessionsDir);
