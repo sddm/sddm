@@ -24,7 +24,7 @@ SDDM uses CMake for compile configuration. Typical compilation procedure for a c
 
 `make`
 
-If you want to use Qt4 instead of Qt4 add `-DUSE_QT5=true` at the end of the cmake command.
+If you want to use Qt5 instead of Qt4 add `-DUSE_QT5=true` at the end of the cmake command.
 
 SDDM can use systemd login manager or upower for power management. If any of them is found it will be used. Systemd login manager has precedence over upower.
 
