@@ -78,7 +78,7 @@ This class is a list model containing available users on the system. User list i
 
 __TESTING__
 
-To test your themes use the "-t" commandline parameter.
+To test themes, you can use the "--theme" command line parameter.
 
 `sddm-greeter --theme /path/to/your/theme`
 
