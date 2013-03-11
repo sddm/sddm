@@ -55,8 +55,20 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 # login1
 pkg_check_modules(LOGIN1 "libsystemd-login")
 
+if(LOGIN1_FOUND)
+    # do nothing
+else()
+    set(LOGIN1_FOUND 0)
+endif()
+
 # upower
 pkg_check_modules(UPOWER "upower-glib")
+
+if(UPOWER_FOUND)
+    # do nothing
+else()
+    set(UPOWER_FOUND 0)
+endif()
 
 # systemd
 pkg_check_modules(SYSTEMD "libsystemd-daemon")
@@ -64,6 +76,8 @@ pkg_check_modules(SYSTEMD "libsystemd-daemon")
 if(SYSTEMD_FOUND)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
     string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+else()
+    set(SYSTEMD_FOUND 0)
 endif()
 
 # set constants
