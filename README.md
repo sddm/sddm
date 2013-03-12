@@ -1,105 +1,33 @@
 __INTRODUCTION__
 
-SDDM is a new lightweight display manager for X11 aiming to be fast, simple and beatiful.
+SDDM is a modern display manager for X11 aiming to be fast, simple and beatiful. It uses modern technologies like QtQuick, which in turn gives the designer the ability to create smooth, animated user interfaces.
 
-One of the distinctive features of SDDM is the ability to use QML for user interface creation. QML is a JavaScript-based, declarative language for designing user interface–centric applications. It is designed to provide highly customizable user interfaces with fluid animations. It supports images, gradients, color/size/opacity/property animations, hardware acceleration and lots of other stuff needed to create beatiful interfaces by today's standards.
+SDDM is extremely themeable. We put no restrictions on the user interface design, it is completely up to the designer. We simply provide a few callbacks to the user interface which can be used for authentication, suspend etc. To further ease theme creation we provide some premade components like a textbox, a combox etc.
 
-SDDM has a small, simple and hackable codebase.
-
-__DEPENDENCIES__
-
-SDDM depends on PAM for authorization. SDDM uses a PAM service named "sddm" to authorize user. PAM services are created using simple config files installed into PAM config directory (e.g `/etc/pam.d`). A sample service file named "sddm.pam" is provided. You should copy this file into your PAM config directory and rename it to "sddm". Since the authorization procedure and available PAM modules may change depending on your distribution or your setup, we strongly advise reviewing this service file to see if it fits your needs.
-
-SDDM depends on Xlib for communicating to the X server. Also we depend on Qt for loading the user interface and event loop management, apart from other things.
-
-__COMPILATION__
-
-SDDM uses CMake for compile configuration. Typical compilation procedure for a cmake-based project is:
-
-`mkdir build`
-
-`cd build`
-
-`cmake .. -DCMAKE_INSTALL_PREFIX=/usr`
-
-`make`
-
-If you want to use Qt5 instead of Qt4 add `-DUSE_QT5=true` at the end of the cmake command.
-
-SDDM can use systemd login manager or upower for power management. If any of them is found it will be used. Systemd login manager has precedence over upower.
-
-Note that, if systemd login manager is used, HaltCommand and RebootCommand config entries has no effect.
-
-To install simply call`sudo make install`.
-
-__CONFIGURATION__
-
-SDDM configuration is done using a simple ini-style text file. By default config file is installed as `/etc/sddm.conf`. Location of the config file can be changed in `CMakeListst.txt` during compilation. You can use a different configuration file at runtime using the "-c" parameter.
-
-`sddm -c /etc/sddm-alternative.conf`
-
-Configuration file is self documented. See the comments in the file for available options.
-
-__THEMES__
-
-SDDM themes are a collection of qml files and needed resources residing in a directory. There is almost no restrictions internal structure or layout of the files. But every theme must have a _metadata.desktop_ file in the theme directory. This file contains the metadata of the theme, e.g authors, entry point etc.
-
-__SESSION MANAGER__
-
-This class contains several functions useful for the themes and can be accessed through a context property named _sessionManager_ within the themes.
-
-__hostName__: Host name of the computer SDDM running on. You can use this property, for example for a welcome message.
-
-`Text { text: qsTr("Welcome to ") + sessionManager.hostName }`
-
-__lastUser__: This property holds the last user successfully logged into the system through SDDM. You can use this, for example to preselect a user from a list or put into the user name field as default.
-
-` TextBox {  id: name; text: sessionManager.lastUser }`
-
-__login(string username, string password, int sessionIndex)__: This functions tries to authenticate using given username and password. If authentication fails, __fail__ signal is emitted. If authentication is successfull session manager emits __success__ signal, closes the user interface and executes session command for the session with the index __sessionIndex__.
-
-__shuthdown()__: Shutdowns the computer.
-
-__reboot()__: Reboots the computer
-
-__fail__: This signal is emitted when authentication fails. Can be used to show an error message.
-
-__success__: This signal is emitted when authentication succeeds.
-
-__SESSION MODEL__
-
-This class is a list model containing available x-sessions on the system. Session list is created using the desktop files installed into the xsessions directory (e.g /usr/share/xsessions). The desktop files are generally installed along with a desktop environment like KDE or XFCE.
-
-Session model with QML views directly. This class also contains index of the last session used through property _lastIndex_.
-
-__USER MODEL__
-
-This class is a list model containing available users on the system. User list is created by parsing the /etc/passwd file. Like session model this model also can be used with QML views directly.
-
-__TESTING__
-
-To test themes, you can use the "--theme" command line parameter.
-
-`sddm-greeter --theme /path/to/your/theme`
+There are a few sample themes distributed with SDDM. They can be used as a starting point for new themes.
 
 __LICENSING__
 
-Source code of SDDM is licensed under GNU GPL version 2 or later (at your opinion). Scripts and configuration files are public domain. QML files are MIT licensed and images are CC BY 3.0.
+Source code of SDDM is licensed under GNU GPL version 2 or later (at your opinion). QML files are MIT licensed and images are CC BY 3.0. Most of the files include a license header.
 
 __RESOURCES__
 
-Git Repository:
-    https://github.com/sddm/sddm
+https://github.com/sddm/sddm
 
-Mailing List:
-    https://groups.google.com/group/sde-devel
+https://github.com/sddm/sddm/issues
 
-Bug Reports:
-    https://github.com/sddm/sddm/issues
+https://github.com/sddm/sddm/wiki
 
-Wiki:
-    https://github.com/sddm/sddm/wiki
+https://groups.google.com/group/sde-devel
 
-__Screenshots__
+__SCREENSHOTS__
 
 ![sample screenshot](https://raw.github.com/sddm/sddm/master/data/themes/maui/maui.jpg)
+
+__VIDEOS__
+
+[Video background](https://www.youtube.com/watch?v=kKwz2FQcE3c)
+
+[Maui theme 1](https://www.youtube.com/watch?v=-0d1wkcU9DU)
+
+[Maui theme 2](https://www.youtube.com/watch?v=dJ28mrOeuNA)
