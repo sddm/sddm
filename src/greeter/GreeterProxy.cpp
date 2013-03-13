@@ -57,8 +57,6 @@ namespace SDE {
     }
 
     const QString &GreeterProxy::hostName() const {
-        qDebug() << "GreeterProxy::hostName() << d->hostName";
-
         return d->hostName;
     }
 
