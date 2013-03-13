@@ -1,3 +1,4 @@
+## Introduction
 SDDM consists of two main parts: the daemon (aka backend) and the greeter (aka frontend).
 
 ## Daemon
