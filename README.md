@@ -1,4 +1,4 @@
-__INTRODUCTION__
+## INTRODUCTION
 
 SDDM is a modern display manager for X11 aiming to be fast, simple and beatiful. It uses modern technologies like QtQuick, which in turn gives the designer the ability to create smooth, animated user interfaces.
 
@@ -6,11 +6,11 @@ SDDM is extremely themeable. We put no restrictions on the user interface design
 
 There are a few sample themes distributed with SDDM. They can be used as a starting point for new themes.
 
-__LICENSING__
+## LICENSING
 
 Source code of SDDM is licensed under GNU GPL version 2 or later (at your opinion). QML files are MIT licensed and images are CC BY 3.0. Most of the files include a license header.
 
-__RESOURCES__
+## RESOURCES
 
 https://github.com/sddm/sddm
 
@@ -20,11 +20,11 @@ https://github.com/sddm/sddm/wiki
 
 https://groups.google.com/group/sde-devel
 
-__SCREENSHOTS__
+## SCREENSHOTS
 
 ![sample screenshot](https://raw.github.com/sddm/sddm/master/data/themes/maui/maui.jpg)
 
-__VIDEOS__
+## VIDEOS
 
 [Video background](https://www.youtube.com/watch?v=kKwz2FQcE3c)
 
