@@ -123,7 +123,7 @@ Rectangle {
                             KeyNavigation.backtab: user_entry; KeyNavigation.tab: login_button
 
                             Keys.onPressed: {
-                                if (event.key === Qt.Key_Return) {
+                                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                     sddm.login(user_entry.text, pw_entry.text, menu_session.index)
                                     event.accepted = true
                                 }

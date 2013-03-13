@@ -102,7 +102,7 @@ FocusScope {
             focus: true
 
             Keys.onPressed: {
-                if (event.key === Qt.Key_Return) {
+                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                     container.login();
                     event.accepted = true
                 }
