@@ -17,13 +17,13 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SESSIONPROCESS_H
-#define SDE_SESSIONPROCESS_H
+#ifndef SDDM_SESSIONPROCESS_H
+#define SDDM_SESSIONPROCESS_H
 
 #include <QProcess>
 #include <QString>
 
-namespace SDE {
+namespace SDDM {
     class SessionProcess : public QProcess {
         Q_OBJECT
         Q_DISABLE_COPY(SessionProcess)
@@ -46,4 +46,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_SESSIONPROCESS_H
+#endif // SDDM_SESSIONPROCESS_H

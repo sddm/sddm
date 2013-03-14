@@ -17,14 +17,14 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_CONFIGURATION_H
-#define SDE_CONFIGURATION_H
+#ifndef SDDM_CONFIGURATION_H
+#define SDDM_CONFIGURATION_H
 
 #include <QObject>
 #include <QString>
 #include <QStringList>
 
-namespace SDE {
+namespace SDDM {
     class ConfigurationPrivate;
 
     class Configuration : public QObject {
@@ -75,4 +75,4 @@ namespace SDE {
         ConfigurationPrivate *d { nullptr };
     };
 }
-#endif // SDE_CONFIGURATION_H
+#endif // SDDM_CONFIGURATION_H

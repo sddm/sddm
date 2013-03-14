@@ -17,14 +17,14 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_DISPLAY_H
-#define SDE_DISPLAY_H
+#ifndef SDDM_DISPLAY_H
+#define SDDM_DISPLAY_H
 
 #include <QObject>
 
 class QLocalSocket;
 
-namespace SDE {
+namespace SDDM {
     class Authenticator;
     class DisplayServer;
     class SocketServer;
@@ -64,4 +64,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_DISPLAY_H
+#endif // SDDM_DISPLAY_H

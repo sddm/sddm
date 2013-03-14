@@ -25,7 +25,7 @@
 #include <QDebug>
 #include <QProcess>
 
-namespace SDE {
+namespace SDDM {
     Greeter::Greeter(QObject *parent) : QObject(parent) {
     }
 

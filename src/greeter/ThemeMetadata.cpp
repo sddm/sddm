@@ -21,7 +21,7 @@
 
 #include <QSettings>
 
-namespace SDE {
+namespace SDDM {
     class ThemeMetadataPrivate {
     public:
         QString mainScript { "Main.qml" };

@@ -35,7 +35,7 @@
 #include <pwd.h>
 #include <unistd.h>
 
-namespace SDE {
+namespace SDDM {
     struct AuthenticatorAppData {
     };
 

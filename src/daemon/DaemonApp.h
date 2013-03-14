@@ -17,14 +17,14 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_DAEMONAPP_H
-#define SDE_DAEMONAPP_H
+#ifndef SDDM_DAEMONAPP_H
+#define SDDM_DAEMONAPP_H
 
 #include <QCoreApplication>
 
 #include <QList>
 
-namespace SDE {
+namespace SDDM {
     class Configuration;
     class Display;
     class PowerManager;
@@ -54,4 +54,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_DAEMONAPP_H
+#endif // SDDM_DAEMONAPP_H

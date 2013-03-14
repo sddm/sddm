@@ -17,8 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SCREENMODEL_H
-#define SDE_SCREENMODEL_H
+#ifndef SDDM_SCREENMODEL_H
+#define SDDM_SCREENMODEL_H
 
 #include <QAbstractListModel>
 
@@ -28,7 +28,7 @@
 
 #include <QRect>
 
-namespace SDE {
+namespace SDDM {
     class ScreenModelPrivate;
 
     class ScreenModel : public QAbstractListModel {
@@ -60,4 +60,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_SCREENMODEL_H
+#endif // SDDM_SCREENMODEL_H

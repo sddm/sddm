@@ -21,7 +21,7 @@
 
 #include <QSettings>
 
-namespace SDE {
+namespace SDDM {
     static Configuration *_instance = nullptr;
 
     class ConfigurationPrivate {

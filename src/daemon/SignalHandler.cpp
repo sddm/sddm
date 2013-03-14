@@ -27,7 +27,7 @@
 
 #include <sys/socket.h>
 
-namespace SDE {
+namespace SDDM {
     int sighupFd[2];
     int sigintFd[2];
 

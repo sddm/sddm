@@ -17,12 +17,12 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_THEMEMETADATA_H
-#define SDE_THEMEMETADATA_H
+#ifndef SDDM_THEMEMETADATA_H
+#define SDDM_THEMEMETADATA_H
 
 #include <QObject>
 
-namespace SDE {
+namespace SDDM {
     class ThemeMetadataPrivate;
 
     class ThemeMetadata : public QObject {
@@ -40,4 +40,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_THEMEMETADATA_H
+#endif // SDDM_THEMEMETADATA_H

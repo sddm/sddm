@@ -28,7 +28,7 @@
 
 #include <memory>
 
-namespace SDE {
+namespace SDDM {
     class Session {
     public:
         QString file;

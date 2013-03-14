@@ -29,7 +29,7 @@
 
 #include <unistd.h>
 
-namespace SDE {
+namespace SDDM {
     DisplayServer::DisplayServer(QObject *parent) : QObject(parent) {
     }
 

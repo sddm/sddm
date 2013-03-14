@@ -28,7 +28,7 @@
 #include <pwd.h>
 #include <unistd.h>
 
-namespace SDE {
+namespace SDDM {
     SessionProcess::SessionProcess(QObject *parent) : QProcess(parent) {
     }
 

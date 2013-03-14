@@ -17,8 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SOCKETSERVER_H
-#define SDE_SOCKETSERVER_H
+#ifndef SDDM_SOCKETSERVER_H
+#define SDDM_SOCKETSERVER_H
 
 #include <QObject>
 #include <QString>
@@ -26,7 +26,7 @@
 class QLocalServer;
 class QLocalSocket;
 
-namespace SDE {
+namespace SDDM {
     class SocketServer : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(SocketServer)
@@ -57,4 +57,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_SOCKETSERVER_H
+#endif // SDDM_SOCKETSERVER_H

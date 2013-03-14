@@ -29,7 +29,7 @@
 
 #include <memory>
 
-namespace SDE {
+namespace SDDM {
     class User {
     public:
         QString name { "" };

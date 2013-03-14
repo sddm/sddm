@@ -17,14 +17,14 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_GREETER_H
-#define SDE_GREETER_H
+#ifndef SDDM_GREETER_H
+#define SDDM_GREETER_H
 
 #include <QObject>
 
 class QProcess;
 
-namespace SDE {
+namespace SDDM {
     class Greeter : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(Greeter)
@@ -54,4 +54,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_GREETER_H
+#endif // SDDM_GREETER_H

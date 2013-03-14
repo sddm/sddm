@@ -26,7 +26,7 @@
 
 #include <QLocalSocket>
 
-namespace SDE {
+namespace SDDM {
     class GreeterProxyPrivate {
     public:
         SessionModel *sessionModel { nullptr };

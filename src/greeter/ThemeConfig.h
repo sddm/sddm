@@ -17,16 +17,16 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_THEMECONFIG_H
-#define SDE_THEMECONFIG_H
+#ifndef SDDM_THEMECONFIG_H
+#define SDDM_THEMECONFIG_H
 
 #include <QVariantMap>
 
-namespace SDE {
+namespace SDDM {
     class ThemeConfig : public QVariantMap {
     public:
         explicit ThemeConfig(const QString &path);
     };
 }
 
-#endif // SDE_THEMECONFIG_H
+#endif // SDDM_THEMECONFIG_H

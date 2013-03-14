@@ -31,7 +31,7 @@
 #include <QProcess>
 #endif
 
-namespace SDE {
+namespace SDDM {
     class PowerManagerPrivate {
     public:
         QDBusInterface *interface { nullptr };

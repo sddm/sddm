@@ -22,7 +22,7 @@
 #include <QSettings>
 #include <QStringList>
 
-namespace SDE {
+namespace SDDM {
     ThemeConfig::ThemeConfig(const QString &path) {
         QSettings settings(path, QSettings::IniFormat);
 

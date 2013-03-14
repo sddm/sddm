@@ -17,13 +17,13 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_AUTHENTICATOR_H
-#define SDE_AUTHENTICATOR_H
+#ifndef SDDM_AUTHENTICATOR_H
+#define SDDM_AUTHENTICATOR_H
 
 #include <QObject>
 #include <QString>
 
-namespace SDE {
+namespace SDDM {
     class SessionProcess;
 
     class Credentials : public QObject {
@@ -73,4 +73,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_AUTHENTICATOR_H
+#endif // SDDM_AUTHENTICATOR_H

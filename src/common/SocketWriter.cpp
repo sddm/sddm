@@ -19,7 +19,7 @@
 
 #include "SocketWriter.h"
 
-namespace SDE {
+namespace SDDM {
     SocketWriter::SocketWriter(QLocalSocket *socket) : socket(socket) {
         output = new QDataStream(&data, QIODevice::WriteOnly);
     }

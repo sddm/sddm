@@ -17,14 +17,14 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_DISPLAYSERVER_H
-#define SDE_DISPLAYSERVER_H
+#ifndef SDDM_DISPLAYSERVER_H
+#define SDDM_DISPLAYSERVER_H
 
 #include <QObject>
 
 class QProcess;
 
-namespace SDE {
+namespace SDDM {
 
     class DisplayServer : public QObject {
         Q_OBJECT
@@ -53,4 +53,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_DISPLAYSERVER_H
+#endif // SDDM_DISPLAYSERVER_H

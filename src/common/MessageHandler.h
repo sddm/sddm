@@ -17,12 +17,15 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
+#ifndef SDDM_MESSAGEHANDLER_H
+#define SDDM_MESSAGEHANDLER_H
+
 #include "Constants.h"
 
 #include <QDateTime>
 #include <QFile>
 
-namespace SDE {
+namespace SDDM {
     void MessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
         Q_UNUSED(context)
 
@@ -54,3 +57,5 @@ namespace SDE {
         file.close();
     }
 }
+
+#endif // SDDM_MESSAGEHANDLER_H

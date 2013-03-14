@@ -34,7 +34,7 @@
 #include <QProcess>
 #include <QTimer>
 
-namespace SDE {
+namespace SDDM {
     DaemonApp::DaemonApp(int argc, char **argv) : QCoreApplication(argc, argv) {
         // log message
         qDebug() << " DAEMON: Initializing...";
@@ -134,11 +134,11 @@ namespace SDE {
 int main(int argc, char **argv) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) && !TEST
     // install message handler
-    qInstallMessageHandler(SDE::MessageHandler);
+    qInstallMessageHandler(SDDM::MessageHandler);
 #endif
 
     // create application
-    SDE::DaemonApp app(argc, argv);
+    SDDM::DaemonApp app(argc, argv);
 
     // run application
     return app.exec();

@@ -38,9 +38,9 @@
 #include <QDeclarativeContext>
 #endif
 
-using namespace SDE;
+using namespace SDDM;
 
-namespace SDE {
+namespace SDDM {
     QString parameter(const QStringList &arguments, const QString &key, const QString &defaultValue) {
         int index = arguments.indexOf(key);
 
@@ -59,7 +59,7 @@ namespace SDE {
 int main(int argc, char **argv) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     // install message handler
-    qInstallMessageHandler(SDE::MessageHandler);
+    qInstallMessageHandler(SDDM::MessageHandler);
 
     // create application
     QGuiApplication app(argc, argv);

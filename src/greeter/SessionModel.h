@@ -17,8 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SESSIONMODEL_H
-#define SDE_SESSIONMODEL_H
+#ifndef SDDM_SESSIONMODEL_H
+#define SDDM_SESSIONMODEL_H
 
 #include <QAbstractListModel>
 
@@ -26,7 +26,7 @@
 #include <QHash>
 #endif
 
-namespace SDE {
+namespace SDDM {
     class SessionModelPrivate;
 
     class SessionModel : public QAbstractListModel {
@@ -58,4 +58,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_SESSIONMODEL_H
+#endif // SDDM_SESSIONMODEL_H

@@ -17,13 +17,13 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_SOCKETWRITER_H
-#define SDE_SOCKETWRITER_H
+#ifndef SDDM_SOCKETWRITER_H
+#define SDDM_SOCKETWRITER_H
 
 #include <QDataStream>
 #include <QLocalSocket>
 
-namespace SDE {
+namespace SDDM {
     class SocketWriter {
         Q_DISABLE_COPY(SocketWriter)
     public:
@@ -40,4 +40,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_SOCKETWRITER_H
+#endif // SDDM_SOCKETWRITER_H

@@ -29,7 +29,7 @@
 #include <QDesktopWidget>
 #endif
 
-namespace SDE {
+namespace SDDM {
     class Screen {
     public:
         QString name;

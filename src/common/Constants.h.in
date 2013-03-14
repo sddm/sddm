@@ -17,8 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_CONSTANTS_H
-#define SDE_CONSTANTS_H
+#ifndef SDDM_CONSTANTS_H
+#define SDDM_CONSTANTS_H
 
 #define TEST 0
 
@@ -34,4 +34,4 @@
 #define UPOWER_FOUND         @UPOWER_FOUND@
 #define SYSTEMD_FOUND        @SYSTEMD_FOUND@
 
-#endif // SDE_CONSTANTS_H
+#endif // SDDM_CONSTANTS_H

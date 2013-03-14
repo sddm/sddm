@@ -17,14 +17,14 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_POWERMANAGER_H
-#define SDE_POWERMANAGER_H
+#ifndef SDDM_POWERMANAGER_H
+#define SDDM_POWERMANAGER_H
 
 #include <QObject>
 
 #include "Messages.h"
 
-namespace SDE {
+namespace SDDM {
     class PowerManagerPrivate;
 
     class PowerManager : public QObject {
@@ -48,4 +48,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_POWERMANAGER_H
+#endif // SDDM_POWERMANAGER_H

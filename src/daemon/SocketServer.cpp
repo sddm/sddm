@@ -26,7 +26,7 @@
 
 #include <QLocalServer>
 
-namespace SDE {
+namespace SDDM {
     SocketServer::SocketServer(QObject *parent) : QObject(parent) {
     }
 

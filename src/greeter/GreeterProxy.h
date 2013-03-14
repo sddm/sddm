@@ -17,14 +17,14 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDE_GREETERPROXY_H
-#define SDE_GREETERPROXY_H
+#ifndef SDDM_GREETERPROXY_H
+#define SDDM_GREETERPROXY_H
 
 #include <QObject>
 
 class QLocalSocket;
 
-namespace SDE {
+namespace SDDM {
     class SessionModel;
 
     class GreeterProxyPrivate;
@@ -84,4 +84,4 @@ namespace SDE {
     };
 }
 
-#endif // SDE_GREETERPROXY_H
+#endif // SDDM_GREETERPROXY_H

@@ -31,7 +31,7 @@
 #include <QFile>
 #include <QTimer>
 
-namespace SDE {
+namespace SDDM {
     QString generateName(int length) {
         QString digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
