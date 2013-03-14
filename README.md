@@ -20,6 +20,10 @@ https://github.com/sddm/sddm/wiki
 
 https://groups.google.com/group/sddm-devel
 
+**sddm** on **irc.freenode.net**
+
+**sddm-devel** on **irc.freenode.net**
+
 ## SCREENSHOTS
 
 ![sample screenshot](https://raw.github.com/sddm/sddm/master/data/themes/maui/maui.jpg)
