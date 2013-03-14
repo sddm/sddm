@@ -18,7 +18,7 @@ https://github.com/sddm/sddm/issues
 
 https://github.com/sddm/sddm/wiki
 
-https://groups.google.com/group/sde-devel
+https://groups.google.com/group/sddm-devel
 
 ## SCREENSHOTS
 
