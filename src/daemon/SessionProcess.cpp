@@ -87,7 +87,7 @@ namespace SDDM {
         authenticator->addCookie(QString("%1/.Xauthority").arg(m_dir));
 
         // change to user home dir
-        if (chdir(qPrintable(m_dir))) {
+        if (chdir(qPrintable(m_dir)) == -1) {
             // something went wrong!
             exit(EXIT_FAILURE);
         }
