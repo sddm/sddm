@@ -51,6 +51,10 @@ CurrentTheme=maui
 # user interface
 MinimumUid=1000
 
+# Maximum user id of the users to be listed in the
+# user interface
+MaximumUid=65000
+
 # Name of last logged-in user. This username will be
 # preselected/shown when the login screen shows up.
 LastUser=
