@@ -70,12 +70,18 @@ namespace SDDM {
 
     void SignalHandler::hupSignalHandler(int) {
         char a = 1;
-        ::write(sighupFd[0], &a, sizeof(a));
+        if (::write(sighupFd[0], &a, sizeof(a)) == -1) {
+            qCritical() << "Error writing to the SIGHUP handler";
+            return;
+        }
     }
 
     void SignalHandler::intSignalHandler(int) {
         char a = 1;
-        ::write(sigintFd[0], &a, sizeof(a));
+        if (::write(sigintFd[0], &a, sizeof(a)) == -1) {
+            qCritical() << "Error writing to the SIGINT handler";
+            return;
+        }
     }
 
     void SignalHandler::handleSighup() {
@@ -84,7 +90,11 @@ namespace SDDM {
 
         // read from socket
         char a;
-        ::read(sighupFd[1], &a, sizeof(a));
+        if (::read(sighupFd[1], &a, sizeof(a)) == -1) {
+            // something went wrong!
+            qCritical() << "Error reading from the socket";
+            return;
+        }
 
         // log event
         qWarning() << "Signal received: SIGHUP";
@@ -102,7 +112,11 @@ namespace SDDM {
 
         // read from socket
         char a;
-        ::read(sigintFd[1], &a, sizeof(a));
+        if (::read(sigintFd[1], &a, sizeof(a)) == -1) {
+            // something went wrong!
+            qCritical() << "Error reading from the socket";
+            return;
+        }
 
         // log event
         qWarning() << "Signal received: SIGINT";
