@@ -87,7 +87,12 @@ namespace SDDM {
         authenticator->addCookie(QString("%1/.Xauthority").arg(m_dir));
 
         // change to user home dir
-        chdir(qPrintable(m_dir));
+        if (chdir(qPrintable(m_dir))) {
+            // something went wrong!
+            emit finished(EXIT_FAILURE, QProcess::NormalExit);
+
+            exit(EXIT_FAILURE);
+        }
 
         // copy environment to pam environment
         for (int i = 0; environ[i] != nullptr; ++i)
