@@ -184,7 +184,7 @@ Rectangle {
                         ImageButton {
                             id: suspend_button
                             source: "images/system_suspend.png"
-                            visible: sddm.canSuspend()
+                            visible: sddm.canSuspend
                             onClicked: sddm.suspend()
 
                             KeyNavigation.backtab: reboot_button; KeyNavigation.tab: hibernate_button
@@ -193,7 +193,7 @@ Rectangle {
                         ImageButton {
                             id: hibernate_button
                             source: "images/system_hibernate.png"
-                            visible: sddm.canHibernate()
+                            visible: sddm.canHibernate
                             onClicked: sddm.hibernate()
 
                             KeyNavigation.backtab: suspend_button; KeyNavigation.tab: user_entry
