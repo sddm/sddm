@@ -86,6 +86,10 @@ namespace SDDM {
             if (fields.at(2).toInt() < Configuration::instance()->minimumUid())
                 continue;
 
+            // skip entries with uids greater than maximum uid
+            if (fields.at(2).toInt() > Configuration::instance()->maximumUid())
+                continue;
+
             // create user
             UserPtr user { new User() };
             user->name = fields.at(0);
