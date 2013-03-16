@@ -21,11 +21,12 @@
 
 #include "Configuration.h"
 #include "Constants.h"
+#include "Display.h"
 
 #include <QDebug>
 #include <QProcess>
 
-#include <X11/Xlib.h>
+#include <xcb/xcb.h>
 
 #include <unistd.h>
 
@@ -133,38 +134,33 @@ namespace SDDM {
     }
 
     bool DisplayServer::waitForStarted(int msecs) {
-        Display *display = nullptr;
+        xcb_connection_t *connection = nullptr;
 
-        // save xauth
-        char *xauth = getenv("XAUTHORITY");
+        // get cookie from the display
+        QString cookie = qobject_cast<Display *>(parent())->cookie();
 
-        // set xauthority
-        setenv("XAUTHORITY", qPrintable(m_authPath), 1);
+        // set xcb auth info
+        xcb_auth_info_t auth_info { 18, "MIT-MAGIC-COOKIE-1", cookie.length(), strdup(qPrintable(cookie)) };
 
-        // try to open the display
+        // try to connect to the server
         for (int i = 0; i < (msecs / 100); ++i) {
-            // try to open the display
-            if ((display = XOpenDisplay(qPrintable(m_display))) != nullptr)
+
+            // try to connect to the server
+            connection = xcb_connect_to_display_with_auth_info(qPrintable(m_display), &auth_info, nullptr);
+
+            // check connection
+            if (connection != nullptr)
                 break;
 
             // sleep for a 100 miliseconds
             usleep(100000);
         }
 
-        // if display can't be opened return false
-        if (display == nullptr) {
-            // reset environment
-            setenv("XAUTHORITY", xauth, 1);
-
-            // return fail
+        if (connection == nullptr)
             return false;
-        }
 
-        // close display
-        XCloseDisplay(display);
-
-        // reset environment
-        setenv("XAUTHORITY", xauth, 1);
+        // close connection
+        xcb_disconnect(connection);
 
         // return success
         return true;

@@ -28,8 +28,8 @@ find_package(PkgConfig)
 # PAM
 find_package(PAM REQUIRED)
 
-# X11
-find_package(X11 REQUIRED)
+# XCB
+find_package(XCB REQUIRED)
 
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)

@@ -21,7 +21,7 @@ set(DAEMON_SOURCES
 
 if(USE_QT5)
     add_executable(sddm ${DAEMON_SOURCES})
-    target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB})
+    target_link_libraries(sddm ${PAM_LIBRARIES} ${LIBXCB_LIBRARIES})
     qt5_use_modules(sddm DBus Network)
 else()
     set(QT_USE_QTNETWORK TRUE)
@@ -29,7 +29,7 @@ else()
     include(${QT_USE_FILE})
 
     add_executable(sddm ${DAEMON_SOURCES})
-    target_link_libraries(sddm ${PAM_LIBRARIES} ${X11_X11_LIB} ${QT_LIBRARIES})
+    target_link_libraries(sddm ${PAM_LIBRARIES} ${LIBXCB_LIBRARIES} ${QT_LIBRARIES})
 endif()
 
 install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
@@ -57,7 +57,7 @@ else()
     include(${QT_USE_FILE})
 
     add_executable(sddm-greeter ${GREETER_SOURCES})
-    target_link_libraries(sddm-greeter ${PAM_LIBRARIES} ${X11_X11_LIB} ${QT_LIBRARIES})
+    target_link_libraries(sddm-greeter ${QT_LIBRARIES})
 endif()
 
 install(TARGETS sddm-greeter DESTINATION ${BIN_INSTALL_DIR})

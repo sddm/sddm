@@ -130,7 +130,7 @@ namespace SDDM {
         m_display = display;
     }
 
-    void Authenticator::generateCookie() {
+    const QString &Authenticator::generateCookie() {
         // log message
         qDebug() << " DAEMON: Generating cookie...";
 
@@ -145,6 +145,9 @@ namespace SDDM {
         const char *digits = "0123456789abcdef";
         for (int i = 0; i < 32; ++i)
             m_cookie[i] = digits[dis(gen)];
+
+        // return cookie
+        return m_cookie;
     }
 
     void Authenticator::addCookie(const QString &file) {

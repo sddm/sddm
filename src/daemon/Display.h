@@ -38,6 +38,7 @@ namespace SDDM {
         ~Display();
 
         const QString &name() const;
+        const QString &cookie() const;
 
     public slots:
         void start();
@@ -53,6 +54,7 @@ namespace SDDM {
         bool m_first { true };
         bool m_started { false };
 
+        QString m_cookie { "" };
         QString m_display { "" };
         QString m_socket { "" };
         QString m_authPath { "" };

@@ -88,6 +88,10 @@ namespace SDDM {
         return m_display;
     }
 
+    const QString &Display::cookie() const {
+        return m_cookie;
+    }
+
     void Display::start() {
         // check flag
         if (m_started)
@@ -97,7 +101,7 @@ namespace SDDM {
         m_authenticator->setDisplay(m_display);
 
         // generate cookie
-        m_authenticator->generateCookie();
+        m_cookie = m_authenticator->generateCookie();
 
         // generate auth file
         m_authenticator->addCookie(m_authPath);

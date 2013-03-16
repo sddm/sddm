@@ -47,7 +47,7 @@ namespace SDDM {
     public slots:
         void setDisplay(const QString &display);
 
-        void generateCookie();
+        const QString &generateCookie();
         void addCookie(const QString &file);
 
         void putenv(const QString &value);
