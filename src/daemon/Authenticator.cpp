@@ -37,9 +37,6 @@
 #include <unistd.h>
 
 namespace SDDM {
-    struct AuthenticatorAppData {
-    };
-
     class AuthenticatorPrivate {
     public:
         struct pam_conv pamc;
@@ -169,9 +166,6 @@ namespace SDDM {
         fprintf(fp, "exit\n");
         // close pipe
         pclose(fp);
-
-        // return success
-        return;
     }
 
     void Authenticator::putenv(const QString &value) {
