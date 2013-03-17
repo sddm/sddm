@@ -76,8 +76,12 @@ pkg_check_modules(SYSTEMD "libsystemd-daemon")
 if(SYSTEMD_FOUND)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
     string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+    set(HALT_COMMAND "/usr/bin/systemctl poweroff")
+    set(REBOOT_COMMAND "/usr/bin/systemctl reboot")
 else()
     set(SYSTEMD_FOUND 0)
+    set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
 
 # set constants
