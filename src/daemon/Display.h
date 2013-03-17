@@ -39,6 +39,8 @@ namespace SDDM {
 
         const QString &name() const;
         const QString &cookie() const;
+        const QString &seatId() const;
+        const int vtNumber() const;
 
     public slots:
         void start();
@@ -58,6 +60,8 @@ namespace SDDM {
         QString m_display { "" };
         QString m_socket { "" };
         QString m_authPath { "" };
+        QString m_seatId { "seat0" };
+        int m_vtNumber { 7 };
 
         Authenticator *m_authenticator { nullptr };
         DisplayServer *m_displayServer { nullptr };

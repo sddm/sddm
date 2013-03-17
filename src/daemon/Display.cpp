@@ -92,6 +92,14 @@ namespace SDDM {
         return m_cookie;
     }
 
+    const QString &Display::seatId() const {
+        return m_seatId;
+    }
+
+    const int Display::vtNumber() const {
+        return m_vtNumber;
+    }
+
     void Display::start() {
         // check flag
         if (m_started)

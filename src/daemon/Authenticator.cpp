@@ -21,6 +21,7 @@
 
 #include "Configuration.h"
 #include "Constants.h"
+#include "Display.h"
 #include "SessionProcess.h"
 
 #include <QDebug>
@@ -286,6 +287,9 @@ namespace SDDM {
             endusershell();
         }
 
+        // get parent
+        Display *display = qobject_cast<Display *>(parent());
+
         // create user session process
         process = new SessionProcess(this);
 
@@ -306,6 +310,8 @@ namespace SDDM {
         env.insert("PATH", Configuration::instance()->defaultPath());
         env.insert("DISPLAY", m_display);
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
+        env.insert("XDG_SEAT", display->seatId());
+        env.insert("XDG_VTNR", QString::number(display->vtNumber()));
         process->setProcessEnvironment(env);
 
         // start session

@@ -68,8 +68,11 @@ namespace SDDM {
         env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
         process->setProcessEnvironment(env);
 
+        // get display
+        Display *display = qobject_cast<Display *>(parent());
+
         // start display server
-        process->start(Configuration::instance()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", "vt07"});
+        process->start(Configuration::instance()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->vtNumber()), 2, '0')});
 #else
         process->start("/usr/bin/Xephyr", { m_display, "-ac", "-br", "-noreset", "-screen",  "800x600"});
 #endif
