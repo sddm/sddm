@@ -88,9 +88,12 @@ namespace SDDM {
 
         // change to user home dir
         if (chdir(qPrintable(m_dir))) {
-            // something went wrong!
+            qCritical() << " DAEMON: Failed to change dir to user home.";
+
+            // emit signal
             emit finished(EXIT_FAILURE, QProcess::NormalExit);
 
+            // exit
             exit(EXIT_FAILURE);
         }
 
