@@ -140,7 +140,7 @@ namespace SDDM {
         QString cookie = qobject_cast<Display *>(parent())->cookie();
 
         // set xcb auth info
-        xcb_auth_info_t auth_info { 18, "MIT-MAGIC-COOKIE-1", cookie.length(), strdup(qPrintable(cookie)) };
+        xcb_auth_info_t auth_info { 18, strdup("MIT-MAGIC-COOKIE-1"), cookie.length(), strdup(qPrintable(cookie)) };
 
         // try to connect to the server
         for (int i = 0; i < (msecs / 100); ++i) {
