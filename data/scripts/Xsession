@@ -1,8 +1,8 @@
 #! /bin/sh
 # Xsession - run as user
 
-# This file is a copied from /usr/share/config/kdm on my system
-# probably part of the kde-workspace, but I couldnt find it  in the sources 
+# This file is extracted from kde-workspace (kdm/kfrontend/genkdmconf.c)
+# Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
 
 session=$1
 
