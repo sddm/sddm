@@ -312,6 +312,11 @@ namespace SDDM {
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
         env.insert("XDG_SEAT", display->seatId());
         env.insert("XDG_VTNR", QString::number(display->vtNumber()));
+        // set desktop session
+        if (session.lastIndexOf(".") == -1)
+            env.insert("DESKTOP_SESSION", session);
+        else
+            env.insert("DESKTOP_SESSION", session.left(session.lastIndexOf(".")));
         process->setProcessEnvironment(env);
 
         // start session
