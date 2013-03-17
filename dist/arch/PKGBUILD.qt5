@@ -1,11 +1,12 @@
 pkgname=sddm-qt5-git
-pkgver=20130301
+pkgver=20130317
 pkgrel=1
 pkgdesc="QML based X11 display manager"
 arch=('i686' 'x86_64')
+backup=('etc/sddm.conf')
 url="http://github.com/sddm/sddm"
 license=('GPL')
-depends=('pam' 'qt5-base' 'qt5-declarative' 'libx11')
+depends=('upower' 'qt5-declarative' 'libxcb')
 makedepends=('cmake' 'git')
 provides=('sddm')
 replaces=('sddm')
@@ -27,14 +28,13 @@ build() {
   msg "GIT checkout done or server timeout"
   msg "Starting build..."
 
-  mkdir -p build
-  cd build
+  mkdir -p $srcdir/build && cd $srcdir/build
 
-  cmake ../${_gitname} -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true
+  cmake ../$_gitname -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=true
   make
 }
 
 package() {
-  cd ${srcdir}/build
-  make DESTDIR="${pkgdir}" install
+  cd $srcdir/build
+  make DESTDIR="$pkgdir" install
 }
