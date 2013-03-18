@@ -62,6 +62,7 @@ namespace SDDM {
 
         // create file object
         QFile file(PASSWD_FILE);
+
         // open file
         if (!file.open(QIODevice::ReadOnly))
             return;
@@ -90,7 +91,12 @@ namespace SDDM {
             if (fields.at(2).toInt() > Configuration::instance()->maximumUid())
                 continue;
 
+            // skip entries with user names in the hide users list
             if (Configuration::instance()->hideUsers().contains(fields.at(0)))
+                continue;
+
+            // skip entries with shells in the hide shells list
+            if (Configuration::instance()->hideShells().contains(fields.at(6)))
                 continue;
 
             // create user

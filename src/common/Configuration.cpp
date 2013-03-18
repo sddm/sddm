@@ -54,6 +54,7 @@ namespace SDDM {
         int minimumUid { 0 };
         int maximumUid { 65000 };
         QStringList hideUsers;
+        QStringList hideShells;
 
         bool rememberLastUser { true };
         QString lastUser { "" };
@@ -94,6 +95,7 @@ namespace SDDM {
         d->minimumUid = settings.value("MinimumUid", "0").toInt();
         d->maximumUid = settings.value("MaximumUid", "65000").toInt();
         d->hideUsers = settings.value("HideUsers", d->hideUsers).toString().split(' ', QString::SkipEmptyParts);
+        d->hideShells = settings.value("HideShells", d->hideShells).toString().split(' ', QString::SkipEmptyParts);
         d->rememberLastUser = settings.value("RememberLastUser", d->rememberLastUser).toBool();
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
@@ -120,6 +122,7 @@ namespace SDDM {
         settings.setValue("MinimumUid", d->minimumUid);
         settings.setValue("MaximumUid", d->maximumUid);
         settings.setValue("HideUsers", d->hideUsers.join(" "));
+        settings.setValue("HideShells", d->hideShells.join(" "));
         settings.setValue("RememberLastUser", d->rememberLastUser);
         settings.setValue("LastUser", d->lastUser);
         settings.setValue("AutoUser", d->autoUser);
@@ -196,6 +199,10 @@ namespace SDDM {
 
     const QStringList &Configuration::hideUsers() const {
         return d->hideUsers;
+    }
+
+    const QStringList &Configuration::hideShells() const {
+        return d->hideShells;
     }
 
     const QString &Configuration::lastUser() const {
