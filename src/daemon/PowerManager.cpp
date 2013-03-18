@@ -37,7 +37,7 @@ namespace SDDM {
         QDBusInterface *interface { nullptr };
     };
 
-#if TEST || (!LOGIN1_FOUND && !UPOWER_FOUND)
+#if defined(TEST) || (!LOGIN1_FOUND && !UPOWER_FOUND)
 
     PowerManager::PowerManager(QObject *parent) : QObject(parent) {
     }

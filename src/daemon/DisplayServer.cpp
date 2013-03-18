@@ -60,7 +60,7 @@ namespace SDDM {
         // log message
         qDebug() << " DAEMON: Display server starting...";
 
-#if !TEST
+#ifndef TEST
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         env.insert("DISPLAY", m_display);

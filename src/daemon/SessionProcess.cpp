@@ -49,7 +49,7 @@ namespace SDDM {
     }
 
     void SessionProcess::setupChildProcess() {
-#if !TEST
+#ifndef TEST
         Authenticator *authenticator = qobject_cast<Authenticator *>(parent());
 
         if (initgroups(qPrintable(m_user), m_gid)) {

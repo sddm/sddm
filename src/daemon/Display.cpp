@@ -64,7 +64,7 @@ namespace SDDM {
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
-#if !TEST
+#ifndef TEST
         // create auth dir if not existing
         QDir authDir;
         authDir.mkpath(Configuration::instance()->authDir());

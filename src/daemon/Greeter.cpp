@@ -70,7 +70,8 @@ namespace SDDM {
         env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
         process->setProcessEnvironment(env);
 
-#if !TEST
+#ifndef TEST
+        alsdjkfal;sdjf
         // start greeter
         process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), { "--socket", m_socket, "--theme", m_theme });
 #else

@@ -58,7 +58,7 @@ namespace SDDM {
         // start the main loop
         QTimer::singleShot(1, this, SLOT(start()));
 
-#if !TEST
+#ifndef TEST
         // add a display
         addDisplay(":0");
 #else
@@ -118,7 +118,7 @@ namespace SDDM {
         // delete display
         display->deleteLater();
 
-#if TEST
+#ifdef TEST
         // quit if no display remained
         if (m_displays.isEmpty()) {
             // log message
@@ -132,7 +132,7 @@ namespace SDDM {
 }
 
 int main(int argc, char **argv) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) && !TEST
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) and !defined (TEST)
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
 #endif
