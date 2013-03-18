@@ -55,6 +55,9 @@ MinimumUid=1000
 # user interface
 MaximumUid=65000
 
+# Users that shouldn't show up in the user list
+HideUsers=
+
 # Name of last logged-in user. This username will be
 # preselected/shown when the login screen shows up.
 LastUser=

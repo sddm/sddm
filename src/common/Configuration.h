@@ -66,6 +66,7 @@ namespace SDDM {
 
         const int minimumUid() const;
         const int maximumUid() const;
+        const QStringList &hideUsers() const;
 
         const QString &lastUser() const;
         void setLastUser(const QString &lastUser);

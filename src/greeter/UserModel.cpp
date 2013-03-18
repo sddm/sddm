@@ -90,6 +90,9 @@ namespace SDDM {
             if (fields.at(2).toInt() > Configuration::instance()->maximumUid())
                 continue;
 
+            if (Configuration::instance()->hideUsers().contains(fields.at(0)))
+                continue;
+
             // create user
             UserPtr user { new User() };
             user->name = fields.at(0);
