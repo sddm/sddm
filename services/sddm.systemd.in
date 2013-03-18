@@ -3,7 +3,7 @@ Description=Simple Desktop Display Manager
 After=systemd-user-sessions.service
 
 [Service]
-ExecStart=/usr/bin/sddm
+ExecStart=@BIN_INSTALL_DIR@/sddm
 
 [Install]
 Alias=display-manager.service
