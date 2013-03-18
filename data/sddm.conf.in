@@ -13,7 +13,7 @@ ServerPath=/usr/bin/X
 XauthPath=/usr/bin/xauth
 
 # Path of the directory to create auth files in
-AuthPath=/var/run/xauth
+AuthDir=/var/run/xauth
 
 # Halt and reboot commands
 HaltCommand=@HALT_COMMAND@

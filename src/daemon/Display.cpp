@@ -65,12 +65,12 @@ namespace SDDM {
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
 #if !TEST
-        // create auth path if not existing
-        QDir dir;
-        dir.mkpath(Configuration::instance()->authPath());
+        // create auth dir if not existing
+        QDir authDir;
+        authDir.mkpath(Configuration::instance()->authDir());
 
         // set auth path
-        m_authPath = QString("%1/A%2-%3").arg(Configuration::instance()->authPath()).arg(m_display).arg(generateName(6));
+        m_authPath = QString("%1/A%2-%3").arg(Configuration::instance()->authDir()).arg(m_display).arg(generateName(6));
 #else
         // set auth path
         m_authPath = "./sddm.auth";
