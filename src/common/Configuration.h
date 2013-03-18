@@ -47,7 +47,7 @@ namespace SDDM {
 
         const QString &xauthPath() const;
 
-        const QString &authPath() const;
+        const QString &authDir() const;
 
         const QString &haltCommand() const;
         const QString &rebootCommand() const;
