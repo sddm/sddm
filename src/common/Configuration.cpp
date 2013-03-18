@@ -91,7 +91,7 @@ namespace SDDM {
         d->themesDir = settings.value("ThemesDir", "").toString();
         d->currentTheme = settings.value("CurrentTheme", "").toString();
         d->minimumUid = settings.value("MinimumUid", "0").toInt();
-        d->maximumUid = settings.value("MaximumUid", "0").toInt();
+        d->maximumUid = settings.value("MaximumUid", "65000").toInt();
         d->rememberLastUser = settings.value("RememberLastUser", d->rememberLastUser).toBool();
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
