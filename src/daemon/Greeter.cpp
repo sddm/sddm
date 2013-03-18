@@ -71,7 +71,6 @@ namespace SDDM {
         process->setProcessEnvironment(env);
 
 #ifndef TEST
-        alsdjkfal;sdjf
         // start greeter
         process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), { "--socket", m_socket, "--theme", m_theme });
 #else
