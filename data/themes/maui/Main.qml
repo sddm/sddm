@@ -92,7 +92,7 @@ Rectangle {
                     id: clock
                     anchors.centerIn: parent
                     color: "white"
-                    font: clockFont.name
+                    timeFont.family: clockFont.name
                 }
             }
 
