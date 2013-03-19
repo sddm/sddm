@@ -1,6 +1,6 @@
 ## Dependencies
 
-SDDM depends on PAM for authoriation and Xlib to communicate with the X11 server. Also it depends on Qt for user interface and event loop management, apart from other things. SDDM can optionally make use of systemd login manager or upower to enable support for suspend, hibernate etc.
+SDDM depends on PAM for authorization and XCB to communicate with the X server. Also it depends on Qt for user interface and event loop management, apart from other things. SDDM can optionally make use of systemd login manager or upower to enable support for suspend, hibernate etc.
 
 ## Compilation
 
@@ -18,9 +18,9 @@ After successfully building the software, type following to install.
 
 `sudo make install`
 
-By default configure script searches for systemd. When found, it will be used for power management. If not, the script tries to use upower. If that can not be found either, power management actions will not be available. Note that, if systemd is used, HaltCommand and RebootCommand config file entries will have no effect.
+When found, systemd will be used for power management. When systemd is not available build will fallback to using upower. If upower can not be found either, shutdown/reboot/suspend/hibernate actions won't be available. Note that, when systemd found, HaltCommand and RebootCommand config file entries has no effect.
 
-SDDM by default uses Qt4. If you want to use Qt5 instead, simply add `-DUSE_QT5=true` at the end of the cmake line. Qt5 unlocks some additional capabilities for the themes like hardware acceleration, mouse cursors etc.
+SDDM by default uses Qt4. If you want to use Qt5 instead, simply add `-DUSE_QT5=true` at the end of the cmake line. Qt5 unlocks some additional capabilities for the themes like hardware acceleration, mouse cursors etc. 
 
 ## Configuration
 
