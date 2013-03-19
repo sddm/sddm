@@ -71,7 +71,7 @@ else()
 endif()
 
 # systemd
-pkg_check_modules(SYSTEMD "libsystemd-daemon")
+pkg_check_modules(SYSTEMD "systemd")
 
 if(SYSTEMD_FOUND)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
