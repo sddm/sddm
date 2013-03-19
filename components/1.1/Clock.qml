@@ -29,7 +29,8 @@ Column {
 
     property date dateTime: new Date()
     property color color: "white"
-    property string font: ""
+    property alias timeFont: time.font
+    property alias dateFont: date.font
 
     Timer {
         interval: 100; running: true; repeat: true;
@@ -44,7 +45,7 @@ Column {
 
         text : Qt.formatTime(container.dateTime, "hh:mm")
 
-        font.family: container.font; font.pointSize: 72
+        font.pointSize: 72
     }
 
     Text {
@@ -55,6 +56,6 @@ Column {
 
         text : Qt.formatDate(container.dateTime, "dddd, MMM dd")
 
-        font.family: container.font; font.pointSize: 24
+        font.pointSize: 24
     }
 }

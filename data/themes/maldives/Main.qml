@@ -66,7 +66,7 @@ Rectangle {
             anchors.top: parent.top; anchors.right: parent.right
 
             color: "white"
-            font: clockFont.name
+            timeFont.family: clockFont.name
         }
 
         Image {
