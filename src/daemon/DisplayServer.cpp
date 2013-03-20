@@ -167,7 +167,7 @@ namespace SDDM {
             xcb_disconnect(connection);
 
             // set success flag
-           result = false;
+           result = true;
         }
 
         // free resources
