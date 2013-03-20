@@ -94,8 +94,8 @@ namespace SDDM {
         d->currentTheme = settings.value("CurrentTheme", "").toString();
         d->minimumUid = settings.value("MinimumUid", "0").toInt();
         d->maximumUid = settings.value("MaximumUid", "65000").toInt();
-        d->hideUsers = settings.value("HideUsers", d->hideUsers).toString().split(' ', QString::SkipEmptyParts);
-        d->hideShells = settings.value("HideShells", d->hideShells).toString().split(' ', QString::SkipEmptyParts);
+        d->hideUsers = settings.value("HideUsers", "").toString().split(' ', QString::SkipEmptyParts);
+        d->hideShells = settings.value("HideShells", "").toString().split(' ', QString::SkipEmptyParts);
         d->rememberLastUser = settings.value("RememberLastUser", d->rememberLastUser).toBool();
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
