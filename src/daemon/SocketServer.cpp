@@ -98,6 +98,7 @@ namespace SDDM {
 
         // connect signals
         connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+        connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
     }
 
     void SocketServer::readyRead() {
