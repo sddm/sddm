@@ -137,12 +137,15 @@ namespace SDDM {
     }
 
     bool DisplayServer::waitForStarted(int msecs) {
-        xcb_connection_t *connection = nullptr;
+        bool result = false;
 
         // get cookie from the display
         QString cookie = qobject_cast<Display *>(parent())->cookie();
 
-        // set xcb auth info
+        // connection object
+        xcb_connection_t *connection = nullptr;
+
+        // auth object
         xcb_auth_info_t auth_info { 18, strdup("MIT-MAGIC-COOKIE-1"), cookie.length(), strdup(qPrintable(cookie)) };
 
         // try to connect to the server
@@ -155,17 +158,23 @@ namespace SDDM {
             if (connection != nullptr)
                 break;
 
-            // sleep for a 100 miliseconds
+            // sleep for 100 miliseconds
             usleep(100000);
         }
 
-        if (connection == nullptr)
-            return false;
+        if (connection != nullptr) {
+            // close connection
+            xcb_disconnect(connection);
 
-        // close connection
-        xcb_disconnect(connection);
+            // set success flag
+           result = false;
+        }
 
-        // return success
-        return true;
+        // free resources
+        free(auth_info.data);
+        free(auth_info.name);
+
+        // return result
+        return result;
     }
 }
