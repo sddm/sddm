@@ -74,3 +74,9 @@ This model also has a `lastIndex` property holding the index of the last user su
 You can test your themes using `sddm-greeter`. Note that in this mode, actions like shutdown, suspend or login will have no effect.
 
     sddm-greeter --theme /path/to/you/theme
+
+If you have compiled SDDM with Qt4, you can also use it in a nested X session through Xepyhr. To accomplish this use:
+
+    sddm --test-mode
+
+Test mode doesn't work with Qt5, because Xepyhr doesn't support GLX and QtQuick2 requires it.
