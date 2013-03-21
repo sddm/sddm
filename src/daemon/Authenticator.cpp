@@ -20,7 +20,6 @@
 #include "Authenticator.h"
 
 #include "Configuration.h"
-#include "Constants.h"
 #include "Display.h"
 #include "SessionProcess.h"
 

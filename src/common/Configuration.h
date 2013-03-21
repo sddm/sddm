@@ -74,6 +74,8 @@ namespace SDDM {
 
         const QString &autoUser() const;
 
+        bool testing { false };
+
     private:
         ConfigurationPrivate *d { nullptr };
     };

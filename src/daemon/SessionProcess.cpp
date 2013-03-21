@@ -20,7 +20,7 @@
 #include "SessionProcess.h"
 
 #include "Authenticator.h"
-#include "Constants.h"
+#include "Configuration.h"
 
 #include <QDebug>
 
@@ -49,7 +49,9 @@ namespace SDDM {
     }
 
     void SessionProcess::setupChildProcess() {
-#ifndef TEST
+        if (Configuration::instance()->testing)
+            return;
+
         Authenticator *authenticator = qobject_cast<Authenticator *>(parent());
 
         if (initgroups(qPrintable(m_user), m_gid)) {
@@ -100,6 +102,5 @@ namespace SDDM {
         // copy environment to pam environment
         for (int i = 0; environ[i] != nullptr; ++i)
             authenticator->putenv(environ[i]);
-#endif
     }
 }

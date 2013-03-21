@@ -20,8 +20,6 @@
 #ifndef SDDM_CONSTANTS_H
 #define SDDM_CONSTANTS_H
 
-#cmakedefine TEST
-
 #define BIN_INSTALL_DIR     "@BIN_INSTALL_DIR@"
 #define DATA_INSTALL_DIR    "@DATA_INSTALL_DIR@"
 #define CONF_INSTALL_DIR    "@CONF_INSTALL_DIR@"

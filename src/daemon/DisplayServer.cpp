@@ -20,7 +20,6 @@
 #include "DisplayServer.h"
 
 #include "Configuration.h"
-#include "Constants.h"
 #include "Display.h"
 
 #include <QDebug>
@@ -60,22 +59,23 @@ namespace SDDM {
         // log message
         qDebug() << " DAEMON: Display server starting...";
 
-#ifndef TEST
-        // set process environment
-        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-        env.insert("DISPLAY", m_display);
-        env.insert("XAUTHORITY", m_authPath);
-        env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
-        process->setProcessEnvironment(env);
+        if (Configuration::instance()->testing) {
+            process->start("/usr/bin/Xephyr", { m_display, "-ac", "-br", "-noreset", "-screen",  "800x600"});
+        } else {
+            // set process environment
+            QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+            env.insert("DISPLAY", m_display);
+            env.insert("XAUTHORITY", m_authPath);
+            env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
+            process->setProcessEnvironment(env);
 
-        // get display
-        Display *display = qobject_cast<Display *>(parent());
+            // get display
+            Display *display = qobject_cast<Display *>(parent());
 
-        // start display server
-        process->start(Configuration::instance()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->vtNumber()), 2, '0')});
-#else
-        process->start("/usr/bin/Xephyr", { m_display, "-ac", "-br", "-noreset", "-screen",  "800x600"});
-#endif
+            // start display server
+            process->start(Configuration::instance()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->vtNumber()), 2, '0')});
+        }
+
         // wait for display server to start
         if (!process->waitForStarted()) {
             // log message
@@ -167,7 +167,7 @@ namespace SDDM {
             xcb_disconnect(connection);
 
             // set success flag
-           result = true;
+            result = true;
         }
 
         // free resources

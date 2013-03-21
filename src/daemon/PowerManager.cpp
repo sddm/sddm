@@ -19,15 +19,14 @@
 
 #include "PowerManager.h"
 
+#include "Configuration.h"
 #include "Constants.h"
 #include "Messages.h"
 
 #include <QDBusInterface>
 #include <QDBusReply>
 
-#if !LOGIN1_FOUND
-#include "Configuration.h"
-
+#if !LOGIN1_FOUND && UPOWER_FOUND
 #include <QProcess>
 #endif
 
@@ -37,7 +36,7 @@ namespace SDDM {
         QDBusInterface *interface { nullptr };
     };
 
-#if defined(TEST) || (!LOGIN1_FOUND && !UPOWER_FOUND)
+#if !LOGIN1_FOUND && !UPOWER_FOUND
 
     PowerManager::PowerManager(QObject *parent) : QObject(parent) {
     }
@@ -75,6 +74,9 @@ namespace SDDM {
     }
 
     Capabilities PowerManager::capabilities() const {
+        if (Configuration::instance()->testing)
+            return Capability::None;
+
         Capabilities caps = Capability::None;
 
         QDBusReply<QString> reply;
@@ -109,23 +111,28 @@ namespace SDDM {
     }
 
     void PowerManager::powerOff() {
-        d->interface->call("PowerOff", true);
+        if (!Configuration::instance()->testing)
+            d->interface->call("PowerOff", true);
     }
 
     void PowerManager::reboot() {
-        d->interface->call("Reboot", true);
+        if (!Configuration::instance()->testing)
+            d->interface->call("Reboot", true);
     }
 
     void PowerManager::suspend() {
-        d->interface->call("Suspend", true);
+        if (!Configuration::instance()->testing)
+            d->interface->call("Suspend", true);
     }
 
     void PowerManager::hibernate() {
-        d->interface->call("Hibernate", true);
+        if (!Configuration::instance()->testing)
+            d->interface->call("Hibernate", true);
     }
 
     void PowerManager::hybridSleep() {
-        d->interface->call("HybridSleep", true);
+        if (!Configuration::instance()->testing)
+            d->interface->call("HybridSleep", true);
     }
 
 #elif UPOWER_FOUND
@@ -139,6 +146,9 @@ namespace SDDM {
     }
 
     Capabilities PowerManager::capabilities() const {
+        if (Configuration::instance()->testing)
+            return Capability::None;
+
         Capabilities caps = Capability::PowerOff | Capability::Reboot;
 
         QDBusReply<bool> reply;
@@ -158,19 +168,23 @@ namespace SDDM {
     }
 
     void PowerManager::powerOff() {
-        QProcess::execute(Configuration::instance()->haltCommand());
+        if (!Configuration::instance()->testing)
+            QProcess::execute(Configuration::instance()->haltCommand());
     }
 
     void PowerManager::reboot() {
-        QProcess::execute(Configuration::instance()->rebootCommand());
+        if (!Configuration::instance()->testing)
+            QProcess::execute(Configuration::instance()->rebootCommand());
     }
 
     void PowerManager::suspend() {
-        d->interface->call("Suspend");
+        if (!Configuration::instance()->testing)
+            d->interface->call("Suspend");
     }
 
     void PowerManager::hibernate() {
-        d->interface->call("Hibernate");
+        if (!Configuration::instance()->testing)
+            d->interface->call("Hibernate");
     }
 
     void PowerManager::hybridSleep() {

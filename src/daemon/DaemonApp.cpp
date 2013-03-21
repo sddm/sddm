@@ -42,6 +42,9 @@ namespace SDDM {
         // create configuration
         m_configuration = new Configuration(CONFIG_FILE, this);
 
+        // set testing parameter
+        m_configuration->testing = (arguments().indexOf("--test-mode") != -1);
+
         // create power manager
         m_powerManager = new PowerManager(this);
 
@@ -58,13 +61,11 @@ namespace SDDM {
         // start the main loop
         QTimer::singleShot(1, this, SLOT(start()));
 
-#ifndef TEST
         // add a display
-        addDisplay(":0");
-#else
-        // add a display
-        addDisplay(":1");
-#endif
+        if (Configuration::instance()->testing)
+            addDisplay(":1");
+        else
+            addDisplay(":0");
     }
 
     QString DaemonApp::hostName() const {
@@ -117,22 +118,11 @@ namespace SDDM {
 
         // delete display
         display->deleteLater();
-
-#ifdef TEST
-        // quit if no display remained
-        if (m_displays.isEmpty()) {
-            // log message
-            qDebug() << " DAEMON: Stopping...";
-
-            // quit application
-            qApp->quit();
-        }
-#endif
     }
 }
 
 int main(int argc, char **argv) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) and !defined (TEST)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
 #endif
