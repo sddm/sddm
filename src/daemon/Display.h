@@ -53,7 +53,7 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
-        bool m_first { true };
+        bool m_relogin { true };
         bool m_started { false };
 
         QString m_cookie { "" };

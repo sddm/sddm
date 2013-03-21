@@ -73,6 +73,7 @@ namespace SDDM {
         void setLastUser(const QString &lastUser);
 
         const QString &autoUser() const;
+        bool autoRelogin() const;
 
         bool testing { false };
 

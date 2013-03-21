@@ -58,7 +58,9 @@ namespace SDDM {
 
         bool rememberLastUser { true };
         QString lastUser { "" };
+
         QString autoUser { "" };
+        bool autoRelogin { false };
     };
 
     Configuration::Configuration(const QString &configPath, QObject *parent) : QObject(parent), d(new ConfigurationPrivate()) {
@@ -99,6 +101,7 @@ namespace SDDM {
         d->rememberLastUser = settings.value("RememberLastUser", d->rememberLastUser).toBool();
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
+        d->autoRelogin = settings.value("AutoRelogin", d->autoRelogin).toBool();
     }
 
     void Configuration::save() {
@@ -126,6 +129,7 @@ namespace SDDM {
         settings.setValue("RememberLastUser", d->rememberLastUser);
         settings.setValue("LastUser", d->lastUser);
         settings.setValue("AutoUser", d->autoUser);
+        settings.setValue("AutoRelogin", d->autoRelogin);
     }
 
     Configuration *Configuration::instance() {
@@ -216,5 +220,9 @@ namespace SDDM {
 
     const QString &Configuration::autoUser() const {
         return d->autoUser;
+    }
+
+    bool Configuration::autoRelogin() const {
+        return d->autoRelogin;
     }
 }

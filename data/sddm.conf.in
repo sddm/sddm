@@ -74,3 +74,8 @@ RememberLastUser=true
 # Name of the user to automatically log in when the
 # system starts first time.
 AutoUser=
+
+# If true and AutoUser is set automatic login will
+# kick in again, if false automotic login will work
+# only the first time
+AutoRelogin=false
