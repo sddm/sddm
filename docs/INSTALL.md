@@ -22,6 +22,8 @@ When found, systemd will be used for power management. When systemd is not avail
 
 SDDM by default uses Qt4. If you want to use Qt5 instead, simply add `-DUSE_QT5=true` at the end of the cmake line. Qt5 unlocks some additional capabilities for the themes like hardware acceleration, mouse cursors etc. 
 
+Note that SDDM uses certain C++11 features for a modern and clean codebase, therefore needs `gcc >= 4.7` to compile.
+
 ## Configuration
 
 After installation you can use `sddm.conf` to configure sddm. Options in the config file are mostly self explanatory, but you can also consult the sample config file, by default named as `sddm.conf.sample`, which contains comments for each invidiual option.
