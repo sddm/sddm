@@ -44,7 +44,7 @@ namespace SDDM {
 
     public slots:
         void start();
-        void stop();
+        void stop(bool restart = true);
 
         void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
 

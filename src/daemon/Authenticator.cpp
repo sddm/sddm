@@ -373,14 +373,8 @@ namespace SDDM {
 
         // delete creds
         pam_setcred(d->pamh, PAM_DELETE_CRED);
-    }
 
-    void Authenticator::waitForFinished() {
-        // check flag
-        if (!m_started)
-            return;
-
-        // wait for finished
-        process->waitForFinished(-1);
+        // emit signal
+        emit sessionFinished();
     }
 }

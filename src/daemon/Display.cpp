@@ -57,7 +57,9 @@ namespace SDDM {
         m_displayServer(new DisplayServer(this)),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
+
         // connect signals
+        connect(m_authenticator, SIGNAL(sessionFinished()), this, SLOT(stop()));
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
 
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
@@ -80,7 +82,7 @@ namespace SDDM {
     }
 
     Display::~Display() {
-        stop();
+        stop(false);
     }
 
     const QString &Display::name() const {
@@ -128,15 +130,6 @@ namespace SDDM {
             // start session
             m_authenticator->start(Configuration::instance()->autoUser(), Configuration::instance()->lastSession());
 
-            // wait until session ends
-            m_authenticator->waitForFinished();
-
-            // stop
-            stop();
-
-            // restart display
-            QTimer::singleShot(1, this, SLOT(start()));
-
             // return
             return;
         }
@@ -161,7 +154,7 @@ namespace SDDM {
         m_started = true;
     }
 
-    void Display::stop() {
+    void Display::stop(bool restart) {
         // check flag
         if (!m_started)
             return;
@@ -183,6 +176,10 @@ namespace SDDM {
 
         // reset flag
         m_started = false;
+
+        // restart display
+        if (restart)
+            QTimer::singleShot(1, this, SLOT(start()));
     }
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {
@@ -211,14 +208,5 @@ namespace SDDM {
 
         // emit signal
         emit loginSucceeded(socket);
-
-        // wait until session ends
-        m_authenticator->waitForFinished();
-
-        // stop
-        stop();
-
-        // restart display
-        QTimer::singleShot(1, this, SLOT(start()));
     }
 }
