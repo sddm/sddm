@@ -34,18 +34,22 @@ namespace SDDM {
         static void initialize();
         static void hupSignalHandler(int unused);
         static void intSignalHandler(int unused);
+        static void termSignalHandler(int unused);
 
     signals:
         void sighupReceived();
         void sigintReceived();
+        void sigtermReceived();
 
     private slots:
         void handleSighup();
         void handleSigint();
+        void handleSigterm();
 
     private:
         QSocketNotifier *snhup { nullptr };
         QSocketNotifier *snint { nullptr };
+        QSocketNotifier *snterm { nullptr };
     };
 }
 #endif // SDDM_SIGNALHANDLER_H

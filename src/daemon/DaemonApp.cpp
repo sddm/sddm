@@ -54,9 +54,10 @@ namespace SDDM {
         // initialize signal signalHandler
         SignalHandler::initialize();
 
-        // quit when SIGHUP or SIGINT received
+        // quit when SIGHUP, SIGINT, SIGTERM received
         connect(m_signalHandler, SIGNAL(sighupReceived()), this, SLOT(stop()));
         connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
+        connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
 
         // start the main loop
         QTimer::singleShot(1, this, SLOT(start()));

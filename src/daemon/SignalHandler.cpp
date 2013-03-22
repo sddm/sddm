@@ -30,6 +30,7 @@
 namespace SDDM {
     int sighupFd[2];
     int sigintFd[2];
+    int sigtermFd[2];
 
     SignalHandler::SignalHandler(QObject *parent) : QObject(parent) {
         if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sighupFd))
@@ -43,6 +44,12 @@ namespace SDDM {
 
         snint = new QSocketNotifier(sigintFd[1], QSocketNotifier::Read, this);
         connect(snint, SIGNAL(activated(int)), this, SLOT(handleSigint()));
+
+        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigtermFd))
+            qCritical() << "Failed to create socket pair for SIGTERM handling.";
+
+        snterm = new QSocketNotifier(sigtermFd[1], QSocketNotifier::Read, this);
+        connect(snterm, SIGNAL(activated(int)), this, SLOT(handleSigterm()));
     }
 
     void SignalHandler::initialize() {
@@ -66,6 +73,16 @@ namespace SDDM {
             qCritical() << "Failed to set up SIGINT handler.";
             return;
         }
+
+        struct sigaction sigterm;
+        sigterm.sa_handler = SignalHandler::termSignalHandler;
+        sigemptyset(&sigterm.sa_mask);
+        sigterm.sa_flags |= SA_RESTART;
+
+        if (sigaction(SIGTERM, &sigterm, 0) > 0) {
+            qCritical() << "Failed to set up SIGTERM handler.";
+            return;
+        }
     }
 
     void SignalHandler::hupSignalHandler(int) {
@@ -80,6 +97,14 @@ namespace SDDM {
         char a = 1;
         if (::write(sigintFd[0], &a, sizeof(a)) == -1) {
             qCritical() << "Error writing to the SIGINT handler";
+            return;
+        }
+    }
+
+    void SignalHandler::termSignalHandler(int) {
+        char a = 1;
+        if (::write(sigtermFd[0], &a, sizeof(a)) == -1) {
+            qCritical() << "Error writing to the SIGTERM handler";
             return;
         }
     }
@@ -126,5 +151,27 @@ namespace SDDM {
 
         // enable notifier
         snint->setEnabled(true);
+    }
+
+    void SignalHandler::handleSigterm() {
+        // disable notifier
+        snterm->setEnabled(false);
+
+        // read from socket
+        char a;
+        if (::read(sigtermFd[1], &a, sizeof(a)) == -1) {
+            // something went wrong!
+            qCritical() << "Error reading from the socket";
+            return;
+        }
+
+        // log event
+        qWarning() << "Signal received: SIGTERM";
+
+        // emit signal
+        emit sigtermReceived();
+
+        // enable notifier
+        snterm->setEnabled(true);
     }
 }
