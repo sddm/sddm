@@ -57,7 +57,7 @@ namespace SDDM {
         bool m_started { false };
 
         QString m_cookie { "" };
-        QString m_display { "" };
+        QString m_display { ":0" };
         QString m_socket { "" };
         QString m_authPath { "" };
         QString m_seatId { "seat0" };
