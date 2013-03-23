@@ -59,6 +59,12 @@ namespace SDDM {
         connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
         connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
 
+        // mark display ":0" and vt07 as used, in test mode
+        if (Configuration::instance()->testing) {
+            m_usedDisplays << 0;
+            m_usedVTs << 7;
+        }
+
         // add a display
         addDisplay();
 
