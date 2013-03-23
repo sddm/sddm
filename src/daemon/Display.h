@@ -34,13 +34,15 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
-        explicit Display(const QString &display, const int vtNumber, QObject *parent = 0);
+        explicit Display(const int displayNumber, const int vtNumber, QObject *parent = 0);
         ~Display();
+
+        const int displayNumber() const;
+        const int vtNumber() const;
 
         const QString &name() const;
         const QString &cookie() const;
         const QString &seatId() const;
-        const int vtNumber() const;
 
     public slots:
         void start();
@@ -56,12 +58,14 @@ namespace SDDM {
         bool m_relogin { true };
         bool m_started { false };
 
-        QString m_cookie { "" };
+        int m_displayNumber { 0 };
+        int m_vtNumber { 7 };
+
         QString m_display { ":0" };
+        QString m_cookie { "" };
         QString m_socket { "" };
         QString m_authPath { "" };
         QString m_seatId { "seat0" };
-        int m_vtNumber { 7 };
 
         Authenticator *m_authenticator { nullptr };
         DisplayServer *m_displayServer { nullptr };

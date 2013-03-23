@@ -101,14 +101,11 @@ namespace SDDM {
         // find unused vt
         int vtNumber = findUnused(m_usedVTs, Configuration::instance()->minimumVT);
 
-        // display name
-        QString name = QString(":%1").arg(d);
-
         // log message
-        qDebug() << " DAEMON: Adding new display " << name << " on vt" << vtNumber << "...";
+        qDebug() << " DAEMON: Adding new display " << QString(":%1").arg(d) << " on vt" << vtNumber << "...";
 
         // create a new display
-        Display *display = new Display(name, vtNumber, this);
+        Display *display = new Display(d, vtNumber, this);
 
         // add display to the list
         m_displays << display;

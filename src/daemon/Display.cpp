@@ -51,12 +51,14 @@ namespace SDDM {
         return name;
     }
 
-    Display::Display(const QString &display, const int vtNumber, QObject *parent) : QObject(parent),
-        m_display(display), m_vtNumber(vtNumber),
+    Display::Display(const int displayNumber, const int vtNumber, QObject *parent) : QObject(parent),
+        m_displayNumber(displayNumber), m_vtNumber(vtNumber),
         m_authenticator(new Authenticator(this)),
         m_displayServer(new DisplayServer(this)),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
+
+        m_display = QString(":%1").arg(m_displayNumber);
 
         // connect signals
         connect(m_authenticator, SIGNAL(sessionFinished()), this, SLOT(stop()));
@@ -85,6 +87,14 @@ namespace SDDM {
         stop(false);
     }
 
+    const int Display::displayNumber() const {
+        return m_displayNumber;
+    }
+
+    const int Display::vtNumber() const {
+        return m_vtNumber;
+    }
+
     const QString &Display::name() const {
         return m_display;
     }
@@ -95,10 +105,6 @@ namespace SDDM {
 
     const QString &Display::seatId() const {
         return m_seatId;
-    }
-
-    const int Display::vtNumber() const {
-        return m_vtNumber;
     }
 
     void Display::start() {
