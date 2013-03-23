@@ -102,6 +102,7 @@ namespace SDDM {
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
         d->autoRelogin = settings.value("AutoRelogin", d->autoRelogin).toBool();
+        minimumVT = settings.value("MinimumVT", minimumVT).toUInt();
     }
 
     void Configuration::save() {
@@ -130,6 +131,7 @@ namespace SDDM {
         settings.setValue("LastUser", d->lastUser);
         settings.setValue("AutoUser", d->autoUser);
         settings.setValue("AutoRelogin", d->autoRelogin);
+        settings.setValue("MinimumVT", minimumVT);
     }
 
     Configuration *Configuration::instance() {

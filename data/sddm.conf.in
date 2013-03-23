@@ -79,3 +79,8 @@ AutoUser=
 # kick in again, if false automotic login will work
 # only the first time
 AutoRelogin=false
+
+# Minimum virtual terminal number that will be used
+# by the first display. Virtual terminal number will
+# increase as new displays added.
+MinimumVT=7

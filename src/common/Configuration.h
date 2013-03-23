@@ -77,6 +77,8 @@ namespace SDDM {
 
         bool testing { false };
 
+        uint minimumVT { 7 };
+
     private:
         ConfigurationPrivate *d { nullptr };
     };
