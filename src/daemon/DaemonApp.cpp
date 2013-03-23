@@ -22,6 +22,7 @@
 #include "Configuration.h"
 #include "Constants.h"
 #include "Display.h"
+#include "DisplayManagerAdapter.h"
 #include "PowerManager.h"
 #include "SignalHandler.h"
 
@@ -44,6 +45,12 @@ namespace SDDM {
 
         // set testing parameter
         m_configuration->testing = (arguments().indexOf("--test-mode") != -1);
+
+        // create display manager adapter
+        new DisplayManagerAdapter(this);
+        QDBusConnection connection = QDBusConnection::systemBus();
+        connection.registerService("org.freedesktop.DisplayManager");
+        connection.registerObject("/", this);
 
         // create power manager
         m_powerManager = new PowerManager(this);
@@ -100,7 +107,7 @@ namespace SDDM {
         qApp->quit();
     }
 
-    void DaemonApp::addDisplay() {
+    Display *DaemonApp::addDisplay() {
         // find unused display
         int d = findUnused(m_usedDisplays, 0);
 
@@ -115,6 +122,9 @@ namespace SDDM {
 
         // add display to the list
         m_displays << display;
+
+        // return the dispaly
+        return display;
     }
 
     void DaemonApp::removeDisplay() {
@@ -147,6 +157,23 @@ namespace SDDM {
 
         // return number;
         return number;
+    }
+
+    void DaemonApp::SwitchToGreeter() {
+        // add a new display
+        Display *display = addDisplay();
+
+        // start the display
+        display->start();
+    }
+
+    // TODO: Implement
+    void DaemonApp::SwitchToGuest() {
+    }
+
+    // TODO: Implement
+    void DaemonApp::SwitchToUser(const QString &username) {
+        Q_UNUSED(username);
     }
 }
 

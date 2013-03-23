@@ -11,6 +11,7 @@ set(DAEMON_SOURCES
     daemon/Authenticator.cpp
     daemon/DaemonApp.cpp
     daemon/Display.cpp
+    daemon/DisplayManagerAdapter.cpp
     daemon/DisplayServer.cpp
     daemon/Greeter.cpp
     daemon/PowerManager.cpp

@@ -1,0 +1,19 @@
+
+
+    <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+    <node>
+      <interface name="org.freedesktop.DisplayManager">
+     
+        <!-- Show greeter to allow new login / switch users -->
+        <method name="SwitchToGreeter"/>
+     
+        <!-- Switch to a user, starting a new display if required -->
+        <method name="SwitchToUser">
+          <arg name="username" direction="in" type="s"/>
+        </method>
+     
+        <!-- Switch to the guest user -->
+        <method name="SwitchToGuest"/>
+     
+      </interface>
+    </node>

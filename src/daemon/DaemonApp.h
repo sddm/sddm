@@ -43,10 +43,16 @@ namespace SDDM {
         void start();
         void stop();
 
-        void addDisplay();
+        Display *addDisplay();
         void removeDisplay();
 
         int findUnused(QList<int> &used, int minimum);
+
+        // methods needed for display manager interface
+        // org.freedesktop.DisplayManager
+        void SwitchToGreeter();
+        void SwitchToGuest();
+        void SwitchToUser(const QString &username);
 
     private:
         QList<Display *> m_displays;
