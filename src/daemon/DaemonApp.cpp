@@ -95,14 +95,17 @@ namespace SDDM {
     }
 
     void DaemonApp::addDisplay() {
-        // TODO: find an unused display
-        QString name = Configuration::instance()->testing ? ":1" : ":0";
+        // find unused display
+        int d = findUnused(m_usedDisplays, 0);
 
-        // initialize vt with minimum vt
-        int vtNumber = findUnusedVT();
+        // find unused vt
+        int vtNumber = findUnused(m_usedVTs, Configuration::instance()->minimumVT);
+
+        // display name
+        QString name = QString(":%1").arg(d);
 
         // log message
-        qDebug() << " DAEMON: Adding new display" << name << " on " << QString("vt%1").arg(QString::number(vtNumber), 2, '0') << "...";
+        qDebug() << " DAEMON: Adding new display " << name << " on vt" << vtNumber << "...";
 
         // create a new display
         Display *display = new Display(name, vtNumber, this);
@@ -124,19 +127,19 @@ namespace SDDM {
         display->deleteLater();
     }
 
-    int DaemonApp::findUnusedVT() {
-        // initialize vt with minimum vt
-        int vt = Configuration::instance()->minimumVT;
+    int DaemonApp::findUnused(QList<int> &used, int minimum) {
+        // initialize with minimum
+        int number = minimum;
 
-        // find an unused vt
-        while (m_usedVTs.contains(vt))
-            vt++;
+        // find unused
+        while (used.contains(number))
+            number++;
 
-        // mark vt as used
-        m_usedVTs << vt;
+        // mark number as used
+        used << number;
 
-        // return vt
-        return vt;
+        // return number;
+        return number;
     }
 }
 
