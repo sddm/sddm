@@ -89,7 +89,6 @@ namespace SDDM {
 
         // log message
         qDebug() << " DAEMON: Socket server stopped.";
-
     }
 
     void SocketServer::newConnection() {
