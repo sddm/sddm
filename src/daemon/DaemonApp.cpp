@@ -98,11 +98,11 @@ namespace SDDM {
         // TODO: find an unused display
         QString name = Configuration::instance()->testing ? ":1" : ":0";
 
-        // TODO: find an unused virtual terminal
-        int vtNumber = 7;
+        // initialize vt with minimum vt
+        int vtNumber = findUnusedVT();
 
         // log message
-        qDebug() << " DAEMON: Adding new display" << name << "...";
+        qDebug() << " DAEMON: Adding new display" << name << " on " << QString("vt%1").arg(QString::number(vtNumber), 2, '0') << "...";
 
         // create a new display
         Display *display = new Display(name, vtNumber, this);
@@ -122,6 +122,21 @@ namespace SDDM {
 
         // delete display
         display->deleteLater();
+    }
+
+    int DaemonApp::findUnusedVT() {
+        // initialize vt with minimum vt
+        int vt = Configuration::instance()->minimumVT;
+
+        // find an unused vt
+        while (m_usedVTs.contains(vt))
+            vt++;
+
+        // mark vt as used
+        m_usedVTs << vt;
+
+        // return vt
+        return vt;
     }
 }
 

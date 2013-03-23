@@ -46,8 +46,11 @@ namespace SDDM {
         void addDisplay();
         void removeDisplay();
 
+        int findUnusedVT();
+
     private:
         QList<Display *> m_displays;
+        QList<int> m_usedVTs;
         Configuration *m_configuration { nullptr };
         PowerManager *m_powerManager { nullptr };
         SignalHandler *m_signalHandler { nullptr};
