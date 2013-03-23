@@ -120,6 +120,10 @@ namespace SDDM {
         // remove display from list
         m_displays.removeAll(display);
 
+        // mark display and vt numbers as unused
+        m_usedDisplays.removeAll(display->displayNumber());
+        m_usedVTs.removeAll(display->vtNumber());
+
         // delete display
         display->deleteLater();
     }
