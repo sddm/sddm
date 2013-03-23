@@ -59,11 +59,11 @@ namespace SDDM {
         connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
         connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
 
-        // start the main loop
-        QTimer::singleShot(1, this, SLOT(start()));
-
         // add a display
         addDisplay();
+
+        // start the main loop
+        QTimer::singleShot(1, this, SLOT(start()));
     }
 
     QString DaemonApp::hostName() const {
