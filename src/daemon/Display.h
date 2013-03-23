@@ -34,7 +34,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
-        explicit Display(const QString &display, QObject *parent = 0);
+        explicit Display(const QString &display, const int vtNumber, QObject *parent = 0);
         ~Display();
 
         const QString &name() const;

@@ -63,10 +63,7 @@ namespace SDDM {
         QTimer::singleShot(1, this, SLOT(start()));
 
         // add a display
-        if (Configuration::instance()->testing)
-            addDisplay(":1");
-        else
-            addDisplay(":0");
+        addDisplay();
     }
 
     QString DaemonApp::hostName() const {
@@ -97,12 +94,18 @@ namespace SDDM {
         qApp->quit();
     }
 
-    void DaemonApp::addDisplay(const QString &name) {
+    void DaemonApp::addDisplay() {
+        // TODO: find an unused display
+        QString name = Configuration::instance()->testing ? ":1" : ":0";
+
+        // TODO: find an unused virtual terminal
+        int vtNumber = 7;
+
         // log message
         qDebug() << " DAEMON: Adding new display" << name << "...";
 
         // create a new display
-        Display *display = new Display(name, this);
+        Display *display = new Display(name, vtNumber, this);
 
         // add display to the list
         m_displays << display;

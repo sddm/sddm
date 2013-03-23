@@ -43,7 +43,7 @@ namespace SDDM {
         void start();
         void stop();
 
-        void addDisplay(const QString &name);
+        void addDisplay();
         void removeDisplay();
 
     private:

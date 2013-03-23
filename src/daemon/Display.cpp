@@ -51,8 +51,8 @@ namespace SDDM {
         return name;
     }
 
-    Display::Display(const QString &display, QObject *parent) : QObject(parent),
-        m_display(display),
+    Display::Display(const QString &display, const int vtNumber, QObject *parent) : QObject(parent),
+        m_display(display), m_vtNumber(vtNumber),
         m_authenticator(new Authenticator(this)),
         m_displayServer(new DisplayServer(this)),
         m_socketServer(new SocketServer(this)),
