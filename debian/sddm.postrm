@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -e
+
+DEFAULT_DISPLAY_MANAGER_FILE=/etc/X11/default-display-manager
+
+if [ "$1" = "abort-install" ] || [ "$1" = "abort-upgrade" ]; then
+  if [ -e "$DEFAULT_DISPLAY_MANAGER_FILE.dpkg-tmp" ]; then
+    mv "$DEFAULT_DISPLAY_MANAGER_FILE.dpkg-tmp" "$DEFAULT_DISPLAY_MANAGER_FILE"
+  fi
+fi
+
+if [ "$1" = "purge" ] ; then
+        update-rc.d sddm remove >/dev/null
+        if [ -d /var/lib/sddm ]; then
+                rm -r /var/lib/sddm
+        fi
+        if [ -d /var/log/sddm ]; then
+                rm -r /var/log/sddm
+        fi
+        if getent passwd sddm >/dev/null; then
+                if [ -x /usr/sbin/deluser ]; then
+                        deluser --system sddm
+                fi
+        fi
+        if getent group sddm >/dev/null; then
+                if [ -x /usr/sbin/delgroup ]; then
+                        delgroup --system sddm
+                fi
+        fi
+fi
+
+#DEBHELPER#
+
+exit 0
