@@ -49,7 +49,7 @@ namespace SDDM {
 
         // create display manager adapter
         new DisplayManagerAdaptor(this);
-        QDBusConnection connection = QDBusConnection::systemBus();
+        QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService("org.freedesktop.DisplayManager");
         connection.registerObject("/", this);
 
