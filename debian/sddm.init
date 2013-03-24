@@ -1,8 +1,8 @@
 #! /bin/sh
 ### BEGIN INIT INFO
 # Provides:          sddm
-# Should-Start:      console-screen dbus
-# Required-Start:    $local_fs $remote_fs
+# Should-Start:      console-screen kbd dbus hal consolekit
+# Required-Start:    $local_fs $remote_fs x11-common
 # Required-Stop:     $local_fs $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
@@ -56,11 +56,20 @@ case "$1" in
         set -e
         log_end_msg $?
   ;;
+  reload)
+        log_daemon_msg "Scheduling reload of SDDM configuration" "sddm"
+        set +e
+        start-stop-daemon --stop --signal USR1 --quiet --pidfile \
+                /var/run/sddm.pid --name sddm
+        set -e
+        log_end_msg $?
+  ;;
   status)
         status_of_proc -p "$PIDFILE" "$DAEMON" sddm && exit 0 || exit $?
   ;;
   restart|force-reload)
         $0 stop
+	sleep 1
         $0 start
   ;;
   *)
