@@ -35,6 +35,9 @@
 #include <QHostInfo>
 #include <QProcess>
 #include <QTimer>
+#include <iostream>
+
+using namespace std;
 
 namespace SDDM {
     DaemonApp::DaemonApp(int argc, char **argv) : QCoreApplication(argc, argv) {
@@ -178,7 +181,24 @@ namespace SDDM {
     }
 }
 
+void showUsageHelp(const char*  appName) {
+    cout << "Usage: " << appName << " [options] [arguments]\n" 
+         << "Options: \n" 
+         << "  --test-mode         Start daemon in test mode" << endl;
+}
+
 int main(int argc, char **argv) {
+    QStringList arguments;
+    
+    for(int ii = 0; ii < argc; ii++) {
+        arguments << argv[ii];
+    }
+
+    if ( arguments.indexOf("--help") > 0 || arguments.indexOf("-h") > 0 ) {
+        showUsageHelp(argv[0]);
+        return 1;
+    }
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
