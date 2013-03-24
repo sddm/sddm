@@ -19,10 +19,11 @@
 
 #include "DaemonApp.h"
 
+#include "displaymanageradaptor.h"
+
 #include "Configuration.h"
 #include "Constants.h"
 #include "Display.h"
-#include "DisplayManagerAdapter.h"
 #include "PowerManager.h"
 #include "SignalHandler.h"
 
@@ -47,7 +48,7 @@ namespace SDDM {
         m_configuration->testing = (arguments().indexOf("--test-mode") != -1);
 
         // create display manager adapter
-        new DisplayManagerAdapter(this);
+        new DisplayManagerAdaptor(this);
         QDBusConnection connection = QDBusConnection::systemBus();
         connection.registerService("org.freedesktop.DisplayManager");
         connection.registerObject("/", this);

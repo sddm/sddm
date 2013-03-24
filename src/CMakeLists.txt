@@ -11,7 +11,6 @@ set(DAEMON_SOURCES
     daemon/Authenticator.cpp
     daemon/DaemonApp.cpp
     daemon/Display.cpp
-    daemon/DisplayManagerAdapter.cpp
     daemon/DisplayServer.cpp
     daemon/Greeter.cpp
     daemon/PowerManager.cpp
@@ -21,6 +20,8 @@ set(DAEMON_SOURCES
 )
 
 if(USE_QT5)
+    qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.Displaymanager.xml daemon/DaemonApp.h SDDM::DaemonApp)
+
     add_executable(sddm ${DAEMON_SOURCES})
     target_link_libraries(sddm ${PAM_LIBRARIES} ${LIBXCB_LIBRARIES})
     qt5_use_modules(sddm DBus Network)
@@ -28,6 +29,8 @@ else()
     set(QT_USE_QTNETWORK TRUE)
     set(QT_USE_QTDBUS TRUE)
     include(${QT_USE_FILE})
+
+    qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.Displaymanager.xml daemon/DaemonApp.h SDDM::DaemonApp)
 
     add_executable(sddm ${DAEMON_SOURCES})
     target_link_libraries(sddm ${PAM_LIBRARIES} ${LIBXCB_LIBRARIES} ${QT_LIBRARIES})

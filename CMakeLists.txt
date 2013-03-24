@@ -33,6 +33,7 @@ find_package(XCB REQUIRED)
 
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)
+  find_package(Qt5DBus REQUIRED)
 
   # find qt5 imports dir
   get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
