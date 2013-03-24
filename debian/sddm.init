@@ -39,7 +39,7 @@ case "$1" in
             log_warning_msg "Not starting SDDM; found 'text' in kernel commandline."
         elif [ -e "$DEFAULT_DISPLAY_MANAGER_FILE" ] && \
            [ "$HEED_DEFAULT_DISPLAY_MANAGER" = "true" ] && \
-           [ "$CONFIGURED_DAEMON" != gdm3 ] ; then
+           [ "$CONFIGURED_DAEMON" != sddm ] ; then
                 log_action_msg "Not starting SDDM; it is not the default display manager"
         else
                 log_daemon_msg "Starting SDDM" "sddm"
@@ -52,7 +52,7 @@ case "$1" in
         log_daemon_msg "Stopping SDDM" "sddm"
         set +e
         start-stop-daemon --stop --quiet --pidfile /var/run/sddm.pid \
-                --name gdm3 --retry 5
+                --name sddm --retry 5
         set -e
         log_end_msg $?
   ;;
