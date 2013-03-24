@@ -210,11 +210,10 @@ namespace SDDM {
         credentials->user = user;
 
         // convert session to command
+        QString sessionName = "";
         QString command = "";
 
-        if (session == "custom" || session == "failsafe") {
-            command = session;
-        } else {
+        if (session.endsWith(".desktop")) {
             // session directory
             QDir dir(Configuration::instance()->sessionsDir());
 
@@ -237,6 +236,12 @@ namespace SDDM {
                 // close file
                 file.close();
             }
+
+            // remove extension
+            sessionName = session.left(session.lastIndexOf("."));
+        } else {
+            command = session;
+            sessionName = session;
         }
 
         if (command.isEmpty()) {
@@ -305,11 +310,8 @@ namespace SDDM {
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
         env.insert("XDG_SEAT", display->seatId());
         env.insert("XDG_VTNR", QString::number(display->vtNumber()));
-        // set desktop session
-        if (session.lastIndexOf(".") == -1)
-            env.insert("DESKTOP_SESSION", session);
-        else
-            env.insert("DESKTOP_SESSION", session.left(session.lastIndexOf(".")));
+        env.insert("DESKTOP_SESSION", sessionName);
+        env.insert("GDMSESSION", sessionName);
         process->setProcessEnvironment(env);
 
         // start session
