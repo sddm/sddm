@@ -15,7 +15,7 @@ fi
 # creating sddm user if he isn't already there
 if ! getent passwd sddm >/dev/null; then
         adduser --system --ingroup sddm --home /var/lib/sddm sddm
-        usermod -c "Light Display Manager" sddm
+        usermod -c "SDDM Display Manager" sddm
         usermod -d "/var/lib/sddm"      sddm
         usermod -g "sddm"               sddm
         usermod -s "/bin/false"            sddm
@@ -28,7 +28,7 @@ fi
 
 # debconf is not a registry, so we only fiddle with the default file if it
 # does not exist
-if [ ! -e $DEFAULT_DISPLAY_MANAGER_FILE ]; then
+if [ ! -e "$DEFAULT_DISPLAY_MANAGER_FILE" ]; then
   if db_get shared/default-x-display-manager; then
     # workaround debconf passthru bug (#379198)
     if [ -z "$RET" ]; then
@@ -38,7 +38,7 @@ if [ ! -e $DEFAULT_DISPLAY_MANAGER_FILE ]; then
       echo "Please be sure to run \"dpkg --configure $RET\"."
     fi
     if db_get "$RET"/daemon_name; then
-      echo "$RET" > $DEFAULT_DISPLAY_MANAGER_FILE
+      echo "$RET" > "$DEFAULT_DISPLAY_MANAGER_FILE"
     fi
   fi
 fi

@@ -1,7 +1,7 @@
 #! /bin/sh
 ### BEGIN INIT INFO
 # Provides:          sddm
-# Should-Start:      console-screen kbd dbus hal consolekit
+# Should-Start:      console-screen kbd acpid dbus hal consolekit
 # Required-Start:    $local_fs $remote_fs x11-common
 # Required-Stop:     $local_fs $remote_fs
 # Default-Start:     2 3 4 5
@@ -11,7 +11,7 @@
 ### END INIT INFO
 #
 # Author:       Ryan Murray <rmurray@debian.org>
-# Author:       Christopher Roy Bratusek <nano@tuxfamily.org>
+# 		Christopher Roy Bratusek <nano@tuxfamily.org>
 #
 set -e
 
@@ -44,14 +44,14 @@ case "$1" in
         else
                 log_daemon_msg "Starting SDDM" "sddm"
                 start-stop-daemon --start --quiet --pidfile /var/run/sddm.pid \
-			--background --exec $DAEMON || log_end_msg 1
-                log_end_msg 0
+			--name ssd --background --exec $DAEMON || echo -n " already running"
+                log_end_msg $?
         fi
   ;;
   stop)
         log_daemon_msg "Stopping SDDM" "sddm"
         set +e
-        start-stop-daemon --stop --quiet --pidfile /var/run/sddm.pid \
+	start-stop-daemon --stop --quiet --pidfile /var/run/sddm.pid \
                 --name sddm --retry 5
         set -e
         log_end_msg $?
