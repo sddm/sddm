@@ -60,8 +60,12 @@ namespace SDDM {
 
         m_display = QString(":%1").arg(m_displayNumber);
 
-        // connect signals
+        // stop the display after user session ends
         connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
+
+        // stop the display after the display server stopped
+        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
 
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));

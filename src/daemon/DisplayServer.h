@@ -41,6 +41,9 @@ namespace SDDM {
         void stop();
         void finished();
 
+    signals:
+        void stopped();
+
     private:
         bool waitForStarted(int msecs = 10000);
 
