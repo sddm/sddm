@@ -1,0 +1,45 @@
+Source: sddm
+Section: x11
+Priority: optional
+Maintainer: Christopher Roy Bratusek <nano@tuxfamily.org>
+Build-Depends: debhelper (>= 8.0.0),
+               cmake, 
+               libpam0g-dev,
+               pkg-config,
+               libxcb1-dev,
+               libqt4-dev,
+               libsystemd-login-dev,
+               libupower-glib-dev
+Standards-Version: 3.9.4
+Homepage: https://github.com/sddm/sddm
+
+Package: sddm
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, sddm-theme-maui
+Description: SDDM is a modern display manager for X11
+ It uses modern technologies like QtQuick, which in turn gives the designer
+ the ability to create smooth, animated user interfaces.
+
+Package: sddm-theme-maui
+Architecture: all
+Depends: sddm
+Description: Default theme for SDDM X11 display manager
+ Maui theme for SDDM
+
+Package: sddm-theme-circles
+Architecture: all
+Depends: sddm
+Description: Theme for SDDM X11 display manager
+ Circles theme for SDDM
+
+Package: sddm-theme-elarun
+Architecture: all
+Depends: sddm
+Description: Theme for SDDM X11 display manager
+ Elarun theme for SDDM
+
+Package: sddm-theme-maldives
+Architecture: all
+Depends: sddm
+Description: Theme for SDDM X11 display manager
+ Maldives theme for SDDM
