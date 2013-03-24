@@ -43,6 +43,12 @@ if(USE_QT5)
 else()
   find_package(Qt4 REQUIRED)
 
+  # find qt4 imports dir, required if no QML plugins are already installed
+  # for example, see: https://bugs.launchpad.net/ubuntu/+source/cmake/+bug/894805
+  # and many other bug reports
+  _qt4_query_qmake(QT_INSTALL_IMPORTS QT_IMPORTS_DIR)
+  set(QT_IMPORTS_DIR "${QT_IMPORTS_DIR}")
+
   set(COMPONENTS_VERSION 1.1)
 endif()
 
