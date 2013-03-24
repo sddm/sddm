@@ -1,6 +1,6 @@
 Template: sddm/daemon_name
 Type: string
-Default: /usr/sbin/sddm
+Default: /usr/bin/sddm
 Description: for internal use only
 
 Template: shared/default-x-display-manager

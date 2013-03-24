@@ -16,7 +16,7 @@
 set -e
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/usr/sbin/sddm
+DAEMON=/usr/bin/sddm
 
 test -x $DAEMON || exit 0
 
