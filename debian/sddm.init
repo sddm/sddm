@@ -1,0 +1,81 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          sddm
+# Should-Start:      console-screen kbd acpid dbus hal consolekit
+# Required-Start:    $local_fs $remote_fs x11-common
+# Required-Stop:     $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: SDDM
+# Description:       Debian init script for the SDDM
+### END INIT INFO
+#
+# Author:       Ryan Murray <rmurray@debian.org>
+# 		Christopher Roy Bratusek <nano@tuxfamily.org>
+#
+set -e
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/bin/sddm
+
+test -x $DAEMON || exit 0
+
+if [ -r /etc/default/locale ]; then
+  . /etc/default/locale
+  export LANG LANGUAGE
+fi
+
+. /lib/lsb/init-functions
+
+# To start sdd even if it is not the default display manager, change
+# HEED_DEFAULT_DISPLAY_MANAGER to "false."
+HEED_DEFAULT_DISPLAY_MANAGER=true
+DEFAULT_DISPLAY_MANAGER_FILE=/etc/X11/default-display-manager
+
+case "$1" in
+  start)
+        CONFIGURED_DAEMON=$(basename "$(cat $DEFAULT_DISPLAY_MANAGER_FILE 2> /dev/null)")
+        if grep -wqs text /proc/cmdline; then
+            log_warning_msg "Not starting SDDM; found 'text' in kernel commandline."
+        elif [ -e "$DEFAULT_DISPLAY_MANAGER_FILE" ] && \
+           [ "$HEED_DEFAULT_DISPLAY_MANAGER" = "true" ] && \
+           [ "$CONFIGURED_DAEMON" != sddm ] ; then
+                log_action_msg "Not starting SDDM; it is not the default display manager"
+        else
+                log_daemon_msg "Starting SDDM" "sddm"
+                start-stop-daemon --start --quiet --pidfile /var/run/sddm.pid \
+			--name ssd --background --exec $DAEMON || echo -n " already running"
+                log_end_msg $?
+        fi
+  ;;
+  stop)
+        log_daemon_msg "Stopping SDDM" "sddm"
+        set +e
+	start-stop-daemon --stop --quiet --pidfile /var/run/sddm.pid \
+                --name sddm --retry 5
+        set -e
+        log_end_msg $?
+  ;;
+  reload)
+        log_daemon_msg "Scheduling reload of SDDM configuration" "sddm"
+        set +e
+        start-stop-daemon --stop --signal USR1 --quiet --pidfile \
+                /var/run/sddm.pid --name sddm
+        set -e
+        log_end_msg $?
+  ;;
+  status)
+        status_of_proc -p "$PIDFILE" "$DAEMON" sddm && exit 0 || exit $?
+  ;;
+  restart|force-reload)
+        $0 stop
+	sleep 1
+        $0 start
+  ;;
+  *)
+        echo "Usage: /etc/init.d/sddm {start|stop|restart|reload|force-reload|status}"
+        exit 1
+  ;;
+esac
+
+exit 0

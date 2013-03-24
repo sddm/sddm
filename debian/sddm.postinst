@@ -1,0 +1,69 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+THIS_PACKAGE=sddm
+DEFAULT_DISPLAY_MANAGER_FILE=/etc/X11/default-display-manager
+
+# creating sddm group if he isn't already there
+if ! getent group sddm >/dev/null; then
+        addgroup --system sddm
+fi
+
+# creating sddm user if he isn't already there
+if ! getent passwd sddm >/dev/null; then
+        adduser --system --ingroup sddm --home /var/lib/sddm sddm
+        usermod -c "SDDM Display Manager" sddm
+        usermod -d "/var/lib/sddm"      sddm
+        usermod -g "sddm"               sddm
+        usermod -s "/bin/false"            sddm
+fi
+
+if [ -d /var/lib/sddm ]; then
+  chown -R sddm:sddm /var/lib/sddm
+  chmod 0750 /var/lib/sddm
+fi
+
+# debconf is not a registry, so we only fiddle with the default file if it
+# does not exist
+if [ ! -e "$DEFAULT_DISPLAY_MANAGER_FILE" ]; then
+  if db_get shared/default-x-display-manager; then
+    # workaround debconf passthru bug (#379198)
+    if [ -z "$RET" ]; then
+      $RET="$THIS_PACKAGE"
+    fi
+    if [ "$THIS_PACKAGE" != "$RET" ]; then
+      echo "Please be sure to run \"dpkg --configure $RET\"."
+    fi
+    if db_get "$RET"/daemon_name; then
+      echo "$RET" > "$DEFAULT_DISPLAY_MANAGER_FILE"
+    fi
+  fi
+fi
+
+# remove the displaced old default display manager file if it exists
+if [ -e "$DEFAULT_DISPLAY_MANAGER_FILE.dpkg-tmp" ]; then
+  rm "$DEFAULT_DISPLAY_MANAGER_FILE.dpkg-tmp"
+fi
+
+# debconf hangs if sddm gets started below without this
+db_stop || true
+
+# update-rc.d levels
+S=30
+K=01
+
+if [ -x /etc/init.d/sddm ]; then
+  update-rc.d sddm defaults $S $K >/dev/null 2>&1
+fi
+
+if [ "$1" = "configure" ];
+then
+  invoke-rc.d dbus reload || true
+fi
+
+#DEBHELPER#
+
+exit 0
