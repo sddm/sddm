@@ -1,0 +1,21 @@
+## Legend
+---------
+    + New features
+    - Bug fixes
+    * Others
+
+## Master
+---------
+    + Fast user switching
+    + Test mode that can be toggled at runtime
+    - Exit gracefully when SIGTERM received
+    + Ability to automatically relogin after 
+      the user session ends
+    + User filtering based on name
+    + User filtering based on shell
+    - Fix compilation with Qt 5.0.0
+
+## 0.1.0 - 2013/03/19
+---------------------
+    * Initial release
+
