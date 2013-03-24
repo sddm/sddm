@@ -377,6 +377,6 @@ namespace SDDM {
         pam_setcred(d->pamh, PAM_DELETE_CRED);
 
         // emit signal
-        emit sessionFinished();
+        emit stopped();
     }
 }
