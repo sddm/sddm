@@ -134,6 +134,9 @@ namespace SDDM {
         // clean up
         process->deleteLater();
         process = nullptr;
+
+        // emit signal
+        emit stopped();
     }
 
     bool DisplayServer::waitForStarted(int msecs) {

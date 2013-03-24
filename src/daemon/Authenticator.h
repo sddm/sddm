@@ -59,7 +59,7 @@ namespace SDDM {
         void finished();
 
     signals:
-        void sessionFinished();
+        void stopped();
 
     private:
         bool m_started { false };

@@ -6,6 +6,7 @@ git shortlog -s -e -n
 Commit counts have ben removed, since they change pretty frequently.
 
 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+Christopher Roy Bratusek <nano@tuxfamily.org>
 Reza Fatahilah Shah <rshah0385@kireihana.com>
 Andrea Scarpino <andrea@archlinux.org>
 Aaron Seigo <aseigo@kde.org>

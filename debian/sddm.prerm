@@ -1,0 +1,64 @@
+#!/bin/bash
+# Debian gdm package pre-removal script
+# Copyright 2001 Branden Robinson.
+# Licensed under the GNU General Public License, version 2.  See the file
+# /usr/share/common-licenses/GPL or <http://www.gnu.org/copyleft/gpl.txt>.
+# Acknowlegements to Stephen Early, Mark Eichin, and Manoj Srivastava.
+
+set -e
+
+THIS_PACKAGE=sddm
+DEFAULT_DISPLAY_MANAGER_FILE=/etc/X11/default-display-manager
+
+if [ "$1" = "remove" -o "$1" = "deconfigure" ]; then
+  if [ -e /usr/share/debconf/confmodule ]; then
+    . /usr/share/debconf/confmodule
+    # disown this question
+    db_unregister shared/default-x-display-manager || true
+    # does the question still exist?
+    if db_get shared/default-x-display-manager; then
+      db_metaget shared/default-x-display-manager owners
+      db_subst shared/default-x-display-manager choices "$RET"
+      db_get shared/default-x-display-manager
+      # are we removing the currently selected display manager?
+      if [ "$THIS_PACKAGE" = "$RET" ]; then
+        if [ -e "$DEFAULT_DISPLAY_MANAGER_FILE" ]; then
+          db_get "$RET"/daemon_name
+          if [ "$(cat $DEFAULT_DISPLAY_MANAGER_FILE)" = "$RET" ]; then
+            rm "$DEFAULT_DISPLAY_MANAGER_FILE"
+          fi
+        fi
+        # ask the user to choose a new default
+        db_fset shared/default-x-display-manager seen false
+        db_input critical shared/default-x-display-manager || true
+        db_go
+        # if the display manager file doesn't exist, write it with the path
+        # to the new default display manager
+        if [ ! -e $DEFAULT_DISPLAY_MANAGER_FILE ]; then
+          db_get shared/default-x-display-manager
+          echo "Please be sure to run \"dpkg-reconfigure $RET\"."
+          db_get "$RET"/daemon_name
+          echo "$RET" > "$DEFAULT_DISPLAY_MANAGER_FILE"
+        fi
+      fi
+    fi
+  fi
+fi
+
+if [ "$1" = "remove" ]; then
+  if [ -x /etc/init.d/sddm ]; then
+    nostop=
+    for hostname in "" "localhost" "$(hostname)" "$(hostname -f)"; do
+      if echo $DISPLAY | grep -q "^$hostname:0.*"; then
+        nostop=yes
+      fi
+    done
+    if [ -z $nostop ]; then
+      invoke-rc.d sddm stop
+    fi
+  fi
+fi
+
+#DEBHELPER#
+
+exit 0
