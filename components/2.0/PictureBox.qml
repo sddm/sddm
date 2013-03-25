@@ -27,7 +27,7 @@ import QtQuick 2.0
 FocusScope {
     id: container
 
-    width: 150; height: 180
+    width: 150; height: 185
     clip: true
 
     property alias name: name.text
@@ -41,7 +41,7 @@ FocusScope {
     states: [
         State {
             name: ""
-            PropertyChanges { target: container; height: 180 }
+            PropertyChanges { target: container; height: 185 }
         },
         State {
             name: "active"
