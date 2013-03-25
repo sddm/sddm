@@ -39,8 +39,8 @@ namespace SDDM {
 
         // mark display ":0" and vt07 as used, in test mode
         if (Configuration::instance()->testing) {
-            m_usedDisplays << 0;
-            m_usedVTs << 7;
+            m_displayIds << 0;
+            m_terminalIds << 7;
         }
     }
 
@@ -64,16 +64,16 @@ namespace SDDM {
 
     void Seat::addDisplay() {
         // find unused display
-        int d = findUnused(m_usedDisplays, 0);
+        int displayId = findUnused(m_displayIds, 0);
 
-        // find unused vt
-        int vtNumber = findUnused(m_usedVTs, Configuration::instance()->minimumVT);
+        // find unused terminal
+        int terminalId = findUnused(m_terminalIds, Configuration::instance()->minimumVT);
 
         // log message
-        qDebug() << " DAEMON: Adding new display " << QString(":%1").arg(d) << " on vt" << vtNumber << "...";
+        qDebug() << " DAEMON: Adding new display " << QString(":%1").arg(displayId) << " on vt" << terminalId << "...";
 
         // create a new display
-        Display *display = new Display(d, vtNumber, this);
+        Display *display = new Display(displayId, terminalId, this);
 
         // add display to the list
         m_displays << display;
@@ -91,9 +91,9 @@ namespace SDDM {
         // remove display from list
         m_displays.removeAll(display);
 
-        // mark display and vt numbers as unused
-        m_usedDisplays.removeAll(display->displayNumber());
-        m_usedVTs.removeAll(display->vtNumber());
+        // mark display and terminal ids as unused
+        m_displayIds.removeAll(display->displayId());
+        m_terminalIds.removeAll(display->terminalId());
 
         // delete display
         display->deleteLater();

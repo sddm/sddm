@@ -73,7 +73,7 @@ namespace SDDM {
             Display *display = qobject_cast<Display *>(parent());
 
             // start display server
-            process->start(Configuration::instance()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->vtNumber()), 2, '0')});
+            process->start(Configuration::instance()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->terminalId()), 2, '0')});
         }
 
         // wait for display server to start

@@ -57,8 +57,8 @@ namespace SDDM {
         QString m_path { "" };
 
         QList<Display *> m_displays;
-        QList<int> m_usedVTs;
-        QList<int> m_usedDisplays;
+        QList<int> m_terminalIds;
+        QList<int> m_displayIds;
     };
 }
 

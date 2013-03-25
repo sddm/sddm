@@ -34,11 +34,11 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
-        explicit Display(const int displayNumber, const int vtNumber, QObject *parent = 0);
+        explicit Display(const int displayId, const int terminalId, QObject *parent = 0);
         ~Display();
 
-        const int displayNumber() const;
-        const int vtNumber() const;
+        const int displayId() const;
+        const int terminalId() const;
 
         const QString &name() const;
         const QString &cookie() const;
@@ -58,8 +58,8 @@ namespace SDDM {
         bool m_relogin { true };
         bool m_started { false };
 
-        int m_displayNumber { 0 };
-        int m_vtNumber { 7 };
+        int m_displayId { 0 };
+        int m_terminalId { 7 };
 
         QString m_display { ":0" };
         QString m_cookie { "" };
