@@ -44,7 +44,7 @@ case "$1" in
         else
                 log_daemon_msg "Starting SDDM" "sddm"
                 start-stop-daemon --start --quiet --pidfile /var/run/sddm.pid \
-			--name ssd --background --exec $DAEMON || echo -n " already running"
+			--name sddm --background --exec $DAEMON || echo -n " already running"
                 log_end_msg $?
         fi
   ;;
