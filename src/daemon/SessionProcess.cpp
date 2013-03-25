@@ -22,6 +22,8 @@
 #include "Authenticator.h"
 #include "Configuration.h"
 
+#include "sessionadaptor.h"
+
 #include <QDebug>
 
 #include <grp.h>
@@ -29,7 +31,25 @@
 #include <unistd.h>
 
 namespace SDDM {
-    SessionProcess::SessionProcess(QObject *parent) : QProcess(parent) {
+    SessionProcess::SessionProcess(const QString &name, QObject *parent) : QProcess(parent), m_name(name) {
+        // create session adapter
+        new SessionAdaptor(this);
+
+        // set object path
+        m_path = QLatin1String("/org/freedesktop/DisplayManager/") + m_name;
+
+        // register object
+        QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
+        connection.registerService(QLatin1String("org.freedesktop.DisplayManager"));
+        connection.registerObject(m_path, this);
+    }
+
+    const QString &SessionProcess::name() const {
+        return m_name;
+    }
+
+    const QString &SessionProcess::path() const {
+        return m_path;
     }
 
     void SessionProcess::setUser(const QString &user) {
@@ -46,6 +66,10 @@ namespace SDDM {
 
     void SessionProcess::setGid(int gid) {
         m_gid = gid;
+    }
+
+    void SessionProcess::Lock() {
+        // TODO: Implement
     }
 
     void SessionProcess::setupChildProcess() {

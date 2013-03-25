@@ -22,6 +22,7 @@
 #include "Authenticator.h"
 #include "Configuration.h"
 #include "DisplayServer.h"
+#include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
 
@@ -104,10 +105,6 @@ namespace SDDM {
 
     const QString &Display::cookie() const {
         return m_cookie;
-    }
-
-    const QString &Display::seatId() const {
-        return m_seatId;
     }
 
     void Display::start() {

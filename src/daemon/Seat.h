@@ -17,41 +17,49 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_DAEMONAPP_H
-#define SDDM_DAEMONAPP_H
+#ifndef SDDM_SEAT_H
+#define SDDM_SEAT_H
 
-#include <QCoreApplication>
-
-#include <QList>
+#include <QObject>
 
 namespace SDDM {
-    class Configuration;
-    class PowerManager;
-    class Seat;
-    class SignalHandler;
+    class Display;
 
-    class DaemonApp : public QCoreApplication {
+    class Seat : public QObject {
         Q_OBJECT
-        Q_DISABLE_COPY(DaemonApp)
+        Q_DISABLE_COPY(Seat)
+        Q_PROPERTY(bool CanSwitch READ CanSwitch CONSTANT)
+        Q_PROPERTY(bool HasGuestAccount READ HasGuestAccount CONSTANT)
     public:
-        explicit DaemonApp(int argc, char **argv);
-
-        QString hostName() const;
-        PowerManager *powerManager() const;
+        explicit Seat(const QString &name, QObject *parent = 0);
 
     public slots:
+        const QString &name() const;
+        const QString &path() const;
+
         void start();
         void stop();
 
-        int newSessionId();
+        void addDisplay();
+        void removeDisplay();
 
+        int findUnused(QList<int> &used, int minimum);
+
+        bool CanSwitch();
+        bool HasGuestAccount();
+
+        void Lock();
+        void SwitchToGreeter();
+        void SwitchToGuest(const QString &session);
+        void SwitchToUser(const QString &user, const QString &session);
     private:
-        QList<Seat *> m_seats;
-        int m_lastSessionId { 0 };
-        Configuration *m_configuration { nullptr };
-        PowerManager *m_powerManager { nullptr };
-        SignalHandler *m_signalHandler { nullptr};
+        QString m_name { "" };
+        QString m_path { "" };
+
+        QList<Display *> m_displays;
+        QList<int> m_usedVTs;
+        QList<int> m_usedDisplays;
     };
 }
 
-#endif // SDDM_DAEMONAPP_H
+#endif // SDDM_SEAT_H

@@ -65,7 +65,6 @@ namespace SDDM {
         QString m_cookie { "" };
         QString m_socket { "" };
         QString m_authPath { "" };
-        QString m_seatId { "seat0" };
 
         Authenticator *m_authenticator { nullptr };
         DisplayServer *m_displayServer { nullptr };

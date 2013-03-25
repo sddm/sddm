@@ -20,7 +20,9 @@
 #include "Authenticator.h"
 
 #include "Configuration.h"
+#include "DaemonApp.h"
 #include "Display.h"
+#include "Seat.h"
 #include "SessionProcess.h"
 
 #include <QDebug>
@@ -286,10 +288,12 @@ namespace SDDM {
         }
 
         // get parent
+        DaemonApp *app = qobject_cast<DaemonApp *>(qApp);
         Display *display = qobject_cast<Display *>(parent());
+        Seat *seat = qobject_cast<Seat *>(display->parent());
 
         // create user session process
-        process = new SessionProcess(this);
+        process = new SessionProcess(QString("Session%1").arg(app->newSessionId()), this);
 
         // set session process params
         process->setUser(pw->pw_name);
@@ -308,7 +312,9 @@ namespace SDDM {
         env.insert("PATH", Configuration::instance()->defaultPath());
         env.insert("DISPLAY", m_display);
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
-        env.insert("XDG_SEAT", display->seatId());
+        env.insert("XDG_SEAT", seat->name());
+        env.insert("XDG_SEAT_PATH", seat->path());
+        env.insert("XDG_SESSION_PATH", process->path());
         env.insert("XDG_VTNR", QString::number(display->vtNumber()));
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("GDMSESSION", sessionName);

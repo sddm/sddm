@@ -23,8 +23,8 @@
 
 #include "Configuration.h"
 #include "Constants.h"
-#include "Display.h"
 #include "PowerManager.h"
+#include "Seat.h"
 #include "SignalHandler.h"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -54,7 +54,7 @@ namespace SDDM {
         new DisplayManagerAdaptor(this);
         QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService("org.freedesktop.DisplayManager");
-        connection.registerObject("/", this);
+        connection.registerObject("/org/freedesktop/DisplayManager", this);
 
         // create power manager
         m_powerManager = new PowerManager(this);
@@ -70,16 +70,7 @@ namespace SDDM {
         connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
         connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
 
-        // mark display ":0" and vt07 as used, in test mode
-        if (Configuration::instance()->testing) {
-            m_usedDisplays << 0;
-            m_usedVTs << 7;
-        }
-
-        // add a display
-        addDisplay();
-
-        // start the main loop
+        // schedule start
         QTimer::singleShot(1, this, SLOT(start()));
     }
 
@@ -92,104 +83,43 @@ namespace SDDM {
     }
 
     void DaemonApp::start() {
-        // log message
         qDebug() << " DAEMON: Starting...";
 
-        // start all displays
-        for (Display *display: m_displays)
-            display->start();
+        // add default seat
+        Seat *seat = new Seat("Seat0", this);
+
+        // add seat to the list
+        m_seats << seat;
+
+        // start seat
+        seat->start();
     }
 
     void DaemonApp::stop() {
         qDebug() << " DAEMON: Stopping...";
 
-        // stop all displays
-        for (Display *display: m_displays)
-            display->stop();
+        // stop all seats
+        for (Seat *seat : m_seats)
+            seat->stop();
 
         // quit application
         qApp->quit();
     }
 
-    Display *DaemonApp::addDisplay() {
-        // find unused display
-        int d = findUnused(m_usedDisplays, 0);
-
-        // find unused vt
-        int vtNumber = findUnused(m_usedVTs, Configuration::instance()->minimumVT);
-
-        // log message
-        qDebug() << " DAEMON: Adding new display " << QString(":%1").arg(d) << " on vt" << vtNumber << "...";
-
-        // create a new display
-        Display *display = new Display(d, vtNumber, this);
-
-        // add display to the list
-        m_displays << display;
-
-        // return the dispaly
-        return display;
-    }
-
-    void DaemonApp::removeDisplay() {
-        Display *display = qobject_cast<Display *>(sender());
-
-        // log message
-        qDebug() << " DAEMON: Removing display" << display->name() << "...";
-
-        // remove display from list
-        m_displays.removeAll(display);
-
-        // mark display and vt numbers as unused
-        m_usedDisplays.removeAll(display->displayNumber());
-        m_usedVTs.removeAll(display->vtNumber());
-
-        // delete display
-        display->deleteLater();
-    }
-
-    int DaemonApp::findUnused(QList<int> &used, int minimum) {
-        // initialize with minimum
-        int number = minimum;
-
-        // find unused
-        while (used.contains(number))
-            number++;
-
-        // mark number as used
-        used << number;
-
-        // return number;
-        return number;
-    }
-
-    void DaemonApp::SwitchToGreeter() {
-        // add a new display
-        Display *display = addDisplay();
-
-        // start the display
-        display->start();
-    }
-
-    // TODO: Implement
-    void DaemonApp::SwitchToGuest() {
-    }
-
-    // TODO: Implement
-    void DaemonApp::SwitchToUser(const QString &username) {
-        Q_UNUSED(username);
+    int DaemonApp::newSessionId() {
+        return m_lastSessionId++;
     }
 }
 
 void showUsageHelp(const char*  appName) {
-    cout << "Usage: " << appName << " [options] [arguments]\n" 
-         << "Options: \n" 
+    cout << "Usage: " << appName << " [options] [arguments]\n"
+         << "Options: \n"
          << "  --test-mode         Start daemon in test mode" << endl;
 }
 
 int main(int argc, char **argv) {
     QStringList arguments;
-    
+
     for(int ii = 0; ii < argc; ii++) {
         arguments << argv[ii];
     }
