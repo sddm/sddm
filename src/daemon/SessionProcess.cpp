@@ -52,6 +52,14 @@ namespace SDDM {
         return m_path;
     }
 
+    const QString &SessionProcess::seat() const {
+        return m_seat;
+    }
+
+    void SessionProcess::setSeat(const QString &seat) {
+        m_seat = seat;
+    }
+
     void SessionProcess::setUser(const QString &user) {
         m_user = user;
     }

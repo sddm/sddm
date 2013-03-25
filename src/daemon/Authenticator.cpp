@@ -295,6 +295,9 @@ namespace SDDM {
         // create user session process
         process = new SessionProcess(QString("Session%1").arg(app->newSessionId()), this);
 
+        // set seat path
+        process->setSeat(seat->path());
+
         // set session process params
         process->setUser(pw->pw_name);
         process->setDir(pw->pw_dir);

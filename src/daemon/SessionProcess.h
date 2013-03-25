@@ -27,11 +27,15 @@ namespace SDDM {
     class SessionProcess : public QProcess {
         Q_OBJECT
         Q_DISABLE_COPY(SessionProcess)
+        Q_PROPERTY(QString Seat READ seat CONSTANT)
     public:
         explicit SessionProcess(const QString &name, QObject *parent = 0);
 
         const QString &name() const;
         const QString &path() const;
+
+        const QString &seat() const;
+        void setSeat(const QString &seat);
 
         void setUser(const QString &user);
         void setDir(const QString &dir);
@@ -47,6 +51,7 @@ namespace SDDM {
     private:
         QString m_name { "" };
         QString m_path { "" };
+        QString m_seat { "" };
         QString m_user { "" };
         QString m_dir { "" };
         int m_uid { 0 };
