@@ -33,7 +33,6 @@
 
 #include <QDebug>
 #include <QHostInfo>
-#include <QProcess>
 #include <QTimer>
 #include <iostream>
 
