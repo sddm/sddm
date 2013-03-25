@@ -28,6 +28,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(SessionProcess)
         Q_PROPERTY(QString Seat READ seat CONSTANT)
+        Q_PROPERTY(QString UserName READ user CONSTANT)
     public:
         explicit SessionProcess(const QString &name, QObject *parent = 0);
 
@@ -37,7 +38,9 @@ namespace SDDM {
         const QString &seat() const;
         void setSeat(const QString &seat);
 
+        const QString &user() const;
         void setUser(const QString &user);
+
         void setDir(const QString &dir);
         void setUid(int uid);
         void setGid(int gid);
