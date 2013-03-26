@@ -111,7 +111,7 @@ namespace SDDM {
         return m_lastSessionId++;
     }
 
-    QList<QDBusObjectPath> DaemonApp::seats() const {
+    QList<QDBusObjectPath> DaemonApp::Seats() const {
         QList<QDBusObjectPath> seatPaths;
 
         for (Seat *seat: m_seats)
