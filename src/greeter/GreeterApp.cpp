@@ -36,6 +36,7 @@
 #include <QApplication>
 #include <QDeclarativeView>
 #include <QDeclarativeContext>
+#include <QDeclarativeEngine>
 #endif
 #include <iostream>
 
@@ -92,7 +93,9 @@ int main(int argc, char **argv) {
     QDeclarativeView view;
     view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #endif
-    
+
+    view.engine()->addImportPath(IMPORTS_INSTALL_DIR);
+
     // create configuration instance
     Configuration configuration(CONFIG_FILE);
 
