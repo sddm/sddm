@@ -203,6 +203,10 @@ namespace SDDM {
         return d->currentTheme;
     }
 
+    QString Configuration::currentThemePath() const {
+        return d->themesDir + d->currentTheme;
+    }
+
     const int Configuration::minimumUid() const {
         return d->minimumUid;
     }

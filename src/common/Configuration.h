@@ -63,6 +63,7 @@ namespace SDDM {
 
         const QString &themesDir() const;
         const QString &currentTheme() const;
+        QString currentThemePath() const;
 
         const int minimumUid() const;
         const int maximumUid() const;
