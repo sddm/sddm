@@ -76,6 +76,14 @@ namespace SDDM {
         delete d;
     }
 
+    QString appendSlash(const QString path) {
+        if (path.isEmpty() || path.endsWith('/')) {
+            return path;
+        } else {
+            return path + '/';
+        }
+    }
+
     void Configuration::load() {
         // create settings object
         QSettings settings(d->configPath, QSettings::IniFormat);
@@ -84,15 +92,15 @@ namespace SDDM {
         d->defaultPath = settings.value("DefaultPath", "").toString();
         d->serverPath = settings.value("ServerPath", "").toString();
         d->xauthPath = settings.value("XauthPath", "").toString();
-        d->authDir = settings.value("AuthDir", "").toString();
+        d->authDir = appendSlash(settings.value("AuthDir", "").toString());
         d->haltCommand = settings.value("HaltCommand", "").toString();
         d->rebootCommand = settings.value("RebootCommand", "").toString();
-        d->sessionsDir = settings.value("SessionsDir", "").toString();
+        d->sessionsDir = appendSlash(settings.value("SessionsDir", "").toString());
         d->rememberLastSession = settings.value("RememberLastSession", d->rememberLastSession).toBool();
         d->lastSession = settings.value("LastSession", "").toString();
         d->sessionCommand = settings.value("SessionCommand", "").toString();
-        d->facesDir = settings.value("FacesDir", "").toString();
-        d->themesDir = settings.value("ThemesDir", "").toString();
+        d->facesDir = appendSlash(settings.value("FacesDir", "").toString());
+        d->themesDir = appendSlash(settings.value("ThemesDir", "").toString());
         d->currentTheme = settings.value("CurrentTheme", "").toString();
         d->minimumUid = settings.value("MinimumUid", "0").toInt();
         d->maximumUid = settings.value("MaximumUid", "65000").toInt();
