@@ -42,7 +42,6 @@ namespace SDDM {
 
         const QString &name() const;
         const QString &cookie() const;
-        const QString &seatId() const;
 
     public slots:
         void start();
