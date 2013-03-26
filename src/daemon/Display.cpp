@@ -61,19 +61,23 @@ namespace SDDM {
 
         m_display = QString(":%1").arg(m_displayId);
 
-        // stop the display after user session ends
-        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
+        // restart display after user session ended
+        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(start()));
 
-        // stop the display after the display server stopped
-        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+        // restart display after display server ended
+        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(start()));
 
+        // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
 
+        // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
+        // get auth dir
         QString authDir = Configuration::instance()->authDir();
 
+        // use "." as authdir in test mode
         if (Configuration::instance()->testing)
             authDir = QLatin1String(".");
 
@@ -88,7 +92,7 @@ namespace SDDM {
     }
 
     Display::~Display() {
-        stop(false);
+        stop();
     }
 
     const int Display::displayId() const {
@@ -110,7 +114,7 @@ namespace SDDM {
     void Display::start() {
         // check flag
         if (m_started)
-            return;
+            stop();
 
         // set authenticator params
         m_authenticator->setDisplay(m_display);
@@ -160,13 +164,15 @@ namespace SDDM {
         m_started = true;
     }
 
-    void Display::stop(bool restart) {
+    void Display::stop() {
         // check flag
         if (!m_started)
             return;
 
         // stop user session
+        m_authenticator->blockSignals(true);
         m_authenticator->stop();
+        m_authenticator->blockSignals(false);
 
         // stop the greeter
         m_greeter->stop();
@@ -175,17 +181,15 @@ namespace SDDM {
         m_socketServer->stop();
 
         // stop display server
+        m_displayServer->blockSignals(true);
         m_displayServer->stop();
+        m_displayServer->blockSignals(false);
 
         // remove authority file
         QFile::remove(m_authPath);
 
         // reset flag
         m_started = false;
-
-        // restart display
-        if (restart)
-            QTimer::singleShot(1, this, SLOT(start()));
     }
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {

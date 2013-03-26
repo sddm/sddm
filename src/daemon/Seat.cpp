@@ -104,7 +104,7 @@ namespace SDDM {
         m_terminalIds.removeAll(display->terminalId());
 
         // stop the display
-        display->stop(false);
+        display->stop();
 
         // delete display
         display->deleteLater();
