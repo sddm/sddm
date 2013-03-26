@@ -41,6 +41,10 @@ namespace SDDM {
         connection.registerObject(m_path, this);
     }
 
+    Seat::~Seat() {
+        stop();
+    }
+
     const QString &Seat::name() const {
         return m_name;
     }

@@ -34,6 +34,7 @@ namespace SDDM {
         Q_PROPERTY(bool HasGuestAccount READ HasGuestAccount CONSTANT)
     public:
         explicit Seat(const QString &name, QObject *parent = 0);
+        ~Seat();
 
     public slots:
         const QString &name() const;
