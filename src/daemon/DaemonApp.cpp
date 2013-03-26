@@ -101,6 +101,8 @@ namespace SDDM {
         for (Seat *seat : m_seats)
             seat->stop();
 
+        qDebug() << " DAEMON: Stopped.";
+
         // quit application
         qApp->quit();
     }
