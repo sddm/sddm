@@ -22,6 +22,7 @@
 
 #include <QCoreApplication>
 
+#include <QDBusObjectPath>
 #include <QList>
 
 namespace SDDM {
@@ -33,6 +34,8 @@ namespace SDDM {
     class DaemonApp : public QCoreApplication {
         Q_OBJECT
         Q_DISABLE_COPY(DaemonApp)
+
+        Q_PROPERTY(QList<QDBusObjectPath> Seats READ seats CONSTANT)
     public:
         explicit DaemonApp(int argc, char **argv);
 
@@ -44,6 +47,8 @@ namespace SDDM {
         void stop();
 
         int newSessionId();
+
+        QList<QDBusObjectPath> seats() const;
 
     private:
         QList<Seat *> m_seats;
