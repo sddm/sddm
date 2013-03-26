@@ -32,6 +32,7 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #include <QQmlContext>
+#include <QQmlEngine>
 #else
 #include <QApplication>
 #include <QDeclarativeView>
