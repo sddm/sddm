@@ -20,6 +20,7 @@
 #ifndef SDDM_SESSIONPROCESS_H
 #define SDDM_SESSIONPROCESS_H
 
+#include <QDBusObjectPath>
 #include <QProcess>
 #include <QString>
 
@@ -27,7 +28,7 @@ namespace SDDM {
     class SessionProcess : public QProcess {
         Q_OBJECT
         Q_DISABLE_COPY(SessionProcess)
-        Q_PROPERTY(QString Seat READ seat CONSTANT)
+        Q_PROPERTY(QDBusObjectPath Seat READ seatPath CONSTANT)
         Q_PROPERTY(QString UserName READ user CONSTANT)
     public:
         explicit SessionProcess(const QString &name, QObject *parent = 0);
@@ -45,7 +46,8 @@ namespace SDDM {
         void setUid(int uid);
         void setGid(int gid);
 
-        // org.freedesktop.DisplayManager.Session methods
+        const QDBusObjectPath &seatPath() const;
+
         void Lock();
 
     protected:
@@ -55,6 +57,7 @@ namespace SDDM {
         QString m_name { "" };
         QString m_path { "" };
         QString m_seat { "" };
+        QDBusObjectPath m_seatPath { };
         QString m_user { "" };
         QString m_dir { "" };
         int m_uid { 0 };

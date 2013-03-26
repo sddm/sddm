@@ -58,6 +58,7 @@ namespace SDDM {
 
     void SessionProcess::setSeat(const QString &seat) {
         m_seat = seat;
+        m_seatPath = QDBusObjectPath(seat);
     }
 
     const QString &SessionProcess::user() const {
@@ -78,6 +79,10 @@ namespace SDDM {
 
     void SessionProcess::setGid(int gid) {
         m_gid = gid;
+    }
+
+    const QDBusObjectPath &SessionProcess::seatPath() const {
+        return m_seatPath;
     }
 
     void SessionProcess::Lock() {
