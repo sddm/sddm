@@ -51,6 +51,8 @@ namespace SDDM {
         void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
 
     signals:
+        void stopped();
+
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
 

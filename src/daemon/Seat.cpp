@@ -85,6 +85,9 @@ namespace SDDM {
         // create a new display
         Display *display = new Display(displayId, terminalId, this);
 
+        // restart display on stop
+        connect(display, SIGNAL(stopped()), this, SLOT(displayStopped()));
+
         // add display to the list
         m_displays << display;
 
@@ -93,7 +96,7 @@ namespace SDDM {
     }
 
     void Seat::removeDisplay(Display *display) {
-       // log message
+        // log message
         qDebug() << " DAEMON: Removing display" << display->name() << "...";
 
         // remove display from list
@@ -104,10 +107,23 @@ namespace SDDM {
         m_terminalIds.removeAll(display->terminalId());
 
         // stop the display
+        display->blockSignals(true);
         display->stop();
+        display->blockSignals(false);
 
         // delete display
         display->deleteLater();
+    }
+
+    void Seat::displayStopped() {
+        Display *display = qobject_cast<Display *>(sender());
+
+        // remove display
+        removeDisplay(display);
+
+        // add a display if there is none
+        if (m_displays.isEmpty())
+            addDisplay();
     }
 
     int Seat::findUnused(int minimum, std::function<bool(const int)> used) {

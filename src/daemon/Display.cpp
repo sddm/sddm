@@ -62,10 +62,10 @@ namespace SDDM {
         m_display = QString(":%1").arg(m_displayId);
 
         // restart display after user session ended
-        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(start()));
+        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
 
         // restart display after display server ended
-        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(start()));
+        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
@@ -114,7 +114,7 @@ namespace SDDM {
     void Display::start() {
         // check flag
         if (m_started)
-            stop();
+            return;
 
         // set authenticator params
         m_authenticator->setDisplay(m_display);
@@ -190,6 +190,9 @@ namespace SDDM {
 
         // reset flag
         m_started = false;
+
+        // emit signal
+        emit stopped();
     }
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {

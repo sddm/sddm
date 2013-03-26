@@ -46,6 +46,8 @@ namespace SDDM {
         void addDisplay();
         void removeDisplay(Display *display);
 
+        void displayStopped();
+
         int findUnused(int minimum, std::function<bool(const int)> used);
 
         bool CanSwitch();
