@@ -125,6 +125,13 @@ namespace SDDM {
         delete d;
     }
 
+    QString Authenticator::sessionPath() const {
+        if (!process)
+            return "";
+
+        return process->path();
+    }
+
     void Authenticator::setDisplay(const QString &display) {
         m_display = display;
     }

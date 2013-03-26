@@ -146,6 +146,19 @@ namespace SDDM {
         return false;
     }
 
+    QList<QDBusObjectPath> Seat::Sessions() {
+        QList<QDBusObjectPath> sessions;
+
+        for (Display *display: m_displays) {
+            QString sessionPath = display->sessionPath();
+
+            if (sessionPath != "")
+                sessions << QDBusObjectPath(sessionPath);
+        }
+
+        return sessions;
+    }
+
     void Seat::Lock() {
         // TODO: Implement
     }

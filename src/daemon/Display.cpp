@@ -111,6 +111,10 @@ namespace SDDM {
         return m_cookie;
     }
 
+    QString Display::sessionPath() const {
+        return m_authenticator->sessionPath();
+    }
+
     void Display::start() {
         // check flag
         if (m_started)

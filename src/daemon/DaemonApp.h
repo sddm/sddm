@@ -34,8 +34,8 @@ namespace SDDM {
     class DaemonApp : public QCoreApplication {
         Q_OBJECT
         Q_DISABLE_COPY(DaemonApp)
-
         Q_PROPERTY(QList<QDBusObjectPath> Seats READ seats CONSTANT)
+        Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         explicit DaemonApp(int argc, char **argv);
 
@@ -49,6 +49,7 @@ namespace SDDM {
         int newSessionId();
 
         QList<QDBusObjectPath> seats() const;
+        QList<QDBusObjectPath> Sessions() const;
 
     private:
         QList<Seat *> m_seats;

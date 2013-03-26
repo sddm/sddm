@@ -22,6 +22,9 @@
 
 #include <QObject>
 
+#include <QDBusObjectPath>
+#include <QList>
+
 #include <functional>
 
 namespace SDDM {
@@ -32,6 +35,7 @@ namespace SDDM {
         Q_DISABLE_COPY(Seat)
         Q_PROPERTY(bool CanSwitch READ CanSwitch CONSTANT)
         Q_PROPERTY(bool HasGuestAccount READ HasGuestAccount CONSTANT)
+        Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         explicit Seat(const QString &name, QObject *parent = 0);
         ~Seat();
@@ -52,6 +56,7 @@ namespace SDDM {
 
         bool CanSwitch();
         bool HasGuestAccount();
+        QList<QDBusObjectPath> Sessions();
 
         void Lock();
         void SwitchToGreeter();

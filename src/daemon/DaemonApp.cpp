@@ -119,6 +119,16 @@ namespace SDDM {
 
         return seatPaths;
     }
+
+
+    QList<QDBusObjectPath> DaemonApp::Sessions() const {
+        QList<QDBusObjectPath> sessionPaths;
+
+        for (Seat *seat: m_seats)
+            sessionPaths << seat->Sessions();
+
+        return sessionPaths;
+    }
 }
 
 void showUsageHelp(const char*  appName) {

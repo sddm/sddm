@@ -43,6 +43,8 @@ namespace SDDM {
         const QString &name() const;
         const QString &cookie() const;
 
+        QString sessionPath() const;
+
     public slots:
         void start();
         void stop();
