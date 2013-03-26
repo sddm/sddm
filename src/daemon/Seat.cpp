@@ -25,12 +25,15 @@
 #include "seatadaptor.h"
 
 namespace SDDM {
-    Seat::Seat(const QString &name, QObject *parent) : QObject(parent), m_name(name) {
+    Seat::Seat(const QString &name, QObject *parent) : QObject(parent) {
         // create seat adapter
         new SeatAdaptor(this);
 
+        // set name
+        m_name = QLatin1String("seat") + name;
+
         // set object path
-        m_path = QLatin1String("/org/freedesktop/DisplayManager/") + m_name;
+        m_path = QLatin1String("/org/freedesktop/DisplayManager/Seat") + name;
 
         // register object
         QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();

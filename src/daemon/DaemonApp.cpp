@@ -85,7 +85,7 @@ namespace SDDM {
         qDebug() << " DAEMON: Starting...";
 
         // add default seat
-        Seat *seat = new Seat("Seat0", this);
+        Seat *seat = new Seat("0", this);
 
         // add seat to the list
         m_seats << seat;
