@@ -22,6 +22,8 @@
 
 #include <QObject>
 
+#include <functional>
+
 namespace SDDM {
     class Display;
 
@@ -43,7 +45,7 @@ namespace SDDM {
         void addDisplay();
         void removeDisplay();
 
-        int findUnused(QList<int> &used, int minimum);
+        int findUnused(int minimum, std::function<bool(const int)> used);
 
         bool CanSwitch();
         bool HasGuestAccount();

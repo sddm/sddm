@@ -39,12 +39,6 @@ namespace SDDM {
         QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService("org.freedesktop.DisplayManager");
         connection.registerObject(m_path, this);
-
-        // mark display ":0" and vt07 as used, in test mode
-        if (Configuration::instance()->testing) {
-            m_displayIds << 0;
-            m_terminalIds << 7;
-        }
     }
 
     const QString &Seat::name() const {
@@ -67,10 +61,20 @@ namespace SDDM {
 
     void Seat::addDisplay() {
         // find unused display
-        int displayId = findUnused(m_displayIds, 0);
+        int displayId = findUnused(0, [&](const int number) {
+            return m_displayIds.contains(number) || QFile(QString("/tmp/.X%1-lock").arg(number)).exists();
+        });
+
+        // mark display as used
+        m_displayIds << displayId;
 
         // find unused terminal
-        int terminalId = findUnused(m_terminalIds, Configuration::instance()->minimumVT);
+        int terminalId = findUnused(Configuration::instance()->minimumVT, [&](const int number) {
+            return m_terminalIds.contains(number);
+        });
+
+        // mark terminal as used
+        m_terminalIds << terminalId;
 
         // log message
         qDebug() << " DAEMON: Adding new display " << QString(":%1").arg(displayId) << " on vt" << terminalId << "...";
@@ -102,16 +106,13 @@ namespace SDDM {
         display->deleteLater();
     }
 
-    int Seat::findUnused(QList<int> &used, int minimum) {
+    int Seat::findUnused(int minimum, std::function<bool(const int)> used) {
         // initialize with minimum
         int number = minimum;
 
         // find unused
-        while (used.contains(number))
+        while (used(number))
             number++;
-
-        // mark number as used
-        used << number;
 
         // return number;
         return number;
