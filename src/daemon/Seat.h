@@ -44,7 +44,7 @@ namespace SDDM {
         void stop();
 
         void addDisplay();
-        void removeDisplay();
+        void removeDisplay(Display *display);
 
         int findUnused(int minimum, std::function<bool(const int)> used);
 

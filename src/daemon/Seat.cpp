@@ -58,9 +58,8 @@ namespace SDDM {
     }
 
     void Seat::stop() {
-        // stop all displays
-        for (Display *display: m_displays)
-            display->stop();
+        while (!m_displays.isEmpty())
+            removeDisplay(m_displays.first());
     }
 
     void Seat::addDisplay() {
@@ -93,10 +92,8 @@ namespace SDDM {
         display->start();
     }
 
-    void Seat::removeDisplay() {
-        Display *display = qobject_cast<Display *>(sender());
-
-        // log message
+    void Seat::removeDisplay(Display *display) {
+       // log message
         qDebug() << " DAEMON: Removing display" << display->name() << "...";
 
         // remove display from list
@@ -105,6 +102,9 @@ namespace SDDM {
         // mark display and terminal ids as unused
         m_displayIds.removeAll(display->displayId());
         m_terminalIds.removeAll(display->terminalId());
+
+        // stop the display
+        display->stop(false);
 
         // delete display
         display->deleteLater();
