@@ -40,7 +40,7 @@ namespace SDDM {
     public:
         explicit DaemonApp(int argc, char **argv);
 
-        static DaemonApp *instance() { return self; };
+        static DaemonApp *instance() { return self; }
 
         QString hostName() const;
         PowerManager *powerManager() const;
