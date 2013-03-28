@@ -17,7 +17,7 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#include "SessionProcess.h"
+#include "Session.h"
 
 #include "Authenticator.h"
 #include "Configuration.h"
@@ -31,7 +31,7 @@
 #include <unistd.h>
 
 namespace SDDM {
-    SessionProcess::SessionProcess(const QString &name, QObject *parent) : QProcess(parent), m_name(name) {
+    Session::Session(const QString &name, QObject *parent) : QProcess(parent), m_name(name) {
         // create session adapter
         new SessionAdaptor(this);
 
@@ -44,52 +44,52 @@ namespace SDDM {
         connection.registerObject(m_path, this);
     }
 
-    const QString &SessionProcess::name() const {
+    const QString &Session::name() const {
         return m_name;
     }
 
-    const QString &SessionProcess::path() const {
+    const QString &Session::path() const {
         return m_path;
     }
 
-    const QString &SessionProcess::seat() const {
+    const QString &Session::seat() const {
         return m_seat;
     }
 
-    void SessionProcess::setSeat(const QString &seat) {
+    void Session::setSeat(const QString &seat) {
         m_seat = seat;
         m_seatPath = QDBusObjectPath(seat);
     }
 
-    const QString &SessionProcess::user() const {
+    const QString &Session::user() const {
         return m_user;
     }
 
-    void SessionProcess::setUser(const QString &user) {
+    void Session::setUser(const QString &user) {
         m_user = user;
     }
 
-    void SessionProcess::setDir(const QString &dir) {
+    void Session::setDir(const QString &dir) {
         m_dir = dir;
     }
 
-    void SessionProcess::setUid(int uid) {
+    void Session::setUid(int uid) {
         m_uid = uid;
     }
 
-    void SessionProcess::setGid(int gid) {
+    void Session::setGid(int gid) {
         m_gid = gid;
     }
 
-    const QDBusObjectPath &SessionProcess::seatPath() const {
+    const QDBusObjectPath &Session::seatPath() const {
         return m_seatPath;
     }
 
-    void SessionProcess::Lock() {
+    void Session::Lock() {
         // TODO: Implement
     }
 
-    void SessionProcess::setupChildProcess() {
+    void Session::setupChildProcess() {
         if (Configuration::instance()->testing)
             return;
 

@@ -23,7 +23,7 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "Seat.h"
-#include "SessionProcess.h"
+#include "Session.h"
 
 #include <QDebug>
 #include <QDir>
@@ -299,7 +299,7 @@ namespace SDDM {
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
         // create user session process
-        process = new SessionProcess(QString("Session%1").arg(daemonApp->newSessionId()), this);
+        process = new Session(QString("Session%1").arg(daemonApp->newSessionId()), this);
 
         // set seat path
         process->setSeat(seat->path());

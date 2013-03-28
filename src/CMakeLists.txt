@@ -14,8 +14,8 @@ set(DAEMON_SOURCES
     daemon/DisplayServer.cpp
     daemon/Greeter.cpp
     daemon/PowerManager.cpp
-    daemon/SessionProcess.cpp
     daemon/Seat.cpp
+    daemon/Session.cpp
     daemon/SignalHandler.cpp
     daemon/SocketServer.cpp
 )
@@ -23,7 +23,7 @@ set(DAEMON_SOURCES
 if(USE_QT5)
     qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml daemon/DaemonApp.h SDDM::DaemonApp)
     qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml daemon/Seat.h SDDM::Seat)
-    qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml daemon/SessionProcess.h SDDM::SessionProcess)
+    qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml daemon/Session.h SDDM::Session)
 
     add_executable(sddm ${DAEMON_SOURCES})
     target_link_libraries(sddm ${PAM_LIBRARIES} ${LIBXCB_LIBRARIES})
@@ -35,7 +35,7 @@ else()
 
     qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml daemon/DaemonApp.h SDDM::DaemonApp)
     qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml daemon/Seat.h SDDM::Seat)
-    qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml daemon/SessionProcess.h SDDM::SessionProcess)
+    qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml daemon/Session.h SDDM::Session)
 
     add_executable(sddm ${DAEMON_SOURCES})
     target_link_libraries(sddm ${PAM_LIBRARIES} ${LIBXCB_LIBRARIES} ${QT_LIBRARIES})

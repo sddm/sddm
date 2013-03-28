@@ -24,7 +24,7 @@
 #include <QString>
 
 namespace SDDM {
-    class SessionProcess;
+    class Session;
 
     class Credentials : public QObject {
         Q_OBJECT
@@ -70,7 +70,7 @@ namespace SDDM {
         QString m_cookie { "" };
 
         Credentials *credentials { nullptr };
-        SessionProcess *process { nullptr };
+        Session *process { nullptr };
 
         AuthenticatorPrivate *d { nullptr };
     };

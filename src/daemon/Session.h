@@ -17,21 +17,21 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_SESSIONPROCESS_H
-#define SDDM_SESSIONPROCESS_H
+#ifndef SDDM_SESSION_H
+#define SDDM_SESSION_H
 
 #include <QDBusObjectPath>
 #include <QProcess>
 #include <QString>
 
 namespace SDDM {
-    class SessionProcess : public QProcess {
+    class Session : public QProcess {
         Q_OBJECT
-        Q_DISABLE_COPY(SessionProcess)
+        Q_DISABLE_COPY(Session)
         Q_PROPERTY(QDBusObjectPath Seat READ seatPath CONSTANT)
         Q_PROPERTY(QString UserName READ user CONSTANT)
     public:
-        explicit SessionProcess(const QString &name, QObject *parent = 0);
+        explicit Session(const QString &name, QObject *parent = 0);
 
         const QString &name() const;
         const QString &path() const;
@@ -65,4 +65,4 @@ namespace SDDM {
     };
 }
 
-#endif // SDDM_SESSIONPROCESS_H
+#endif // SDDM_SESSION_H
