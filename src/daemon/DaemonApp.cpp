@@ -39,7 +39,12 @@
 using namespace std;
 
 namespace SDDM {
+    DaemonApp *DaemonApp::self = nullptr;
+
     DaemonApp::DaemonApp(int argc, char **argv) : QCoreApplication(argc, argv) {
+        // point instance to this
+        self = this;
+
         // log message
         qDebug() << " DAEMON: Initializing...";
 

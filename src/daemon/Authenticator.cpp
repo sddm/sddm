@@ -295,12 +295,11 @@ namespace SDDM {
         }
 
         // get parent
-        DaemonApp *app = qobject_cast<DaemonApp *>(qApp);
         Display *display = qobject_cast<Display *>(parent());
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
         // create user session process
-        process = new SessionProcess(QString("Session%1").arg(app->newSessionId()), this);
+        process = new SessionProcess(QString("Session%1").arg(daemonApp->newSessionId()), this);
 
         // set seat path
         process->setSeat(seat->path());

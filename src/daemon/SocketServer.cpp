@@ -101,9 +101,6 @@ namespace SDDM {
     }
 
     void SocketServer::readyRead() {
-        // get app pointer
-        DaemonApp *app = qobject_cast<DaemonApp *>(qApp);
-
         QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
 
         // check socket
@@ -123,10 +120,10 @@ namespace SDDM {
                 qDebug() << " DAEMON: Message received from greeter: Connect";
 
                 // send capabilities
-                SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(app->powerManager()->capabilities());
+                SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(daemonApp->powerManager()->capabilities());
 
                 // send host name
-                SocketWriter(socket) << quint32(DaemonMessages::HostName) << app->hostName();
+                SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
             }
             break;
             case GreeterMessages::Login: {
@@ -146,7 +143,7 @@ namespace SDDM {
                 qDebug() << " DAEMON: Message received from greeter: PowerOff";
 
                 // power off
-                app->powerManager()->powerOff();
+                daemonApp->powerManager()->powerOff();
             }
             break;
             case GreeterMessages::Reboot: {
@@ -154,7 +151,7 @@ namespace SDDM {
                 qDebug() << " DAEMON: Message received from greeter: Reboot";
 
                 // reboot
-                app->powerManager()->reboot();
+                daemonApp->powerManager()->reboot();
             }
             break;
             case GreeterMessages::Suspend: {
@@ -162,7 +159,7 @@ namespace SDDM {
                 qDebug() << " DAEMON: Message received from greeter: Suspend";
 
                 // suspend
-                app->powerManager()->suspend();
+                daemonApp->powerManager()->suspend();
             }
             break;
             case GreeterMessages::Hibernate: {
@@ -170,7 +167,7 @@ namespace SDDM {
                 qDebug() << " DAEMON: Message received from greeter: Hibernate";
 
                 // hibernate
-                app->powerManager()->hibernate();
+                daemonApp->powerManager()->hibernate();
             }
             break;
             case GreeterMessages::HybridSleep: {
@@ -178,7 +175,7 @@ namespace SDDM {
                 qDebug() << " DAEMON: Message received from greeter: HybridSleep";
 
                 // hybrid sleep
-                app->powerManager()->hybridSleep();
+                daemonApp->powerManager()->hybridSleep();
             }
             break;
             default: {

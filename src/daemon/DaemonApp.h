@@ -25,6 +25,8 @@
 #include <QDBusObjectPath>
 #include <QList>
 
+#define daemonApp DaemonApp::instance()
+
 namespace SDDM {
     class Configuration;
     class PowerManager;
@@ -39,6 +41,8 @@ namespace SDDM {
     public:
         explicit DaemonApp(int argc, char **argv);
 
+        static DaemonApp *instance() { return self; };
+
         QString hostName() const;
         PowerManager *powerManager() const;
 
@@ -52,6 +56,8 @@ namespace SDDM {
         QList<QDBusObjectPath> Sessions() const;
 
     private:
+        static DaemonApp *self;
+
         QList<Seat *> m_seats;
         int m_lastSessionId { 0 };
         Configuration *m_configuration { nullptr };
