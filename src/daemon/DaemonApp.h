@@ -56,7 +56,6 @@ namespace SDDM {
         int m_lastSessionId { 0 };
         Configuration *m_configuration { nullptr };
         PowerManager *m_powerManager { nullptr };
-        SignalHandler *m_signalHandler { nullptr};
     };
 }
 

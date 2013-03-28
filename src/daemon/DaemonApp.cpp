@@ -59,15 +59,15 @@ namespace SDDM {
         m_powerManager = new PowerManager(this);
 
         // create signal handler
-        m_signalHandler = new SignalHandler(this);
+        SignalHandler *signalHandler = new SignalHandler(this);
 
         // initialize signal signalHandler
         SignalHandler::initialize();
 
         // quit when SIGHUP, SIGINT, SIGTERM received
-        connect(m_signalHandler, SIGNAL(sighupReceived()), this, SLOT(stop()));
-        connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
-        connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
+        connect(signalHandler, SIGNAL(sighupReceived()), this, SLOT(stop()));
+        connect(signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
+        connect(signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
 
         // schedule start
         QTimer::singleShot(1, this, SLOT(start()));
