@@ -31,7 +31,6 @@ namespace SDDM {
     class Configuration;
     class PowerManager;
     class Seat;
-    class SignalHandler;
 
     class DaemonApp : public QCoreApplication {
         Q_OBJECT
