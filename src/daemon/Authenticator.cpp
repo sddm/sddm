@@ -22,6 +22,7 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
+#include "DisplayManager.h"
 #include "Seat.h"
 #include "Session.h"
 
@@ -337,6 +338,9 @@ namespace SDDM {
         // log message
         qDebug() << " DAEMON: User session started.";
 
+        // register to the display manager
+        daemonApp->displayManager()->AddSession(process->name(), seat->name(), pw->pw_name);
+
         // set flag
         m_started = true;
 
@@ -370,6 +374,9 @@ namespace SDDM {
 
         // log message
         qDebug() << " DAEMON: User session ended.";
+
+        // unregister from the display manager
+        daemonApp->displayManager()->RemoveSession(process->name());
 
         // delete session process
         process->deleteLater();

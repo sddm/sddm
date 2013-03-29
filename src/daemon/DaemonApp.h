@@ -40,8 +40,8 @@ namespace SDDM {
 
         QString hostName() const;
 
-        PowerManager *powerManager() const;
         DisplayManager *displayManager() const;
+        PowerManager *powerManager() const;
         SeatManager *seatManager() const;
 
     public slots:

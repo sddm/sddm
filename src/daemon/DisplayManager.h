@@ -49,6 +49,8 @@ namespace SDDM {
     public slots:
         void AddSeat(const QString &name);
         void RemoveSeat(const QString &name);
+        void AddSession(const QString &name, const QString &seat, const QString &user);
+        void RemoveSession(const QString &name);
 
     signals:
         void SeatAdded(ObjectPath seat);
@@ -96,22 +98,25 @@ namespace SDDM {
     class DisplayManagerSession: public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(DisplayManagerSession)
-        Q_PROPERTY(QDBusObjectPath Seat READ Seat)
-        Q_PROPERTY(QString UserName READ UserName)
+        Q_PROPERTY(QDBusObjectPath Seat READ SeatPath)
+        Q_PROPERTY(QString UserName READ User)
     public:
-        DisplayManagerSession(const QString &name, QObject *parent = 0);
+        DisplayManagerSession(const QString &name, const QString &seat, const QString &user, QObject *parent = 0);
 
         const QString &Name() const;
         const QString &Path() const;
+        const QString &Seat() const;
+        const QString &User() const;
 
         void Lock();
 
-        ObjectPath Seat() const;
-        QString UserName() const;
+        ObjectPath SeatPath() const;
 
     private:
         QString m_name { "" };
         QString m_path { "" };
+        QString m_seat { "" };
+        QString m_user { "" };
     };
 }
 

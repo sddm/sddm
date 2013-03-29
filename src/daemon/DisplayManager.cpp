@@ -91,6 +91,36 @@ namespace SDDM {
         }
     }
 
+    void DisplayManager::AddSession(const QString &name, const QString &seat, const QString &user) {
+        // create session object
+        DisplayManagerSession *session = new DisplayManagerSession(name, seat, user);
+
+        // add to the list
+        m_sessions << session;
+
+        // emit signal
+        emit SessionAdded(ObjectPath(session->Path()));
+    }
+
+    void DisplayManager::RemoveSession(const QString &name) {
+        // find session
+        for (DisplayManagerSession *session: m_sessions) {
+            if (session->Name() == name) {
+                // remove from list
+                m_sessions.removeAll(session);
+
+                // get object path
+                ObjectPath path = ObjectPath(session->Path());
+
+                // delete session
+                session->deleteLater();
+
+                // emit signal
+                emit SessionRemoved(path);
+            }
+        }
+    }
+
     DisplayManagerSeat::DisplayManagerSeat(const QString &name, QObject *parent) : QObject(parent) {
         // set name and path
         m_name = name;
@@ -133,9 +163,8 @@ namespace SDDM {
         // TODO: IMPLEMENT
     }
 
-    DisplayManagerSession::DisplayManagerSession(const QString &name, QObject *parent) : QObject(parent) {
-        // set name and path
-        m_name = name;
+    DisplayManagerSession::DisplayManagerSession(const QString &name, const QString &seat, const QString &user, QObject *parent) : QObject(parent), m_name(name), m_seat(seat), m_user(user) {
+        // set path
         m_path = DISPLAYMANAGER_SESSION_PATH + name.mid(7);
 
         // create adaptor
@@ -155,15 +184,19 @@ namespace SDDM {
         return m_path;
     }
 
+    const QString &DisplayManagerSession::Seat() const {
+        return m_seat;
+    }
+
     void DisplayManagerSession::Lock() {
         // TODO: IMPLEMENT
     }
 
-    ObjectPath DisplayManagerSession::Seat() const {
-        // TODO: IMPLEMENT
+    ObjectPath DisplayManagerSession::SeatPath() const {
+        return ObjectPath(DISPLAYMANAGER_SEAT_PATH + m_seat.mid(4));
     }
 
-    QString DisplayManagerSession::UserName() const {
-        // TODO: IMPLEMENT
+    const QString &DisplayManagerSession::User() const {
+        return m_user;
     }
 }
