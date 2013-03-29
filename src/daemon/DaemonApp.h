@@ -26,6 +26,7 @@
 
 namespace SDDM {
     class Configuration;
+    class DisplayManager;
     class PowerManager;
     class SeatManager;
 
@@ -40,6 +41,7 @@ namespace SDDM {
         QString hostName() const;
 
         PowerManager *powerManager() const;
+        DisplayManager *displayManager() const;
         SeatManager *seatManager() const;
 
     public slots:
@@ -50,6 +52,7 @@ namespace SDDM {
 
         int m_lastSessionId { 0 };
         Configuration *m_configuration { nullptr };
+        DisplayManager *m_displayManager { nullptr };
         PowerManager *m_powerManager { nullptr };
         SeatManager *m_seatManager { nullptr };
     };

@@ -21,8 +21,8 @@
 
 #include "Configuration.h"
 #include "Constants.h"
+#include "DisplayManager.h"
 #include "PowerManager.h"
-#include "Seat.h"
 #include "SeatManager.h"
 #include "SignalHandler.h"
 
@@ -56,11 +56,18 @@ namespace SDDM {
         // set testing parameter
         m_configuration->testing = (arguments().indexOf("--test-mode") != -1);
 
+        // create display manager
+        m_displayManager = new DisplayManager(this);
+
         // create power manager
         m_powerManager = new PowerManager(this);
 
         // create seat manager
         m_seatManager = new SeatManager(this);
+
+        // connect with display manager
+        connect(m_seatManager, SIGNAL(seatCreated(QString)), m_displayManager, SLOT(AddSeat(QString)));
+        connect(m_seatManager, SIGNAL(seatRemoved(QString)), m_displayManager, SLOT(RemoveSeat(QString)));
 
         // create signal handler
         SignalHandler *signalHandler = new SignalHandler(this);
