@@ -125,13 +125,6 @@ namespace SDDM {
         delete d;
     }
 
-    QString Authenticator::sessionPath() const {
-        if (!process)
-            return "";
-
-        return process->path();
-    }
-
     void Authenticator::setDisplay(const QString &display) {
         m_display = display;
     }
@@ -301,9 +294,6 @@ namespace SDDM {
         // create user session process
         process = new Session(QString("Session%1").arg(daemonApp->newSessionId()), this);
 
-        // set seat path
-        process->setSeat(seat->path());
-
         // set session process params
         process->setUser(pw->pw_name);
         process->setDir(pw->pw_dir);
@@ -322,8 +312,8 @@ namespace SDDM {
         env.insert("DISPLAY", m_display);
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
         env.insert("XDG_SEAT", seat->name());
-        env.insert("XDG_SEAT_PATH", seat->path());
-        env.insert("XDG_SESSION_PATH", process->path());
+        // TODO: env.insert("XDG_SEAT_PATH", seat->path());
+        // TODO: env.insert("XDG_SESSION_PATH", process->path());
         env.insert("XDG_VTNR", QString::number(display->terminalId()));
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("GDMSESSION", sessionName);

@@ -20,44 +20,27 @@
 #ifndef SDDM_SESSION_H
 #define SDDM_SESSION_H
 
-#include <QDBusObjectPath>
 #include <QProcess>
-#include <QString>
 
 namespace SDDM {
     class Session : public QProcess {
         Q_OBJECT
         Q_DISABLE_COPY(Session)
-        Q_PROPERTY(QDBusObjectPath Seat READ seatPath CONSTANT)
-        Q_PROPERTY(QString UserName READ user CONSTANT)
     public:
         explicit Session(const QString &name, QObject *parent = 0);
 
         const QString &name() const;
-        const QString &path() const;
 
-        const QString &seat() const;
-        void setSeat(const QString &seat);
-
-        const QString &user() const;
         void setUser(const QString &user);
-
         void setDir(const QString &dir);
         void setUid(int uid);
         void setGid(int gid);
-
-        const QDBusObjectPath &seatPath() const;
-
-        void Lock();
 
     protected:
         void setupChildProcess();
 
     private:
         QString m_name { "" };
-        QString m_path { "" };
-        QString m_seat { "" };
-        QDBusObjectPath m_seatPath { };
         QString m_user { "" };
         QString m_dir { "" };
         int m_uid { 0 };

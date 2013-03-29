@@ -19,8 +19,6 @@
 
 #include "DaemonApp.h"
 
-#include "displaymanageradaptor.h"
-
 #include "Configuration.h"
 #include "Constants.h"
 #include "PowerManager.h"
@@ -58,12 +56,6 @@ namespace SDDM {
         // set testing parameter
         m_configuration->testing = (arguments().indexOf("--test-mode") != -1);
 
-        // create display manager adapter
-        new DisplayManagerAdaptor(this);
-        QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
-        connection.registerService("org.freedesktop.DisplayManager");
-        connection.registerObject("/org/freedesktop/DisplayManager", this);
-
         // create power manager
         m_powerManager = new PowerManager(this);
 
@@ -85,7 +77,7 @@ namespace SDDM {
         qDebug() << " DAEMON: Starting...";
 
         // add a seat
-        m_seatManager->createSeat("0");
+        m_seatManager->createSeat("seat0");
     }
 
     QString DaemonApp::hostName() const {
@@ -102,24 +94,6 @@ namespace SDDM {
 
     int DaemonApp::newSessionId() {
         return m_lastSessionId++;
-    }
-
-    QList<QDBusObjectPath> DaemonApp::Seats() const {
-        QList<QDBusObjectPath> seatPaths;
-
-        for (Seat *seat: m_seatManager->seats())
-            seatPaths << QDBusObjectPath(seat->path());
-
-        return seatPaths;
-    }
-
-    QList<QDBusObjectPath> DaemonApp::Sessions() const {
-        QList<QDBusObjectPath> sessionPaths;
-
-        for (Seat *seat: m_seatManager->seats())
-            sessionPaths << seat->Sessions();
-
-        return sessionPaths;
     }
 }
 

@@ -22,8 +22,6 @@
 #include "Configuration.h"
 #include "Display.h"
 
-#include "seatadaptor.h"
-
 #include <QDebug>
 #include <QFile>
 
@@ -42,31 +40,12 @@ namespace SDDM {
         return number;
     }
 
-    Seat::Seat(const QString &name, QObject *parent) : QObject(parent) {
-        // create seat adapter
-        new SeatAdaptor(this);
-
-        // set name
-        m_name = QLatin1String("seat") + name;
-
-        // set object path
-        m_path = QLatin1String("/org/freedesktop/DisplayManager/Seat") + name;
-
-        // register object
-        QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
-        connection.registerService(QLatin1String("org.freedesktop.DisplayManager"));
-        connection.registerObject(m_path, this);
-
-        // create a display
+    Seat::Seat(const QString &name, QObject *parent) : QObject(parent), m_name(name) {
         createDisplay();
     }
 
     const QString &Seat::name() const {
         return m_name;
-    }
-
-    const QString &Seat::path() const {
-        return m_path;
     }
 
     void Seat::createDisplay(int displayId, int terminalId) {
@@ -144,42 +123,5 @@ namespace SDDM {
         // add a display if there is none
         if (m_displays.isEmpty())
             createDisplay();
-    }
-
-    bool Seat::CanSwitch() {
-        return true;
-    }
-
-    bool Seat::HasGuestAccount() {
-        return false;
-    }
-
-    QList<QDBusObjectPath> Seat::Sessions() {
-        QList<QDBusObjectPath> sessions;
-
-        for (Display *display: m_displays) {
-            QString sessionPath = display->sessionPath();
-
-            if (sessionPath != "")
-                sessions << QDBusObjectPath(sessionPath);
-        }
-
-        return sessions;
-    }
-
-    void Seat::Lock() {
-        // TODO: IMPLEMENT
-    }
-
-    void Seat::SwitchToGreeter() {
-        createDisplay();
-    }
-
-    void Seat::SwitchToGuest(const QString &/*session*/) {
-        // TODO: IMPLEMENT
-    }
-
-    void Seat::SwitchToUser(const QString &/*user*/, const QString &/*session*/) {
-        // TODO: Implement
     }
 }

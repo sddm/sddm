@@ -22,43 +22,26 @@
 
 #include <QObject>
 
-#include <QDBusObjectPath>
-#include <QList>
-
 namespace SDDM {
     class Display;
 
     class Seat : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(Seat)
-        Q_PROPERTY(bool CanSwitch READ CanSwitch CONSTANT)
-        Q_PROPERTY(bool HasGuestAccount READ HasGuestAccount CONSTANT)
-        Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         explicit Seat(const QString &name, QObject *parent = 0);
 
         const QString &name() const;
-        const QString &path() const;
 
     public slots:
         void createDisplay(int displayId = -1, int terminalId = -1);
         void removeDisplay(int displayId);
-
-        bool CanSwitch();
-        bool HasGuestAccount();
-        QList<QDBusObjectPath> Sessions();
-
-        void Lock();
-        void SwitchToGreeter();
-        void SwitchToGuest(const QString &session);
-        void SwitchToUser(const QString &user, const QString &session);
 
     private slots:
         void displayStopped();
 
     private:
         QString m_name { "" };
-        QString m_path { "" };
 
         QList<Display *> m_displays;
         QList<int> m_terminalIds;

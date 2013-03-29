@@ -22,9 +22,6 @@
 
 #include <QCoreApplication>
 
-#include <QDBusObjectPath>
-#include <QList>
-
 #define daemonApp DaemonApp::instance()
 
 namespace SDDM {
@@ -35,8 +32,6 @@ namespace SDDM {
     class DaemonApp : public QCoreApplication {
         Q_OBJECT
         Q_DISABLE_COPY(DaemonApp)
-        Q_PROPERTY(QList<QDBusObjectPath> Seats READ Seats CONSTANT)
-        Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         explicit DaemonApp(int argc, char **argv);
 
@@ -49,9 +44,6 @@ namespace SDDM {
 
     public slots:
         int newSessionId();
-
-        QList<QDBusObjectPath> Seats() const;
-        QList<QDBusObjectPath> Sessions() const;
 
     private:
         static DaemonApp *self;

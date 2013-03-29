@@ -44,8 +44,6 @@ namespace SDDM {
         Authenticator(QObject *parent = 0);
         ~Authenticator();
 
-        QString sessionPath() const;
-
     public slots:
         void setDisplay(const QString &display);
 
