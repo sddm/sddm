@@ -47,8 +47,6 @@ namespace SDDM {
         PowerManager *powerManager() const;
 
     public slots:
-        void stop();
-
         int newSessionId();
 
         QList<QDBusObjectPath> Seats() const;

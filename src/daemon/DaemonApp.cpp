@@ -70,9 +70,9 @@ namespace SDDM {
         SignalHandler::initialize();
 
         // quit when SIGHUP, SIGINT, SIGTERM received
-        connect(signalHandler, SIGNAL(sighupReceived()), this, SLOT(stop()));
-        connect(signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
-        connect(signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
+        connect(signalHandler, SIGNAL(sighupReceived()), this, SLOT(quit()));
+        connect(signalHandler, SIGNAL(sigintReceived()), this, SLOT(quit()));
+        connect(signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
 
         // log message
         qDebug() << " DAEMON: Starting...";
@@ -90,14 +90,6 @@ namespace SDDM {
 
     PowerManager *DaemonApp::powerManager() const {
         return m_powerManager;
-    }
-
-    void DaemonApp::stop() {
-        // log message
-        qDebug() << " DAEMON: Stopping...";
-
-        // quit application
-        qApp->quit();
     }
 
     int DaemonApp::newSessionId() {
