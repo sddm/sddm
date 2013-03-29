@@ -34,9 +34,8 @@
 #include <QDebug>
 #include <QHostInfo>
 #include <QTimer>
-#include <iostream>
 
-using namespace std;
+#include <iostream>
 
 namespace SDDM {
     DaemonApp *DaemonApp::self = nullptr;
@@ -44,6 +43,10 @@ namespace SDDM {
     DaemonApp::DaemonApp(int argc, char **argv) : QCoreApplication(argc, argv) {
         // point instance to this
         self = this;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    qInstallMessageHandler(SDDM::MessageHandler);
+#endif
 
         // log message
         qDebug() << " DAEMON: Initializing...";
@@ -115,28 +118,19 @@ namespace SDDM {
     }
 }
 
-void showUsageHelp(const char*  appName) {
-    cout << "Usage: " << appName << " [options] [arguments]\n"
-         << "Options: \n"
-         << "  --test-mode         Start daemon in test mode" << endl;
-}
-
 int main(int argc, char **argv) {
     QStringList arguments;
 
-    for(int ii = 0; ii < argc; ii++) {
-        arguments << argv[ii];
-    }
+    for (int i = 0; i < argc; i++)
+        arguments << argv[i];
 
-    if ( arguments.indexOf("--help") > 0 || arguments.indexOf("-h") > 0 ) {
-        showUsageHelp(argv[0]);
+    if (arguments.contains(QLatin1String("--help")) || arguments.contains(QLatin1String("-h"))) {
+        std::cout << "Usage: sddm [options]\n"
+                  << "Options: \n"
+                  << "  --test-mode         Start daemon in test mode" << std::endl;
+
         return 1;
     }
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    // install message handler
-    qInstallMessageHandler(SDDM::MessageHandler);
-#endif
 
     // create application
     SDDM::DaemonApp app(argc, argv);
