@@ -74,8 +74,14 @@ namespace SDDM {
         connect(signalHandler, SIGNAL(sigintReceived()), this, SLOT(stop()));
         connect(signalHandler, SIGNAL(sigtermReceived()), this, SLOT(stop()));
 
-        // schedule start
-        QTimer::singleShot(1, this, SLOT(start()));
+        // log message
+        qDebug() << " DAEMON: Starting...";
+
+        // add a seat
+        m_seats << new Seat("0", this);
+
+        // start seat
+        m_seats.first()->start();
     }
 
     QString DaemonApp::hostName() const {
@@ -86,27 +92,9 @@ namespace SDDM {
         return m_powerManager;
     }
 
-    void DaemonApp::start() {
-        qDebug() << " DAEMON: Starting...";
-
-        // add default seat
-        Seat *seat = new Seat("0", this);
-
-        // add seat to the list
-        m_seats << seat;
-
-        // start seat
-        seat->start();
-    }
-
     void DaemonApp::stop() {
+        // log message
         qDebug() << " DAEMON: Stopping...";
-
-        // stop all seats
-        for (Seat *seat : m_seats)
-            seat->stop();
-
-        qDebug() << " DAEMON: Stopped.";
 
         // quit application
         qApp->quit();
@@ -124,7 +112,6 @@ namespace SDDM {
 
         return seatPaths;
     }
-
 
     QList<QDBusObjectPath> DaemonApp::Sessions() const {
         QList<QDBusObjectPath> sessionPaths;

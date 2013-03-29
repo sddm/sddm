@@ -43,10 +43,10 @@ namespace SDDM {
         static DaemonApp *instance() { return self; }
 
         QString hostName() const;
+
         PowerManager *powerManager() const;
 
     public slots:
-        void start();
         void stop();
 
         int newSessionId();
