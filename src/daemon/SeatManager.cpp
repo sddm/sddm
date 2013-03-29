@@ -72,7 +72,6 @@ namespace SDDM {
         // TODO: IMPLEMENT
     }
 
-
     void SeatManager::switchToUser(const QString &/*seat*/, const QString &/*user*/, const QString &/*session*/) {
         // TODO: IMPLEMENT
     }
