@@ -44,7 +44,7 @@ namespace SDDM {
         DisplayManager(QObject *parent = 0);
 
         ObjectPathList Seats() const;
-        ObjectPathList Sessions() const;
+        ObjectPathList Sessions(DisplayManagerSeat *seat = nullptr) const;
 
     public slots:
         void AddSeat(const QString &name);

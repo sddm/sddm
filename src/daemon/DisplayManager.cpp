@@ -52,11 +52,12 @@ namespace SDDM {
         return seats;
     }
 
-    ObjectPathList DisplayManager::Sessions() const {
+    ObjectPathList DisplayManager::Sessions(DisplayManagerSeat *seat) const {
         ObjectPathList sessions;
 
         for (DisplayManagerSession *session: m_sessions)
-            sessions << ObjectPath(session->Path());
+            if (seat == nullptr || seat->Name() == session->Seat())
+                sessions << ObjectPath(session->Path());
 
         return sessions;
     }
@@ -160,7 +161,7 @@ namespace SDDM {
     }
 
     ObjectPathList DisplayManagerSeat::Sessions() {
-        // TODO: IMPLEMENT
+       return daemonApp->displayManager()->Sessions(this);
     }
 
     DisplayManagerSession::DisplayManagerSession(const QString &name, const QString &seat, const QString &user, QObject *parent) : QObject(parent), m_name(name), m_seat(seat), m_user(user) {
