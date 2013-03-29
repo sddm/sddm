@@ -38,8 +38,8 @@ namespace SDDM {
     class DisplayManager : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(DisplayManager)
-        Q_PROPERTY(ObjectPathList Seats READ Seats CONSTANT)
-        Q_PROPERTY(ObjectPathList Sessions READ Sessions CONSTANT)
+        Q_PROPERTY(QList<QDBusObjectPath> Seats READ Seats CONSTANT)
+        Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         DisplayManager(QObject *parent = 0);
 
@@ -69,7 +69,7 @@ namespace SDDM {
         Q_DISABLE_COPY(DisplayManagerSeat)
         Q_PROPERTY(bool CanSwitch READ CanSwitch CONSTANT)
         Q_PROPERTY(bool HasGuestAccount READ HasGuestAccount CONSTANT)
-        Q_PROPERTY(ObjectPathList Sessions READ Sessions CONSTANT)
+        Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         DisplayManagerSeat(const QString &name, QObject *parent = 0);
 
@@ -96,7 +96,7 @@ namespace SDDM {
     class DisplayManagerSession: public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(DisplayManagerSession)
-        Q_PROPERTY(ObjectPath Seat READ Seat)
+        Q_PROPERTY(QDBusObjectPath Seat READ Seat)
         Q_PROPERTY(QString UserName READ UserName)
     public:
         DisplayManagerSession(const QString &name, QObject *parent = 0);
