@@ -25,8 +25,6 @@
 #include <QDBusObjectPath>
 #include <QList>
 
-#include <functional>
-
 namespace SDDM {
     class Display;
 
