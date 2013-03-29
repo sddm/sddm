@@ -24,7 +24,24 @@
 
 #include "seatadaptor.h"
 
+#include <QDebug>
+#include <QFile>
+
+#include <functional>
+
 namespace SDDM {
+    int findUnused(int minimum, std::function<bool(const int)> used) {
+        // initialize with minimum
+        int number = minimum;
+
+        // find unused
+        while (used(number))
+            number++;
+
+        // return number;
+        return number;
+    }
+
     Seat::Seat(const QString &name, QObject *parent) : QObject(parent) {
         // create seat adapter
         new SeatAdaptor(this);
@@ -37,12 +54,11 @@ namespace SDDM {
 
         // register object
         QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
-        connection.registerService("org.freedesktop.DisplayManager");
+        connection.registerService(QLatin1String("org.freedesktop.DisplayManager"));
         connection.registerObject(m_path, this);
-    }
 
-    Seat::~Seat() {
-        stop();
+        // create a display
+        createDisplay();
     }
 
     const QString &Seat::name() const {
@@ -53,34 +69,27 @@ namespace SDDM {
         return m_path;
     }
 
-    void Seat::start() {
-        addDisplay();
-    }
+    void Seat::createDisplay(int displayId, int terminalId) {
+        if (displayId == -1) {
+            // find unused display
+            displayId = findUnused(0, [&](const int number) {
+                return m_displayIds.contains(number) || QFile(QString("/tmp/.X%1-lock").arg(number)).exists();
+            });
 
-    void Seat::stop() {
-        while (!m_displays.isEmpty())
-            removeDisplay(m_displays.first());
-    }
-
-    void Seat::addDisplay() {
-        // find unused display
-        int displayId = findUnused(0, [&](const int number) {
-            return m_displayIds.contains(number) || QFile(QString("/tmp/.X%1-lock").arg(number)).exists();
-        });
+            // find unused terminal
+            terminalId = findUnused(Configuration::instance()->minimumVT, [&](const int number) {
+                return m_terminalIds.contains(number);
+            });
+        }
 
         // mark display as used
         m_displayIds << displayId;
-
-        // find unused terminal
-        int terminalId = findUnused(Configuration::instance()->minimumVT, [&](const int number) {
-            return m_terminalIds.contains(number);
-        });
 
         // mark terminal as used
         m_terminalIds << terminalId;
 
         // log message
-        qDebug() << " DAEMON: Adding new display " << QString(":%1").arg(displayId) << " on vt" << terminalId << "...";
+        qDebug() << " DAEMON: Adding new display :" << displayId << " on vt" << terminalId << "...";
 
         // create a new display
         Display *display = new Display(displayId, terminalId, this);
@@ -95,9 +104,20 @@ namespace SDDM {
         display->start();
     }
 
-    void Seat::removeDisplay(Display *display) {
-        // log message
-        qDebug() << " DAEMON: Removing display" << display->name() << "...";
+    void Seat::removeDisplay(int displayId) {
+        qDebug() << " DAEMON: Removing display :" << displayId << "...";
+
+        // display object
+        Display *display = nullptr;
+
+        // find display
+        for (Display *d: m_displays)
+            if (d->displayId() == displayId)
+                display = d;
+
+        // check if found
+        if (display == nullptr)
+            return;
 
         // remove display from list
         m_displays.removeAll(display);
@@ -119,23 +139,11 @@ namespace SDDM {
         Display *display = qobject_cast<Display *>(sender());
 
         // remove display
-        removeDisplay(display);
+        removeDisplay(display->displayId());
 
         // add a display if there is none
         if (m_displays.isEmpty())
-            addDisplay();
-    }
-
-    int Seat::findUnused(int minimum, std::function<bool(const int)> used) {
-        // initialize with minimum
-        int number = minimum;
-
-        // find unused
-        while (used(number))
-            number++;
-
-        // return number;
-        return number;
+            createDisplay();
     }
 
     bool Seat::CanSwitch() {
@@ -160,18 +168,18 @@ namespace SDDM {
     }
 
     void Seat::Lock() {
-        // TODO: Implement
+        // TODO: IMPLEMENT
     }
 
     void Seat::SwitchToGreeter() {
-        addDisplay();
+        createDisplay();
     }
 
-    void Seat::SwitchToGuest(const QString &session) {
-        // TODO: Implement
+    void Seat::SwitchToGuest(const QString &/*session*/) {
+        // TODO: IMPLEMENT
     }
 
-    void Seat::SwitchToUser(const QString &user, const QString &session) {
+    void Seat::SwitchToUser(const QString &/*user*/, const QString &/*session*/) {
         // TODO: Implement
     }
 }

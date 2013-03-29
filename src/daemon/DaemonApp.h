@@ -30,7 +30,7 @@
 namespace SDDM {
     class Configuration;
     class PowerManager;
-    class Seat;
+    class SeatManager;
 
     class DaemonApp : public QCoreApplication {
         Q_OBJECT
@@ -45,6 +45,7 @@ namespace SDDM {
         QString hostName() const;
 
         PowerManager *powerManager() const;
+        SeatManager *seatManager() const;
 
     public slots:
         int newSessionId();
@@ -55,10 +56,10 @@ namespace SDDM {
     private:
         static DaemonApp *self;
 
-        QList<Seat *> m_seats;
         int m_lastSessionId { 0 };
         Configuration *m_configuration { nullptr };
         PowerManager *m_powerManager { nullptr };
+        SeatManager *m_seatManager { nullptr };
     };
 }
 

@@ -15,6 +15,7 @@ set(DAEMON_SOURCES
     daemon/Greeter.cpp
     daemon/PowerManager.cpp
     daemon/Seat.cpp
+    daemon/SeatManager.cpp
     daemon/Session.cpp
     daemon/SignalHandler.cpp
     daemon/SocketServer.cpp

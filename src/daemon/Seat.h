@@ -38,21 +38,13 @@ namespace SDDM {
         Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         explicit Seat(const QString &name, QObject *parent = 0);
-        ~Seat();
 
-    public slots:
         const QString &name() const;
         const QString &path() const;
 
-        void start();
-        void stop();
-
-        void addDisplay();
-        void removeDisplay(Display *display);
-
-        void displayStopped();
-
-        int findUnused(int minimum, std::function<bool(const int)> used);
+    public slots:
+        void createDisplay(int displayId = -1, int terminalId = -1);
+        void removeDisplay(int displayId);
 
         bool CanSwitch();
         bool HasGuestAccount();
@@ -62,6 +54,10 @@ namespace SDDM {
         void SwitchToGreeter();
         void SwitchToGuest(const QString &session);
         void SwitchToUser(const QString &user, const QString &session);
+
+    private slots:
+        void displayStopped();
+
     private:
         QString m_name { "" };
         QString m_path { "" };

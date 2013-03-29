@@ -25,6 +25,7 @@
 #include "Constants.h"
 #include "PowerManager.h"
 #include "Seat.h"
+#include "SeatManager.h"
 #include "SignalHandler.h"
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -66,6 +67,9 @@ namespace SDDM {
         // create power manager
         m_powerManager = new PowerManager(this);
 
+        // create seat manager
+        m_seatManager = new SeatManager(this);
+
         // create signal handler
         SignalHandler *signalHandler = new SignalHandler(this);
 
@@ -81,10 +85,7 @@ namespace SDDM {
         qDebug() << " DAEMON: Starting...";
 
         // add a seat
-        m_seats << new Seat("0", this);
-
-        // start seat
-        m_seats.first()->start();
+        m_seatManager->createSeat("0");
     }
 
     QString DaemonApp::hostName() const {
@@ -95,6 +96,10 @@ namespace SDDM {
         return m_powerManager;
     }
 
+    SeatManager *DaemonApp::seatManager() const {
+        return m_seatManager;
+    }
+
     int DaemonApp::newSessionId() {
         return m_lastSessionId++;
     }
@@ -102,7 +107,7 @@ namespace SDDM {
     QList<QDBusObjectPath> DaemonApp::Seats() const {
         QList<QDBusObjectPath> seatPaths;
 
-        for (Seat *seat: m_seats)
+        for (Seat *seat: m_seatManager->seats())
             seatPaths << QDBusObjectPath(seat->path());
 
         return seatPaths;
@@ -111,7 +116,7 @@ namespace SDDM {
     QList<QDBusObjectPath> DaemonApp::Sessions() const {
         QList<QDBusObjectPath> sessionPaths;
 
-        for (Seat *seat: m_seats)
+        for (Seat *seat: m_seatManager->seats())
             sessionPaths << seat->Sessions();
 
         return sessionPaths;
