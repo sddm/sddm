@@ -74,9 +74,6 @@ namespace SDDM {
     }
 
     Capabilities PowerManager::capabilities() const {
-        if (Configuration::instance()->testing)
-            return Capability::None;
-
         Capabilities caps = Capability::None;
 
         QDBusReply<QString> reply;
@@ -146,9 +143,6 @@ namespace SDDM {
     }
 
     Capabilities PowerManager::capabilities() const {
-        if (Configuration::instance()->testing)
-            return Capability::None;
-
         Capabilities caps = Capability::PowerOff | Capability::Reboot;
 
         QDBusReply<bool> reply;
