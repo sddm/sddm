@@ -43,6 +43,9 @@ namespace SDDM {
     public:
         DisplayManager(QObject *parent = 0);
 
+        QString seatPath(const QString &seatName);
+        QString sessionPath(const QString &sessionName);
+
         ObjectPathList Seats() const;
         ObjectPathList Sessions(DisplayManagerSeat *seat = nullptr) const;
 

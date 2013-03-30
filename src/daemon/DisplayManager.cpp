@@ -43,6 +43,14 @@ namespace SDDM {
         connection.registerObject(DISPLAYMANAGER_PATH, this);
     }
 
+    QString DisplayManager::seatPath(const QString &seatName) {
+        return DISPLAYMANAGER_SEAT_PATH + seatName.mid(4);
+    }
+
+    QString DisplayManager::sessionPath(const QString &sessionName) {
+        return DISPLAYMANAGER_SESSION_PATH + sessionName.mid(7);
+    }
+
     ObjectPathList DisplayManager::Seats() const {
         ObjectPathList seats;
 
