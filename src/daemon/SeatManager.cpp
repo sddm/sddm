@@ -25,10 +25,6 @@ namespace SDDM {
     SeatManager::SeatManager(QObject *parent) : QObject(parent) {
     }
 
-    QList<Seat *> SeatManager::seats() const {
-        return m_seats.values();
-    }
-
     void SeatManager::createSeat(const QString &name) {
         // create a seat
         Seat *seat = new Seat(name, this);
@@ -55,10 +51,6 @@ namespace SDDM {
         emit seatRemoved(name);
     }
 
-    void SeatManager::lock(const QString &/*seat*/) {
-        // TODO: IMPLEMENT
-    }
-
     void SeatManager::switchToGreeter(const QString &name) {
         // check if seat exists
         if (!m_seats.contains(name))
@@ -66,13 +58,5 @@ namespace SDDM {
 
         // switch to greeter
         m_seats[name]->createDisplay();
-    }
-
-    void SeatManager::switchToGuest(const QString &/*seat*/, const QString &/*session*/) {
-        // TODO: IMPLEMENT
-    }
-
-    void SeatManager::switchToUser(const QString &/*seat*/, const QString &/*user*/, const QString &/*session*/) {
-        // TODO: IMPLEMENT
     }
 }

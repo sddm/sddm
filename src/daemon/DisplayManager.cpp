@@ -156,16 +156,16 @@ namespace SDDM {
         daemonApp->seatManager()->switchToGreeter(m_name);
     }
 
-    void DisplayManagerSeat::SwitchToGuest(const QString &session) {
-        daemonApp->seatManager()->switchToGuest(m_name, session);
+    void DisplayManagerSeat::SwitchToGuest(const QString &/*session*/) {
+        // TODO: IMPLEMENT
     }
 
-    void DisplayManagerSeat::SwitchToUser(const QString &user, const QString &session) {
-        daemonApp->seatManager()->switchToUser(m_name, user, session);
+    void DisplayManagerSeat::SwitchToUser(const QString &/*user*/, const QString &/*session*/) {
+        // TODO: IMPLEMENT
     }
 
     void DisplayManagerSeat::Lock() {
-        daemonApp->seatManager()->lock(m_name);
+        // TODO: IMPLEMENT
     }
 
     ObjectPathList DisplayManagerSeat::Sessions() {

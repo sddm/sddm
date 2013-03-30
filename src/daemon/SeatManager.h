@@ -33,15 +33,10 @@ namespace SDDM {
         explicit SeatManager(QObject *parent = 0);
 
     public slots:
-        QList<Seat *> seats() const;
-
         void createSeat(const QString &name);
         void removeSeat(const QString &name);
 
-        void lock(const QString &seat);
         void switchToGreeter(const QString &seat);
-        void switchToGuest(const QString &seat, const QString &session);
-        void switchToUser(const QString &seat, const QString &user, const QString &session);
 
     signals:
         void seatCreated(const QString &name);
