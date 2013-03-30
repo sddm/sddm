@@ -274,7 +274,7 @@ namespace SDDM {
 
         // user name
         struct passwd *pw;
-        if ((pw = getpwnam(qPrintable(pamUser))) == nullptr) {
+        if ((pw = getpwnam(pamUser)) == nullptr) {
             // log error
             qCritical() << " DAEMON: Failed to get user name.";
 
