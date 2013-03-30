@@ -126,10 +126,6 @@ namespace SDDM {
         delete d;
     }
 
-    void Authenticator::setDisplay(const QString &display) {
-        m_display = display;
-    }
-
     void Authenticator::putenv(const QString &value) {
         pam_putenv(d->pamh, qPrintable(value));
     }
@@ -139,16 +135,18 @@ namespace SDDM {
         credentials->user = user;
         credentials->password = password;
 
+        Display *display = qobject_cast<Display *>(parent());
+
         // set username
         if ((d->pam_err = pam_set_item(d->pamh, PAM_USER, qPrintable(credentials->user))) != PAM_SUCCESS)
             return false;
 
         // set tty
-        if ((d->pam_err = pam_set_item(d->pamh, PAM_TTY, qPrintable(m_display))) != PAM_SUCCESS)
+        if ((d->pam_err = pam_set_item(d->pamh, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // set display name
-        if ((d->pam_err = pam_set_item(d->pamh, PAM_XDISPLAY, qPrintable(m_display))) != PAM_SUCCESS)
+        if ((d->pam_err = pam_set_item(d->pamh, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // authenticate the applicant
@@ -214,13 +212,16 @@ namespace SDDM {
             // return fail
             return false;
         }
+        // get display and display
+        Display *display = qobject_cast<Display *>(parent());
+        Seat *seat = qobject_cast<Seat *>(display->parent());
 
         // set credentials
         if ((d->pam_err = pam_setcred(d->pamh, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
             return false;
 
         // set tty name
-        if ((d->pam_err = pam_set_item(d->pamh, PAM_TTY, qPrintable(m_display))) != PAM_SUCCESS)
+        if ((d->pam_err = pam_set_item(d->pamh, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // open session
@@ -248,10 +249,6 @@ namespace SDDM {
             endusershell();
         }
 
-        // get parent
-        Display *display = qobject_cast<Display *>(parent());
-        Seat *seat = qobject_cast<Seat *>(display->parent());
-
         // create user session process
         process = new Session(QString("Session%1").arg(daemonApp->newSessionId()), this);
 
@@ -270,7 +267,7 @@ namespace SDDM {
         env.insert("LOGNAME", pw->pw_name);
         env.insert("MAIL", QString("%1/%2").arg(_PATH_MAILDIR).arg(pw->pw_name));
         env.insert("PATH", Configuration::instance()->defaultPath());
-        env.insert("DISPLAY", m_display);
+        env.insert("DISPLAY", display->name());
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
         env.insert("XDG_SEAT", seat->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));

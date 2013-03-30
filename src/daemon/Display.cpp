@@ -152,9 +152,6 @@ namespace SDDM {
         // generate auth file
         addCookie(m_authPath);
 
-        // set authenticator params
-        m_authenticator->setDisplay(m_display);
-
         // set display server params
         m_displayServer->setDisplay(m_display);
         m_displayServer->setAuthPath(m_authPath);

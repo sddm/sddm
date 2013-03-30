@@ -45,8 +45,6 @@ namespace SDDM {
         ~Authenticator();
 
     public slots:
-        void setDisplay(const QString &display);
-
         void putenv(const QString &value);
 
         bool authenticate(const QString &user, const QString &password);
@@ -60,8 +58,6 @@ namespace SDDM {
 
     private:
         bool m_started { false };
-
-        QString m_display { "" };
 
         Credentials *credentials { nullptr };
         Session *process { nullptr };
