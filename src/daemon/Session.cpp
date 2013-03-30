@@ -21,6 +21,7 @@
 
 #include "Authenticator.h"
 #include "Configuration.h"
+#include "Display.h"
 
 #include <QDebug>
 
@@ -90,7 +91,8 @@ namespace SDDM {
         }
 
         // add cookie
-        authenticator->addCookie(QString("%1/.Xauthority").arg(m_dir));
+        Display *display = qobject_cast<Display *>(authenticator->parent());
+        display->addCookie(QString("%1/.Xauthority").arg(m_dir));
 
         // change to user home dir
         if (chdir(qPrintable(m_dir))) {

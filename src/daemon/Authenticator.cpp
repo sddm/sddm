@@ -130,46 +130,6 @@ namespace SDDM {
         m_display = display;
     }
 
-    const QString &Authenticator::generateCookie() {
-        // log message
-        qDebug() << " DAEMON: Generating cookie...";
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
-
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = digits[dis(gen)];
-
-        // return cookie
-        return m_cookie;
-    }
-
-    void Authenticator::addCookie(const QString &file) {
-        // log message
-        qDebug() << " DAEMON: Adding cookie to" << file;
-
-        // remove file
-        QFile::remove(file);
-
-        QString cmd = QString("%1 -f %2 -q").arg(Configuration::instance()->xauthPath()).arg(file);
-        // execute xauth
-        FILE *fp = popen(qPrintable(cmd), "w");
-        // check file
-        if (!fp)
-            return;
-        fprintf(fp, "remove %s\n", qPrintable(m_display));
-        fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
-        fprintf(fp, "exit\n");
-        // close pipe
-        pclose(fp);
-    }
-
     void Authenticator::putenv(const QString &value) {
         pam_putenv(d->pamh, qPrintable(value));
     }

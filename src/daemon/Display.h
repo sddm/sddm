@@ -41,7 +41,9 @@ namespace SDDM {
         const int terminalId() const;
 
         const QString &name() const;
+
         const QString &cookie() const;
+        void addCookie(const QString &file);
 
     public slots:
         void start();
