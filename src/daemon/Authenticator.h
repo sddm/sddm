@@ -62,7 +62,6 @@ namespace SDDM {
         bool m_started { false };
 
         QString m_display { "" };
-        QString m_cookie { "" };
 
         Credentials *credentials { nullptr };
         Session *process { nullptr };
