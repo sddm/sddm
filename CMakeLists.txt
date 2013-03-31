@@ -26,7 +26,13 @@ endif()
 find_package(PkgConfig)
 
 # PAM
-find_package(PAM REQUIRED)
+if(!NO_PAM)
+  find_package(PAM)
+  
+  if(PAM_FOUND)
+    add_definitions(-DPAM_FOUND)
+  endif()
+endif()
 
 # XCB
 find_package(XCB REQUIRED)
