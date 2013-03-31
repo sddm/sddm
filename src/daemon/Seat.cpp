@@ -117,11 +117,11 @@ namespace SDDM {
     void Seat::displayStopped() {
         Display *display = qobject_cast<Display *>(sender());
 
-        // remove display
-        removeDisplay(display->displayId());
-
-        // add a display if there is none
-        if (m_displays.isEmpty())
-            createDisplay();
+        // remove display if there is more than one,
+        // restart otherwise
+        if (m_displays.size() > 1)
+            removeDisplay(display->displayId());
+        else
+            display->start();
     }
 }
