@@ -72,7 +72,7 @@ namespace SDDM {
 
     void DisplayManager::AddSeat(const QString &name) {
         // create seat object
-        DisplayManagerSeat *seat = new DisplayManagerSeat(name);
+        DisplayManagerSeat *seat = new DisplayManagerSeat(name, this);
 
         // add to the list
         m_seats << seat;
@@ -102,7 +102,7 @@ namespace SDDM {
 
     void DisplayManager::AddSession(const QString &name, const QString &seat, const QString &user) {
         // create session object
-        DisplayManagerSession *session = new DisplayManagerSession(name, seat, user);
+        DisplayManagerSession *session = new DisplayManagerSession(name, seat, user, this);
 
         // add to the list
         m_sessions << session;
