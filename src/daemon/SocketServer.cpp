@@ -50,6 +50,9 @@ namespace SDDM {
         server->setSocketOptions(QLocalServer::UserAccessOption);
 #endif
 
+        // remove existing server
+        QLocalServer::removeServer(m_socket);
+
         // start listening
         if (!server->listen(m_socket)) {
             // log message
