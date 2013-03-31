@@ -33,6 +33,9 @@
 
 #if PAM_FOUND
 #include <security/pam_appl.h>
+#else
+#include <crypt.h>
+#include <shadow.h>
 #endif
 
 #include <grp.h>
@@ -70,31 +73,31 @@ namespace SDDM {
             aresp[i].resp_retcode = 0;
             aresp[i].resp = nullptr;
             switch (msg[i]->msg_style) {
-                case PAM_PROMPT_ECHO_OFF: {
-                    Credentials *c = static_cast<Credentials *>(data);
-                    // set password
-                    aresp[i].resp = strdup(qPrintable(c->password));
-                    if (aresp[i].resp == nullptr)
-                        failed = true;
-                    // clear password
-                    c->password = "";
-                }
-                break;
-                case PAM_PROMPT_ECHO_ON: {
-                    Credentials *c = static_cast<Credentials *>(data);
-                    // set user
-                    aresp[i].resp = strdup(qPrintable(c->user));
-                    if (aresp[i].resp == nullptr)
-                        failed = true;
-                    // clear user
-                    c->user = "";
-                }
-                break;
-                case PAM_ERROR_MSG:
-                case PAM_TEXT_INFO:
-                break;
-                default:
+            case PAM_PROMPT_ECHO_OFF: {
+                Credentials *c = static_cast<Credentials *>(data);
+                // set password
+                aresp[i].resp = strdup(qPrintable(c->password));
+                if (aresp[i].resp == nullptr)
                     failed = true;
+                // clear password
+                c->password = "";
+            }
+                break;
+            case PAM_PROMPT_ECHO_ON: {
+                Credentials *c = static_cast<Credentials *>(data);
+                // set user
+                aresp[i].resp = strdup(qPrintable(c->user));
+                if (aresp[i].resp == nullptr)
+                    failed = true;
+                // clear user
+                c->user = "";
+            }
+                break;
+            case PAM_ERROR_MSG:
+            case PAM_TEXT_INFO:
+                break;
+            default:
+                failed = true;
             }
         }
 
@@ -171,6 +174,36 @@ namespace SDDM {
 
         if (d->pam_err != PAM_SUCCESS)
             return false;
+#else
+
+        // user name
+        struct passwd *pw;
+        if ((pw = getpwnam(qPrintable(user))) == nullptr) {
+            // log error
+            qCritical() << " DAEMON: Failed to get user entry.";
+
+            // return fail
+            return false;
+        }
+
+        struct spwd *sp;
+        if ((sp = getspnam(pw->pw_name)) == nullptr) {
+            // log error
+            qCritical() << " DAEMON: Failed to get shadow entry.";
+
+            // return fail
+            return false;
+        }
+
+        // check if pass is empty
+        if (sp->sp_pwdp == 0 || sp->sp_pwdp[0] == '\0')
+            return true;
+
+        // encryp password
+        char *encrypted = crypt(qPrintable(password), sp->sp_pwdp);
+
+        // check and return result
+        return (strcmp(encrypted, sp->sp_pwdp) == 0);
 #endif
 
         return true;
