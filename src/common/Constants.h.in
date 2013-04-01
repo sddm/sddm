@@ -29,8 +29,4 @@
 #define CONFIG_FILE         "@CONFIG_FILE@"
 #define LOG_FILE            "@LOG_FILE@"
 
-#define LOGIN1_FOUND         @LOGIN1_FOUND@
-#define UPOWER_FOUND         @UPOWER_FOUND@
-#define SYSTEMD_FOUND        @SYSTEMD_FOUND@
-
 #endif // SDDM_CONSTANTS_H

@@ -59,24 +59,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
-# login1
-pkg_check_modules(LOGIN1 "libsystemd-login")
-
-if(LOGIN1_FOUND)
-    # do nothing
-else()
-    set(LOGIN1_FOUND 0)
-endif()
-
-# upower
-pkg_check_modules(UPOWER "upower-glib")
-
-if(UPOWER_FOUND)
-    # do nothing
-else()
-    set(UPOWER_FOUND 0)
-endif()
-
 # systemd
 pkg_check_modules(SYSTEMD "systemd")
 

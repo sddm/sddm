@@ -25,7 +25,7 @@
 #include "Messages.h"
 
 namespace SDDM {
-    class PowerManagerPrivate;
+    class PowerManagerBackend;
 
     class PowerManager : public QObject {
         Q_OBJECT
@@ -37,14 +37,14 @@ namespace SDDM {
     public slots:
         Capabilities capabilities() const;
 
-        void powerOff();
-        void reboot();
-        void suspend();
-        void hibernate();
-        void hybridSleep();
+        void powerOff() const;
+        void reboot() const;
+        void suspend() const;
+        void hibernate() const;
+        void hybridSleep() const;
 
     private:
-        PowerManagerPrivate *d { nullptr };
+        QList<PowerManagerBackend *> m_backends;
     };
 }
 
