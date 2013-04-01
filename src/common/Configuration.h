@@ -76,6 +76,8 @@ namespace SDDM {
         const QString &autoUser() const;
         bool autoRelogin() const;
 
+        bool first { true };
+
         bool testing { false };
 
         uint minimumVT { 7 };

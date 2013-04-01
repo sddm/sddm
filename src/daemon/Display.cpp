@@ -159,9 +159,12 @@ namespace SDDM {
         // start display server
         m_displayServer->start();
 
-        if (m_relogin && !Configuration::instance()->autoUser().isEmpty() && !Configuration::instance()->lastSession().isEmpty()) {
+        if ((Configuration::instance()->first || Configuration::instance()->autoRelogin()) &&
+            !Configuration::instance()->autoUser().isEmpty() && !Configuration::instance()->lastSession().isEmpty()) {
+            // reset first flag
+            Configuration::instance()->first = false;
+
             // set flags
-            m_relogin = Configuration::instance()->autoRelogin();
             m_started = true;
 
             // start session
@@ -186,8 +189,10 @@ namespace SDDM {
         // start greeter
         m_greeter->start();
 
+        // reset first flag
+        Configuration::instance()->first = false;
+
         // set flags
-        m_relogin = Configuration::instance()->autoRelogin();
         m_started = true;
     }
 
