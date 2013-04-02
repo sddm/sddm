@@ -26,7 +26,7 @@ endif()
 find_package(PkgConfig)
 
 # PAM
-if(!NO_PAM)
+if(NOT NO_PAM)
   find_package(PAM)
   
   if(PAM_FOUND)
