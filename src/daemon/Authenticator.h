@@ -47,8 +47,6 @@ namespace SDDM {
     void end();
 
     public slots:
-        void putenv(const QString &value);
-
         bool authenticate(const QString &user, const QString &password);
 
         bool start(const QString &user, const QString &command);

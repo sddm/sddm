@@ -39,7 +39,6 @@
 #endif
 
 #include <grp.h>
-#include <paths.h>
 #include <pwd.h>
 #include <unistd.h>
 
@@ -138,12 +137,6 @@ namespace SDDM {
     void Authenticator::end() {
 #if PAM_FOUND
         pam_end(d->pamh, d->pam_err);
-#endif
-    }
-
-    void Authenticator::putenv(const QString &value) {
-#if PAM_FOUND
-        pam_putenv(d->pamh, qPrintable(value));
 #endif
     }
 
@@ -314,19 +307,32 @@ namespace SDDM {
 
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+#if PAM_FOUND
+        // get pam environment
+        char **envlist = pam_getenvlist(d->pamh);
+
+        // copy it to the env map
+        for (int i = 0; envlist[i] != nullptr; ++i) {
+            QString s(envlist[i]);
+
+            // find equal sign
+            int index = s.indexOf('=');
+
+            // add to the hash
+            if (index != -1)
+                env.insert(s.left(index), s.mid(index + 1));
+        }
+#endif
         env.insert("HOME", pw->pw_dir);
         env.insert("PWD", pw->pw_dir);
         env.insert("SHELL", pw->pw_shell);
         env.insert("USER", pw->pw_name);
         env.insert("LOGNAME", pw->pw_name);
-        env.insert("MAIL", QString("%1/%2").arg(_PATH_MAILDIR).arg(pw->pw_name));
         env.insert("PATH", Configuration::instance()->defaultPath());
         env.insert("DISPLAY", display->name());
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
-        env.insert("XDG_SEAT", seat->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(process->name()));
-        env.insert("XDG_VTNR", QString::number(display->terminalId()));
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("GDMSESSION", sessionName);
         process->setProcessEnvironment(env);

@@ -104,9 +104,5 @@ namespace SDDM {
             // exit
             exit(EXIT_FAILURE);
         }
-
-        // copy environment to pam environment
-        for (int i = 0; environ[i] != nullptr; ++i)
-            authenticator->putenv(environ[i]);
     }
 }
