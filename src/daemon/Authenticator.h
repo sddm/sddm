@@ -44,6 +44,8 @@ namespace SDDM {
         Authenticator(QObject *parent = 0);
         ~Authenticator();
 
+    void end();
+
     public slots:
         void putenv(const QString &value);
 

@@ -132,11 +132,13 @@ namespace SDDM {
     Authenticator::~Authenticator() {
         stop();
 
+        delete d;
+    }
+
+    void Authenticator::end() {
 #if PAM_FOUND
         pam_end(d->pamh, d->pam_err);
 #endif
-
-        delete d;
     }
 
     void Authenticator::putenv(const QString &value) {
@@ -344,6 +346,9 @@ namespace SDDM {
             return false;
         }
 
+        // close pam session
+        end();
+
         // log message
         qDebug() << " DAEMON: User session started.";
 
@@ -390,14 +395,6 @@ namespace SDDM {
         // delete session process
         process->deleteLater();
         process = nullptr;
-
-#if PAM_FOUND
-        // close session
-        pam_close_session(d->pamh, 0);
-
-        // delete creds
-        pam_setcred(d->pamh, PAM_DELETE_CRED);
-#endif
 
         // emit signal
         emit stopped();
