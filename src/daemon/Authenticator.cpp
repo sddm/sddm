@@ -31,7 +31,12 @@
 #include <QFile>
 #include <QTextStream>
 
+#if PAM_FOUND
 #include <security/pam_appl.h>
+#else
+#include <crypt.h>
+#include <shadow.h>
+#endif
 
 #include <grp.h>
 #include <paths.h>
@@ -41,11 +46,14 @@
 namespace SDDM {
     class AuthenticatorPrivate {
     public:
+#if PAM_FOUND
         struct pam_conv pamc;
         pam_handle_t *pamh { nullptr };
         int pam_err { PAM_SUCCESS };
+#endif
     };
 
+#if PAM_FOUND
     typedef int (conv_func)(int, const struct pam_message **, struct pam_response **, void *);
 
     int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
@@ -65,31 +73,31 @@ namespace SDDM {
             aresp[i].resp_retcode = 0;
             aresp[i].resp = nullptr;
             switch (msg[i]->msg_style) {
-                case PAM_PROMPT_ECHO_OFF: {
-                    Credentials *c = static_cast<Credentials *>(data);
-                    // set password
-                    aresp[i].resp = strdup(qPrintable(c->password));
-                    if (aresp[i].resp == nullptr)
-                        failed = true;
-                    // clear password
-                    c->password = "";
-                }
-                break;
-                case PAM_PROMPT_ECHO_ON: {
-                    Credentials *c = static_cast<Credentials *>(data);
-                    // set user
-                    aresp[i].resp = strdup(qPrintable(c->user));
-                    if (aresp[i].resp == nullptr)
-                        failed = true;
-                    // clear user
-                    c->user = "";
-                }
-                break;
-                case PAM_ERROR_MSG:
-                case PAM_TEXT_INFO:
-                break;
-                default:
+            case PAM_PROMPT_ECHO_OFF: {
+                Credentials *c = static_cast<Credentials *>(data);
+                // set password
+                aresp[i].resp = strdup(qPrintable(c->password));
+                if (aresp[i].resp == nullptr)
                     failed = true;
+                // clear password
+                c->password = "";
+            }
+                break;
+            case PAM_PROMPT_ECHO_ON: {
+                Credentials *c = static_cast<Credentials *>(data);
+                // set user
+                aresp[i].resp = strdup(qPrintable(c->user));
+                if (aresp[i].resp == nullptr)
+                    failed = true;
+                // clear user
+                c->user = "";
+            }
+                break;
+            case PAM_ERROR_MSG:
+            case PAM_TEXT_INFO:
+                break;
+            default:
+                failed = true;
             }
         }
 
@@ -109,25 +117,32 @@ namespace SDDM {
         *resp = aresp;
         return PAM_SUCCESS;
     }
+#endif
 
     Authenticator::Authenticator(QObject *parent) : QObject(parent), credentials(new Credentials(this)), d(new AuthenticatorPrivate()) {
+#if PAM_FOUND
         // initialize pam
         d->pamc = { &converse, credentials };
 
         // start pam service
         pam_start("sddm", nullptr, &d->pamc, &d->pamh);
+#endif
     }
 
     Authenticator::~Authenticator() {
         stop();
 
+#if PAM_FOUND
         pam_end(d->pamh, d->pam_err);
+#endif
 
         delete d;
     }
 
     void Authenticator::putenv(const QString &value) {
+#if PAM_FOUND
         pam_putenv(d->pamh, qPrintable(value));
+#endif
     }
 
     bool Authenticator::authenticate(const QString &user, const QString &password) {
@@ -135,6 +150,7 @@ namespace SDDM {
         credentials->user = user;
         credentials->password = password;
 
+#if PAM_FOUND
         Display *display = qobject_cast<Display *>(parent());
 
         // set username
@@ -158,6 +174,37 @@ namespace SDDM {
 
         if (d->pam_err != PAM_SUCCESS)
             return false;
+#else
+
+        // user name
+        struct passwd *pw;
+        if ((pw = getpwnam(qPrintable(user))) == nullptr) {
+            // log error
+            qCritical() << " DAEMON: Failed to get user entry.";
+
+            // return fail
+            return false;
+        }
+
+        struct spwd *sp;
+        if ((sp = getspnam(pw->pw_name)) == nullptr) {
+            // log error
+            qCritical() << " DAEMON: Failed to get shadow entry.";
+
+            // return fail
+            return false;
+        }
+
+        // check if pass is empty
+        if (sp->sp_pwdp == 0 || sp->sp_pwdp[0] == '\0')
+            return true;
+
+        // encryp password
+        char *encrypted = crypt(qPrintable(password), sp->sp_pwdp);
+
+        // check and return result
+        return (strcmp(encrypted, sp->sp_pwdp) == 0);
+#endif
 
         return true;
     }
@@ -212,10 +259,12 @@ namespace SDDM {
             // return fail
             return false;
         }
+
         // get display and display
         Display *display = qobject_cast<Display *>(parent());
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
+#if PAM_FOUND
         // set credentials
         if ((d->pam_err = pam_setcred(d->pamh, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
             return false;
@@ -229,13 +278,16 @@ namespace SDDM {
             return false;
 
         // get mapped user name; PAM may have changed it
-        char *pamUser;
-        if ((d->pam_err = pam_get_item(d->pamh, PAM_USER, (const void **)&pamUser)) != PAM_SUCCESS)
+        char *mapped;
+        if ((d->pam_err = pam_get_item(d->pamh, PAM_USER, (const void **)&mapped)) != PAM_SUCCESS)
             return false;
+#else
+        char *mapped = strdup(qPrintable(user));
+#endif
 
         // user name
         struct passwd *pw;
-        if ((pw = getpwnam(pamUser)) == nullptr) {
+        if ((pw = getpwnam(mapped)) == nullptr) {
             // log error
             qCritical() << " DAEMON: Failed to get user name.";
 
@@ -339,11 +391,13 @@ namespace SDDM {
         process->deleteLater();
         process = nullptr;
 
+#if PAM_FOUND
         // close session
         pam_close_session(d->pamh, 0);
 
         // delete creds
         pam_setcred(d->pamh, PAM_DELETE_CRED);
+#endif
 
         // emit signal
         emit stopped();
