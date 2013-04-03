@@ -337,6 +337,9 @@ namespace SDDM {
         env.insert("GDMSESSION", sessionName);
         process->setProcessEnvironment(env);
 
+        // redirect error output to ~/.xession-errors
+        process->setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
+
         // start session
         process->start(Configuration::instance()->sessionCommand(), { command });
 
