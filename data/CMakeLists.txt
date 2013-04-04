@@ -16,8 +16,10 @@ install(DIRECTORY   faces                               DESTINATION ${DATA_INSTA
 install(DIRECTORY   themes                              DESTINATION ${DATA_INSTALL_DIR})
 install(DIRECTORY   ${CMAKE_BINARY_DIR}/data/themes     DESTINATION ${DATA_INSTALL_DIR})
 
-install(FILES       "${CMAKE_BINARY_DIR}/sddm.conf"     DESTINATION ${CONF_INSTALL_DIR})
+install(FILES       "${CMAKE_BINARY_DIR}/sddm.conf"     DESTINATION ${SYS_CONFIG_DIR})
 install(FILES       "${CMAKE_BINARY_DIR}/sddm.conf"     DESTINATION ${DATA_INSTALL_DIR} RENAME sddm.conf.sample)
+
+install(FILES org.freedesktop.DisplayManager.conf	DESTINATION ${DBUS_CONFIG_DIR})
 
 install(FILES scripts/Xsession DESTINATION ${DATA_INSTALL_DIR}/scripts
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE

@@ -28,7 +28,7 @@ find_package(PkgConfig)
 # PAM
 if(NOT NO_PAM)
   find_package(PAM)
-  
+
   if(PAM_FOUND)
     add_definitions(-DPAM_FOUND)
   endif()
@@ -82,10 +82,11 @@ endif()
 # set constants
 set(BIN_INSTALL_DIR     "${CMAKE_INSTALL_PREFIX}/bin"               CACHE PATH      "System binary install directory")
 set(DATA_INSTALL_DIR    "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACHE PATH      "System application data install directory")
-set(CONF_INSTALL_DIR    "/etc"                                      CACHE PATH      "System config directory")
+set(SYS_CONFIG_DIR      "/etc"                                      CACHE PATH      "System config directory")
+set(DBUS_CONFIG_DIR     "${SYS_CONFIG_DIR}/dbus-1/system.d"         CACHE PATH      "DBus config files directory")
 
-set(PASSWD_FILE         "${CONF_INSTALL_DIR}/passwd"                CACHE PATH      "Path of the passwd file")
-set(CONFIG_FILE         "${CONF_INSTALL_DIR}/sddm.conf"             CACHE PATH      "Path of the sddm config file")
+set(PASSWD_FILE         "${SYS_CONFIG_DIR}/passwd"                  CACHE PATH      "Path of the passwd file")
+set(CONFIG_FILE         "${SYS_CONFIG_DIR}/sddm.conf"               CACHE PATH      "Path of the sddm config file")
 set(LOG_FILE            "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")
 
 add_subdirectory(components)
