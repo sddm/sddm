@@ -43,15 +43,6 @@
 #include <unistd.h>
 
 namespace SDDM {
-    class AuthenticatorPrivate {
-    public:
-#if PAM_FOUND
-        struct pam_conv pamc;
-        pam_handle_t *pamh { nullptr };
-        int pam_err { PAM_SUCCESS };
-#endif
-    };
-
 #if PAM_FOUND
     typedef int (conv_func)(int, const struct pam_message **, struct pam_response **, void *);
 
@@ -116,28 +107,36 @@ namespace SDDM {
         *resp = aresp;
         return PAM_SUCCESS;
     }
+
+    class PamService {
+    public:
+        PamService(const char *service, void *data) {
+            // create context
+            m_converse = { &converse, data };
+
+            // start service
+            pam_start(service, nullptr, &m_converse, &handle);
+        }
+
+        ~PamService() {
+            // stop service
+            pam_end(handle, result);
+        }
+
+        pam_handle_t *handle { nullptr };
+        int result { PAM_SUCCESS };
+
+    private:
+        struct pam_conv m_converse;
+    };
+
 #endif
 
-    Authenticator::Authenticator(QObject *parent) : QObject(parent), credentials(new Credentials(this)), d(new AuthenticatorPrivate()) {
-#if PAM_FOUND
-        // initialize pam
-        d->pamc = { &converse, credentials };
-
-        // start pam service
-        pam_start("sddm", nullptr, &d->pamc, &d->pamh);
-#endif
+    Authenticator::Authenticator(QObject *parent) : QObject(parent), credentials(new Credentials(this)) {
     }
 
     Authenticator::~Authenticator() {
         stop();
-
-        delete d;
-    }
-
-    void Authenticator::end() {
-#if PAM_FOUND
-        pam_end(d->pamh, d->pam_err);
-#endif
     }
 
     bool Authenticator::authenticate(const QString &user, const QString &password) {
@@ -146,28 +145,29 @@ namespace SDDM {
         credentials->password = password;
 
 #if PAM_FOUND
+        PamService pam("sddm", credentials);
         Display *display = qobject_cast<Display *>(parent());
 
         // set username
-        if ((d->pam_err = pam_set_item(d->pamh, PAM_USER, qPrintable(credentials->user))) != PAM_SUCCESS)
+        if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(credentials->user))) != PAM_SUCCESS)
             return false;
 
         // set tty
-        if ((d->pam_err = pam_set_item(d->pamh, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
+        if ((pam.result = pam_set_item(pam.handle, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // set display name
-        if ((d->pam_err = pam_set_item(d->pamh, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
+        if ((pam.result = pam_set_item(pam.handle, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // authenticate the applicant
-        if ((d->pam_err = pam_authenticate(d->pamh, 0)) != PAM_SUCCESS)
+        if ((pam.result = pam_authenticate(pam.handle, 0)) != PAM_SUCCESS)
             return false;
 
-        if ((d->pam_err = pam_acct_mgmt(d->pamh, 0)) == PAM_NEW_AUTHTOK_REQD)
-            d->pam_err = pam_chauthtok(d->pamh, PAM_CHANGE_EXPIRED_AUTHTOK);
+        if ((pam.result = pam_acct_mgmt(pam.handle, 0)) == PAM_NEW_AUTHTOK_REQD)
+            pam.result = pam_chauthtok(pam.handle, PAM_CHANGE_EXPIRED_AUTHTOK);
 
-        if (d->pam_err != PAM_SUCCESS)
+        if (pam.result != PAM_SUCCESS)
             return false;
 #else
 
@@ -260,21 +260,23 @@ namespace SDDM {
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
 #if PAM_FOUND
+        PamService pam("sddm", credentials);
+
         // set credentials
-        if ((d->pam_err = pam_setcred(d->pamh, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
+        if ((pam.result = pam_setcred(pam.handle, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
             return false;
 
         // set tty name
-        if ((d->pam_err = pam_set_item(d->pamh, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
+        if ((pam.result = pam_set_item(pam.handle, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // open session
-        if ((d->pam_err = pam_open_session(d->pamh, 0)) != PAM_SUCCESS)
+        if ((pam.result = pam_open_session(pam.handle, 0)) != PAM_SUCCESS)
             return false;
 
         // get mapped user name; PAM may have changed it
         char *mapped;
-        if ((d->pam_err = pam_get_item(d->pamh, PAM_USER, (const void **)&mapped)) != PAM_SUCCESS)
+        if ((pam.result = pam_get_item(pam.handle, PAM_USER, (const void **)&mapped)) != PAM_SUCCESS)
             return false;
 #else
         char *mapped = strdup(qPrintable(user));
@@ -309,7 +311,7 @@ namespace SDDM {
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 #if PAM_FOUND
         // get pam environment
-        char **envlist = pam_getenvlist(d->pamh);
+        char **envlist = pam_getenvlist(pam.handle);
 
         // copy it to the env map
         for (int i = 0; envlist[i] != nullptr; ++i) {
@@ -354,9 +356,6 @@ namespace SDDM {
             // return fail
             return false;
         }
-
-        // close pam session
-        end();
 
         // log message
         qDebug() << " DAEMON: User session started.";
