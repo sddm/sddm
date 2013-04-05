@@ -146,19 +146,6 @@ namespace SDDM {
 
 #if PAM_FOUND
         PamService pam("sddm", credentials);
-        Display *display = qobject_cast<Display *>(parent());
-
-        // set username
-        if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(credentials->user))) != PAM_SUCCESS)
-            return false;
-
-        // set tty
-        if ((pam.result = pam_set_item(pam.handle, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
-            return false;
-
-        // set display name
-        if ((pam.result = pam_set_item(pam.handle, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
-            return false;
 
         // authenticate the applicant
         if ((pam.result = pam_authenticate(pam.handle, 0)) != PAM_SUCCESS)
@@ -262,12 +249,20 @@ namespace SDDM {
 #if PAM_FOUND
         PamService pam("sddm", credentials);
 
+        // set username
+        if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(credentials->user))) != PAM_SUCCESS)
+            return false;
+
         // set credentials
         if ((pam.result = pam_setcred(pam.handle, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
             return false;
 
-        // set tty name
+        // set tty
         if ((pam.result = pam_set_item(pam.handle, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
+            return false;
+
+        // set display name
+        if ((pam.result = pam_set_item(pam.handle, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // open session
