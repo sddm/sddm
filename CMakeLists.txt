@@ -45,6 +45,8 @@ if(USE_QT5)
   get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
   exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 
+  add_definitions(-DUSE_QT5)
+
   set(COMPONENTS_VERSION 2.0)
 else()
   find_package(Qt4 REQUIRED)

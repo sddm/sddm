@@ -26,7 +26,7 @@
 #include "ThemeMetadata.h"
 #include "UserModel.h"
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
 #include "MessageHandler.h"
 
 #include <QGuiApplication>
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
         showUsageHelp(argv[0]);
         return 1;
     }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
 

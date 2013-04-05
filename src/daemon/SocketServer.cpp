@@ -45,7 +45,7 @@ namespace SDDM {
         // create server
         server = new QLocalServer(this);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
         // set server options
         server->setSocketOptions(QLocalServer::UserAccessOption);
 #endif

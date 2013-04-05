@@ -26,7 +26,7 @@
 #include "SeatManager.h"
 #include "SignalHandler.h"
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
 #include "MessageHandler.h"
 #endif
 
@@ -43,7 +43,7 @@ namespace SDDM {
         // point instance to this
         self = this;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
     qInstallMessageHandler(SDDM::MessageHandler);
 #endif
 

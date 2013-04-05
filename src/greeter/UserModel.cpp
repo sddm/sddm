@@ -138,7 +138,7 @@ namespace SDDM {
         delete d;
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
     QHash<int, QByteArray> UserModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;

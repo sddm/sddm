@@ -22,7 +22,7 @@
 
 #include <QAbstractListModel>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
 #include <QHash>
 #endif
 
@@ -44,7 +44,7 @@ namespace SDDM {
         ScreenModel(QObject *parent = 0);
         ~ScreenModel();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
         QHash<int, QByteArray> roleNames() const override;
 #endif
         const int primary() const;

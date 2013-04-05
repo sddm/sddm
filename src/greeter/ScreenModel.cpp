@@ -21,7 +21,7 @@
 
 #include <memory>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
 #include <QGuiApplication>
 #include <QScreen>
 #else
@@ -46,7 +46,7 @@ namespace SDDM {
     };
 
     ScreenModel::ScreenModel(QObject *parent) : QAbstractListModel(parent), d(new ScreenModelPrivate()) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#ifndef USE_QT5
         // set role names
         QHash<int, QByteArray> roleNames;
         roleNames[NameRole] = "name";
@@ -65,7 +65,7 @@ namespace SDDM {
         return;
 #endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
         QList<QScreen *> screens = QGuiApplication::screens();
         for (int i = 0; i < screens.size(); ++i) {
             const QScreen *screen = screens.at(i);
@@ -97,7 +97,7 @@ namespace SDDM {
         delete d;
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#ifdef USE_QT5
     QHash<int, QByteArray> ScreenModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
