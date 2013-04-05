@@ -61,8 +61,6 @@ namespace SDDM {
 
         Credentials *credentials { nullptr };
         Session *process { nullptr };
-
-        AuthenticatorPrivate *d { nullptr };
     };
 }
 
