@@ -31,7 +31,7 @@
 #include <QFile>
 #include <QTextStream>
 
-#if PAM_FOUND
+#ifdef USE_PAM
 #include <security/pam_appl.h>
 #else
 #include <crypt.h>
@@ -43,7 +43,7 @@
 #include <unistd.h>
 
 namespace SDDM {
-#if PAM_FOUND
+#ifdef USE_PAM
     typedef int (conv_func)(int, const struct pam_message **, struct pam_response **, void *);
 
     int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
@@ -144,7 +144,7 @@ namespace SDDM {
         credentials->user = user;
         credentials->password = password;
 
-#if PAM_FOUND
+#ifdef USE_PAM
         PamService pam("sddm", credentials);
 
         // authenticate the applicant
@@ -246,7 +246,7 @@ namespace SDDM {
         Display *display = qobject_cast<Display *>(parent());
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
-#if PAM_FOUND
+#ifdef USE_PAM
         PamService pam("sddm", credentials);
 
         // set username
@@ -304,7 +304,7 @@ namespace SDDM {
 
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-#if PAM_FOUND
+#ifdef USE_PAM
         // get pam environment
         char **envlist = pam_getenvlist(pam.handle);
 

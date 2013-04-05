@@ -30,7 +30,7 @@ if(NOT NO_PAM)
   find_package(PAM)
 
   if(PAM_FOUND)
-    add_definitions(-DPAM_FOUND)
+    add_definitions(-DUSE_PAM)
   endif()
 endif()
 
