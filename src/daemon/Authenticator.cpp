@@ -46,7 +46,7 @@ namespace SDDM {
 #ifdef USE_PAM
     class PamService {
     public:
-        PamService(const char *service, const QString &user, const QString &password);
+        PamService(const char *service, const QString &user, const QString &password = "");
         ~PamService();
 
         struct pam_conv m_converse;
@@ -56,8 +56,6 @@ namespace SDDM {
         QString user { "" };
         QString password { "" };
     };
-
-    typedef int (conv_func)(int, const struct pam_message **, struct pam_response **, void *);
 
     int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
         struct pam_response *aresp;
@@ -121,7 +119,6 @@ namespace SDDM {
         return PAM_SUCCESS;
     }
 
-
     PamService::PamService(const char *service, const QString &user, const QString &password) : user(user), password(password) {
         // create context
         m_converse = { &converse, this };
@@ -134,7 +131,6 @@ namespace SDDM {
         // stop service
         pam_end(handle, result);
     }
-
 #endif
 
     Authenticator::Authenticator(QObject *parent) : QObject(parent) {
@@ -158,7 +154,6 @@ namespace SDDM {
         if (pam.result != PAM_SUCCESS)
             return false;
 #else
-
         // user name
         struct passwd *pw;
         if ((pw = getpwnam(qPrintable(user))) == nullptr) {
@@ -245,7 +240,7 @@ namespace SDDM {
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
 #ifdef USE_PAM
-        PamService pam("sddm", user, "");
+        PamService pam("sddm", user);
 
         // set username
         if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(user))) != PAM_SUCCESS)
