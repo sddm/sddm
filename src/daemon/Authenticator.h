@@ -21,20 +21,9 @@
 #define SDDM_AUTHENTICATOR_H
 
 #include <QObject>
-#include <QString>
 
 namespace SDDM {
     class Session;
-
-    class Credentials : public QObject {
-        Q_OBJECT
-    public:
-        Credentials(QObject *parent = 0) : QObject(parent) {
-        }
-
-        QString user { "" };
-        QString password { "" };
-    };
 
     class AuthenticatorPrivate;
     class Authenticator : public QObject {
@@ -43,8 +32,6 @@ namespace SDDM {
     public:
         Authenticator(QObject *parent = 0);
         ~Authenticator();
-
-    void end();
 
     public slots:
         bool authenticate(const QString &user, const QString &password);
@@ -59,7 +46,6 @@ namespace SDDM {
     private:
         bool m_started { false };
 
-        Credentials *credentials { nullptr };
         Session *process { nullptr };
     };
 }

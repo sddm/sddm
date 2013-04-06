@@ -44,6 +44,19 @@
 
 namespace SDDM {
 #ifdef USE_PAM
+    class PamService {
+    public:
+        PamService(const char *service, const QString &user, const QString &password);
+        ~PamService();
+
+        struct pam_conv m_converse;
+        pam_handle_t *handle { nullptr };
+        int result { PAM_SUCCESS };
+
+        QString user { "" };
+        QString password { "" };
+    };
+
     typedef int (conv_func)(int, const struct pam_message **, struct pam_response **, void *);
 
     int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
@@ -64,7 +77,7 @@ namespace SDDM {
             aresp[i].resp = nullptr;
             switch (msg[i]->msg_style) {
             case PAM_PROMPT_ECHO_OFF: {
-                Credentials *c = static_cast<Credentials *>(data);
+                PamService *c = static_cast<PamService *>(data);
                 // set password
                 aresp[i].resp = strdup(qPrintable(c->password));
                 if (aresp[i].resp == nullptr)
@@ -74,7 +87,7 @@ namespace SDDM {
             }
                 break;
             case PAM_PROMPT_ECHO_ON: {
-                Credentials *c = static_cast<Credentials *>(data);
+                PamService *c = static_cast<PamService *>(data);
                 // set user
                 aresp[i].resp = strdup(qPrintable(c->user));
                 if (aresp[i].resp == nullptr)
@@ -108,31 +121,23 @@ namespace SDDM {
         return PAM_SUCCESS;
     }
 
-    class PamService {
-    public:
-        PamService(const char *service, void *data) {
-            // create context
-            m_converse = { &converse, data };
 
-            // start service
-            pam_start(service, nullptr, &m_converse, &handle);
-        }
+    PamService::PamService(const char *service, const QString &user, const QString &password) : user(user), password(password) {
+        // create context
+        m_converse = { &converse, this };
 
-        ~PamService() {
-            // stop service
-            pam_end(handle, result);
-        }
+        // start service
+        pam_start(service, nullptr, &m_converse, &handle);
+    }
 
-        pam_handle_t *handle { nullptr };
-        int result { PAM_SUCCESS };
-
-    private:
-        struct pam_conv m_converse;
-    };
+    PamService::~PamService() {
+        // stop service
+        pam_end(handle, result);
+    }
 
 #endif
 
-    Authenticator::Authenticator(QObject *parent) : QObject(parent), credentials(new Credentials(this)) {
+    Authenticator::Authenticator(QObject *parent) : QObject(parent) {
     }
 
     Authenticator::~Authenticator() {
@@ -140,12 +145,8 @@ namespace SDDM {
     }
 
     bool Authenticator::authenticate(const QString &user, const QString &password) {
-        // set user name and password
-        credentials->user = user;
-        credentials->password = password;
-
 #ifdef USE_PAM
-        PamService pam("sddm", credentials);
+        PamService pam("sddm", user, password);
 
         // authenticate the applicant
         if ((pam.result = pam_authenticate(pam.handle, 0)) != PAM_SUCCESS)
@@ -196,9 +197,6 @@ namespace SDDM {
         if (m_started)
             return false;
 
-        // set user name
-        credentials->user = user;
-
         // convert session to command
         QString sessionName = "";
         QString command = "";
@@ -247,10 +245,10 @@ namespace SDDM {
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
 #ifdef USE_PAM
-        PamService pam("sddm", credentials);
+        PamService pam("sddm", user, "");
 
         // set username
-        if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(credentials->user))) != PAM_SUCCESS)
+        if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(user))) != PAM_SUCCESS)
             return false;
 
         // set credentials
