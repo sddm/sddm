@@ -20,6 +20,7 @@
 #include "PowerManager.h"
 
 #include "Configuration.h"
+#include "DaemonApp.h"
 #include "Messages.h"
 
 #include <QDBusConnectionInterface>
@@ -86,11 +87,11 @@ namespace SDDM {
         }
 
         void powerOff() const {
-            QProcess::execute(Configuration::instance()->haltCommand());
+            QProcess::execute(daemonApp->configuration()->haltCommand());
         }
 
         void reboot() const {
-            QProcess::execute(Configuration::instance()->rebootCommand());
+            QProcess::execute(daemonApp->configuration()->rebootCommand());
         }
 
         void suspend() const {
@@ -165,7 +166,7 @@ namespace SDDM {
         }
 
         void reboot() const {
-            if (!Configuration::instance()->testing)
+            if (!daemonApp->configuration()->testing)
                 m_interface->call("Reboot", true);
         }
 
@@ -215,7 +216,7 @@ namespace SDDM {
     }
 
     void PowerManager::powerOff() const {
-        if (Configuration::instance()->testing)
+        if (daemonApp->configuration()->testing)
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -227,7 +228,7 @@ namespace SDDM {
     }
 
     void PowerManager::reboot() const {
-        if (Configuration::instance()->testing)
+        if (daemonApp->configuration()->testing)
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -239,7 +240,7 @@ namespace SDDM {
     }
 
     void PowerManager::suspend() const {
-        if (Configuration::instance()->testing)
+        if (daemonApp->configuration()->testing)
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -251,7 +252,7 @@ namespace SDDM {
     }
 
     void PowerManager::hibernate() const {
-        if (Configuration::instance()->testing)
+        if (daemonApp->configuration()->testing)
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -263,7 +264,7 @@ namespace SDDM {
     }
 
     void PowerManager::hybridSleep() const {
-        if (Configuration::instance()->testing)
+        if (daemonApp->configuration()->testing)
             return;
 
         for (PowerManagerBackend *backend: m_backends) {

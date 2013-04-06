@@ -21,6 +21,7 @@
 
 #include "Authenticator.h"
 #include "Configuration.h"
+#include "DaemonApp.h"
 #include "Display.h"
 
 #include <QDebug>
@@ -54,7 +55,7 @@ namespace SDDM {
     }
 
     void Session::setupChildProcess() {
-        if (Configuration::instance()->testing)
+        if (daemonApp->configuration()->testing)
             return;
 
         Authenticator *authenticator = qobject_cast<Authenticator *>(parent());

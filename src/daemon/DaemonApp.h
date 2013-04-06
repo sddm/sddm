@@ -40,6 +40,7 @@ namespace SDDM {
 
         QString hostName() const;
 
+        Configuration *configuration() const;
         DisplayManager *displayManager() const;
         PowerManager *powerManager() const;
         SeatManager *seatManager() const;
@@ -51,6 +52,7 @@ namespace SDDM {
         static DaemonApp *self;
 
         int m_lastSessionId { 0 };
+
         Configuration *m_configuration { nullptr };
         DisplayManager *m_displayManager { nullptr };
         PowerManager *m_powerManager { nullptr };

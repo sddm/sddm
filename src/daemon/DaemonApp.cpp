@@ -91,6 +91,10 @@ namespace SDDM {
         return QHostInfo::localHostName();
     }
 
+    Configuration *DaemonApp::configuration() const {
+        return m_configuration;
+    }
+
     DisplayManager *DaemonApp::displayManager() const {
         return m_displayManager;
     }

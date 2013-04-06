@@ -21,6 +21,7 @@
 
 #include "Configuration.h"
 #include "Constants.h"
+#include "DaemonApp.h"
 
 #include <QDebug>
 #include <QProcess>
@@ -67,7 +68,7 @@ namespace SDDM {
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         env.insert("DISPLAY", m_display);
         env.insert("XAUTHORITY", m_authPath);
-        env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
+        env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
         process->setProcessEnvironment(env);
 
         // start greeter

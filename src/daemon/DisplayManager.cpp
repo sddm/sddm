@@ -38,7 +38,7 @@ namespace SDDM {
         new DisplayManagerAdaptor(this);
 
         // register object
-        QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
+        QDBusConnection connection = (daemonApp->configuration()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(DISPLAYMANAGER_PATH, this);
     }
@@ -139,7 +139,7 @@ namespace SDDM {
         new SeatAdaptor(this);
 
         // register object
-        QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
+        QDBusConnection connection = (daemonApp->configuration()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(m_path, this);
     }
@@ -180,7 +180,7 @@ namespace SDDM {
         new SessionAdaptor(this);
 
         // register object
-        QDBusConnection connection = (Configuration::instance()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
+        QDBusConnection connection = (daemonApp->configuration()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(m_path, this);
     }

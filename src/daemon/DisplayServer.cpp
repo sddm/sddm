@@ -20,6 +20,7 @@
 #include "DisplayServer.h"
 
 #include "Configuration.h"
+#include "DaemonApp.h"
 #include "Display.h"
 
 #include <QDebug>
@@ -59,21 +60,21 @@ namespace SDDM {
         // log message
         qDebug() << " DAEMON: Display server starting...";
 
-        if (Configuration::instance()->testing) {
+        if (daemonApp->configuration()->testing) {
             process->start("/usr/bin/Xephyr", { m_display, "-ac", "-br", "-noreset", "-screen",  "800x600"});
         } else {
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
             env.insert("DISPLAY", m_display);
             env.insert("XAUTHORITY", m_authPath);
-            env.insert("XCURSOR_THEME", Configuration::instance()->cursorTheme());
+            env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
             process->setProcessEnvironment(env);
 
             // get display
             Display *display = qobject_cast<Display *>(parent());
 
             // start display server
-            process->start(Configuration::instance()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->terminalId()), 2, '0')});
+            process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->terminalId()), 2, '0')});
         }
 
         // wait for display server to start

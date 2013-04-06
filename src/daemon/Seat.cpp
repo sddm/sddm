@@ -20,6 +20,7 @@
 #include "Seat.h"
 
 #include "Configuration.h"
+#include "DaemonApp.h"
 #include "Display.h"
 
 #include <QDebug>
@@ -56,7 +57,7 @@ namespace SDDM {
             });
 
             // find unused terminal
-            terminalId = findUnused(Configuration::instance()->minimumVT, [&](const int number) {
+            terminalId = findUnused(daemonApp->configuration()->minimumVT, [&](const int number) {
                 return m_terminalIds.contains(number);
             });
         }

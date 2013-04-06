@@ -198,7 +198,7 @@ namespace SDDM {
 
         if (session.endsWith(".desktop")) {
             // session directory
-            QDir dir(Configuration::instance()->sessionsDir());
+            QDir dir(daemonApp->configuration()->sessionsDir());
 
             // session file
             QFile file(dir.absoluteFilePath(session));
@@ -318,7 +318,7 @@ namespace SDDM {
         env.insert("SHELL", pw->pw_shell);
         env.insert("USER", pw->pw_name);
         env.insert("LOGNAME", pw->pw_name);
-        env.insert("PATH", Configuration::instance()->defaultPath());
+        env.insert("PATH", daemonApp->configuration()->defaultPath());
         env.insert("DISPLAY", display->name());
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));
@@ -331,7 +331,7 @@ namespace SDDM {
         process->setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
 
         // start session
-        process->start(Configuration::instance()->sessionCommand(), { command });
+        process->start(daemonApp->configuration()->sessionCommand(), { command });
 
         // connect signal
         connect(process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));

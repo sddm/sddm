@@ -21,6 +21,7 @@
 
 #include "Authenticator.h"
 #include "Configuration.h"
+#include "DaemonApp.h"
 #include "DisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
@@ -75,10 +76,10 @@ namespace SDDM {
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
         // get auth dir
-        QString authDir = Configuration::instance()->authDir();
+        QString authDir = daemonApp->configuration()->authDir();
 
         // use "." as authdir in test mode
-        if (Configuration::instance()->testing)
+        if (daemonApp->configuration()->testing)
             authDir = QLatin1String(".");
 
         // create auth dir if not existing
@@ -118,9 +119,11 @@ namespace SDDM {
         // remove file
         QFile::remove(file);
 
-        QString cmd = QString("%1 -f %2 -q").arg(Configuration::instance()->xauthPath()).arg(file);
+        QString cmd = QString("%1 -f %2 -q").arg(daemonApp->configuration()->xauthPath()).arg(file);
+
         // execute xauth
         FILE *fp = popen(qPrintable(cmd), "w");
+
         // check file
         if (!fp)
             return;
@@ -159,16 +162,16 @@ namespace SDDM {
         // start display server
         m_displayServer->start();
 
-        if ((Configuration::instance()->first || Configuration::instance()->autoRelogin()) &&
-            !Configuration::instance()->autoUser().isEmpty() && !Configuration::instance()->lastSession().isEmpty()) {
+        if ((daemonApp->configuration()->first || daemonApp->configuration()->autoRelogin()) &&
+            !daemonApp->configuration()->autoUser().isEmpty() && !daemonApp->configuration()->lastSession().isEmpty()) {
             // reset first flag
-            Configuration::instance()->first = false;
+            daemonApp->configuration()->first = false;
 
             // set flags
             m_started = true;
 
             // start session
-            m_authenticator->start(Configuration::instance()->autoUser(), Configuration::instance()->lastSession());
+            m_authenticator->start(daemonApp->configuration()->autoUser(), daemonApp->configuration()->lastSession());
 
             // return
             return;
@@ -184,13 +187,13 @@ namespace SDDM {
         m_greeter->setDisplay(m_display);
         m_greeter->setAuthPath(m_authPath);
         m_greeter->setSocket(m_socket);
-        m_greeter->setTheme(QString("%1/%2").arg(Configuration::instance()->themesDir()).arg(Configuration::instance()->currentTheme()));
+        m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
 
         // start greeter
         m_greeter->start();
 
         // reset first flag
-        Configuration::instance()->first = false;
+        daemonApp->configuration()->first = false;
 
         // set flags
         m_started = true;
@@ -247,9 +250,9 @@ namespace SDDM {
         }
 
         // save last user and last session
-        Configuration::instance()->setLastUser(user);
-        Configuration::instance()->setLastSession(session);
-        Configuration::instance()->save();
+        daemonApp->configuration()->setLastUser(user);
+        daemonApp->configuration()->setLastSession(session);
+        daemonApp->configuration()->save();
 
         // emit signal
         emit loginSucceeded(socket);
