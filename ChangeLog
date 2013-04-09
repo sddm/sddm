@@ -6,13 +6,20 @@
 
 ## Master
 ---------
+    + ~/.xsession-errors support
+    + Works without PAM (needed for slackware)
+    - Fixed a crash caused by incorrect handling of PAM
+    - Correctly import PAM environment into the sesion
+    - Fixed missing environment variables
+    + Works better with GNOME and Unity
+    + org.freedesktop.DisplayManager interface
     + Fast user switching
     + Test mode that can be toggled at runtime
+    - Find empty displays and virtual desktops automatically
     - Exit gracefully when SIGTERM received
-    + Ability to automatically relogin after 
-      the user session ends
-    + User filtering based on name
+    + Auto Relogin
     + User filtering based on shell
+    + User filtering based on name
     - Fix compilation with Qt 5.0.0
 
 ## 0.1.0 - 2013/03/19
