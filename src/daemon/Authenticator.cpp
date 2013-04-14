@@ -321,8 +321,10 @@ namespace SDDM {
         env.insert("PATH", daemonApp->configuration()->defaultPath());
         env.insert("DISPLAY", display->name());
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
+        env.insert("XDG_SEAT", seat->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(process->name()));
+        env.insert("XDG_VTNR", QString::number(display->terminalId()));
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("GDMSESSION", sessionName);
         process->setProcessEnvironment(env);
