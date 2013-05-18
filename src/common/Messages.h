@@ -49,7 +49,7 @@ namespace SDDM {
         HybridSleep = 0x0010
     };
 
-    Q_DECLARE_FLAGS(Capabilities, Capability);
+    Q_DECLARE_FLAGS(Capabilities, Capability)
     Q_DECLARE_OPERATORS_FOR_FLAGS(Capabilities)
 }
 
