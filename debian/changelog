@@ -1,3 +1,9 @@
+sddm (0.1.0-2) UNRELEASED; urgency=low
+
+  * initial Debian upload
+
+ -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Tue, 21 May 2013 15:39:50 +0900
+
 sddm (0.1.0-1nano) unstable; urgency=low
 
   * Initial release
