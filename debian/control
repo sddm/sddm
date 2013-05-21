@@ -1,7 +1,7 @@
 Source: sddm
 Section: x11
 Priority: optional
-Maintainer: Christopher Roy Bratusek <nano@tuxfamily.org>
+Maintainer: "Super" Nathan Weber <supernathansunshine@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
                cmake, 
                libpam0g-dev,
