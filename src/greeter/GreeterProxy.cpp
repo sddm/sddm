@@ -83,6 +83,10 @@ namespace SDDM {
     bool GreeterProxy::canHybridSleep() const {
         return d->canHybridSleep;
     }
+    
+    bool GreeterProxy::isConnected() const {
+	return d->socket->state() == QLocalSocket::ConnectedState;
+    }
 
     void GreeterProxy::powerOff() {
         SocketWriter(d->socket) << quint32(GreeterMessages::PowerOff);

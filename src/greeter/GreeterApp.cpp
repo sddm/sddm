@@ -120,6 +120,10 @@ int main(int argc, char **argv) {
     ScreenModel screenModel;
     UserModel userModel;
     GreeterProxy proxy(socket);
+    if(!proxy.isConnected()) {
+	 cout << "Cannot connect to the daemon - is it running?" << endl;
+	 return -1; 
+    }
     proxy.setSessionModel(&sessionModel);
 
     // set context properties
