@@ -1,6 +1,14 @@
-sddm (0.1.0-2) UNRELEASED; urgency=low
+sddm (0.1.0-2) unstable; urgency=low
 
   * initial Debian upload
+  * got source from github
+  * set myself as maintainer and bumped version number
+  * removed packaging information for Arch
+  * removed documentation for building from source
+  * Made a man page
+  * edited control file to bring the description into Debian standards
+  * bumped compat to level 9
+  * edited the docs file to reflect changes
 
  -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Tue, 21 May 2013 15:39:50 +0900
 

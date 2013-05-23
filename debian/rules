@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
+
 ifeq (/usr/bin/qmake-qt5,$(shell readlink /etc/alternatives/qmake))
 	export QT_FLAGS = "-DUSE_QT5=TRUE"
 endif

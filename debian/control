@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: "Super" Nathan Weber <supernathansunshine@gmail.com>
 Build-Depends: debhelper (>= 8.0.0),
                cmake, 
+               adduser,	
                libpam0g-dev,
                pkg-config,
                libxcb1-dev,
@@ -15,8 +16,8 @@ Homepage: https://github.com/sddm/sddm
 
 Package: sddm
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, sddm-theme-maui
-Description: A modern display manager for X11
+Depends: ${shlibs:Depends}, ${misc:Depends}, sddm-theme-maui, adduser
+Description: QML-based display manager for X11
  It uses modern technologies like QtQuick, which in turn gives the designer
  the ability to create smooth, animated user interfaces.
 
