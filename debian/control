@@ -15,7 +15,7 @@ Homepage: https://github.com/sddm/sddm
 
 Package: sddm
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, sddm-theme-maui
+Depends: ${shlibs:Depends}, ${misc:Depends}, sddm-theme-maui, adduser
 Description: SDDM is a modern display manager for X11
  It uses modern technologies like QtQuick, which in turn gives the designer
  the ability to create smooth, animated user interfaces.
