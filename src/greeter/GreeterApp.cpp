@@ -39,7 +39,10 @@
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #endif
+#include <QDebug>
 #include <iostream>
+
+
 
 using namespace SDDM;
 using namespace std;
@@ -61,24 +64,29 @@ namespace SDDM {
 }
 
 void showUsageHelp(const char*  appName) {
-    cout << "Usage: " << appName << " [options] [arguments]\n"
-         << "Options: \n"
-         << "  --theme <theme path>        Test greeter theme\n"
-         << "  --socket <socket name>      Set socket name" << endl;
+    cout << "Usage: " << appName << " [options] [arguments]\n" 
+         << "Options: \n" 
+         << "  --theme <theme path>       Set greeter theme\n"
+         << "  --socket <socket name>     Set socket name\n" 
+         << "  --test                     Testing mode" << endl;
 }
 
 int main(int argc, char **argv) {
+    
+    bool testing = false; 
     QStringList arguments;
-
+    
     for(int ii = 0; ii < argc; ii++) {
         arguments << argv[ii];
     }
 
     if ( arguments.indexOf("--help") > 0 || arguments.indexOf("-h") > 0 ) {
         showUsageHelp(argv[0]);
-
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
+    
+    if( arguments.indexOf("--test") > 0 ) testing = true; 
+    
 #ifdef USE_QT5
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
@@ -121,6 +129,10 @@ int main(int argc, char **argv) {
     ScreenModel screenModel;
     UserModel userModel;
     GreeterProxy proxy(socket);
+    if(!testing && !proxy.isConnected()) {
+        qCritical() << "Cannot connect to the daemon - is it running?";
+        return EXIT_FAILURE; 
+    }
     proxy.setSessionModel(&sessionModel);
 
     // set context properties
