@@ -124,8 +124,8 @@ int main(int argc, char **argv) {
     UserModel userModel;
     GreeterProxy proxy(socket);
     if(!proxy.isConnected()) {
-	 qCritical() << "Cannot connect to the daemon - is it running?";
-	 return EXIT_FAILURE; 
+        qCritical() << "Cannot connect to the daemon - is it running?";
+        return EXIT_FAILURE; 
     }
     proxy.setSessionModel(&sessionModel);
 

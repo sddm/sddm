@@ -85,7 +85,7 @@ namespace SDDM {
     }
     
     bool GreeterProxy::isConnected() const {
-	return d->socket->state() == QLocalSocket::ConnectedState;
+        return d->socket->state() == QLocalSocket::ConnectedState;
     }
 
     void GreeterProxy::powerOff() {
