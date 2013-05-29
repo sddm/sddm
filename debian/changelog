@@ -1,6 +1,8 @@
 sddm (0.1.0-2) UNRELEASED; urgency=low
 
-  * initial Debian upload
+  * initial Debian upload 
+  * Created mapaged for sddm and sddm-greeter
+  * bumped compat number to 9
 
  -- "Super" Nathan Weber <supernathansunshine@gmail.com>  Tue, 21 May 2013 15:39:50 +0900
 

@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
                   << "Options: \n"
                   << "  --test-mode         Start daemon in test mode" << std::endl;
 
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // create application

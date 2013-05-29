@@ -6,7 +6,7 @@ Description: for internal use only
 Template: shared/default-x-display-manager
 Type: select
 Choices: ${choices}
-_Description: Default display manager:
+Description: Default display manager:
  A display manager is a program that provides graphical login capabilities for
  the X Window System.
  .

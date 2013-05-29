@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 
     if ( arguments.indexOf("--help") > 0 || arguments.indexOf("-h") > 0 ) {
         showUsageHelp(argv[0]);
-        return 1;
+        return EXIT_SUCCESS;
     }
     
     if( arguments.indexOf("--test") > 0 ) testing = true; 
