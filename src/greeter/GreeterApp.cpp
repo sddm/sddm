@@ -66,11 +66,14 @@ namespace SDDM {
 void showUsageHelp(const char*  appName) {
     cout << "Usage: " << appName << " [options] [arguments]\n" 
          << "Options: \n" 
-         << "  --theme <theme path>        Test greeter theme\n"
-         << "  --socket <socket name>      Set socket name" << endl;
+         << "  --theme <theme path>       Set greeter theme\n"
+         << "  --socket <socket name>     Set socket name\n" 
+         << "  --test                     Testing mode" << endl;
 }
 
 int main(int argc, char **argv) {
+    
+    bool testing = false; 
     QStringList arguments;
     
     for(int ii = 0; ii < argc; ii++) {
@@ -81,6 +84,9 @@ int main(int argc, char **argv) {
         showUsageHelp(argv[0]);
         return 1;
     }
+    
+    if( arguments.indexOf("--test") > 0 ) testing = true; 
+    
 #ifdef USE_QT5
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
@@ -123,7 +129,7 @@ int main(int argc, char **argv) {
     ScreenModel screenModel;
     UserModel userModel;
     GreeterProxy proxy(socket);
-    if(!proxy.isConnected()) {
+    if(!testing && !proxy.isConnected()) {
         qCritical() << "Cannot connect to the daemon - is it running?";
         return EXIT_FAILURE; 
     }
