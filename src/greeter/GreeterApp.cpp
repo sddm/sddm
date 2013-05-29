@@ -61,22 +61,23 @@ namespace SDDM {
 }
 
 void showUsageHelp(const char*  appName) {
-    cout << "Usage: " << appName << " [options] [arguments]\n" 
-         << "Options: \n" 
+    cout << "Usage: " << appName << " [options] [arguments]\n"
+         << "Options: \n"
          << "  --theme <theme path>        Test greeter theme\n"
          << "  --socket <socket name>      Set socket name" << endl;
 }
 
 int main(int argc, char **argv) {
     QStringList arguments;
-    
+
     for(int ii = 0; ii < argc; ii++) {
         arguments << argv[ii];
     }
 
     if ( arguments.indexOf("--help") > 0 || arguments.indexOf("-h") > 0 ) {
         showUsageHelp(argv[0]);
-        return 1;
+
+        return EXIT_FAILURE;
     }
 #ifdef USE_QT5
     // install message handler
