@@ -39,7 +39,10 @@
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>
 #endif
+#include <QDebug>
 #include <iostream>
+
+
 
 using namespace SDDM;
 using namespace std;
@@ -121,8 +124,8 @@ int main(int argc, char **argv) {
     UserModel userModel;
     GreeterProxy proxy(socket);
     if(!proxy.isConnected()) {
-	 cout << "Cannot connect to the daemon - is it running?" << endl;
-	 return -1; 
+	 qCritical() << "Cannot connect to the daemon - is it running?";
+	 return EXIT_FAILURE; 
     }
     proxy.setSessionModel(&sessionModel);
 
