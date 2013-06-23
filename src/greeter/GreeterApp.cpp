@@ -65,7 +65,7 @@ namespace SDDM {
 #ifdef USE_QT5
     QGuiApplication(argc, argv)
 #else
-    QCoreApplication(argc, argv)
+    QApplication(argc, argv)
 #endif
     {
         // point instance to this

@@ -24,7 +24,7 @@
 #include <QGuiApplication>
 #include <QQuickView>
 #else
-#include <QCoreApplication>
+#include <QApplication>
 #include <QDeclarativeView>
 #endif
 
@@ -43,7 +43,7 @@ namespace SDDM {
 #ifdef USE_QT5
     QGuiApplication
 #else
-    QCoreApplication
+    QApplication
 #endif
     {
         Q_OBJECT
