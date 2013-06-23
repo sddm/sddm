@@ -28,6 +28,8 @@
 
 #include <QRect>
 
+class QScreen;
+
 namespace SDDM {
     class ScreenModelPrivate;
 
@@ -55,7 +57,18 @@ namespace SDDM {
     public slots:
         const QRect geometry(int index = -1) const;
 
+    private slots:
+#ifdef USE_QT5
+        void onScreenAdded(QScreen *scrn);
+#endif
+        void onScreenChanged();
+
+    signals:
+        void screensChanged();
+
     private:
+        void initScreens(bool first);
+
         ScreenModelPrivate *d { nullptr };
     };
 }
