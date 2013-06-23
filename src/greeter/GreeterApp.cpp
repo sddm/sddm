@@ -17,6 +17,7 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
+#include "GreeterApp.h"
 #include "Configuration.h"
 #include "GreeterProxy.h"
 #include "Constants.h"
@@ -40,8 +41,7 @@
 #include <QDeclarativeEngine>
 #endif
 #include <QDebug>
-#include <iostream>
-
+#include <QTextStream>
 
 
 using namespace SDDM;
@@ -61,100 +61,119 @@ namespace SDDM {
 
         return value;
     }
-}
 
-void showUsageHelp(const char*  appName) {
-    cout << "Usage: " << appName << " [options] [arguments]\n" 
-         << "Options: \n" 
-         << "  --theme <theme path>       Set greeter theme\n"
-         << "  --socket <socket name>     Set socket name\n" 
-         << "  --test                     Testing mode" << endl;
+    GreeterApp *GreeterApp::self = nullptr;
+
+    GreeterApp::GreeterApp(int argc, char **argv) :
+#ifdef USE_QT5
+    QGuiApplication(argc, argv)
+#else
+    QCoreApplication(argc, argv)
+#endif
+    {
+        // point instance to this
+        self = this;
+
+        // Parse arguments
+        bool testing = false;
+
+        if (arguments().indexOf("--help") > 0 || arguments().indexOf("-h") > 0) {
+            showUsageHelp();
+
+            exit(EXIT_SUCCESS);
+        }
+
+        if (arguments().indexOf("--test") > 0)
+            testing = true;
+
+        // get socket name
+        QString socket = parameter(arguments(), "--socket", "");
+
+        // get theme path
+        QString theme = parameter(arguments(), "--theme", "");
+
+        // Initialize
+    #ifdef USE_QT5
+        // create view
+        m_view = new QQuickView();
+        m_view->setResizeMode(QQuickView::SizeRootObjectToView);
+    #else
+        // create view
+        m_view = new QDeclarativeView();
+        m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    #endif
+
+        m_view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
+
+        // create configuration instance
+        m_configuration = new Configuration(CONFIG_FILE);
+
+        // read theme metadata
+        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(theme));
+
+        // get theme config file
+        QString configFile = QString("%1/%2").arg(theme).arg(m_metadata->configFile());
+
+        // read theme config
+        m_themeConfig = new ThemeConfig(configFile);
+
+        // create models
+
+        m_sessionModel = new SessionModel();
+        m_screenModel = new ScreenModel();
+        m_userModel = new UserModel();
+        m_proxy = new GreeterProxy(socket);
+
+        if(!testing && !m_proxy->isConnected()) {
+            qCritical() << "Cannot connect to the daemon - is it running?";
+            exit(EXIT_FAILURE);
+        }
+
+        m_proxy->setSessionModel(m_sessionModel);
+
+        // set context properties
+        m_view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
+        m_view->rootContext()->setContextProperty("screenModel", m_screenModel);
+        m_view->rootContext()->setContextProperty("userModel", m_userModel);
+        m_view->rootContext()->setContextProperty("config", *m_themeConfig);
+        m_view->rootContext()->setContextProperty("sddm", m_proxy);
+
+        // connect proxy signals
+        QObject::connect(m_proxy, SIGNAL(loginSucceeded()), m_view, SLOT(close()));
+
+        // get theme main script
+        QString mainScript = QString("%1/%2").arg(theme).arg(m_metadata->mainScript());
+
+        // set main script as source
+        m_view->setSource(QUrl::fromLocalFile(mainScript));
+
+        // show view
+        m_view->showFullScreen();
+        m_view->setGeometry(m_screenModel->geometry());
+    }
+
+    void GreeterApp::showUsageHelp() const {
+        QString usage =
+            "Usage: %1 [options] [arguments]\n"
+            "Options: \n"
+            "  --theme <theme path>       Set greeter theme\n"
+            "  --socket <socket name>     Set socket name\n"
+            "  --test                     Testing mode";
+        usage = usage.arg(arguments().first());
+
+        QTextStream cout(stdout);
+        cout << usage << endl;
+    }
+
 }
 
 int main(int argc, char **argv) {
-    
-    bool testing = false; 
-    QStringList arguments;
-    
-    for(int ii = 0; ii < argc; ii++) {
-        arguments << argv[ii];
-    }
-
-    if ( arguments.indexOf("--help") > 0 || arguments.indexOf("-h") > 0 ) {
-        showUsageHelp(argv[0]);
-        return EXIT_SUCCESS;
-    }
-    
-    if( arguments.indexOf("--test") > 0 ) testing = true; 
-    
 #ifdef USE_QT5
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
-
-    // create application
-    QGuiApplication app(argc, argv);
-    // create view
-    QQuickView view;
-    view.setResizeMode(QQuickView::SizeRootObjectToView);
-#else
-    // create application
-    QApplication app(argc, argv);
-    // create view
-    QDeclarativeView view;
-    view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
 #endif
 
-    view.engine()->addImportPath(IMPORTS_INSTALL_DIR);
+    SDDM::GreeterApp app(argc, argv);
 
-    // create configuration instance
-    Configuration configuration(CONFIG_FILE);
-
-    // get socket name
-    QString socket = parameter(app.arguments(), "--socket", "");
-
-    // get theme path
-    QString theme = parameter(app.arguments(), "--theme", "");
-
-    // read theme metadata
-    ThemeMetadata metadata(QString("%1/metadata.desktop").arg(theme));
-
-    // get theme config file
-    QString configFile = QString("%1/%2").arg(theme).arg(metadata.configFile());
-
-    // read theme config
-    ThemeConfig config(configFile);
-
-    // create models
-    SessionModel sessionModel;
-    ScreenModel screenModel;
-    UserModel userModel;
-    GreeterProxy proxy(socket);
-    if(!testing && !proxy.isConnected()) {
-        qCritical() << "Cannot connect to the daemon - is it running?";
-        return EXIT_FAILURE; 
-    }
-    proxy.setSessionModel(&sessionModel);
-
-    // set context properties
-    view.rootContext()->setContextProperty("sessionModel", &sessionModel);
-    view.rootContext()->setContextProperty("screenModel", &screenModel);
-    view.rootContext()->setContextProperty("userModel", &userModel);
-    view.rootContext()->setContextProperty("config", config);
-    view.rootContext()->setContextProperty("sddm", &proxy);
-
-    // connect proxy signals
-    QObject::connect(&proxy, SIGNAL(loginSucceeded()), &view, SLOT(close()));
-
-    // get theme main script
-    QString mainScript = QString("%1/%2").arg(theme).arg(metadata.mainScript());
-
-    // set main script as source
-    view.setSource(QUrl::fromLocalFile(mainScript));
-
-    // show view
-    view.showFullScreen();
-    view.setGeometry(screenModel.geometry());
-
-    // run application
     return app.exec();
 }
