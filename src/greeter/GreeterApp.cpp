@@ -41,8 +41,8 @@
 #include <QDeclarativeEngine>
 #endif
 #include <QDebug>
-#include <iostream>
 
+#include <iostream>
 
 namespace SDDM {
     QString parameter(const QStringList &arguments, const QString &key, const QString &defaultValue) {
