@@ -43,10 +43,6 @@
 #include <QDebug>
 #include <QTextStream>
 
-
-using namespace SDDM;
-using namespace std;
-
 namespace SDDM {
     QString parameter(const QStringList &arguments, const QString &key, const QString &defaultValue) {
         int index = arguments.indexOf(key);
@@ -90,7 +86,7 @@ namespace SDDM {
         QString socket = parameter(arguments(), "--socket", "");
 
         // get theme path
-        QString theme = parameter(arguments(), "--theme", "");
+        m_themePath = parameter(arguments(), "--theme", "");
 
         // Initialize
     #ifdef USE_QT5
@@ -109,10 +105,10 @@ namespace SDDM {
         m_configuration = new Configuration(CONFIG_FILE);
 
         // read theme metadata
-        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(theme));
+        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(m_themePath));
 
         // get theme config file
-        QString configFile = QString("%1/%2").arg(theme).arg(m_metadata->configFile());
+        QString configFile = QString("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
 
         // read theme config
         m_themeConfig = new ThemeConfig(configFile);
@@ -131,25 +127,10 @@ namespace SDDM {
 
         m_proxy->setSessionModel(m_sessionModel);
 
-        // set context properties
-        m_view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
-        m_view->rootContext()->setContextProperty("screenModel", m_screenModel);
-        m_view->rootContext()->setContextProperty("userModel", m_userModel);
-        m_view->rootContext()->setContextProperty("config", *m_themeConfig);
-        m_view->rootContext()->setContextProperty("sddm", m_proxy);
-
         // connect proxy signals
         QObject::connect(m_proxy, SIGNAL(loginSucceeded()), m_view, SLOT(close()));
 
-        // get theme main script
-        QString mainScript = QString("%1/%2").arg(theme).arg(m_metadata->mainScript());
-
-        // set main script as source
-        m_view->setSource(QUrl::fromLocalFile(mainScript));
-
-        // show view
-        m_view->showFullScreen();
-        m_view->setGeometry(m_screenModel->geometry());
+        initView();
     }
 
     void GreeterApp::showUsageHelp() const {
@@ -163,6 +144,25 @@ namespace SDDM {
 
         QTextStream cout(stdout);
         cout << usage << endl;
+    }
+
+    void GreeterApp::initView() {
+        // set context properties
+        m_view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
+        m_view->rootContext()->setContextProperty("screenModel", m_screenModel);
+        m_view->rootContext()->setContextProperty("userModel", m_userModel);
+        m_view->rootContext()->setContextProperty("config", *m_themeConfig);
+        m_view->rootContext()->setContextProperty("sddm", m_proxy);
+
+        // get theme main script
+        QString mainScript = QString("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
+
+        // set main script as source
+        m_view->setSource(QUrl::fromLocalFile(mainScript));
+
+        // show view
+        m_view->showFullScreen();
+        m_view->setGeometry(m_screenModel->geometry());
     }
 
 }
