@@ -46,7 +46,12 @@ namespace SDDM {
     };
 
     ScreenModel::ScreenModel(QObject *parent) : QAbstractListModel(parent), d(new ScreenModelPrivate()) {
+#ifdef USE_QT5
         connect(QGuiApplication::instance(), SIGNAL(screenAdded(QScreen*)), this, SLOT(onScreenAdded(QScreen*)));
+#else
+        connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(onScreenChanged()));
+        connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(onScreenChanged()));
+#endif
         initScreens(true);
     }
 
@@ -79,11 +84,13 @@ namespace SDDM {
         return d->screens.at(index)->geometry;
     }
 
+#ifdef USE_QT5
     void ScreenModel::onScreenAdded(QScreen *scrn) {
         // Recive screen updates
         connect(scrn, SIGNAL(geometryChanged(const QRect &)), this, SLOT(onScreenChanged()));
         onScreenChanged();
     }
+#endif
 
     void ScreenModel::onScreenChanged() {
         initScreens(false);

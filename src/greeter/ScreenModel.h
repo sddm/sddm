@@ -58,7 +58,9 @@ namespace SDDM {
         const QRect geometry(int index = -1) const;
 
     private slots:
+#ifdef USE_QT5
         void onScreenAdded(QScreen *scrn);
+#endif
         void onScreenChanged();
 
     signals:
