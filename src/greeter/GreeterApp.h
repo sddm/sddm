@@ -53,8 +53,6 @@ namespace SDDM {
 
         static GreeterApp *instance() { return self; }
 
-        void showUsageHelp() const;
-
     private slots:
         void initView();
 
