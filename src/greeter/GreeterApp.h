@@ -28,7 +28,6 @@
 #include <QDeclarativeView>
 #endif
 
-
 namespace SDDM {
     class Configuration;
     class ThemeMetadata;
@@ -56,6 +55,9 @@ namespace SDDM {
 
         void showUsageHelp() const;
 
+    private slots:
+        void initView();
+
     private:
         static GreeterApp *self;
 
@@ -71,6 +73,7 @@ namespace SDDM {
         ScreenModel *m_screenModel { nullptr  };
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
+        QString m_themePath;
     };
 }
 

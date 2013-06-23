@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.8.8)
 
 project(SDDM)
-
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
