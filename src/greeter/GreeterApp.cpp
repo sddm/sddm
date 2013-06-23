@@ -41,7 +41,8 @@
 #include <QDeclarativeEngine>
 #endif
 #include <QDebug>
-#include <QTextStream>
+#include <iostream>
+
 
 namespace SDDM {
     QString parameter(const QStringList &arguments, const QString &key, const QString &defaultValue) {
@@ -73,13 +74,7 @@ namespace SDDM {
         // Parse arguments
         bool testing = false;
 
-        if (arguments().indexOf("--help") > 0 || arguments().indexOf("-h") > 0) {
-            showUsageHelp();
-
-            exit(EXIT_SUCCESS);
-        }
-
-        if (arguments().indexOf("--test") > 0)
+        if (arguments().contains("--test"))
             testing = true;
 
         // get socket name
@@ -130,20 +125,10 @@ namespace SDDM {
         // connect proxy signals
         QObject::connect(m_proxy, SIGNAL(loginSucceeded()), m_view, SLOT(close()));
 
+        // connect screen update signals
+        connect(m_screenModel, SIGNAL(screensChanged()), this, SLOT(initView()));
+
         initView();
-    }
-
-    void GreeterApp::showUsageHelp() const {
-        QString usage =
-            "Usage: %1 [options] [arguments]\n"
-            "Options: \n"
-            "  --theme <theme path>       Set greeter theme\n"
-            "  --socket <socket name>     Set socket name\n"
-            "  --test                     Testing mode";
-        usage = usage.arg(arguments().first());
-
-        QTextStream cout(stdout);
-        cout << usage << endl;
     }
 
     void GreeterApp::initView() {
@@ -163,6 +148,7 @@ namespace SDDM {
         // show view
         m_view->showFullScreen();
         m_view->setGeometry(m_screenModel->geometry());
+        m_view->showFullScreen();
     }
 
 }
@@ -172,6 +158,20 @@ int main(int argc, char **argv) {
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
 #endif
+    QStringList arguments;
+
+    for (int i = 0; i < argc; i++)
+        arguments << argv[i];
+
+    if (arguments.contains(QLatin1String("--help")) || arguments.contains(QLatin1String("-h"))) {
+        std::cout << "Usage: " << argv[0] << " [options] [arguments]\n"
+                     "Options: \n"
+                     "  --theme <theme path>       Set greeter theme\n"
+                     "  --socket <socket name>     Set socket name\n"
+                     "  --test                     Testing mode" << std::endl;
+
+        return EXIT_FAILURE;
+    }
 
     SDDM::GreeterApp app(argc, argv);
 
