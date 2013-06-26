@@ -46,51 +46,13 @@ namespace SDDM {
     };
 
     ScreenModel::ScreenModel(QObject *parent) : QAbstractListModel(parent), d(new ScreenModelPrivate()) {
-#ifndef USE_QT5
-        // set role names
-        QHash<int, QByteArray> roleNames;
-        roleNames[NameRole] = "name";
-        roleNames[GeometryRole] = "geometry";
-        // set role names
-        setRoleNames(roleNames);
-#endif
-
-#if 0
-        // fake model for testing
-        d->geometry = QRect(0, 0, 1920, 1080);
-        d->primary = 1;
-        d->screens << ScreenPtr { new Screen { "First", QRect(0, 0, 300, 300) } }
-                   << ScreenPtr { new Screen { "Second", QRect(300, 0, 1320, 742) } }
-                   << ScreenPtr { new Screen { "Third", QRect(1620, 0, 300, 300) } };
-        return;
-#endif
-
 #ifdef USE_QT5
-        QList<QScreen *> screens = QGuiApplication::screens();
-        for (int i = 0; i < screens.size(); ++i) {
-            const QScreen *screen = screens.at(i);
-            // add to the screens list
-            d->screens << ScreenPtr { new Screen { QString("Screen %1").arg(i + 1), screen->geometry() } };
-            // extend available geometry
-            d->geometry = d->geometry.united(screen->geometry());
-            // check if primary
-            if (screen == QGuiApplication::primaryScreen())
-                d->primary = i;
-        }
+        connect(QGuiApplication::instance(), SIGNAL(screenAdded(QScreen*)), this, SLOT(onScreenAdded(QScreen*)));
 #else
-        // set primary screen
-        d->primary = QApplication::desktop()->primaryScreen();
-        // get screen count
-        int screenCount = QApplication::desktop()->screenCount();
-
-        for (int i = 0; i < screenCount; ++i) {
-            QRect geometry = QApplication::desktop()->screenGeometry(i);
-            // add to the screens list
-            d->screens << ScreenPtr { new Screen { QString("Screen %1").arg(i + 1), geometry } };
-            // extend available geometry
-            d->geometry = d->geometry.united(geometry);
-        }
+        connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(onScreenChanged()));
+        connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(onScreenChanged()));
 #endif
+        initScreens(true);
     }
 
     ScreenModel::~ScreenModel() {
@@ -122,6 +84,18 @@ namespace SDDM {
         return d->screens.at(index)->geometry;
     }
 
+#ifdef USE_QT5
+    void ScreenModel::onScreenAdded(QScreen *scrn) {
+        // Recive screen updates
+        connect(scrn, SIGNAL(geometryChanged(const QRect &)), this, SLOT(onScreenChanged()));
+        onScreenChanged();
+    }
+#endif
+
+    void ScreenModel::onScreenChanged() {
+        initScreens(false);
+    }
+
     int ScreenModel::rowCount(const QModelIndex &parent) const {
         return d->screens.length();
     }
@@ -142,4 +116,64 @@ namespace SDDM {
         // return empty value
         return QVariant();
     }
+
+    void ScreenModel::initScreens(bool first) {
+        // Clear
+        d->geometry = QRect();
+        d->primary = 0;
+        d->screens.clear();
+
+#ifndef USE_QT5
+        // set role names
+        QHash<int, QByteArray> roleNames;
+        roleNames[NameRole] = "name";
+        roleNames[GeometryRole] = "geometry";
+        // set role names
+        setRoleNames(roleNames);
+#endif
+
+#if 0
+        // fake model for testing
+        d->geometry = QRect(0, 0, 1920, 1080);
+        d->primary = 1;
+        d->screens << ScreenPtr { new Screen { "First", QRect(0, 0, 300, 300) } }
+                   << ScreenPtr { new Screen { "Second", QRect(300, 0, 1320, 742) } }
+                   << ScreenPtr { new Screen { "Third", QRect(1620, 0, 300, 300) } };
+        return;
+#endif
+
+#ifdef USE_QT5
+        QList<QScreen *> screens = QGuiApplication::screens();
+        for (int i = 0; i < screens.size(); ++i) {
+            QScreen *screen = screens.at(i);
+            // add to the screens list
+            d->screens << ScreenPtr { new Screen { QString("Screen %1").arg(i + 1), screen->geometry() } };
+            // extend available geometry
+            d->geometry = d->geometry.united(screen->geometry());
+            // check if primary
+            if (screen == QGuiApplication::primaryScreen())
+                d->primary = i;
+
+            if (first) {
+                // Recive screen updates
+                connect(screen, SIGNAL(geometryChanged(const QRect &)), this, SLOT(onScreenChanged()));
+            }
+        }
+#else
+        // set primary screen
+        d->primary = QApplication::desktop()->primaryScreen();
+        // get screen count
+        int screenCount = QApplication::desktop()->screenCount();
+
+        for (int i = 0; i < screenCount; ++i) {
+            QRect geometry = QApplication::desktop()->screenGeometry(i);
+            // add to the screens list
+            d->screens << ScreenPtr { new Screen { QString("Screen %1").arg(i + 1), geometry } };
+            // extend available geometry
+            d->geometry = d->geometry.united(geometry);
+        }
+#endif
+        emit screensChanged();
+    }
+
 }
