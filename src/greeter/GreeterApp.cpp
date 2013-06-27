@@ -153,11 +153,16 @@ namespace SDDM {
         connect(m_screenModel, SIGNAL(primaryChanged()), this, SLOT(show()));
 
         show();
+#ifndef USE_QT5
+        m_view->showFullScreen();
+#endif
     }
 
     void GreeterApp::show() {
         m_view->setGeometry(m_screenModel->geometry());
+#ifdef USE_QT5
         m_view->showFullScreen();
+#endif
     }
 
 }
