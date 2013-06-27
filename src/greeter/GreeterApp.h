@@ -54,7 +54,7 @@ namespace SDDM {
         static GreeterApp *instance() { return self; }
 
     private slots:
-        void initView();
+        void show();
 
     private:
         static GreeterApp *self;
@@ -71,7 +71,6 @@ namespace SDDM {
         ScreenModel *m_screenModel { nullptr  };
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
-        QString m_themePath;
     };
 }
 
