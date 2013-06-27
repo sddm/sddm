@@ -69,7 +69,7 @@ namespace SDDM {
     }
 #endif
 
-    const int ScreenModel::primary() const {
+    int ScreenModel::primary() const {
         return d->primary;
     }
 
@@ -119,6 +119,7 @@ namespace SDDM {
 
     void ScreenModel::initScreens(bool first) {
         // Clear
+        beginResetModel();
         d->geometry = QRect();
         d->primary = 0;
         d->screens.clear();
@@ -173,7 +174,9 @@ namespace SDDM {
             d->geometry = d->geometry.united(geometry);
         }
 #endif
-        emit screensChanged();
+        endResetModel();
+
+        emit primaryChanged();
     }
 
 }
