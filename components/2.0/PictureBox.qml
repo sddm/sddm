@@ -46,6 +46,10 @@ FocusScope {
         State {
             name: "active"
             PropertyChanges { target: container; height: 225 }
+        },
+        State {
+            name: "activeWarning"
+            PropertyChanges { target: container; height: 240 }
         }
     ]
 
@@ -108,6 +112,14 @@ FocusScope {
                     event.accepted = true
                 }
             }
+        }
+
+        Text {
+            text: "Caps Lock is ON"
+            width: parent.width; height: 30
+            font.pixelSize: 11
+            color: "grey"
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 }

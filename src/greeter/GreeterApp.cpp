@@ -17,10 +17,11 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#include "GreeterApp.h"
 #include "Configuration.h"
-#include "GreeterProxy.h"
 #include "Constants.h"
+#include "GreeterApp.h"
+#include "GreeterProxy.h"
+#include "KeyboardModel.h"
 #include "ScreenModel.h"
 #include "SessionModel.h"
 #include "ThemeConfig.h"
@@ -114,6 +115,7 @@ namespace SDDM {
         m_screenModel = new ScreenModel();
         m_userModel = new UserModel();
         m_proxy = new GreeterProxy(socket);
+        m_keyboard = new KeyboardModel();
 
         if(!testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
@@ -138,6 +140,7 @@ namespace SDDM {
         m_view->rootContext()->setContextProperty("userModel", m_userModel);
         m_view->rootContext()->setContextProperty("config", *m_themeConfig);
         m_view->rootContext()->setContextProperty("sddm", m_proxy);
+        m_view->rootContext()->setContextProperty("keyboard", m_keyboard);
 
         // get theme main script
         QString mainScript = QString("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
@@ -153,10 +156,21 @@ namespace SDDM {
 
 }
 
+#include <stdio.h>
+#include <stdlib.h>
+
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    fprintf(stderr, "MESSAGE (%s:%u %s): %s\n", context.file, context.line, context.function, localMsg.constData());
+    fflush(stderr);
+}
+
 int main(int argc, char **argv) {
 #ifdef USE_QT5
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
+    qInstallMessageHandler(myMessageOutput);
 #endif
     QStringList arguments;
 

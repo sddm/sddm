@@ -68,7 +68,15 @@ Rectangle {
                 icon: model.icon
 
                 focus: (listView.currentIndex === index) ? true : false
-                state: (listView.currentIndex === index) ? "active" : ""
+                state: {
+                    if (listView.currentIndex == index) {
+                        if (keyboard.capsLock)
+                            state:  "activeWarning"
+                        else
+                            state: "active"
+                    } else
+                        state: ""
+                }
 
                 onLogin: sddm.login(model.name, password, sessionIndex);
 
@@ -191,6 +199,39 @@ Rectangle {
 
                     model: sessionModel
                     index: sessionModel.lastIndex
+
+                    font.pixelSize: 14
+
+                    KeyNavigation.backtab: nextUser; KeyNavigation.tab: btnReboot
+                }
+
+                Text {
+                    height: parent.height
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: qsTr("Layout:")
+                    font.pixelSize: 16
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                ComboBox {
+                    id: layoutsBox
+                    width: 80
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    arrowIcon: "angle-down.png"
+
+                    model: keyboard.layouts
+                    index: keyboard.currentLayout
+                    textDelegate: Text {
+                        anchors.fill: parent
+                        anchors.margins: 4
+
+                        text: modelItem.modelData.name
+
+                        font: layoutsBox.font
+                    }
+                    onValueChanged: keyboard.currentLayout = id
 
                     font.pixelSize: 14
 

@@ -37,6 +37,21 @@ FocusScope {
     property alias model: listView.model
     property int index: 0
     property alias arrowIcon: arrowIcon.source
+    property Component textDelegate: defaultTextDelegate
+
+    signal valueChanged(int id)
+
+    Component {
+        id: defaultTextDelegate
+        Text {
+            anchors.fill: parent
+            anchors.margins: 4
+
+            text: parent.modelItem.name
+
+            font: txtMain.font
+        }
+    }
 
     onFocusChanged: if (!container.activeFocus) close(false)
 
@@ -146,19 +161,13 @@ FocusScope {
                 width: dropDown.width; height: container.height
                 color: "transparent"
 
-                property string text: model.name
-
-                Text {
-                    id: textDelegate
-                    anchors.fill: parent
-                    anchors.margins: 4
-
-                    text: model.name
-
-                    elide: Text.ElideRight
-                    font: txtMain.font
-                    verticalAlignment: Text.AlignVCenter
+                Loader {
+                    id: loader
+                    sourceComponent: textDelegate
+                    property variant modelItem: model
                 }
+
+                property string text: loader.item.text
 
                 MouseArea {
                     id: delegateMouseArea
@@ -214,6 +223,7 @@ FocusScope {
         if (update) {
             container.index = listView.currentIndex
             txtMain.text = listView.currentItem.text
+            valueChanged(listView.currentIndex)
         }
     }
 
