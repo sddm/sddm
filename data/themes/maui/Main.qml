@@ -70,7 +70,7 @@ Rectangle {
                 focus: (listView.currentIndex === index) ? true : false
                 state: {
                     if (listView.currentIndex == index) {
-                        if (keyboard.capsLock)
+                        if (keyboard.enabled && keyboard.capsLock)
                             state:  "activeWarning"
                         else
                             state: "active"
@@ -212,11 +212,13 @@ Rectangle {
                     text: qsTr("Layout:")
                     font.pixelSize: 16
                     verticalAlignment: Text.AlignVCenter
+                    visible: keyboard.enabled
                 }
 
                 ComboBox {
                     id: layoutsBox
                     width: 80
+                    visible: keyboard.enabled
                     anchors.verticalCenter: parent.verticalCenter
 
                     arrowIcon: "angle-down.png"
@@ -227,7 +229,7 @@ Rectangle {
                         anchors.fill: parent
                         anchors.margins: 4
 
-                        text: modelItem.modelData.name
+                        text: modelItem.modelData.shortName
 
                         font: layoutsBox.font
                     }

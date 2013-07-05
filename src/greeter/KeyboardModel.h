@@ -21,10 +21,10 @@
 #ifndef KEYBOARDMODEL_H
 #define KEYBOARDMODEL_H
 
-#include <QtQml>
+#include <QList>
+#include <QObject>
 #include <QString>
 
-struct xcb_connection_t;
 
 namespace SDDM {
 
@@ -35,14 +35,14 @@ namespace SDDM {
         Q_DISABLE_COPY(KeyboardModel)
     public:
         // LED control
-        Q_PROPERTY(bool numLock READ numLockState WRITE setNumLockState NOTIFY numLockStateChanged)
+        Q_PROPERTY(bool numLock  READ numLockState  WRITE setNumLockState  NOTIFY numLockStateChanged)
         Q_PROPERTY(bool capsLock READ capsLockState WRITE setCapsLockState NOTIFY capsLockStateChanged)
 
         // Layouts control
         Q_PROPERTY(int currentLayout READ currentLayout WRITE setCurrentLayout NOTIFY currentLayoutChanged)
         Q_PROPERTY(QList<QObject*> layouts READ layouts CONSTANT)
 
-        Q_PROPERTY(bool enabled READ enabled)
+        Q_PROPERTY(bool enabled READ enabled CONSTANT)
 
     public:
         KeyboardModel();
