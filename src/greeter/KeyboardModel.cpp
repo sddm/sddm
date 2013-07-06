@@ -501,11 +501,6 @@ namespace SDDM {
         if (layout_old != d->layout_id)
             emit currentLayoutChanged();
     }
-
-
-
-
 }
 
-// FIXME
 #include "KeyboardModel.moc"
