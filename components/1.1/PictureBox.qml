@@ -69,7 +69,6 @@ FocusScope {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
     }
 
     Column {
