@@ -231,4 +231,10 @@ FocusScope {
         listView.currentIndex = container.index
         txtMain.text = listView.currentItem.text
     }
+
+    onIndexChanged: {
+        listView.currentIndex = container.index
+        if (listView.currentItem)
+            txtMain.text = listView.currentItem.text
+    }
 }

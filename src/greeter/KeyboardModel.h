@@ -29,6 +29,7 @@
 namespace SDDM {
 
     class KeyboardModelPrivate;
+    class KeyboardBackend;
 
     class KeyboardModel : public QObject {
         Q_OBJECT
@@ -67,8 +68,12 @@ namespace SDDM {
 
         bool enabled() const;
 
+    private slots:
+        void dispatchEvents();
+
     private:
         KeyboardModelPrivate * d { nullptr };
+        KeyboardBackend * m_backend;
     };
 }
 
