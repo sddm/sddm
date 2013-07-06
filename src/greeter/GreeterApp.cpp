@@ -142,6 +142,14 @@ namespace SDDM {
         m_view->rootContext()->setContextProperty("sddm", m_proxy);
         m_view->rootContext()->setContextProperty("keyboard", m_keyboard);
 
+        // Set numlock
+        if (m_keyboard->enabled()) {
+            if (m_configuration->numlock() == Configuration::NUM_SET_ON)
+                m_keyboard->setNumLockState(true);
+            else if (m_configuration->numlock() == Configuration::NUM_SET_OFF)
+                m_keyboard->setNumLockState(false);
+        }
+
         // get theme main script
         QString mainScript = QString("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
 
