@@ -46,10 +46,6 @@ FocusScope {
         State {
             name: "active"
             PropertyChanges { target: container; height: 225 }
-        },
-        State {
-            name: "activeWarning"
-            PropertyChanges { target: container; height: 240 }
         }
     ]
 
@@ -99,7 +95,7 @@ FocusScope {
 
         TextBox {
             id: password
-            width: parent.width; height: 30
+            width: parent.width - 1; height: 30
             font.pixelSize: 14
 
             echoMode: TextInput.Password
@@ -111,14 +107,6 @@ FocusScope {
                     event.accepted = true
                 }
             }
-        }
-
-        Text {
-            text: "Caps Lock is ON"
-            width: parent.width; height: 30
-            font.pixelSize: 11
-            color: "grey"
-            horizontalAlignment: Text.AlignHCenter
         }
     }
 }

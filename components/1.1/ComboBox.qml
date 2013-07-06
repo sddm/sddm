@@ -45,9 +45,7 @@ FocusScope {
         id: defaultTextDelegate
         Text {
             anchors.margins: 4
-
             text: parent.modelItem.name
-
             font: txtMain.font
         }
     }
@@ -154,6 +152,7 @@ FocusScope {
 
                 Loader {
                     id: loader
+                    anchors.fill: parent
                     sourceComponent: textDelegate
                     property variant modelItem: model
                 }
