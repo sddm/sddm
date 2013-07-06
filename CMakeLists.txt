@@ -35,7 +35,7 @@ if(NOT NO_PAM)
 endif()
 
 # XCB
-find_package(XCB REQUIRED)
+find_package(XCB REQUIRED COMPONENTS xkb)
 
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)
