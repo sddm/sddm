@@ -226,7 +226,6 @@ Rectangle {
                     model: keyboard.layouts
                     index: keyboard.currentLayout
                     textDelegate: Text {
-                        anchors.fill: parent
                         anchors.margins: 4
 
                         text: modelItem.modelData.shortName

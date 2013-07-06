@@ -163,7 +163,7 @@ namespace SDDM {
     }
 
 }
-
+#ifdef USE_QT5
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -173,7 +173,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     fprintf(stderr, "MESSAGE (%s:%u %s): %s\n", context.file, context.line, context.function, localMsg.constData());
     fflush(stderr);
 }
-
+#endif
 int main(int argc, char **argv) {
 #ifdef USE_QT5
     // install message handler
