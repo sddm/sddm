@@ -84,3 +84,8 @@ AutoRelogin=false
 # by the first display. Virtual terminal number will
 # increase as new displays added.
 MinimumVT=7
+
+# If this flag is on, then numlock will be turned on,
+# if it is off, then numlock will be turned off,
+# otherwise if it's none numlock won't be affected
+Numlock=none
