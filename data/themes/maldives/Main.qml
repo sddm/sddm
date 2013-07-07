@@ -151,7 +151,7 @@ Rectangle {
 
                     Column {
                         z: 100
-                        width: parent.width * 1.5
+                        width: parent.width * 1.3
                         spacing : 4
                         Text {
                             id: lblSession
@@ -177,7 +177,7 @@ Rectangle {
 
                     Column {
                         z: 101
-                        width: parent.width * 0.5
+                        width: parent.width * 0.7
                         spacing : 4
                         Text {
                             id: lblLayout
@@ -197,13 +197,33 @@ Rectangle {
                             model: keyboard.layouts
                             index: keyboard.currentLayout
 
-                            textDelegate: Text {
-                                anchors.margins: 4
-                                anchors.fill: parent
-                                anchors.centerIn: parent
+                            onValueChanged: keyboard.currentLayout = id
 
-                                text: modelItem.modelData.shortName
-                                font.pixelSize: 14
+                            rowDelegate: Rectangle {
+                                anchors.fill: parent
+                                Image {
+                                    id: img
+                                    source: "flags/" + modelItem.modelData.shortName + ".png"
+
+                                    anchors.margins: 4
+                                    fillMode: Image.PreserveAspectFit
+
+                                    anchors.left: parent.left
+                                    anchors.top: parent.top
+                                    anchors.bottom: parent.bottom
+                                }
+
+                                Text {
+                                    anchors.margins: 4
+                                    anchors.left: img.right
+                                    anchors.top: parent.top
+                                    anchors.bottom: parent.bottom
+
+                                    verticalAlignment: Text.AlignVCenter
+
+                                    text: modelItem.modelData.shortName
+                                    font.pixelSize: 14
+                                }
                             }
 
 
