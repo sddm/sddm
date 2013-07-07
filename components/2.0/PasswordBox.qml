@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2013 Nikita Mikhaylov <nslqqq@gmail.com>
 *
 * Permission is hereby granted, free of charge, to any person
 * obtaining a copy of this software and associated documentation
@@ -89,7 +89,9 @@ FocusScope {
 
     Image {
         id: img
-        visible: keyboard.capsLock
+        opacity: 0
+        visible: false
+        state: keyboard.capsLock ? "activated" : ""
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
         fillMode: Image.PreserveAspectFit
@@ -102,37 +104,89 @@ FocusScope {
 
         anchors.rightMargin: 0.3 * width
 
+        states: [
+            State {
+                name: "activated"
+                PropertyChanges { target: img; opacity: 1; visible: true }
+            },
+            State {
+                name: ""
+                PropertyChanges { target: img; opacity: 0 }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                to: "activated"
+                NumberAnimation { target: img; property: "opacity"; from: 0; to: 1; duration: 200; }
+            },
+
+            Transition {
+                to: ""
+                SequentialAnimation {
+                    NumberAnimation { target: img; property: "opacity"; from: 1; to: 0; duration: 200; }
+                    PropertyAction { target: img; property: "visible"; value: false }
+                }
+            }
+        ]
+
         MouseArea {
             id: hoverArea
-            cursorShape: Qt.PointingHandCursor
 
             anchors.fill: parent
             hoverEnabled: true
+            cursorShape: Qt.ArrowCursor
 
             onEntered: {
-                rect.visible = true
+                tooltip.state = "activated"
+                tooltip.x = mouseX + img.x + 10
+                tooltip.y = mouseY + 10
             }
 
             onExited: {
-                rect.visible = false
+                tooltip.state = ""
             }
 
             onPositionChanged: {
-                rect.x = mouseX + rect.width
-                rect.y = mouseY - rect.height
+                tooltip.x = mouseX + img.x + 10
+                tooltip.y = mouseY + 10
             }
         }
     }
 
     Rectangle {
-        id: rect
-        color: "lightgrey"
-        anchors.centerIn: parent
+        id: tooltip
+        color: "lightblue"
+        border.color: "black"
+        border.width: 1
 
         width: 100
         height: 20
-        radius: 4
-        visible: false
+        radius: 2
+        opacity: 0
+
+        states: [
+            State {
+                name: "activated"
+                PropertyChanges { target: tooltip; opacity: 1 }
+            },
+            State {
+                name: ""
+                PropertyChanges { target: tooltip; opacity: 0 }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                to: "activated"
+                NumberAnimation { target: tooltip; property: "opacity"; from: 0; to: 1; duration: 200; }
+            },
+
+            Transition {
+                to: ""
+                NumberAnimation { target: tooltip; property: "opacity"; from: 1; to: 0; duration: 100; }
+            }
+        ]
 
         Text {
             anchors.centerIn: parent;
