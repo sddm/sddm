@@ -218,7 +218,6 @@ FocusScope {
         dropDown.state = ""
 
         if (update) {
-            container.index = listView.currentIndex
             topRow.modelItem = listView.currentItem.modelItem
             valueChanged(listView.currentIndex)
         }
@@ -231,6 +230,7 @@ FocusScope {
 
     onIndexChanged: {
         listView.currentIndex = container.index
-        topRow.modelItem = listView.currentItem.modelItem
+        if (listView.currentItem)
+            topRow.modelItem = listView.currentItem.modelItem
     }
 }
