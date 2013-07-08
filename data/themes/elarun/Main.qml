@@ -111,12 +111,13 @@ Rectangle {
 
                         Image { source: "images/lock.png" }
 
-                        TextBox {
+                        PasswordBox {
                             id: pw_entry
                             width: 150; height: 30
                             anchors.verticalCenter: parent.verticalCenter;
 
-                            echoMode: TextInput.Password
+                            image: "warning.png"
+                            tooltipBG: "CornflowerBlue"
 
                             font.pixelSize: 14
 

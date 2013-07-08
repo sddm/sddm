@@ -125,12 +125,12 @@ Rectangle {
                         font.pixelSize: 12
                     }
 
-                    TextBox {
+                    PasswordBox {
                         id: password
                         width: parent.width; height: 30
                         font.pixelSize: 14
 
-                        echoMode: TextInput.Password
+                        image: "warning.png"
 
                         KeyNavigation.backtab: name; KeyNavigation.tab: session
 
