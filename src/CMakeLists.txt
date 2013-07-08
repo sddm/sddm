@@ -62,6 +62,7 @@ set(GREETER_SOURCES
     common/SocketWriter.cpp
     greeter/GreeterApp.cpp
     greeter/GreeterProxy.cpp
+    greeter/KeyboardModel.cpp
     greeter/ScreenModel.cpp
     greeter/SessionModel.cpp
     greeter/ThemeConfig.cpp
