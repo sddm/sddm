@@ -84,3 +84,8 @@ AutoRelogin=false
 # by the first display. Virtual terminal number will
 # increase as new displays added.
 MinimumVT=7
+
+# Change numlock state when sddm-greeter starts
+# Valid values: on|off|none
+# If property is set to none, numlock won't be changed
+Numlock=none
