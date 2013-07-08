@@ -17,10 +17,11 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#include "GreeterApp.h"
 #include "Configuration.h"
-#include "GreeterProxy.h"
 #include "Constants.h"
+#include "GreeterApp.h"
+#include "GreeterProxy.h"
+#include "KeyboardModel.h"
 #include "ScreenModel.h"
 #include "SessionModel.h"
 #include "ThemeConfig.h"
@@ -81,7 +82,7 @@ namespace SDDM {
         QString socket = parameter(arguments(), "--socket", "");
 
         // get theme path
-        m_themePath = parameter(arguments(), "--theme", "");
+        QString themePath = parameter(arguments(), "--theme", "");
 
         // Initialize
     #ifdef USE_QT5
@@ -100,10 +101,10 @@ namespace SDDM {
         m_configuration = new Configuration(CONFIG_FILE);
 
         // read theme metadata
-        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(m_themePath));
+        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(themePath));
 
         // get theme config file
-        QString configFile = QString("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
+        QString configFile = QString("%1/%2").arg(themePath).arg(m_metadata->configFile());
 
         // read theme config
         m_themeConfig = new ThemeConfig(configFile);
@@ -114,6 +115,7 @@ namespace SDDM {
         m_screenModel = new ScreenModel();
         m_userModel = new UserModel();
         m_proxy = new GreeterProxy(socket);
+        m_keyboard = new KeyboardModel();
 
         if(!testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
@@ -125,30 +127,42 @@ namespace SDDM {
         // connect proxy signals
         QObject::connect(m_proxy, SIGNAL(loginSucceeded()), m_view, SLOT(close()));
 
-        // connect screen update signals
-        connect(m_screenModel, SIGNAL(screensChanged()), this, SLOT(initView()));
-
-        initView();
-    }
-
-    void GreeterApp::initView() {
         // set context properties
         m_view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
         m_view->rootContext()->setContextProperty("screenModel", m_screenModel);
         m_view->rootContext()->setContextProperty("userModel", m_userModel);
         m_view->rootContext()->setContextProperty("config", *m_themeConfig);
         m_view->rootContext()->setContextProperty("sddm", m_proxy);
+        m_view->rootContext()->setContextProperty("keyboard", m_keyboard);
+
+        // Set numlock
+        if (m_keyboard->enabled()) {
+            if (m_configuration->numlock() == Configuration::NUM_SET_ON)
+                m_keyboard->setNumLockState(true);
+            else if (m_configuration->numlock() == Configuration::NUM_SET_OFF)
+                m_keyboard->setNumLockState(false);
+        }
 
         // get theme main script
-        QString mainScript = QString("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
+        QString mainScript = QString("%1/%2").arg(themePath).arg(m_metadata->mainScript());
 
         // set main script as source
         m_view->setSource(QUrl::fromLocalFile(mainScript));
 
-        // show view
+        // connect screen update signals
+        connect(m_screenModel, SIGNAL(primaryChanged()), this, SLOT(show()));
+
+        show();
+#ifndef USE_QT5
         m_view->showFullScreen();
+#endif
+    }
+
+    void GreeterApp::show() {
         m_view->setGeometry(m_screenModel->geometry());
+#ifdef USE_QT5
         m_view->showFullScreen();
+#endif
     }
 
 }

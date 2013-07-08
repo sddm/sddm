@@ -62,6 +62,7 @@ set(GREETER_SOURCES
     common/SocketWriter.cpp
     greeter/GreeterApp.cpp
     greeter/GreeterProxy.cpp
+    greeter/KeyboardModel.cpp
     greeter/ScreenModel.cpp
     greeter/SessionModel.cpp
     greeter/ThemeConfig.cpp
@@ -80,5 +81,6 @@ else()
     add_executable(sddm-greeter ${GREETER_SOURCES})
     target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES} ${QT_LIBRARIES})
 endif()
+target_link_libraries(sddm-greeter ${XCB_LIBRARIES})
 
 install(TARGETS sddm-greeter DESTINATION ${BIN_INSTALL_DIR})

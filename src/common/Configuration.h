@@ -76,6 +76,9 @@ namespace SDDM {
         const QString &autoUser() const;
         bool autoRelogin() const;
 
+        enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
+        const NumState numlock() const;
+
         bool first { true };
 
         bool testing { false };

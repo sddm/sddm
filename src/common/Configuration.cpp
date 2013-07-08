@@ -61,6 +61,8 @@ namespace SDDM {
 
         QString autoUser { "" };
         bool autoRelogin { false };
+
+        Configuration::NumState numlock { Configuration::NUM_NONE };
     };
 
     Configuration::Configuration(const QString &configPath, QObject *parent) : QObject(parent), d(new ConfigurationPrivate()) {
@@ -111,6 +113,13 @@ namespace SDDM {
         d->autoUser = settings.value("AutoUser", "").toString();
         d->autoRelogin = settings.value("AutoRelogin", d->autoRelogin).toBool();
         minimumVT = settings.value("MinimumVT", minimumVT).toUInt();
+
+        QString num_val = settings.value("Numlock", "none").toString().toLower();
+        if (num_val == "on" || num_val == "true" || num_val == "1") {
+            d->numlock = Configuration::NUM_SET_ON;
+        } else if (num_val == "off" || num_val == "false" || num_val == "0") {
+            d->numlock = Configuration::NUM_SET_OFF;
+        }
     }
 
     void Configuration::save() {
@@ -140,6 +149,13 @@ namespace SDDM {
         settings.setValue("AutoUser", d->autoUser);
         settings.setValue("AutoRelogin", d->autoRelogin);
         settings.setValue("MinimumVT", minimumVT);
+
+        if (d->numlock == NUM_NONE)
+            settings.setValue("Numlock", "none");
+        else if (d->numlock == NUM_SET_ON)
+            settings.setValue("Numlock", "on");
+        else if (d->numlock == NUM_SET_OFF)
+            settings.setValue("Numlock", "off");
     }
 
     Configuration *Configuration::instance() {
@@ -238,5 +254,9 @@ namespace SDDM {
 
     bool Configuration::autoRelogin() const {
         return d->autoRelogin;
+    }
+
+    const Configuration::NumState Configuration::numlock() const {
+        return d->numlock;
     }
 }

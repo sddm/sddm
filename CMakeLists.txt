@@ -35,7 +35,7 @@ if(NOT NO_PAM)
 endif()
 
 # XCB
-find_package(XCB REQUIRED)
+find_package(XCB REQUIRED COMPONENTS xkb)
 
 # XKB
 find_package(XKB REQUIRED)
