@@ -71,14 +71,14 @@ set(GREETER_SOURCES
 
 if(USE_QT5)
     add_executable(sddm-greeter ${GREETER_SOURCES})
-    target_link_libraries(sddm-greeter)
+    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
     qt5_use_modules(sddm-greeter Quick)
 else()
     set(QT_USE_QTDECLARATIVE TRUE)
     include(${QT_USE_FILE})
 
     add_executable(sddm-greeter ${GREETER_SOURCES})
-    target_link_libraries(sddm-greeter ${QT_LIBRARIES})
+    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES} ${QT_LIBRARIES})
 endif()
 
 install(TARGETS sddm-greeter DESTINATION ${BIN_INSTALL_DIR})

@@ -37,6 +37,9 @@ endif()
 # XCB
 find_package(XCB REQUIRED)
 
+# XKB
+find_package(XKB REQUIRED)
+
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)
   find_package(Qt5DBus REQUIRED)
