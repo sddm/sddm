@@ -6,5 +6,6 @@ Clock       2.0 Clock.qml
 ComboBox    2.0 ComboBox.qml
 ImageButton 2.0 ImageButton.qml
 Menu        2.0 Menu.qml
+PasswordBox 2.0 PasswordBox.qml
 PictureBox  2.0 PictureBox.qml
 TextBox     2.0 TextBox.qml
