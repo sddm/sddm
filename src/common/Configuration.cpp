@@ -120,7 +120,7 @@ namespace SDDM {
         } else if (num_val == "off") {
             d->numlock = Configuration::NUM_SET_OFF;
         } else {
-            d->numlock = Configuration::NUM_SET_NONE;
+            d->numlock = Configuration::NUM_NONE;
         }
     }
 
