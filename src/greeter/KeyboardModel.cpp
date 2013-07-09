@@ -383,6 +383,9 @@ namespace SDDM {
                 d->numlock.enabled  = e->lockedMods & d->numlock.mask;
 
                 d->layout_id = e->group;
+            } else if (event->response_type != 0 && event->pad0 == XCB_XKB_NEW_KEYBOARD_NOTIFY) {
+                // Keyboards changed, reinit layouts
+                initLayouts();
             }
             free(event);
         }
@@ -395,8 +398,8 @@ namespace SDDM {
         xcb_generic_error_t *error = nullptr;
 
         cookie = xcb_xkb_select_events(m_conn, XCB_XKB_ID_USE_CORE_KBD,
-                                       XCB_XKB_EVENT_TYPE_STATE_NOTIFY, 0,
-                                       XCB_XKB_EVENT_TYPE_STATE_NOTIFY, 0, 0, &foo);
+                XCB_XKB_EVENT_TYPE_STATE_NOTIFY | XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY, 0,
+                XCB_XKB_EVENT_TYPE_STATE_NOTIFY | XCB_XKB_EVENT_TYPE_NEW_KEYBOARD_NOTIFY, 0, 0, &foo);
         // Check errors
         error = xcb_request_check(m_conn, cookie);
         if (error) {
@@ -487,6 +490,7 @@ namespace SDDM {
         // Save old states
         bool num_old = d->numlock.enabled, caps_old = d->capslock.enabled;
         int layout_old = d->layout_id;
+        QList<QObject*> layouts_old = d->layouts;
 
         // Process events
         m_backend->dispatchEvents();
@@ -500,6 +504,9 @@ namespace SDDM {
 
         if (layout_old != d->layout_id)
             emit currentLayoutChanged();
+
+        if (layouts_old != d->layouts)
+            emit layoutsChanged();
     }
 }
 

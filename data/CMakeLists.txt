@@ -13,6 +13,7 @@ configure_file(themes/maui/Main.qml                     themes/maui/Main.qml)
 configure_file(themes/maui/metadata.desktop             themes/maui/metadata.desktop)
 
 install(DIRECTORY   faces                               DESTINATION ${DATA_INSTALL_DIR})
+install(DIRECTORY   flags                               DESTINATION ${DATA_INSTALL_DIR})
 install(DIRECTORY   themes                              DESTINATION ${DATA_INSTALL_DIR})
 install(DIRECTORY   ${CMAKE_BINARY_DIR}/data/themes     DESTINATION ${DATA_INSTALL_DIR})
 

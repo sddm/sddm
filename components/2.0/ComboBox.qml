@@ -32,11 +32,27 @@ FocusScope {
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
     property color hoverColor: "#5692c4"
-    property alias font: txtMain.font
-    property alias textColor: txtMain.color
+    property color textColor: "black"
+    property font font
     property alias model: listView.model
     property int index: 0
     property alias arrowIcon: arrowIcon.source
+
+    property Component rowDelegate: defaultRowDelegate
+
+    signal valueChanged(int id)
+
+    Component {
+        id: defaultRowDelegate
+        Text {
+            anchors.fill: parent
+            anchors.margins: 4
+            verticalAlignment: Text.AlignVCenter
+            font: container.font
+
+            text: parent.modelItem.name
+        }
+    }
 
     onFocusChanged: if (!container.activeFocus) close(false)
 
@@ -63,19 +79,14 @@ FocusScope {
         ]
     }
 
-    Text {
-        id: txtMain
-        anchors.left: parent.left; anchors.right: arrow.left
-        anchors.margins: 4
-        height: parent.height
-
-        clip: true
-        color: "black"
+    Loader {
+        id: topRow
+        anchors.fill: parent
         focus: true
-        elide: Text.ElideRight
-        text: ""
+        clip: true
 
-        verticalAlignment: Text.AlignVCenter
+        sourceComponent: rowDelegate
+        property variant modelItem
     }
 
     Rectangle {
@@ -146,19 +157,15 @@ FocusScope {
                 width: dropDown.width; height: container.height
                 color: "transparent"
 
-                property string text: model.name
-
-                Text {
-                    id: textDelegate
+                Loader {
+                    id: loader
                     anchors.fill: parent
-                    anchors.margins: 4
+                    sourceComponent: rowDelegate
 
-                    text: model.name
-
-                    elide: Text.ElideRight
-                    font: txtMain.font
-                    verticalAlignment: Text.AlignVCenter
+                    property variant modelItem: model
                 }
+
+                property variant modelItem: model
 
                 MouseArea {
                     id: delegateMouseArea
@@ -213,12 +220,19 @@ FocusScope {
 
         if (update) {
             container.index = listView.currentIndex
-            txtMain.text = listView.currentItem.text
+            topRow.modelItem = listView.currentItem.modelItem
+            valueChanged(listView.currentIndex)
         }
     }
 
     Component.onCompleted: {
         listView.currentIndex = container.index
-        txtMain.text = listView.currentItem.text
+        topRow.modelItem = listView.currentItem.modelItem
     }
+
+     onIndexChanged: {
+         listView.currentIndex = container.index
+         if (listView.currentItem)
+             topRow.modelItem = listView.currentItem.modelItem
+     }
 }
