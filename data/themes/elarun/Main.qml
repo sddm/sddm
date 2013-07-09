@@ -116,7 +116,6 @@ Rectangle {
                             width: 150; height: 30
                             anchors.verticalCenter: parent.verticalCenter;
 
-                            image: "warning.png"
                             tooltipBG: "CornflowerBlue"
 
                             font.pixelSize: 14
