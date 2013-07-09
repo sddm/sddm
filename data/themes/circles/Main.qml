@@ -126,7 +126,6 @@ Rectangle {
                         id: password
                         width: parent.width; height: 30
                         font.pixelSize: 14
-                        image: "warning.png"
                         tooltipBG: "lightgrey"
 
                         KeyNavigation.backtab: name; KeyNavigation.tab: session

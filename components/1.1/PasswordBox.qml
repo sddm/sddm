@@ -67,6 +67,7 @@ FocusScope {
         smooth: true
         height: parent.height * 0.8
 
+        source: "warning.png"
         sourceSize.width: width
         sourceSize.height: height
 

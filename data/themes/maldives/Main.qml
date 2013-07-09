@@ -130,8 +130,6 @@ Rectangle {
                         width: parent.width; height: 30
                         font.pixelSize: 14
 
-                        image: "warning.png"
-
                         KeyNavigation.backtab: name; KeyNavigation.tab: session
 
                         Keys.onPressed: {
