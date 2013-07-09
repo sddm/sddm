@@ -50,8 +50,10 @@ FocusScope {
         id: txtMain
         width: parent.width; height: 30
         font.pixelSize: 14
-
+        
         echoMode: TextInput.Password
+
+        focus: true
     }
 
     Image {
