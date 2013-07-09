@@ -41,7 +41,7 @@ namespace SDDM {
 
         // Layouts control
         Q_PROPERTY(int currentLayout READ currentLayout WRITE setCurrentLayout NOTIFY currentLayoutChanged)
-        Q_PROPERTY(QList<QObject*> layouts READ layouts CONSTANT)
+        Q_PROPERTY(QList<QObject*> layouts READ layouts NOTIFY layoutsChanged)
 
         Q_PROPERTY(bool enabled READ enabled CONSTANT)
 
@@ -54,6 +54,7 @@ namespace SDDM {
         void capsLockStateChanged();
 
         void currentLayoutChanged();
+        void layoutsChanged();
 
     public slots:
         bool numLockState() const;
