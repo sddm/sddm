@@ -52,6 +52,8 @@ FocusScope {
         font.pixelSize: 14
 
         echoMode: TextInput.Password
+        
+        focus: true
     }
 
     Image {
