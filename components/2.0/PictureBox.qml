@@ -94,12 +94,11 @@ FocusScope {
             horizontalAlignment: Text.AlignHCenter
         }
 
-        TextBox {
+        PasswordBox {
             id: password
             width: parent.width; height: 30
             font.pixelSize: 14
 
-            echoMode: TextInput.Password
             focus: true
 
             Keys.onPressed: {
