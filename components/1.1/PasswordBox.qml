@@ -50,7 +50,7 @@ FocusScope {
         id: txtMain
         width: parent.width; height: 30
         font.pixelSize: 14
-        
+
         echoMode: TextInput.Password
 
         focus: true
@@ -152,7 +152,7 @@ FocusScope {
         Text {
             id: tooltipText
             anchors.centerIn: parent;
-            text: "Capslock is ON"
+            text: "Caps Lock is ON!"
         }
     }
 }
