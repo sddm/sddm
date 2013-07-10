@@ -36,7 +36,7 @@ namespace SDDM {
     class ScreenModel : public QAbstractListModel {
         Q_OBJECT
         Q_DISABLE_COPY(ScreenModel)
-        Q_PROPERTY(int primary READ primary CONSTANT)
+        Q_PROPERTY(int primary READ primary NOTIFY primaryChanged)
     public:
         enum ScreenRoles {
             NameRole = Qt::UserRole + 1,
@@ -49,7 +49,7 @@ namespace SDDM {
 #ifdef USE_QT5
         QHash<int, QByteArray> roleNames() const override;
 #endif
-        const int primary() const;
+        int primary() const;
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -64,7 +64,7 @@ namespace SDDM {
         void onScreenChanged();
 
     signals:
-        void screensChanged();
+        void primaryChanged();
 
     private:
         void initScreens(bool first);
