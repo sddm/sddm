@@ -82,7 +82,7 @@ namespace SDDM {
         QString socket = parameter(arguments(), "--socket", "");
 
         // get theme path
-        m_themePath = parameter(arguments(), "--theme", "");
+        QString themePath = parameter(arguments(), "--theme", "");
 
         // Initialize
     #ifdef USE_QT5
@@ -101,10 +101,10 @@ namespace SDDM {
         m_configuration = new Configuration(CONFIG_FILE);
 
         // read theme metadata
-        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(m_themePath));
+        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(themePath));
 
         // get theme config file
-        QString configFile = QString("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
+        QString configFile = QString("%1/%2").arg(themePath).arg(m_metadata->configFile());
 
         // read theme config
         m_themeConfig = new ThemeConfig(configFile);
@@ -135,13 +135,6 @@ namespace SDDM {
         // connect proxy signals
         QObject::connect(m_proxy, SIGNAL(loginSucceeded()), m_view, SLOT(close()));
 
-        // connect screen update signals
-        connect(m_screenModel, SIGNAL(screensChanged()), this, SLOT(initView()));
-
-        initView();
-    }
-
-    void GreeterApp::initView() {
         // set context properties
         m_view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
         m_view->rootContext()->setContextProperty("screenModel", m_screenModel);
@@ -151,15 +144,25 @@ namespace SDDM {
         m_view->rootContext()->setContextProperty("keyboard", m_keyboard);
 
         // get theme main script
-        QString mainScript = QString("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
+        QString mainScript = QString("%1/%2").arg(themePath).arg(m_metadata->mainScript());
 
         // set main script as source
         m_view->setSource(QUrl::fromLocalFile(mainScript));
 
-        // show view
+        // connect screen update signals
+        connect(m_screenModel, SIGNAL(primaryChanged()), this, SLOT(show()));
+
+        show();
+#ifndef USE_QT5
         m_view->showFullScreen();
+#endif
+    }
+
+    void GreeterApp::show() {
         m_view->setGeometry(m_screenModel->geometry());
+#ifdef USE_QT5
         m_view->showFullScreen();
+#endif
     }
 
 }
