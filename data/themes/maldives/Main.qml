@@ -141,29 +141,58 @@ Rectangle {
                     }
                 }
 
-                Column {
+                Row {
+                    spacing: 4
+                    width: parent.width / 2
                     z: 100
-                    width: parent.width
-                    spacing : 4
-                    Text {
-                        id: lblSession
-                        width: 60
-                        text: qsTr("Session")
-                        font.bold: true
-                        font.pixelSize: 12
+
+                    Column {
+                        z: 100
+                        width: parent.width * 1.3
+                        spacing : 4
+                        Text {
+                            id: lblSession
+                            width: 60
+                            text: qsTr("Session")
+                            font.bold: true
+                            font.pixelSize: 12
+                        }
+
+                        ComboBox {
+                            id: session
+                            width: parent.width; height: 30
+                            font.pixelSize: 14
+
+                            arrowIcon: "angle-down.png"
+
+                            model: sessionModel
+                            index: sessionModel.lastIndex
+
+                            KeyNavigation.backtab: password; KeyNavigation.tab: layoutBox
+                        }
                     }
 
-                    ComboBox {
-                        id: session
-                        width: parent.width; height: 30
-                        font.pixelSize: 14
+                    Column {
+                        z: 101
+                        width: parent.width * 0.7
+                        spacing : 4
+                        Text {
+                            id: lblLayout
+                            width: 60
+                            text: qsTr("Layout")
+                            font.bold: true
+                            font.pixelSize: 12
+                        }
 
-                        arrowIcon: "angle-down.png"
+                        LayoutBox {
+                            id: layoutBox
+                            width: parent.width; height: 30
+                            font.pixelSize: 14
 
-                        model: sessionModel
-                        index: sessionModel.lastIndex
+                            arrowIcon: "angle-down.png"
 
-                        KeyNavigation.backtab: password; KeyNavigation.tab: loginButton
+                            KeyNavigation.backtab: session; KeyNavigation.tab: loginButton
+                        }
                     }
                 }
 
@@ -187,7 +216,7 @@ Rectangle {
 
                         onClicked: sddm.login(name.text, password.text, session.index)
 
-                        KeyNavigation.backtab: session; KeyNavigation.tab: shutdownButton
+                        KeyNavigation.backtab: layoutBox; KeyNavigation.tab: shutdownButton
                     }
 
                     Button {
