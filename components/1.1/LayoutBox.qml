@@ -44,7 +44,7 @@ ComboBox {
 
         Image {
             id: img
-            source: "${DATA_INSTALL_DIR}/flags/%1.png".arg(modelItem.modelData.shortName)
+            source: "${DATA_INSTALL_DIR}/flags/%1.png".arg(modelItem ? modelItem.modelData.shortName : "zz")
 
             anchors.margins: 4
             fillMode: Image.PreserveAspectFit
@@ -62,7 +62,7 @@ ComboBox {
 
             verticalAlignment: Text.AlignVCenter
 
-            text: modelItem.modelData.shortName
+            text: modelItem ? modelItem.modelData.shortName : "zz"
             font.pixelSize: 14
         }
     }
