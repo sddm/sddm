@@ -178,7 +178,10 @@ FocusScope {
             id: listView
             width: container.width; height: container.height * count
             delegate: myDelegate
-            highlight: Rectangle { anchors.horizontalCenter: parent.horizontalCenter; color: container.hoverColor }
+            highlight: Rectangle {
+                anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined;
+                color: container.hoverColor
+            }
         }
 
         Rectangle {
@@ -221,7 +224,8 @@ FocusScope {
 
     Component.onCompleted: {
         listView.currentIndex = container.index
-        topRow.modelItem = listView.currentItem.modelItem
+        if (listView.currentItem)
+            topRow.modelItem = listView.currentItem.modelItem
     }
 
      onIndexChanged: {
