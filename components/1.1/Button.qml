@@ -51,17 +51,17 @@ Rectangle {
         State {
             name: "disabled"; when: (container.enabled === false)
             PropertyChanges { target: container; color: disabledColor }
-            PropertyChanges { target: main; color: disabledColor }
+            PropertyChanges { target: border; color: disabledColor }
         },
         State {
             name: "active"; when: container.enabled && container.isFocused && !container.isPressed
             PropertyChanges { target: container; color: activeColor }
-            PropertyChanges { target: main; color: activeColor }
+            PropertyChanges { target: border; color: activeColor }
         },
         State {
             name: "pressed"; when: container.enabled && container.isPressed
             PropertyChanges { target: container; color: pressedColor }
-            PropertyChanges { target: main; color: pressedColor }
+            PropertyChanges { target: border; color: pressedColor }
         }
     ]
 
