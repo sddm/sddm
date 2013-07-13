@@ -234,9 +234,15 @@ FocusScope {
             topRow.modelItem = listView.currentItem.modelItem
     }
 
-     onIndexChanged: {
-         listView.currentIndex = container.index
-         if (listView.currentItem)
-             topRow.modelItem = listView.currentItem.modelItem
-     }
+    onIndexChanged: {
+        listView.currentIndex = container.index
+        if (listView.currentItem)
+            topRow.modelItem = listView.currentItem.modelItem
+    }
+
+    onModelChanged: {
+        listView.currentIndex = container.index
+        if (listView.currentItem)
+            topRow.modelItem = listView.currentItem.modelItem
+    }
 }
