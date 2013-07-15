@@ -89,7 +89,7 @@ namespace SDDM {
         KeyboardBackend(KeyboardModelPrivate *kmp) : d(kmp) {
         }
 
-        virtual ~KeyboardBackend() = default;
+        virtual ~KeyboardBackend() {}
 
         virtual void init() = 0;
         virtual void disconnect() = 0;
@@ -110,7 +110,7 @@ namespace SDDM {
     class XcbKeyboardBackend : public KeyboardBackend {
     public:
         XcbKeyboardBackend(KeyboardModelPrivate *kmp);
-        ~XcbKeyboardBackend() = default;
+        virtual ~XcbKeyboardBackend() {}
 
         void init() override;
         void disconnect() override;
