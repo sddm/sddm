@@ -4,6 +4,7 @@ After=systemd-user-sessions.service
 
 [Service]
 ExecStart=@BIN_INSTALL_DIR@/sddm
+Restart=always
 
 [Install]
 Alias=display-manager.service
