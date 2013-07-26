@@ -231,17 +231,8 @@ namespace SDDM {
     }
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {
-        // authenticate
-        if (!m_authenticator->authenticate(user, password)) {
-            // emit signal
-            emit loginFailed(socket);
-
-            // return
-            return;
-        }
-
         // start session
-        if (!m_authenticator->start(user, session)) {
+        if (!m_authenticator->start(user, password, session)) {
             // emit signal
             emit loginFailed(socket);
 

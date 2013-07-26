@@ -46,7 +46,7 @@ namespace SDDM {
 #ifdef USE_PAM
     class PamService {
     public:
-        PamService(const char *service, const QString &user, const QString &password = "");
+        PamService(const char *service, const QString &user, const QString &password, bool passwordless);
         ~PamService();
 
         struct pam_conv m_converse;
@@ -55,6 +55,7 @@ namespace SDDM {
 
         QString user { "" };
         QString password { "" };
+        bool passwordless { false };
     };
 
     int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
@@ -83,7 +84,7 @@ namespace SDDM {
                 // clear password
                 c->password = "";
             }
-                break;
+            break;
             case PAM_PROMPT_ECHO_ON: {
                 PamService *c = static_cast<PamService *>(data);
                 // set user
@@ -93,10 +94,10 @@ namespace SDDM {
                 // clear user
                 c->user = "";
             }
-                break;
+            break;
             case PAM_ERROR_MSG:
             case PAM_TEXT_INFO:
-                break;
+            break;
             default:
                 failed = true;
             }
@@ -119,7 +120,7 @@ namespace SDDM {
         return PAM_SUCCESS;
     }
 
-    PamService::PamService(const char *service, const QString &user, const QString &password) : user(user), password(password) {
+    PamService::PamService(const char *service, const QString &user, const QString &password, bool passwordless) : user(user), password(password), passwordless(passwordless) {
         // create context
         m_converse = { &converse, this };
 
@@ -140,54 +141,15 @@ namespace SDDM {
         stop();
     }
 
-    bool Authenticator::authenticate(const QString &user, const QString &password) {
-#ifdef USE_PAM
-        PamService pam("sddm", user, password);
-
-        // authenticate the applicant
-        if ((pam.result = pam_authenticate(pam.handle, 0)) != PAM_SUCCESS)
-            return false;
-
-        if ((pam.result = pam_acct_mgmt(pam.handle, 0)) == PAM_NEW_AUTHTOK_REQD)
-            pam.result = pam_chauthtok(pam.handle, PAM_CHANGE_EXPIRED_AUTHTOK);
-
-        if (pam.result != PAM_SUCCESS)
-            return false;
-#else
-        // user name
-        struct passwd *pw;
-        if ((pw = getpwnam(qPrintable(user))) == nullptr) {
-            // log error
-            qCritical() << " DAEMON: Failed to get user entry.";
-
-            // return fail
-            return false;
-        }
-
-        struct spwd *sp;
-        if ((sp = getspnam(pw->pw_name)) == nullptr) {
-            // log error
-            qCritical() << " DAEMON: Failed to get shadow entry.";
-
-            // return fail
-            return false;
-        }
-
-        // check if pass is empty
-        if (sp->sp_pwdp == 0 || sp->sp_pwdp[0] == '\0')
-            return true;
-
-        // encryp password
-        char *encrypted = crypt(qPrintable(password), sp->sp_pwdp);
-
-        // check and return result
-        return (strcmp(encrypted, sp->sp_pwdp) == 0);
-#endif
-
-        return true;
+    bool Authenticator::start(const QString &user, const QString &session) {
+        return doStart(user, QString(), session, true);
     }
 
-    bool Authenticator::start(const QString &user, const QString &session) {
+    bool Authenticator::start(const QString &user, const QString &password, const QString &session) {
+        return doStart(user, password, session, false);
+    }
+
+    bool Authenticator::doStart(const QString &user, const QString &password, const QString &session, bool passwordless) {
         // check flag
         if (m_started)
             return false;
@@ -240,7 +202,19 @@ namespace SDDM {
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
 #ifdef USE_PAM
-        PamService pam("sddm", user);
+        PamService pam("sddm", user, password, passwordless);
+
+        if (!passwordless) {
+            // authenticate the applicant
+            if ((pam.result = pam_authenticate(pam.handle, 0)) != PAM_SUCCESS)
+                return false;
+
+            if ((pam.result = pam_acct_mgmt(pam.handle, 0)) == PAM_NEW_AUTHTOK_REQD)
+                pam.result = pam_chauthtok(pam.handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+
+            if (pam.result != PAM_SUCCESS)
+                return false;
+        }
 
         // set username
         if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(user))) != PAM_SUCCESS)
@@ -267,6 +241,37 @@ namespace SDDM {
         if ((pam.result = pam_get_item(pam.handle, PAM_USER, (const void **)&mapped)) != PAM_SUCCESS)
             return false;
 #else
+        if (!passwordless) {
+            // user name
+            struct passwd *pw;
+            if ((pw = getpwnam(qPrintable(user))) == nullptr) {
+                // log error
+                qCritical() << " DAEMON: Failed to get user entry.";
+
+                // return fail
+                return false;
+            }
+
+            struct spwd *sp;
+            if ((sp = getspnam(pw->pw_name)) == nullptr) {
+                // log error
+                qCritical() << " DAEMON: Failed to get shadow entry.";
+
+                // return fail
+                return false;
+            }
+
+            // check if password is not empty
+            if (sp->sp_pwdp && sp->sp_pwdp[0]) {
+
+                // encrypt password
+                char *encrypted = crypt(qPrintable(password), sp->sp_pwdp);
+
+                if (strcmp(encrypted, sp->sp_pwdp))
+                    return false;
+            }
+        }
+
         char *mapped = strdup(qPrintable(user));
 #endif
 

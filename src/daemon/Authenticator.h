@@ -34,9 +34,9 @@ namespace SDDM {
         ~Authenticator();
 
     public slots:
-        bool authenticate(const QString &user, const QString &password);
+        bool start(const QString &user, const QString &session);
+        bool start(const QString &user, const QString &password, const QString &session);
 
-        bool start(const QString &user, const QString &command);
         void stop();
         void finished();
 
@@ -44,6 +44,8 @@ namespace SDDM {
         void stopped();
 
     private:
+        bool doStart(const QString &user, const QString &password, const QString &session, bool passwordless);
+
         bool m_started { false };
 
         Session *process { nullptr };
