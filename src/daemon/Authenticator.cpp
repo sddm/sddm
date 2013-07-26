@@ -75,31 +75,31 @@ namespace SDDM {
             aresp[i].resp_retcode = 0;
             aresp[i].resp = nullptr;
             switch (msg[i]->msg_style) {
-            case PAM_PROMPT_ECHO_OFF: {
-                PamService *c = static_cast<PamService *>(data);
-                // set password
-                aresp[i].resp = strdup(qPrintable(c->password));
-                if (aresp[i].resp == nullptr)
+                case PAM_PROMPT_ECHO_OFF: {
+                    PamService *c = static_cast<PamService *>(data);
+                    // set password
+                    aresp[i].resp = strdup(qPrintable(c->password));
+                    if (aresp[i].resp == nullptr)
+                        failed = true;
+                    // clear password
+                    c->password = "";
+                }
+                    break;
+                case PAM_PROMPT_ECHO_ON: {
+                    PamService *c = static_cast<PamService *>(data);
+                    // set user
+                    aresp[i].resp = strdup(qPrintable(c->user));
+                    if (aresp[i].resp == nullptr)
+                        failed = true;
+                    // clear user
+                    c->user = "";
+                }
+                    break;
+                case PAM_ERROR_MSG:
+                case PAM_TEXT_INFO:
+                    break;
+                default:
                     failed = true;
-                // clear password
-                c->password = "";
-            }
-            break;
-            case PAM_PROMPT_ECHO_ON: {
-                PamService *c = static_cast<PamService *>(data);
-                // set user
-                aresp[i].resp = strdup(qPrintable(c->user));
-                if (aresp[i].resp == nullptr)
-                    failed = true;
-                // clear user
-                c->user = "";
-            }
-            break;
-            case PAM_ERROR_MSG:
-            case PAM_TEXT_INFO:
-            break;
-            default:
-                failed = true;
             }
         }
 
