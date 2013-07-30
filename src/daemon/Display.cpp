@@ -159,6 +159,21 @@ namespace SDDM {
         m_displayServer->setDisplay(m_display);
         m_displayServer->setAuthPath(m_authPath);
 
+        // set greeter params
+        m_greeter->setDisplay(m_display);
+        m_greeter->setAuthPath(m_authPath);
+        m_greeter->setSocket(m_socket);
+        m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
+
+        // set socket server name
+        m_socketServer->setSocket(m_socket);
+
+        // start greeter when the display server is ready
+        connect(m_displayServer, SIGNAL(started()), m_greeter, SLOT(start()));
+
+        // start socket server
+        m_socketServer->start();
+
         // start display server
         m_displayServer->start();
 
@@ -176,21 +191,6 @@ namespace SDDM {
             // return
             return;
         }
-
-        // set socket server name
-        m_socketServer->setSocket(m_socket);
-
-        // start socket server
-        m_socketServer->start();
-
-        // set greeter params
-        m_greeter->setDisplay(m_display);
-        m_greeter->setAuthPath(m_authPath);
-        m_greeter->setSocket(m_socket);
-        m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
-
-        // start greeter
-        m_greeter->start();
 
         // reset first flag
         daemonApp->configuration()->first = false;

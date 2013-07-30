@@ -23,6 +23,7 @@
 #include <QObject>
 
 class QProcess;
+class QTimer;
 
 namespace SDDM {
 
@@ -42,11 +43,13 @@ namespace SDDM {
         void finished();
 
     signals:
+        void started();
         void stopped();
 
-    private:
-        bool waitForStarted(int msecs = 10000);
+    private slots:
+        void checkServerConnection(int msecsRemaining = 100000);
 
+    private:
         bool m_started { false };
 
         QString m_display { "" };

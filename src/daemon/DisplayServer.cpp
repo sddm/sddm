@@ -25,6 +25,7 @@
 
 #include <QDebug>
 #include <QProcess>
+#include <QTimer>
 
 #include <xcb/xcb.h>
 
@@ -77,6 +78,9 @@ namespace SDDM {
             process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->terminalId()), 2, '0')});
         }
 
+        // when the process starts, start trying to connect to it
+        connect(process, SIGNAL(started()), SLOT(checkServerConnection()));
+
         // wait for display server to start
         if (!process->waitForStarted()) {
             // log message
@@ -85,21 +89,6 @@ namespace SDDM {
             // return fail
             return false;
         }
-
-        // wait until we can connect to the display server
-        if (!this->waitForStarted()) {
-            // log message
-            qCritical() << " DAEMON: Failed to connect to the display server.";
-
-            // return fail
-            return false;
-        }
-
-        // log message
-        qDebug() << " DAEMON: Display server started.";
-
-        // set flag
-        m_started = true;
 
         // return success
         return true;
@@ -140,45 +129,53 @@ namespace SDDM {
         emit stopped();
     }
 
-    bool DisplayServer::waitForStarted(int msecs) {
-        bool result = false;
-
+    void DisplayServer::checkServerConnection(int msecsRemaining) {
         // get cookie from the display
-        QString cookie = qobject_cast<Display *>(parent())->cookie();
-
-        // connection object
-        xcb_connection_t *connection = nullptr;
+        static QString cookie = qobject_cast<Display *>(parent())->cookie();
 
         // auth object
-        xcb_auth_info_t auth_info { 18, strdup("MIT-MAGIC-COOKIE-1"), cookie.length(), strdup(qPrintable(cookie)) };
+        static xcb_auth_info_t auth_info = { 18, strdup("MIT-MAGIC-COOKIE-1"), cookie.length(), strdup(qPrintable(cookie)) };
 
-        // try to connect to the server
-        for (int i = 0; i < (msecs / 100); ++i) {
+        // timeout
+        if (msecsRemaining < 10000) {
+            // log message
+            qCritical() << " DAEMON: Failed to connect to the display server.";
+
+            // stop the display server
+            process->terminate();
+
+            // notify about stopping this display server
+            emit stopped();
+            return;
+        }
+        else {
+            // connection object
+            xcb_connection_t *connection = nullptr;
 
             // try to connect to the server
             connection = xcb_connect_to_display_with_auth_info(qPrintable(m_display), &auth_info, nullptr);
 
             // check connection
-            if (connection != nullptr)
-                break;
+            if (connection != nullptr) {
+                xcb_disconnect(connection);
 
-            // sleep for 100 miliseconds
-            usleep(100000);
-        }
+                // log message
+                qDebug() << " DAEMON: Display server started.";
 
-        if (connection != nullptr) {
-            // close connection
-            xcb_disconnect(connection);
+                // set flag
+                m_started = true;
 
-            // set success flag
-            result = true;
+                // notify about possibility to use the server
+                emit started();
+            }
+            else {
+                // sleep for 10000 miliseconds
+                QTimer::singleShot(10000, this, SLOT(checkServerConnection(msecsRemaining - 10000)));
+            }
         }
 
         // free resources
         free(auth_info.data);
         free(auth_info.name);
-
-        // return result
-        return result;
     }
 }
