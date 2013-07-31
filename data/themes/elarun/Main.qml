@@ -103,7 +103,7 @@ Rectangle {
 
                             font.pixelSize: 14
 
-                            KeyNavigation.backtab: hibernate_button; KeyNavigation.tab: pw_entry
+                            KeyNavigation.backtab: layoutBox; KeyNavigation.tab: pw_entry
                         }
                     }
 
@@ -196,7 +196,7 @@ Rectangle {
                             visible: sddm.canHibernate
                             onClicked: sddm.hibernate()
 
-                            KeyNavigation.backtab: suspend_button; KeyNavigation.tab: user_entry
+                            KeyNavigation.backtab: suspend_button; KeyNavigation.tab: session
                         }
                     }
 
@@ -222,6 +222,64 @@ Rectangle {
                         index: sessionModel.lastIndex
                     }
                 }
+            }
+        }
+    }
+
+    Rectangle {
+        id: actionBar
+        anchors.top: parent.top;
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width; height: 40
+
+        Row {
+            anchors.left: parent.left
+            anchors.margins: 5
+            height: parent.height
+            spacing: 5
+
+            Text {
+                height: parent.height
+                anchors.verticalCenter: parent.verticalCenter
+
+                text: qsTr("Session:")
+                font.pixelSize: 14
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            ComboBox {
+                id: session
+                width: 245
+                anchors.verticalCenter: parent.verticalCenter
+
+                arrowIcon: "angle-down.png"
+
+                model: sessionModel
+                index: sessionModel.lastIndex
+
+                font.pixelSize: 14
+
+                KeyNavigation.backtab: hibernate_button; KeyNavigation.tab: layoutBox
+            }
+
+            Text {
+                height: parent.height
+                anchors.verticalCenter: parent.verticalCenter
+
+                text: qsTr("Layout:")
+                font.pixelSize: 14
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            LayoutBox {
+                id: layoutBox
+                width: 90
+                anchors.verticalCenter: parent.verticalCenter
+                font.pixelSize: 14
+
+                arrowIcon: "angle-down.png"
+
+                KeyNavigation.backtab: session; KeyNavigation.tab: user_entry
             }
         }
     }
