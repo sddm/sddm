@@ -105,10 +105,16 @@ namespace SDDM {
         m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(themePath));
 
         // Translations
-        m_translator = new QTranslator();
-        m_translator->load(QLocale::system(), "", "",
+        // Components translation
+        m_components_tranlator = new QTranslator();
+        m_components_tranlator->load(QLocale::system(), "", "", DATA_INSTALL_DIR "/translations/");
+        installTranslator(m_components_tranlator);
+
+        // Theme specific translation
+        m_theme_translator = new QTranslator();
+        m_theme_translator->load(QLocale::system(), "", "",
                            QString("%1/%2/").arg(themePath, m_metadata->translationsDirectory()));
-        installTranslator(m_translator);
+        installTranslator(m_theme_translator);
 
         // get theme config file
         QString configFile = QString("%1/%2").arg(themePath).arg(m_metadata->configFile());
