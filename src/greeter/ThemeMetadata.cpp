@@ -26,6 +26,7 @@ namespace SDDM {
     public:
         QString mainScript { "Main.qml" };
         QString configFile { "" };
+        QString translationsDirectory { "." };
     };
 
     ThemeMetadata::ThemeMetadata(const QString &path, QObject *parent) : QObject(parent), d(new ThemeMetadataPrivate()) {
@@ -33,6 +34,7 @@ namespace SDDM {
         // read values
         d->mainScript = settings.value("SddmGreeterTheme/MainScript", d->mainScript).toString();
         d->configFile = settings.value("SddmGreeterTheme/ConfigFile", d->configFile).toString();
+        d->translationsDirectory = settings.value("SddmGreeterTheme/TranslationsDirectory", d->translationsDirectory).toString();
     }
 
     ThemeMetadata::~ThemeMetadata() {
@@ -45,5 +47,9 @@ namespace SDDM {
 
     const QString &ThemeMetadata::configFile() const {
         return d->configFile;
+    }
+
+    const QString &ThemeMetadata::translationsDirectory() const {
+        return d->translationsDirectory;
     }
 }

@@ -42,6 +42,7 @@
 #include <QDeclarativeEngine>
 #endif
 #include <QDebug>
+#include <QTranslator>
 
 #include <iostream>
 
@@ -102,6 +103,12 @@ namespace SDDM {
 
         // read theme metadata
         m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(themePath));
+
+        // Translations
+        m_translator = new QTranslator();
+        m_translator->load(QLocale::system(), "", "",
+                           QString("%1/%2/").arg(themePath, m_metadata->translationsDirectory()));
+        installTranslator(m_translator);
 
         // get theme config file
         QString configFile = QString("%1/%2").arg(themePath).arg(m_metadata->configFile());
