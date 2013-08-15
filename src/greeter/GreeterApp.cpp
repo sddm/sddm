@@ -107,14 +107,14 @@ namespace SDDM {
         // Translations
         // Components translation
         m_components_tranlator = new QTranslator();
-        m_components_tranlator->load(QLocale::system(), "", "", COMPONENTS_TRANSLATION_DIR);
-        installTranslator(m_components_tranlator);
+        if (m_components_tranlator->load(QLocale::system(), "", "", COMPONENTS_TRANSLATION_DIR))
+            installTranslator(m_components_tranlator);
 
         // Theme specific translation
         m_theme_translator = new QTranslator();
-        m_theme_translator->load(QLocale::system(), "", "",
-                           QString("%1/%2/").arg(themePath, m_metadata->translationsDirectory()));
-        installTranslator(m_theme_translator);
+        if (m_theme_translator->load(QLocale::system(), "", "",
+                           QString("%1/%2/").arg(themePath, m_metadata->translationsDirectory())))
+            installTranslator(m_theme_translator);
 
         // get theme config file
         QString configFile = QString("%1/%2").arg(themePath).arg(m_metadata->configFile());
