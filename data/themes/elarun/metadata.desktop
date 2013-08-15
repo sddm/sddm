@@ -42,6 +42,7 @@ License=GPL
 Version=0.1
 MainScript=Main.qml
 ConfigFile=theme.conf
+TranslationsDirectory=translations
 Theme-Id=elarun
 Theme-API=${COMPONENTS_VERSION}
 Website=https://github.com/sddm/sddm
