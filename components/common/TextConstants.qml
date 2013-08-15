@@ -25,18 +25,18 @@
 import QtQuick ${COMPONENTS_VERSION}
 
 QtObject {
-    readonly property string capslockWarning:   qsTr("Warning, Caps Lock is ON!")
-    readonly property string layout:            qsTr("Layout")
-    readonly property string login:             qsTr("Login")
-    readonly property string loginFailed:       qsTr("Login failed")
-    readonly property string loginSucceded:     qsTr("Login succeeded")
-    readonly property string password:          qsTr("Password")
-    readonly property string prompt:            qsTr("Enter your username and password")
-    readonly property string promptSelectUser:  qsTr("Select your user and enter password")
-    readonly property string reboot:            qsTr("Reboot")
-    readonly property string session:           qsTr("Session")
-    readonly property string shutdown:          qsTr("Shutdown")
-    readonly property string userName:          qsTr("User name")
-    readonly property string welcomeText:       qsTr("Welcome to %1")
+    ${READONLY_KEYWORD} property string capslockWarning:   qsTr("Warning, Caps Lock is ON!")
+    ${READONLY_KEYWORD} property string layout:            qsTr("Layout")
+    ${READONLY_KEYWORD} property string login:             qsTr("Login")
+    ${READONLY_KEYWORD} property string loginFailed:       qsTr("Login failed")
+    ${READONLY_KEYWORD} property string loginSucceded:     qsTr("Login succeeded")
+    ${READONLY_KEYWORD} property string password:          qsTr("Password")
+    ${READONLY_KEYWORD} property string prompt:            qsTr("Enter your username and password")
+    ${READONLY_KEYWORD} property string promptSelectUser:  qsTr("Select your user and enter password")
+    ${READONLY_KEYWORD} property string reboot:            qsTr("Reboot")
+    ${READONLY_KEYWORD} property string session:           qsTr("Session")
+    ${READONLY_KEYWORD} property string shutdown:          qsTr("Shutdown")
+    ${READONLY_KEYWORD} property string userName:          qsTr("User name")
+    ${READONLY_KEYWORD} property string welcomeText:       qsTr("Welcome to %1")
 }
 
