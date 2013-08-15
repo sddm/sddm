@@ -46,6 +46,10 @@ FocusScope {
     property alias tooltipFG: tooltipText.color
     property alias tooltipBG: tooltip.color
 
+    TextConstants {
+        id: textConstants
+    }
+
     TextBox {
         id: txtMain
         width: parent.width; height: 30
@@ -154,7 +158,7 @@ FocusScope {
         Text {
             id: tooltipText
             anchors.centerIn: parent;
-            text: "Caps Lock is ON!"
+            text: textConstants.capslockWarning
         }
     }
 }
