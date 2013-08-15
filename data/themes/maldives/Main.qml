@@ -30,17 +30,19 @@ Rectangle {
     width: 640
     height: 480
 
+    TextConstants { id: textConstants }
+
     Connections {
         target: sddm
 
         onLoginSucceeded: {
             errorMessage.color = "steelblue"
-            errorMessage.text = qsTr("Login succeeded.")
+            errorMessage.text = textConstants.loginSucceeded
         }
 
         onLoginFailed: {
             errorMessage.color = "red"
-            errorMessage.text = qsTr("Login failed.")
+            errorMessage.text = textConstants.loginFailed
         }
     }
 
@@ -82,7 +84,7 @@ Rectangle {
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: "black"
-                    text: qsTr("Welcome to ") + sddm.hostName
+                    text: textConstants.welcomeText.arg(sddm.hostName)
                     font.pixelSize: 24
                 }
 
@@ -92,7 +94,7 @@ Rectangle {
                     Text {
                         id: lblName
                         width: 60
-                        text: qsTr("User name")
+                        text: textConstants.userName
                         font.bold: true
                         font.pixelSize: 12
                     }
@@ -120,7 +122,7 @@ Rectangle {
                     Text {
                         id: lblPassword
                         width: 60
-                        text: qsTr("Password")
+                        text: textConstants.password
                         font.bold: true
                         font.pixelSize: 12
                     }
@@ -153,7 +155,7 @@ Rectangle {
                         Text {
                             id: lblSession
                             width: 60
-                            text: qsTr("Session")
+                            text: textConstants.session
                             font.bold: true
                             font.pixelSize: 12
                         }
@@ -179,7 +181,7 @@ Rectangle {
                         Text {
                             id: lblLayout
                             width: 60
-                            text: qsTr("Layout")
+                            text: textConstants.layout
                             font.bold: true
                             font.pixelSize: 12
                         }
@@ -201,7 +203,7 @@ Rectangle {
                     Text {
                         id: errorMessage
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: qsTr("Enter your user name and password.")
+                        text: textConstants.prompt
                         font.pixelSize: 10
                     }
                 }
@@ -212,7 +214,7 @@ Rectangle {
 
                     Button {
                         id: loginButton
-                        text: qsTr("Login")
+                        text: textConstants.login
 
                         onClicked: sddm.login(name.text, password.text, session.index)
 
@@ -221,7 +223,7 @@ Rectangle {
 
                     Button {
                         id: shutdownButton
-                        text: qsTr("Shutdown")
+                        text: textConstants.shutdown
 
                         onClicked: sddm.powerOff()
 
@@ -230,7 +232,7 @@ Rectangle {
 
                     Button {
                         id: rebootButton
-                        text: qsTr("Reboot")
+                        text: textConstants.reboot
 
                         onClicked: sddm.reboot()
 

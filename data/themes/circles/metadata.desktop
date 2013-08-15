@@ -10,6 +10,7 @@ Website=https://github.com/sddm/sddm
 Screenshot=circles.jpg
 MainScript=Main.qml
 ConfigFile=theme.conf
+TranslationsDirectory=translations
 Email=abdurrahmanavci@gmail.com
 Theme-Id=circles
 Theme-API=${COMPONENTS_VERSION}

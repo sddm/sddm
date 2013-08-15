@@ -32,13 +32,15 @@ Rectangle {
 
     property int sessionIndex: session.index
 
+    TextConstants { id: textConstants }
+
     Connections {
         target: sddm
         onLoginSucceeded: {
         }
 
         onLoginFailed: {
-            txtMessage.text = qsTr("Login failed. Please try again.")
+            txtMessage.text = textConstants.loginFailed
             listView.currentItem.password.text = ""
         }
     }
@@ -154,7 +156,7 @@ Rectangle {
                     anchors.margins: 20
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: "white"
-                    text: qsTr("Select your user and enter password.")
+                    text: textConstants.promptSelectUser
 
                     font.pixelSize: 20
                 }
@@ -177,7 +179,7 @@ Rectangle {
                     height: parent.height
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: qsTr("Session:")
+                    text: textConstants.session
                     font.pixelSize: 16
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -201,7 +203,7 @@ Rectangle {
                     height: parent.height
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: qsTr("Layout:")
+                    text: textConstants.layout
                     font.pixelSize: 16
                     verticalAlignment: Text.AlignVCenter
                 }
