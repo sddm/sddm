@@ -1,3 +1,7 @@
+if(USE_QT5)
+    set(READONLY_KEYWORD readonly)
+endif()
+
 configure_file(${COMPONENTS_VERSION}/LayoutBox.qml ${COMPONENTS_VERSION}/LayoutBox.qml)
 configure_file(common/TextConstants.qml common/TextConstants.qml)
 configure_file(common/qmldir common/qmldir)
