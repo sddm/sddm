@@ -82,4 +82,8 @@ else()
     target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES} ${QT_LIBRARIES})
 endif()
 
+# Translations
+add_dependencies(sddm-greeter components-translation)
+add_dependencies(sddm-greeter themes-translation)
+
 install(TARGETS sddm-greeter DESTINATION ${BIN_INSTALL_DIR})

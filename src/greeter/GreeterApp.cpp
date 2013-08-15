@@ -107,7 +107,7 @@ namespace SDDM {
         // Translations
         // Components translation
         m_components_tranlator = new QTranslator();
-        m_components_tranlator->load(QLocale::system(), "", "", DATA_INSTALL_DIR "/translations/");
+        m_components_tranlator->load(QLocale::system(), "", "", COMPONENTS_TRANSLATION_DIR);
         installTranslator(m_components_tranlator);
 
         // Theme specific translation

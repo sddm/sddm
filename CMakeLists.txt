@@ -43,6 +43,7 @@ find_package(XKB REQUIRED)
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)
   find_package(Qt5DBus REQUIRED)
+  find_package(Qt5LinguistTools REQUIRED)
 
   # find qt5 imports dir
   get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
@@ -85,14 +86,15 @@ else()
 endif()
 
 # set constants
-set(BIN_INSTALL_DIR     "${CMAKE_INSTALL_PREFIX}/bin"               CACHE PATH      "System binary install directory")
-set(DATA_INSTALL_DIR    "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACHE PATH      "System application data install directory")
-set(SYS_CONFIG_DIR      "/etc"                                      CACHE PATH      "System config directory")
-set(DBUS_CONFIG_DIR     "${SYS_CONFIG_DIR}/dbus-1/system.d"         CACHE PATH      "DBus config files directory")
+set(BIN_INSTALL_DIR             "${CMAKE_INSTALL_PREFIX}/bin"               CACHE PATH      "System binary install directory")
+set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACHE PATH      "System application data install directory")
+set(SYS_CONFIG_DIR              "/etc"                                      CACHE PATH      "System config directory")
+set(DBUS_CONFIG_DIR             "${SYS_CONFIG_DIR}/dbus-1/system.d"         CACHE PATH      "DBus config files directory")
 
-set(PASSWD_FILE         "${SYS_CONFIG_DIR}/passwd"                  CACHE PATH      "Path of the passwd file")
-set(CONFIG_FILE         "${SYS_CONFIG_DIR}/sddm.conf"               CACHE PATH      "Path of the sddm config file")
-set(LOG_FILE            "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")
+set(PASSWD_FILE                 "${SYS_CONFIG_DIR}/passwd"                  CACHE PATH      "Path of the passwd file")
+set(CONFIG_FILE                 "${SYS_CONFIG_DIR}/sddm.conf"               CACHE PATH      "Path of the sddm config file")
+set(LOG_FILE                    "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")
+set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"          CACHE PATH      "Components translations directory")
 
 add_subdirectory(components)
 add_subdirectory(data)
