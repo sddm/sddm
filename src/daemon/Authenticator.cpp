@@ -317,6 +317,9 @@ namespace SDDM {
             if (index != -1)
                 env.insert(s.left(index), s.mid(index + 1));
         }
+#else
+        // we strdup'd the string before in this branch
+        free(mapped);
 #endif
         env.insert("HOME", pw->pw_dir);
         env.insert("PWD", pw->pw_dir);
