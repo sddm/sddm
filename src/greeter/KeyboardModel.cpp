@@ -221,14 +221,19 @@ namespace SDDM {
             return;
         }
 
+        // Unpack
+        xcb_xkb_get_names_value_list_t list;
+        const void *buffer = xcb_xkb_get_names_value_list(reply);
+        xcb_xkb_get_names_value_list_unpack(buffer, reply->nTypes, reply->indicators,
+                reply->virtualMods, reply->groupNames, reply->nKeys, reply->nKeyAliases,
+                reply->nRadioGroups, reply->which, &list);
+
         // Get indicators count
-        xcb_xkb_get_names_value_list_t *list = (xcb_xkb_get_names_value_list_t *)xcb_xkb_get_names_value_list(reply);
-        int ind_cnt = xcb_xkb_get_names_value_list_indicator_names_length(reply, list);
-        xcb_atom_t *indicators = (xcb_atom_t *) list;
+        int ind_cnt = xcb_xkb_get_names_value_list_indicator_names_length(reply, &list);
 
         // Loop through indicators and get their properties
         for (int i = 0; i < ind_cnt; i++) {
-            QString name = atomName(indicators[i]);
+            QString name = atomName(list.indicatorNames[i]);
 
             if (name == "Num Lock") {
                 d->numlock.mask = getIndicatorMask(i);
@@ -257,21 +262,23 @@ namespace SDDM {
             qCritical() << "Can't init layouts: " << error->error_code;
             return;
         }
-        xcb_xkb_get_names_value_list_t * val = (xcb_xkb_get_names_value_list_t *)xcb_xkb_get_names_value_list(reply);
 
-        // Actual count is cnt + 1, since NAME_DETAIL_SYMBOLS is requested
-        int cnt = xcb_xkb_get_names_value_list_groups_length(reply, val);
-
-
-        xcb_atom_t *ptr = (xcb_atom_t *)val;
+        // Unpack
+        const void *buffer = xcb_xkb_get_names_value_list(reply);
+        xcb_xkb_get_names_value_list_t res_list;
+        xcb_xkb_get_names_value_list_unpack(buffer, reply->nTypes, reply->indicators,
+                reply->virtualMods, reply->groupNames, reply->nKeys, reply->nKeyAliases,
+                reply->nRadioGroups, reply->which, &res_list);
 
         // Get short names
-        QList<QString> short_names = parseShortNames(atomName(ptr[0]));
+        QList<QString> short_names = parseShortNames(atomName(res_list.symbolsName));
 
         // Loop through group names
         d->layouts.clear();
-        for (int i = 0; i < cnt; i++) {
-            QString nshort, nlong = atomName(ptr[i + 1]);
+        int groups_cnt = xcb_xkb_get_names_value_list_groups_length(reply, &res_list);
+
+        for (int i = 0; i < groups_cnt; i++) {
+            QString nshort, nlong = atomName(res_list.groups[i]);
             if (i < short_names.length())
                 nshort = short_names[i];
 
