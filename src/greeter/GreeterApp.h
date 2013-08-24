@@ -28,6 +28,8 @@
 #include <QDeclarativeView>
 #endif
 
+class QTranslator;
+
 namespace SDDM {
     class Configuration;
     class ThemeMetadata;
@@ -65,6 +67,9 @@ namespace SDDM {
 #else
         QDeclarativeView *m_view { nullptr };
 #endif
+        QTranslator *m_theme_translator { nullptr },
+                    *m_components_tranlator { nullptr };
+
         Configuration *m_configuration { nullptr };
         ThemeMetadata *m_metadata { nullptr };
         ThemeConfig *m_themeConfig { nullptr };

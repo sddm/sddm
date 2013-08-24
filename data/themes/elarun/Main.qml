@@ -30,6 +30,8 @@ Rectangle {
     width: 640
     height: 480
 
+    TextConstants { id: textConstants }
+
     Connections {
         target: sddm
         onLoginSucceeded: {
@@ -206,6 +208,7 @@ Rectangle {
                         anchors.bottom: parent.bottom
 
                         text: Qt.formatDateTime(new Date(), "dddd, dd MMMM yyyy HH:mm AP")
+
                         horizontalAlignment: Text.AlignRight
 
                         color: "#0b678c"
@@ -242,7 +245,7 @@ Rectangle {
                 height: parent.height
                 anchors.verticalCenter: parent.verticalCenter
 
-                text: qsTr("Session:")
+                text: textConstants.session
                 font.pixelSize: 14
                 verticalAlignment: Text.AlignVCenter
             }
@@ -266,7 +269,7 @@ Rectangle {
                 height: parent.height
                 anchors.verticalCenter: parent.verticalCenter
 
-                text: qsTr("Layout:")
+                text: textConstants.layout
                 font.pixelSize: 14
                 verticalAlignment: Text.AlignVCenter
             }
