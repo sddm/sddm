@@ -20,13 +20,14 @@
 #ifndef SDDM_CONSTANTS_H
 #define SDDM_CONSTANTS_H
 
-#define BIN_INSTALL_DIR     "@BIN_INSTALL_DIR@"
-#define DATA_INSTALL_DIR    "@DATA_INSTALL_DIR@"
-#define SYS_CONFIG_DIR      "@SYS_CONFIG_DIR@"
-#define IMPORTS_INSTALL_DIR "@QT_IMPORTS_DIR@"
+#define BIN_INSTALL_DIR             "@BIN_INSTALL_DIR@"
+#define DATA_INSTALL_DIR            "@DATA_INSTALL_DIR@"
+#define SYS_CONFIG_DIR              "@SYS_CONFIG_DIR@"
+#define IMPORTS_INSTALL_DIR         "@QT_IMPORTS_DIR@"
+#define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
 
-#define PASSWD_FILE         "@PASSWD_FILE@"
-#define CONFIG_FILE         "@CONFIG_FILE@"
-#define LOG_FILE            "@LOG_FILE@"
+#define PASSWD_FILE                 "@PASSWD_FILE@"
+#define CONFIG_FILE                 "@CONFIG_FILE@"
+#define LOG_FILE                    "@LOG_FILE@"
 
 #endif // SDDM_CONSTANTS_H
