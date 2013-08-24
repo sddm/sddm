@@ -1,5 +1,6 @@
 set(TRANSLATION_FILES
     ru.ts
+    tr.ts
 )
 
 if(USE_QT5)
