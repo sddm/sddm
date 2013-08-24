@@ -10,6 +10,7 @@ Website=https://github.com/sddm/sddm
 Screenshot=maui.jpg
 MainScript=Main.qml
 ConfigFile=theme.conf
+TranslationsDirectory=translations
 Email=abdurrahmanavci@gmail.com
 Theme-Id=maui
 Theme-API=${COMPONENTS_VERSION}

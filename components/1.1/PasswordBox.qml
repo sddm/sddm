@@ -153,7 +153,7 @@ FocusScope {
         Text {
             id: tooltipText
             anchors.centerIn: parent;
-            text: "Caps Lock is ON!"
+            text: qsTr("Caps Lock is ON!")
         }
     }
 }

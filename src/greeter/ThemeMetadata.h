@@ -34,6 +34,7 @@ namespace SDDM {
 
         const QString &mainScript() const;
         const QString &configFile() const;
+        const QString &translationsDirectory() const;
 
     private:
         ThemeMetadataPrivate *d { nullptr };
