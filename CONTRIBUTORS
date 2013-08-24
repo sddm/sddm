@@ -6,15 +6,15 @@ git shortlog -s -e -n
 Commit counts have ben removed, since they change pretty frequently.
 
 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+Nikita Mikhailov <nslqqq@gmail.com>
 Christopher Roy Bratusek <nano@tuxfamily.org>
 Reza Fatahilah Shah <rshah0385@kireihana.com>
 Aaron Seigo <aseigo@kde.org>
 Nathan Weber <supernathansunshine@gmail.com>
 Richard Martin <radiosity@gmail.com>
 Andrea Scarpino <andrea@archlinux.org>
-Nikita Mikhaylov <nslqqq@gmail.com>
 Kuzma Shapran <kuzma.shapran@gmail.com>
 Andreas Sturmlechner <andreas.sturmlechner@gmail.com>
 Cochise César <cochisecesar@gmail.com>
+Martin Briza <mbriza@redhat.com>
 Petr Vanek <petr@scribus.info>
-
