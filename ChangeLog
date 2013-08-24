@@ -6,6 +6,7 @@
 
 ## Master
 ---------
+    + Translations support for themes.
     + ~/.xsession-errors support
     + Works without PAM (needed for slackware)
     - Fixed a crash caused by incorrect handling of PAM
