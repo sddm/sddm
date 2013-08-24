@@ -6,9 +6,11 @@
 
 ## Master
 ---------
-    + Translations support for themes.
+    + Added translation support for themes.
+    + Added keyboard layout support.
     + ~/.xsession-errors support
     + Works without PAM (needed for slackware)
+    - Fixed incorrect PAM handling causing PulseAudio to fail.
     - Fixed a crash caused by incorrect handling of PAM
     - Correctly import PAM environment into the sesion
     - Fixed missing environment variables
