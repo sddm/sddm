@@ -74,18 +74,26 @@ Rectangle {
         Image {
             id: rectangle
             anchors.centerIn: parent
-            width: 320; height: 320
+            width: Math.max(320, mainColumn.implicitWidth + 50)
+            height: Math.max(320, mainColumn.implicitHeight + 50)
 
             source: "rectangle.png"
 
             Column {
+                id: mainColumn
                 anchors.centerIn: parent
                 spacing: 12
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: "black"
+                    verticalAlignment: Text.AlignVCenter
+                    height: text.implicitHeight
+                    width: parent.width
                     text: textConstants.welcomeText.arg(sddm.hostName)
+                    wrapMode: Text.WordWrap
                     font.pixelSize: 24
+                    elide: Text.ElideRight
+                    horizontalAlignment: Text.AlignHCenter
                 }
 
                 Column {
@@ -93,7 +101,7 @@ Rectangle {
                     spacing: 4
                     Text {
                         id: lblName
-                        width: 60
+                        width: parent.width
                         text: textConstants.userName
                         font.bold: true
                         font.pixelSize: 12
@@ -121,7 +129,7 @@ Rectangle {
                     spacing : 4
                     Text {
                         id: lblPassword
-                        width: 60
+                        width: parent.width
                         text: textConstants.password
                         font.bold: true
                         font.pixelSize: 12
@@ -135,7 +143,7 @@ Rectangle {
                         KeyNavigation.backtab: name; KeyNavigation.tab: session
 
                         Keys.onPressed: {
-                            if (event.key === Qt.Key_Return) {
+                            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 sddm.login(name.text, password.text, session.index)
                                 event.accepted = true
                             }
@@ -152,10 +160,13 @@ Rectangle {
                         z: 100
                         width: parent.width * 1.3
                         spacing : 4
+                        anchors.bottom: parent.bottom
+
                         Text {
                             id: lblSession
-                            width: 60
+                            width: parent.width
                             text: textConstants.session
+                            wrapMode: TextEdit.WordWrap
                             font.bold: true
                             font.pixelSize: 12
                         }
@@ -178,10 +189,13 @@ Rectangle {
                         z: 101
                         width: parent.width * 0.7
                         spacing : 4
+                        anchors.bottom: parent.bottom
+
                         Text {
                             id: lblLayout
-                            width: 60
+                            width: parent.width
                             text: textConstants.layout
+                            wrapMode: TextEdit.WordWrap
                             font.bold: true
                             font.pixelSize: 12
                         }
@@ -211,10 +225,13 @@ Rectangle {
                 Row {
                     spacing: 4
                     anchors.horizontalCenter: parent.horizontalCenter
-
+                    property int btnWidth: Math.max(loginButton.implicitWidth,
+                                                    shutdownButton.implicitWidth,
+                                                    rebootButton.implicitWidth, 80) + 8
                     Button {
                         id: loginButton
                         text: textConstants.login
+                        width: parent.btnWidth
 
                         onClicked: sddm.login(name.text, password.text, session.index)
 
@@ -224,6 +241,7 @@ Rectangle {
                     Button {
                         id: shutdownButton
                         text: textConstants.shutdown
+                        width: parent.btnWidth
 
                         onClicked: sddm.powerOff()
 
@@ -233,6 +251,7 @@ Rectangle {
                     Button {
                         id: rebootButton
                         text: textConstants.reboot
+                        width: parent.btnWidth
 
                         onClicked: sddm.reboot()
 
