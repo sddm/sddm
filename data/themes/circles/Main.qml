@@ -62,7 +62,8 @@ Rectangle {
 
         Rectangle {
             anchors.centerIn: parent
-            width: 320; height: 320
+            width: Math.max(320, mainColumn.implicitWidth + 40)
+            height: Math.max(320, mainColumn.implicitHeight + 40)
             gradient: Gradient {
                 GradientStop { position: 0.0; color: "#c3c3c3" }
                 GradientStop { position: 0.5; color: "#e5e5e5" }
@@ -73,14 +74,18 @@ Rectangle {
             border.width: 1
 
             Column {
+                id: mainColumn
                 anchors.centerIn: parent
                 spacing: 12
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
+                    verticalAlignment: Text.AlignVCenter
                     width: parent.width
+                    height: text.implicitHeight
                     color: "black"
                     text: textConstants.welcomeText.arg(sddm.hostName)
+                    wrapMode: Text.WordWrap
                     font.pixelSize: 24
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignHCenter
@@ -91,7 +96,7 @@ Rectangle {
                     spacing: 4
                     Text {
                         id: lblName
-                        width: 60
+                        width: parent.width
                         text: textConstants.userName
                         font.bold: true
                         font.pixelSize: 12
@@ -119,7 +124,7 @@ Rectangle {
                     spacing : 4
                     Text {
                         id: lblPassword
-                        width: 60
+                        width: parent.width
                         text: textConstants.password
                         font.bold: true
                         font.pixelSize: 12
@@ -151,10 +156,13 @@ Rectangle {
                         z: 100
                         width: parent.width * 1.3
                         spacing : 4
+                        anchors.bottom: parent.bottom
+
                         Text {
                             id: lblSession
-                            width: 60
+                            width: parent.width
                             text: textConstants.session
+                            wrapMode: TextEdit.WordWrap
                             font.bold: true
                             font.pixelSize: 12
                         }
@@ -177,10 +185,13 @@ Rectangle {
                         z: 101
                         width: parent.width * 0.7
                         spacing : 4
+                        anchors.bottom: parent.bottom
+
                         Text {
                             id: lblLayout
-                            width: 60
+                            width: parent.width
                             text: textConstants.layout
+                            wrapMode: TextEdit.WordWrap
                             font.bold: true
                             font.pixelSize: 12
                         }
@@ -210,9 +221,13 @@ Rectangle {
                 Row {
                     spacing: 4
                     anchors.horizontalCenter: parent.horizontalCenter
+                    property int btnWidth: Math.max(loginButton.implicitWidth,
+                                                    shutdownButton.implicitWidth,
+                                                    rebootButton.implicitWidth, 80) + 8
                     Button {
                         id: loginButton
                         text: textConstants.login
+                        width: parent.btnWidth
 
                         onClicked: sddm.login(name.text, password.text, session.index)
 
@@ -222,6 +237,7 @@ Rectangle {
                     Button {
                         id: shutdownButton
                         text: textConstants.shutdown
+                        width: parent.btnWidth
 
                         onClicked: sddm.powerOff()
 
@@ -231,6 +247,7 @@ Rectangle {
                     Button {
                         id: rebootButton
                         text: textConstants.reboot
+                        width: parent.btnWidth
 
                         onClicked: sddm.reboot()
 
@@ -242,7 +259,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        if (name.text === "")
+        if (name.text == "")
             name.focus = true
         else
             password.focus = true
