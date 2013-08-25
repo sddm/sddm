@@ -8,6 +8,7 @@
 ---------
     + Added translation support for themes.
     + Added keyboard layout support.
+    + Added option to turn on numlock at startup.
     + ~/.xsession-errors support
     + Works without PAM (needed for slackware)
     - Fixed incorrect PAM handling causing PulseAudio to fail.
