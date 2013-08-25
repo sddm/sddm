@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>Přihlášení</translation>
+        <translation>Přihlásit se</translation>
     </message>
     <message>
         <source>Login failed</source>
