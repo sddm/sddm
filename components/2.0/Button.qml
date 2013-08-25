@@ -32,6 +32,8 @@ Rectangle {
     property alias textColor: textArea.color
     property alias font: textArea.font
     property alias text: textArea.text
+    property alias implicitWidth: textArea.implicitWidth
+    property alias implicitHeight: textArea.implicitHeight
 
     color: "#4682b4"
     property color disabledColor: "#888888"
