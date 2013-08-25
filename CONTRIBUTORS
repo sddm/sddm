@@ -3,7 +3,9 @@ of commits at time of this writing. Commit data has been generated using:
 
 git shortlog -s -e -n
 
-Commit counts have ben removed, since they change pretty frequently.
+Commit counts have ben removed, since they change pretty frequently. Some of the
+the committer names and email addresses have changed, so we use .mailmap file to
+merge them.
 
 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 Nikita Mikhailov <nslqqq@gmail.com>
@@ -11,9 +13,10 @@ Christopher Roy Bratusek <nano@tuxfamily.org>
 Reza Fatahilah Shah <rshah0385@kireihana.com>
 Aaron Seigo <aseigo@kde.org>
 Nathan Weber <supernathansunshine@gmail.com>
+Andrea Scarpino <me@andreascarpino.it>
 Richard Martin <radiosity@gmail.com>
-Andrea Scarpino <andrea@archlinux.org>
 Kuzma Shapran <kuzma.shapran@gmail.com>
+František Zatloukal <Zatloukal.Frantisek@gmail.com>
 Andreas Sturmlechner <andreas.sturmlechner@gmail.com>
 Cochise César <cochisecesar@gmail.com>
 Martin Briza <mbriza@redhat.com>
