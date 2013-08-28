@@ -3,6 +3,7 @@ set(TRANSLATION_FILES
     it.ts
     ru.ts
     tr.ts
+    pt_BR.ts
 )
 
 if(USE_QT5)
