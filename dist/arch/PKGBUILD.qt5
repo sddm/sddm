@@ -7,7 +7,7 @@ backup=('etc/sddm.conf')
 url="http://github.com/sddm/sddm"
 license=('GPL')
 depends=('upower' 'qt5-declarative' 'libxcb')
-makedepends=('cmake' 'git')
+makedepends=('cmake' 'git' 'qt5-tools')
 provides=('sddm')
 replaces=('sddm')
 
