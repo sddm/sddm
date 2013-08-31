@@ -1,40 +1,36 @@
+# Maintainer: Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+
 pkgname=sddm-git
-pkgver=20130317
+pkgver=1d72070
 pkgrel=1
 pkgdesc="QML based X11 display manager"
 arch=('i686' 'x86_64')
 backup=('etc/sddm.conf')
-url="http://github.com/sddm/sddm"
+url="https://github.com/sddm/sddm"
 license=('GPL')
-depends=('upower' 'qt4' 'libxcb')
+depends=('qt4')
 makedepends=('cmake' 'git')
+conflicts=('sddm')
 provides=('sddm')
-replaces=('sddm')
+source=('git://github.com/sddm/sddm.git')
+md5sums=('SKIP')
 
-_gitroot="git://github.com/sddm/sddm.git"
 _gitname=sddm
 
+pkgver() {
+  cd $_gitname
+  # Use the tag of the last commit
+  git describe --always | sed 's|-|.|g'
+}
+
 build() {
-  cd "$srcdir"
-  msg "Connecting to GIT server...."
-
-  if [[ -d "$_gitname" ]]; then
-    cd "$_gitname" && git pull origin
-    msg "The local files are updated."
-  else
-    git clone "$_gitroot" "$_gitname"
-  fi
-
-  msg "GIT checkout done or server timeout"
-  msg "Starting build..."
-
-  mkdir -p $srcdir/build && cd $srcdir/build
-
-  cmake ../$_gitname -DCMAKE_INSTALL_PREFIX=/usr -DQT_QMAKE_EXECUTABLE=qmake-qt4
+  mkdir -p $_gitname/build
+  cd $_gitname/build
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DQT_QMAKE_EXECUTABLE=qmake-qt4
   make
 }
 
 package() {
-  cd $srcdir/build
+  cd $_gitname/build
   make DESTDIR="$pkgdir" install
 }
