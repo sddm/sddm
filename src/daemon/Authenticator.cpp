@@ -202,43 +202,49 @@ namespace SDDM {
         Seat *seat = qobject_cast<Seat *>(display->parent());
 
 #ifdef USE_PAM
-        PamService pam("sddm", user, password, passwordless);
+        if (m_pam)
+            delete m_pam;
+
+        m_pam = new PamService("sddm", user, password, passwordless);
+
+        if (!m_pam)
+            return false;
 
         if (!passwordless) {
             // authenticate the applicant
-            if ((pam.result = pam_authenticate(pam.handle, 0)) != PAM_SUCCESS)
+            if ((m_pam->result = pam_authenticate(m_pam->handle, 0)) != PAM_SUCCESS)
                 return false;
 
-            if ((pam.result = pam_acct_mgmt(pam.handle, 0)) == PAM_NEW_AUTHTOK_REQD)
-                pam.result = pam_chauthtok(pam.handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+            if ((m_pam->result = pam_acct_mgmt(m_pam->handle, 0)) == PAM_NEW_AUTHTOK_REQD)
+                m_pam->result = pam_chauthtok(m_pam->handle, PAM_CHANGE_EXPIRED_AUTHTOK);
 
-            if (pam.result != PAM_SUCCESS)
+            if (m_pam->result != PAM_SUCCESS)
                 return false;
         }
 
         // set username
-        if ((pam.result = pam_set_item(pam.handle, PAM_USER, qPrintable(user))) != PAM_SUCCESS)
+        if ((m_pam->result = pam_set_item(m_pam->handle, PAM_USER, qPrintable(user))) != PAM_SUCCESS)
             return false;
 
         // set credentials
-        if ((pam.result = pam_setcred(pam.handle, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
+        if ((m_pam->result = pam_setcred(m_pam->handle, PAM_ESTABLISH_CRED)) != PAM_SUCCESS)
             return false;
 
         // set tty
-        if ((pam.result = pam_set_item(pam.handle, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
+        if ((m_pam->result = pam_set_item(m_pam->handle, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // set display name
-        if ((pam.result = pam_set_item(pam.handle, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
+        if ((m_pam->result = pam_set_item(m_pam->handle, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
             return false;
 
         // open session
-        if ((pam.result = pam_open_session(pam.handle, 0)) != PAM_SUCCESS)
+        if ((m_pam->result = pam_open_session(m_pam->handle, 0)) != PAM_SUCCESS)
             return false;
 
         // get mapped user name; PAM may have changed it
         char *mapped;
-        if ((pam.result = pam_get_item(pam.handle, PAM_USER, (const void **)&mapped)) != PAM_SUCCESS)
+        if ((m_pam->result = pam_get_item(m_pam->handle, PAM_USER, (const void **)&mapped)) != PAM_SUCCESS)
             return false;
 #else
         if (!passwordless) {
@@ -304,7 +310,7 @@ namespace SDDM {
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 #ifdef USE_PAM
         // get pam environment
-        char **envlist = pam_getenvlist(pam.handle);
+        char **envlist = pam_getenvlist(m_pam->handle);
 
         // copy it to the env map
         for (int i = 0; envlist[i] != nullptr; ++i) {
@@ -398,6 +404,17 @@ namespace SDDM {
         // delete session process
         process->deleteLater();
         process = nullptr;
+
+#ifdef USE_PAM
+        if (m_pam) {
+            m_pam->result = pam_close_session(m_pam->handle, 0);
+            m_pam->result = pam_setcred(m_pam->handle, PAM_DELETE_CRED);
+            // for some reason this has to be called here too
+            pam_end(m_pam->handle, m_pam->result);
+            delete m_pam;
+            m_pam = nullptr;
+        }
+#endif
 
         // emit signal
         emit stopped();
