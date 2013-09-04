@@ -23,6 +23,9 @@
 #include <QObject>
 
 namespace SDDM {
+#ifdef USE_PAM
+    class PamService;
+#endif
     class Session;
 
     class AuthenticatorPrivate;
@@ -47,6 +50,10 @@ namespace SDDM {
         bool doStart(const QString &user, const QString &password, const QString &session, bool passwordless);
 
         bool m_started { false };
+
+#ifdef USE_PAM
+        PamService *m_pam { nullptr };
+#endif
 
         Session *process { nullptr };
     };
