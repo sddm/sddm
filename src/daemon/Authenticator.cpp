@@ -322,7 +322,10 @@ namespace SDDM {
             // add to the hash
             if (index != -1)
                 env.insert(s.left(index), s.mid(index + 1));
+
+            free(envlist[i]);
         }
+        free(envlist);
 #else
         // we strdup'd the string before in this branch
         free(mapped);
