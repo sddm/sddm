@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Вход неудался</translation>
+        <translation>Вход не удался</translation>
     </message>
     <message>
         <source>Login succeeded</source>
@@ -53,7 +53,7 @@
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>Выберете пользователя и введите пароль</translation>
+        <translation>Выберите пользователя и введите пароль</translation>
     </message>
 </context>
 </TS>
