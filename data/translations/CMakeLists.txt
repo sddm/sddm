@@ -2,10 +2,11 @@ set(TRANSLATION_FILES
     cs.ts
     fi.ts
     it.ts
+    pt_BR.ts
+    pt_PT.ts
     ro.ts
     ru.ts
     tr.ts
-    pt_BR.ts
     zh_CN.ts
 )
 
