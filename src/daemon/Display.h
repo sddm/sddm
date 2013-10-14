@@ -43,6 +43,7 @@ namespace SDDM {
         const QString &name() const;
 
         const QString &cookie() const;
+        const QByteArray rawCookie() const;
         void addCookie(const QString &file);
 
     public slots:

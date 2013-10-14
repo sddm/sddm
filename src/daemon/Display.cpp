@@ -133,6 +133,16 @@ namespace SDDM {
         return m_cookie;
     }
 
+    const QByteArray Display::rawCookie() const {
+        QByteArray cookie;
+        for (int i = 0; i < m_cookie.length() / 2; i++) {
+            // horrible, just horrible
+            quint8 byte = QString("%1%2").arg(m_cookie[i*2]).arg(m_cookie[i*2+1]).toUInt(nullptr, 16);
+            cookie.append(byte);
+        }
+        return cookie;
+    }
+
     void Display::addCookie(const QString &file) {
         // log message
         qDebug() << " DAEMON: Adding cookie to" << file;
