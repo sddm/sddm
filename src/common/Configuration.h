@@ -79,6 +79,8 @@ namespace SDDM {
         enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
         const NumState numlock() const;
 
+        bool xdmcpServerEnabled() const;
+
         bool first { true };
 
         bool testing { false };

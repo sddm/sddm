@@ -29,6 +29,9 @@ namespace SDDM {
     class DisplayManager;
     class PowerManager;
     class SeatManager;
+    namespace XDMCP {
+        class Server;
+    }
 
     class DaemonApp : public QCoreApplication {
         Q_OBJECT
@@ -57,6 +60,7 @@ namespace SDDM {
         DisplayManager *m_displayManager { nullptr };
         PowerManager *m_powerManager { nullptr };
         SeatManager *m_seatManager { nullptr };
+        XDMCP::Server *m_xdmcpServer { nullptr };
     };
 }
 

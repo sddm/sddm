@@ -34,6 +34,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
+        explicit Display(const QString& hostname, const int displayId, QObject *parent = 0);
         explicit Display(const int displayId, const int terminalId, QObject *parent = 0);
         ~Display();
 

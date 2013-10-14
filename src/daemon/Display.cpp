@@ -53,6 +53,19 @@ namespace SDDM {
         return name;
     }
 
+    Display::Display(const QString& hostname, const int displayId, QObject* parent)
+    : QObject(parent)
+    , m_displayId(displayId)
+    , m_authenticator(new Authenticator(this))
+    , m_displayServer(nullptr)
+    , m_socketServer(new SocketServer(this))
+    , m_greeter(new Greeter(this))
+    {
+        m_display = QString("%1:%2").arg(hostname).arg(displayId);
+
+        init();
+    }
+
     Display::Display(const int displayId, const int terminalId, QObject *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_authenticator(new Authenticator(this)),

@@ -20,6 +20,9 @@ set(DAEMON_SOURCES
     daemon/Session.cpp
     daemon/SignalHandler.cpp
     daemon/SocketServer.cpp
+    daemon/xdmcp/Packet.cpp
+    daemon/xdmcp/Server.cpp
+    daemon/xdmcp/Utils.cpp
 )
 
 if(USE_QT5)

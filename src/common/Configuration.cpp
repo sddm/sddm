@@ -63,6 +63,7 @@ namespace SDDM {
         bool autoRelogin { false };
 
         Configuration::NumState numlock { Configuration::NUM_NONE };
+        bool xdmcpServerEnabled { false };
     };
 
     Configuration::Configuration(const QString &configPath, QObject *parent) : QObject(parent), d(new ConfigurationPrivate()) {
@@ -122,6 +123,7 @@ namespace SDDM {
         } else {
             d->numlock = Configuration::NUM_NONE;
         }
+        d->xdmcpServerEnabled = settings.value("XDMCPServer", d->xdmcpServerEnabled).toBool();
     }
 
     void Configuration::save() {
@@ -158,6 +160,8 @@ namespace SDDM {
             settings.setValue("Numlock", "on");
         else if (d->numlock == NUM_SET_OFF)
             settings.setValue("Numlock", "off");
+
+        settings.setValue("XDMCPServer", d->xdmcpServerEnabled);
     }
 
     Configuration *Configuration::instance() {
@@ -261,4 +265,9 @@ namespace SDDM {
     const Configuration::NumState Configuration::numlock() const {
         return d->numlock;
     }
+
+    bool Configuration::xdmcpServerEnabled() const {
+        return d->xdmcpServerEnabled;
+    }
+
 }
