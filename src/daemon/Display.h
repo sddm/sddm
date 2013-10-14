@@ -58,6 +58,8 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
+        void init();
+
         bool m_relogin { true };
         bool m_started { false };
 

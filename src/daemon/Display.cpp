@@ -62,11 +62,16 @@ namespace SDDM {
 
         m_display = QString(":%1").arg(m_displayId);
 
-        // restart display after user session ended
-        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
-
         // restart display after display server ended
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+
+        init();
+    }
+
+    void Display::init()
+    {
+        // restart display after user session ended
+        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
@@ -155,12 +160,14 @@ namespace SDDM {
         // generate auth file
         addCookie(m_authPath);
 
-        // set display server params
-        m_displayServer->setDisplay(m_display);
-        m_displayServer->setAuthPath(m_authPath);
+        if (m_displayServer != nullptr) {
+            // set display server params
+            m_displayServer->setDisplay(m_display);
+            m_displayServer->setAuthPath(m_authPath);
 
-        // start display server
-        m_displayServer->start();
+            // start display server
+            m_displayServer->start();
+        }
 
         if ((daemonApp->configuration()->first || daemonApp->configuration()->autoRelogin()) &&
             !daemonApp->configuration()->autoUser().isEmpty() && !daemonApp->configuration()->lastSession().isEmpty()) {
@@ -216,9 +223,11 @@ namespace SDDM {
         m_socketServer->stop();
 
         // stop display server
-        m_displayServer->blockSignals(true);
-        m_displayServer->stop();
-        m_displayServer->blockSignals(false);
+        if (m_displayServer != nullptr) {
+            m_displayServer->blockSignals(true);
+            m_displayServer->stop();
+            m_displayServer->blockSignals(false);
+        }
 
         // remove authority file
         QFile::remove(m_authPath);
