@@ -95,6 +95,22 @@ namespace SDDM {
 
         // set socket name
         m_socket = QString("sddm-%1-%2").arg(m_display).arg(generateName(6));
+
+        // generate cookie
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 15);
+
+        // resever 32 bytes
+        m_cookie.reserve(32);
+
+        // create a random hexadecimal number
+        const char *digits = "0123456789abcdef";
+        for (int i = 0; i < 32; ++i)
+            m_cookie[i] = digits[dis(gen)];
+
+        // generate auth file
+        addCookie(m_authPath);
     }
 
     Display::~Display() {
@@ -143,22 +159,6 @@ namespace SDDM {
         // check flag
         if (m_started)
             return;
-
-        // generate cookie
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
-
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = digits[dis(gen)];
-
-        // generate auth file
-        addCookie(m_authPath);
 
         if (m_displayServer != nullptr) {
             // set display server params
