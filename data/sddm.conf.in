@@ -89,3 +89,6 @@ MinimumVT=7
 # Valid values: on|off|none
 # If property is set to none, numlock won't be changed
 Numlock=none
+
+# Enables the XDMCP Server
+XDMCPServer=false

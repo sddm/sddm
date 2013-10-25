@@ -53,6 +53,19 @@ namespace SDDM {
         return name;
     }
 
+    Display::Display(const QString& hostname, const int displayId, QObject* parent)
+    : QObject(parent)
+    , m_displayId(displayId)
+    , m_authenticator(new Authenticator(this))
+    , m_displayServer(nullptr)
+    , m_socketServer(new SocketServer(this))
+    , m_greeter(new Greeter(this))
+    {
+        m_display = QString("%1:%2").arg(hostname).arg(displayId);
+
+        init();
+    }
+
     Display::Display(const int displayId, const int terminalId, QObject *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_authenticator(new Authenticator(this)),
@@ -62,11 +75,16 @@ namespace SDDM {
 
         m_display = QString(":%1").arg(m_displayId);
 
-        // restart display after user session ended
-        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
-
         // restart display after display server ended
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+
+        init();
+    }
+
+    void Display::init()
+    {
+        // restart display after user session ended
+        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
@@ -90,6 +108,22 @@ namespace SDDM {
 
         // set socket name
         m_socket = QString("sddm-%1-%2").arg(m_display).arg(generateName(6));
+
+        // generate cookie
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 15);
+
+        // resever 32 bytes
+        m_cookie.reserve(32);
+
+        // create a random hexadecimal number
+        const char *digits = "0123456789abcdef";
+        for (int i = 0; i < 32; ++i)
+            m_cookie[i] = digits[dis(gen)];
+
+        // generate auth file
+        addCookie(m_authPath);
     }
 
     Display::~Display() {
@@ -110,6 +144,16 @@ namespace SDDM {
 
     const QString &Display::cookie() const {
         return m_cookie;
+    }
+
+    const QByteArray Display::rawCookie() const {
+        QByteArray cookie;
+        for (int i = 0; i < m_cookie.length() / 2; i++) {
+            // horrible, just horrible
+            quint8 byte = QString("%1%2").arg(m_cookie[i*2]).arg(m_cookie[i*2+1]).toUInt(nullptr, 16);
+            cookie.append(byte);
+        }
+        return cookie;
     }
 
     void Display::addCookie(const QString &file) {
@@ -139,28 +183,14 @@ namespace SDDM {
         if (m_started)
             return;
 
-        // generate cookie
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
+        if (m_displayServer != nullptr) {
+            // set display server params
+            m_displayServer->setDisplay(m_display);
+            m_displayServer->setAuthPath(m_authPath);
 
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = digits[dis(gen)];
-
-        // generate auth file
-        addCookie(m_authPath);
-
-        // set display server params
-        m_displayServer->setDisplay(m_display);
-        m_displayServer->setAuthPath(m_authPath);
-
-        // start display server
-        m_displayServer->start();
+            // start display server
+            m_displayServer->start();
+        }
 
         if ((daemonApp->configuration()->first || daemonApp->configuration()->autoRelogin()) &&
             !daemonApp->configuration()->autoUser().isEmpty() && !daemonApp->configuration()->lastSession().isEmpty()) {
@@ -216,9 +246,11 @@ namespace SDDM {
         m_socketServer->stop();
 
         // stop display server
-        m_displayServer->blockSignals(true);
-        m_displayServer->stop();
-        m_displayServer->blockSignals(false);
+        if (m_displayServer != nullptr) {
+            m_displayServer->blockSignals(true);
+            m_displayServer->stop();
+            m_displayServer->blockSignals(false);
+        }
 
         // remove authority file
         QFile::remove(m_authPath);

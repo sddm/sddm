@@ -34,6 +34,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
+        explicit Display(const QString& hostname, const int displayId, QObject *parent = 0);
         explicit Display(const int displayId, const int terminalId, QObject *parent = 0);
         ~Display();
 
@@ -43,6 +44,7 @@ namespace SDDM {
         const QString &name() const;
 
         const QString &cookie() const;
+        const QByteArray rawCookie() const;
         void addCookie(const QString &file);
 
     public slots:
@@ -58,6 +60,8 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
+        void init();
+
         bool m_relogin { true };
         bool m_started { false };
 

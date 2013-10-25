@@ -25,6 +25,7 @@
 #include "PowerManager.h"
 #include "SeatManager.h"
 #include "SignalHandler.h"
+#include "xdmcp/Server.h"
 
 #ifdef USE_QT5
 #include "MessageHandler.h"
@@ -64,6 +65,12 @@ namespace SDDM {
 
         // create seat manager
         m_seatManager = new SeatManager(this);
+
+        // start the XDMCP server
+        if (configuration()->xdmcpServerEnabled()) {
+            m_xdmcpServer = XDMCP::Server::instance(this);
+            m_xdmcpServer->start();
+        }
 
         // connect with display manager
         connect(m_seatManager, SIGNAL(seatCreated(QString)), m_displayManager, SLOT(AddSeat(QString)));
