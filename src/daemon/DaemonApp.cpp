@@ -44,7 +44,7 @@ namespace SDDM {
         self = this;
 
 #ifdef USE_QT5
-    qInstallMessageHandler(SDDM::MessageHandler);
+        qInstallMessageHandler(SDDM::MessageHandler);
 #endif
 
         // log message
