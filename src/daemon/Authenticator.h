@@ -28,7 +28,6 @@ namespace SDDM {
 #endif
     class Session;
 
-    class AuthenticatorPrivate;
     class Authenticator : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(Authenticator)
