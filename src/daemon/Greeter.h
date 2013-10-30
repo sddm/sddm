@@ -50,7 +50,7 @@ namespace SDDM {
         QString m_socket { "" };
         QString m_theme { "" };
 
-        QProcess *process { nullptr };
+        QProcess *m_process { nullptr };
     };
 }
 
