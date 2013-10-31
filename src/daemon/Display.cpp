@@ -53,10 +53,11 @@ namespace SDDM {
         return name;
     }
 
-    Display::Display(const int displayId, const int terminalId, QObject *parent) : QObject(parent),
+    Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_authenticator(new Authenticator(this)),
         m_displayServer(new DisplayServer(this)),
+        m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
 
@@ -110,6 +111,10 @@ namespace SDDM {
 
     const QString &Display::cookie() const {
         return m_cookie;
+    }
+
+    Seat *Display::seat() const {
+        return m_seat;
     }
 
     void Display::addCookie(const QString &file) {
