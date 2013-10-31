@@ -26,15 +26,17 @@ namespace SDDM {
 #ifdef USE_PAM
     class PamService;
 #endif
+    class Display;
     class Session;
 
-    class AuthenticatorPrivate;
     class Authenticator : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(Authenticator)
     public:
-        Authenticator(QObject *parent = 0);
+        Authenticator(Display *parent);
         ~Authenticator();
+
+        Display *display() const;
 
     public slots:
         bool start(const QString &user, const QString &session);
@@ -50,6 +52,7 @@ namespace SDDM {
         bool doStart(const QString &user, const QString &password, const QString &session, bool passwordless);
 
         bool m_started { false };
+        Display *m_display { nullptr };
 
 #ifdef USE_PAM
         PamService *m_pam { nullptr };

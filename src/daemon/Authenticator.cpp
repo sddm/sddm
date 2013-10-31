@@ -134,11 +134,15 @@ namespace SDDM {
     }
 #endif
 
-    Authenticator::Authenticator(QObject *parent) : QObject(parent) {
+    Authenticator::Authenticator(Display *parent) : QObject(parent), m_display(parent) {
     }
 
     Authenticator::~Authenticator() {
         stop();
+    }
+
+    Display *Authenticator::display() const {
+        return m_display;
     }
 
     bool Authenticator::start(const QString &user, const QString &session) {
@@ -198,8 +202,7 @@ namespace SDDM {
         }
 
         // get display and display
-        Display *display = qobject_cast<Display *>(parent());
-        Seat *seat = qobject_cast<Seat *>(display->parent());
+        Seat *seat = m_display->seat();
 
 #ifdef USE_PAM
         if (m_pam)
@@ -231,11 +234,11 @@ namespace SDDM {
             return false;
 
         // set tty
-        if ((m_pam->result = pam_set_item(m_pam->handle, PAM_TTY, qPrintable(display->name()))) != PAM_SUCCESS)
+        if ((m_pam->result = pam_set_item(m_pam->handle, PAM_TTY, qPrintable(m_display->name()))) != PAM_SUCCESS)
             return false;
 
         // set display name
-        if ((m_pam->result = pam_set_item(m_pam->handle, PAM_XDISPLAY, qPrintable(display->name()))) != PAM_SUCCESS)
+        if ((m_pam->result = pam_set_item(m_pam->handle, PAM_XDISPLAY, qPrintable(m_display->name()))) != PAM_SUCCESS)
             return false;
 
         // open session
@@ -336,12 +339,12 @@ namespace SDDM {
         env.insert("USER", pw->pw_name);
         env.insert("LOGNAME", pw->pw_name);
         env.insert("PATH", daemonApp->configuration()->defaultPath());
-        env.insert("DISPLAY", display->name());
+        env.insert("DISPLAY", m_display->name());
         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
         env.insert("XDG_SEAT", seat->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(process->name()));
-        env.insert("XDG_VTNR", QString::number(display->terminalId()));
+        env.insert("XDG_VTNR", QString::number(m_display->terminalId()));
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("GDMSESSION", sessionName);
         process->setProcessEnvironment(env);

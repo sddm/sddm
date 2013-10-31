@@ -25,13 +25,16 @@
 class QProcess;
 
 namespace SDDM {
+    class Display;
 
     class DisplayServer : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(DisplayServer)
     public:
-        explicit DisplayServer(QObject *parent = 0);
+        explicit DisplayServer(Display *parent);
         ~DisplayServer();
+
+        Display *displayPtr() const;
 
         void setDisplay(const QString &display);
         void setAuthPath(const QString &authPath);
@@ -52,6 +55,7 @@ namespace SDDM {
         QString m_display { "" };
         QString m_authPath { "" };
 
+        Display *m_displayPtr { nullptr };
         QProcess *process { nullptr };
     };
 }
