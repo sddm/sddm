@@ -31,7 +31,7 @@
 #include <unistd.h>
 
 namespace SDDM {
-    DisplayServer::DisplayServer(QObject *parent) : QObject(parent) {
+    DisplayServer::DisplayServer(Display *parent) : QObject(parent), m_displayPtr(parent) {
     }
 
     DisplayServer::~DisplayServer() {
@@ -70,11 +70,8 @@ namespace SDDM {
             env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
             process->setProcessEnvironment(env);
 
-            // get display
-            Display *display = qobject_cast<Display *>(parent());
-
             // start display server
-            process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(display->terminalId()), 2, '0')});
+            process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(m_displayPtr->terminalId()), 2, '0')});
         }
 
         // wait for display server to start
@@ -144,7 +141,7 @@ namespace SDDM {
         bool result = false;
 
         // get cookie from the display
-        QString cookie = qobject_cast<Display *>(parent())->cookie();
+        QString cookie = m_displayPtr->cookie();
 
         // connection object
         xcb_connection_t *connection = nullptr;
