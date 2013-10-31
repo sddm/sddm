@@ -56,10 +56,10 @@ namespace SDDM {
             return false;
 
         // create process
-        process = new QProcess(this);
+        m_process = new QProcess(this);
 
         // delete process on finish
-        connect(process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
+        connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
 
         // log message
         qDebug() << " DAEMON: Greeter starting...";
@@ -69,13 +69,13 @@ namespace SDDM {
         env.insert("DISPLAY", m_display);
         env.insert("XAUTHORITY", m_authPath);
         env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
-        process->setProcessEnvironment(env);
+        m_process->setProcessEnvironment(env);
 
         // start greeter
-        process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), { "--socket", m_socket, "--theme", m_theme });
+        m_process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), { "--socket", m_socket, "--theme", m_theme });
 
         // wait for greeter to start
-        if (!process->waitForStarted()) {
+        if (!m_process->waitForStarted()) {
             // log message
             qCritical() << " DAEMON: Failed to start greeter.";
 
@@ -102,11 +102,11 @@ namespace SDDM {
         qDebug() << " DAEMON: Greeter stopping...";
 
         // terminate process
-        process->terminate();
+        m_process->terminate();
 
         // wait for finished
-        if (!process->waitForFinished(5000))
-            process->kill();
+        if (!m_process->waitForFinished(5000))
+            m_process->kill();
     }
 
     void Greeter::finished() {
@@ -121,7 +121,7 @@ namespace SDDM {
         qDebug() << " DAEMON: Greeter stopped.";
 
         // clean up
-        process->deleteLater();
-        process = nullptr;
+        m_process->deleteLater();
+        m_process = nullptr;
     }
 }

@@ -31,7 +31,7 @@
 #include <unistd.h>
 
 namespace SDDM {
-    Session::Session(const QString &name, QObject *parent) : QProcess(parent), m_name(name) {
+    Session::Session(const QString &name, Authenticator *parent) : QProcess(parent), m_authenticator(parent), m_name(name) {
     }
 
     const QString &Session::name() const {
@@ -57,8 +57,6 @@ namespace SDDM {
     void Session::setupChildProcess() {
         if (daemonApp->configuration()->testing)
             return;
-
-        Authenticator *authenticator = qobject_cast<Authenticator *>(parent());
 
         if (initgroups(qPrintable(m_user), m_gid)) {
             qCritical() << " DAEMON: Failed to initialize user groups.";
@@ -92,8 +90,7 @@ namespace SDDM {
         }
 
         // add cookie
-        Display *display = qobject_cast<Display *>(authenticator->parent());
-        display->addCookie(QString("%1/.Xauthority").arg(m_dir));
+        m_authenticator->display()->addCookie(QString("%1/.Xauthority").arg(m_dir));
 
         // change to user home dir
         if (chdir(qPrintable(m_dir))) {

@@ -27,6 +27,7 @@ class QLocalSocket;
 namespace SDDM {
     class Authenticator;
     class DisplayServer;
+    class Seat;
     class SocketServer;
     class Greeter;
 
@@ -34,7 +35,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
-        explicit Display(const int displayId, const int terminalId, QObject *parent = 0);
+        explicit Display(const int displayId, const int terminalId, Seat *parent);
         ~Display();
 
         const int displayId() const;
@@ -44,6 +45,8 @@ namespace SDDM {
 
         const QString &cookie() const;
         void addCookie(const QString &file);
+
+        Seat *seat() const;
 
     public slots:
         void start();
@@ -71,6 +74,7 @@ namespace SDDM {
 
         Authenticator *m_authenticator { nullptr };
         DisplayServer *m_displayServer { nullptr };
+        Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };
         Greeter *m_greeter { nullptr };
     };
