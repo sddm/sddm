@@ -89,7 +89,7 @@ namespace XDMCP {
         /**
          * Create a new display
          */
-        Display *newDisplay(uint32_t sessionId, QString hostName, uint32_t displayNumber);
+        Display *newDisplay(uint32_t sessionId, const QString &hostName, uint32_t displayNumber);
         Display *getDisplay(uint32_t id);
         QString status() const;
         QString hostname() const;

@@ -25,28 +25,27 @@
 namespace SDDM {
 namespace XDMCP {
 
-    Reader::Reader(const QByteArray& data)
-        : m_data(data)
-        , m_stream(&m_data, QIODevice::ReadOnly | QIODevice::Unbuffered) {
+    Reader::Reader(const QByteArray &data) : m_data(data),
+        m_stream(&m_data, QIODevice::ReadOnly | QIODevice::Unbuffered) {
         m_stream.setByteOrder(QDataStream::BigEndian);
     }
 
-    Reader& Reader::operator>>(uint8_t& byte) {
+    Reader& Reader::operator>>(uint8_t &byte) {
         m_stream >> byte;
         return *this;
     }
 
-    Reader& Reader::operator>>(uint16_t& word) {
+    Reader& Reader::operator>>(uint16_t &word) {
         m_stream >> word;
         return *this;
     }
 
-    Reader& Reader::operator>>(uint32_t& doubleword) {
+    Reader& Reader::operator>>(uint32_t &doubleword) {
         m_stream >> doubleword;
         return *this;
     }
 
-    Reader& Reader::operator>>(QByteArray& array) {
+    Reader& Reader::operator>>(QByteArray &array) {
         uint16_t arrayLen;
         *this >> arrayLen;
         while (arrayLen--) {
@@ -57,7 +56,7 @@ namespace XDMCP {
         return *this;
     }
 
-    Reader& Reader::operator>>(QVector< uint16_t >& wordArray) {
+    Reader& Reader::operator>>(QVector< uint16_t > &wordArray) {
         uint8_t arrayLen;
         *this >> arrayLen;
         while (arrayLen--) {
@@ -68,7 +67,7 @@ namespace XDMCP {
         return *this;
     }
 
-    Reader& Reader::operator>>(QVector< QByteArray >& arrayOfArrays) {
+    Reader& Reader::operator>>(QVector< QByteArray > &arrayOfArrays) {
         uint8_t arrayCount;
         *this >> arrayCount;
         while (arrayCount--) {
@@ -86,9 +85,8 @@ namespace XDMCP {
             return false;
     }
 
-    Writer::Writer()
-        : m_data()
-        , m_stream(&m_data, QIODevice::WriteOnly | QIODevice::Unbuffered) {
+    Writer::Writer() : m_data(),
+        m_stream(&m_data, QIODevice::WriteOnly | QIODevice::Unbuffered) {
         m_stream.setByteOrder(QDataStream::BigEndian);
     }
 
@@ -108,23 +106,23 @@ namespace XDMCP {
         return *this;
     }
 
-    Writer& Writer::operator<<(const QByteArray& array) {
+    Writer& Writer::operator<<(const QByteArray &array) {
         *this << (uint16_t) array.count();
         for (uint8_t c : array)
             m_stream << c;
         return *this;
     }
 
-    Writer& Writer::operator<<(const QVector< uint16_t >& wordArray) {
+    Writer& Writer::operator<<(const QVector< uint16_t > &wordArray) {
         *this << (uint8_t) wordArray.count();
-        for (const uint16_t& i : wordArray)
+        for (const uint16_t &i : wordArray)
             *this << i;
         return *this;
     }
 
-    Writer& Writer::operator<<(const QVector< QByteArray >& arrayOfArrays) {
+    Writer& Writer::operator<<(const QVector< QByteArray > &arrayOfArrays) {
         *this << (uint16_t) arrayOfArrays.count();
-        for (const QByteArray& i : arrayOfArrays)
+        for (const QByteArray &i : arrayOfArrays)
             *this << i;
         return *this;
     }

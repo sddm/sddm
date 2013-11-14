@@ -41,12 +41,12 @@ namespace XDMCP {
         public:
             Reader(const QByteArray &data);
             ~Reader() {}
-            Reader& operator>>(uint8_t& byte);
-            Reader& operator>>(uint16_t& word);
-            Reader& operator>>(uint32_t& doubleword);
-            Reader& operator>>(QByteArray& array);
-            Reader& operator>>(QVector<uint16_t>& wordArray);
-            Reader& operator>>(QVector<QByteArray>& arrayOfArrays);
+            Reader& operator>>(uint8_t &byte);
+            Reader& operator>>(uint16_t &word);
+            Reader& operator>>(uint32_t &doubleword);
+            Reader& operator>>(QByteArray &array);
+            Reader& operator>>(QVector<uint16_t> &wordArray);
+            Reader& operator>>(QVector<QByteArray> &arrayOfArrays);
             /**
              * Returns true if the stream is at its end and no errors occured
              *
@@ -72,9 +72,9 @@ namespace XDMCP {
             Writer& operator<<(const uint8_t byte);
             Writer& operator<<(const uint16_t word);
             Writer& operator<<(const uint32_t doubleword);
-            Writer& operator<<(const QByteArray& array);
-            Writer& operator<<(const QVector<uint16_t>& wordArray);
-            Writer& operator<<(const QVector<QByteArray>& arrayOfArrays);
+            Writer& operator<<(const QByteArray &array);
+            Writer& operator<<(const QVector<uint16_t> &wordArray);
+            Writer& operator<<(const QVector<QByteArray> &arrayOfArrays);
             /**
              * Finalizes building of the packet
              *

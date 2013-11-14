@@ -70,21 +70,21 @@ namespace XDMCP {
         * \param port Source port of the packet
         * \return Parsed packet
         */
-        static Packet *decode(const QByteArray& data, const QHostAddress& host = QHostAddress(), quint16 port = 0);
+        static Packet *decode(const QByteArray &data, const QHostAddress &host = QHostAddress(), quint16 port = 0);
 
         /**
          * Set the packet's source/destination host
          *
          * \param host The host
          */
-        void setHost(const QHostAddress host);
+        void setHost(const QHostAddress &host);
 
         /**
          * Get the packet's source/destination host
          *
          * \return The host
          */
-        QHostAddress host() const;
+        const QHostAddress& host() const;
 
         /**
          * Set the packet's source/destination host
@@ -144,7 +144,7 @@ namespace XDMCP {
          * \param host Destination host for the response
          * \param port Destination port for the response
          */
-        Packet(const QHostAddress& host, quint16 port);
+        Packet(const QHostAddress &host, quint16 port);
         /**
          * C'tor targetted for parsing raw data
          *
@@ -152,7 +152,7 @@ namespace XDMCP {
          * \param port Destination port for the response
          * \param r Reader containing the packet's raw data
          */
-        Packet(const QHostAddress& host, quint16 port, Reader& r);
+        Packet(const QHostAddress &host, quint16 port, Reader &r);
 
         QHostAddress m_host;
         quint16 m_port { 0 };
@@ -161,7 +161,7 @@ namespace XDMCP {
 
     class Packet::BroadcastQuery : public Packet {
     public:
-        BroadcastQuery(const QHostAddress& host, quint16 port, Reader& r);
+        BroadcastQuery(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         QVector<QByteArray> m_authenticationNames;
@@ -169,7 +169,7 @@ namespace XDMCP {
 
     class Packet::Query : public Packet {
     public:
-        Query(const QHostAddress& host, quint16 port, Reader& r);
+        Query(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
         /**
          * Server side handling of Query packet
@@ -196,7 +196,7 @@ namespace XDMCP {
 
     class Packet::IndirectQuery : public Packet {
     public:
-        IndirectQuery(const QHostAddress& host, quint16 port, Reader& r);
+        IndirectQuery(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         QVector<QByteArray> m_authenticationNames;
@@ -204,7 +204,7 @@ namespace XDMCP {
 
     class Packet::ForwardQuery : public Packet {
     public:
-        ForwardQuery(const QHostAddress& host, quint16 port, Reader& r);
+        ForwardQuery(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         QByteArray m_clientAddress;
@@ -214,10 +214,10 @@ namespace XDMCP {
 
     class Packet::Willing : public Packet {
     public:
-        Willing(const QHostAddress& host, quint16 port, 
-                const QString& authenticationName, const QString& hostname,
-                const QString& status);
-        Willing(const QHostAddress& host, quint16 port, Reader& r);
+        Willing(const QHostAddress &host, quint16 port, 
+                const QString &authenticationName, const QString &hostname,
+                const QString &status);
+        Willing(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
         /**
          * Client side handling of Willing packet
@@ -237,9 +237,9 @@ namespace XDMCP {
 
     class Packet::Unwilling : public Packet {
     public:
-        Unwilling(const QHostAddress& host, quint16 port,
-                  const QString& hostname, const QString& status);
-        Unwilling(const QHostAddress& host, quint16 port, Reader& r);
+        Unwilling(const QHostAddress &host, quint16 port,
+                  const QString &hostname, const QString &status);
+        Unwilling(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         QByteArray m_hostname;
@@ -248,7 +248,7 @@ namespace XDMCP {
 
     class Packet::Request : public Packet {
     public:
-        Request(const QHostAddress& host, quint16 port, Reader& r);
+        Request(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
         /**
          * Server side handling of Request packet
@@ -279,10 +279,10 @@ namespace XDMCP {
 
     class Packet::Accept : public Packet {
     public:
-        Accept(const QHostAddress& host, quint16 port, uint32_t sessionId,
+        Accept(const QHostAddress &host, quint16 port, uint32_t sessionId,
                const QString authenticationName, const QByteArray authenticationData,
                const QString authorizationName, const QByteArray authorizationData);
-        Accept(const QHostAddress& host, quint16 port, Reader& r);
+        Accept(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
         /**
          * Client side handling of Accept packet
@@ -304,9 +304,9 @@ namespace XDMCP {
 
     class Packet::Decline : public Packet {
     public:
-        Decline(const QHostAddress& host, quint16 port, const QString status,
+        Decline(const QHostAddress &host, quint16 port, const QString status,
                 const QString authenticationName, const QByteArray authenticationData);
-        Decline(const QHostAddress& host, quint16 port, Reader& r);
+        Decline(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         QByteArray m_status;
@@ -316,7 +316,7 @@ namespace XDMCP {
 
     class Packet::Manage : public Packet {
     public:
-        Manage(const QHostAddress& host, quint16 port, Reader& r);
+        Manage(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
         /**
          * Server side handling of Manage packet
@@ -343,8 +343,8 @@ namespace XDMCP {
 
     class Packet::Refuse : public Packet {
     public:
-        Refuse(const QHostAddress& host, quint16 port, uint32_t sessionID);
-        Refuse(const QHostAddress& host, quint16 port, Reader& r);
+        Refuse(const QHostAddress &host, quint16 port, uint32_t sessionID);
+        Refuse(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         uint32_t m_sessionID;
@@ -352,8 +352,8 @@ namespace XDMCP {
 
     class Packet::Failed : public Packet {
     public:
-        Failed(const QHostAddress& host, quint16 port, uint32_t sessionID, const QString& status);
-        Failed(const QHostAddress& host, quint16 port, Reader& r);
+        Failed(const QHostAddress &host, quint16 port, uint32_t sessionID, const QString &status);
+        Failed(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         uint32_t m_sessionID;
@@ -362,7 +362,7 @@ namespace XDMCP {
 
     class Packet::KeepAlive : public Packet {
     public:
-        KeepAlive(const QHostAddress& host, quint16 port, Reader& r);
+        KeepAlive(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
         /**
          * Server side handling of KeepAlive packet
@@ -380,8 +380,8 @@ namespace XDMCP {
 
     class Packet::Alive : public Packet {
     public:
-        Alive(const QHostAddress& host, quint16 port, uint8_t sessionRunning, uint32_t sessionID);
-        Alive(const QHostAddress& host, quint16 port, Reader& r);
+        Alive(const QHostAddress &host, quint16 port, uint8_t sessionRunning, uint32_t sessionID);
+        Alive(const QHostAddress &host, quint16 port, Reader &r);
         virtual QByteArray encode() const;
     private:
         uint8_t m_sessionRunning;

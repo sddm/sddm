@@ -37,9 +37,8 @@ namespace XDMCP {
         return self;
     }
 
-    Server::Server(DaemonApp* parent)
-        : QUdpSocket(parent)
-        , m_hostname(QHostInfo::localHostName()) {
+    Server::Server(DaemonApp* parent) : QUdpSocket(parent),
+        m_hostname(QHostInfo::localHostName()) {
 
     }
 
@@ -88,7 +87,7 @@ namespace XDMCP {
         return m_lastSession++;
     }
 
-    Display* Server::newDisplay(uint32_t sessionId, QString hostName, uint32_t displayNumber) {
+    Display* Server::newDisplay(uint32_t sessionId, const QString &hostName, uint32_t displayNumber) {
         if (m_displays.contains(sessionId))
             return nullptr;
         Display *display = new Display(hostName, displayNumber, this);
@@ -100,12 +99,12 @@ namespace XDMCP {
     Display* Server::getDisplay(uint32_t id) {
         if (m_displays.contains(id))
             return m_displays[id];
-        else
-            return nullptr;
+        return nullptr;
     }
 
     void Server::removeDisplay(QObject* obj) {
         int key = m_displays.key(qobject_cast<Display*>(obj), -1);
+
         if (key == -1)
             return;
 
