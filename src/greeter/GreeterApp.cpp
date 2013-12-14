@@ -184,6 +184,7 @@ int main(int argc, char **argv) {
 #ifdef USE_QT5
     // install message handler
     qInstallMessageHandler(SDDM::MessageHandler);
+    setenv("QSG_RENDER_LOOP", "windows", 1);
 #endif
     QStringList arguments;
 
