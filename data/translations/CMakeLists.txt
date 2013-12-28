@@ -2,6 +2,7 @@ set(TRANSLATION_FILES
     cs.ts
     de.ts
     fi.ts
+    fr.ts
     it.ts
     pl.ts
     pt_BR.ts
