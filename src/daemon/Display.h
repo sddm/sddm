@@ -21,6 +21,7 @@
 #define SDDM_DISPLAY_H
 
 #include <QObject>
+#include <QAuth/QAuth>
 
 class QLocalSocket;
 
@@ -54,6 +55,13 @@ namespace SDDM {
 
         void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
 
+    private slots:
+        void slotRequestChanged();
+        void slotAuthenticationFinished(QString user, bool success);
+        void slotSessionStarted(bool success);
+        void slotHelperFinished(bool success);
+        void slotAuthError(QString message, QAuth::Error e);
+
     signals:
         void stopped();
 
@@ -61,6 +69,8 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
+        void startAuth(const QString &user, const QString &password, const QString &session);
+
         bool m_relogin { true };
         bool m_started { false };
 
@@ -68,14 +78,16 @@ namespace SDDM {
         int m_terminalId { 7 };
 
         QString m_display { ":0" };
-        QString m_cookie { "" };
-        QString m_socket { "" };
-        QString m_authPath { "" };
+        QString m_cookie { };
+        QString m_socketName { };
+        QString m_authPath { };
+        QString m_passPhrase { };
 
-        Authenticator *m_authenticator { nullptr };
         DisplayServer *m_displayServer { nullptr };
         Seat *m_seat { nullptr };
+        QAuth *m_auth { nullptr };
         SocketServer *m_socketServer { nullptr };
+        QLocalSocket *m_socket { nullptr }; // assume we have only one socket at a time
         Greeter *m_greeter { nullptr };
     };
 }
