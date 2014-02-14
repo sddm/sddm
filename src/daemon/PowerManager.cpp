@@ -23,6 +23,7 @@
 #include "DaemonApp.h"
 #include "Messages.h"
 
+#include <QFile>
 #include <QDBusConnectionInterface>
 #include <QDBusInterface>
 #include <QDBusReply>
@@ -48,6 +49,58 @@ namespace SDDM {
         virtual void hibernate() const = 0;
         virtual void hybridSleep() const = 0;
     };
+
+    /************************************************/
+    /* PM-UTILS Backend (as failsafe only)          */
+    /************************************************/
+
+    class PMUtilsBackend : public PowerManagerBackend {
+    public:
+    PMUtilsBackend() {
+        
+    }
+
+    ~PMUtilsBackend() {
+
+    }
+
+    Capabilities capabilities() const {
+        Capabilities caps = Capability::PowerOff | Capability::Reboot;
+
+        if(QProcess::execute("pm-is-supported --suspend") == 0)
+            caps |= Capability::Suspend;
+
+        if(QProcess::execute("pm-is-supported --hibernate") == 0)
+            caps |= Capability::Hibernate;
+
+        if(QProcess::execute("pm-is-supported --suspend-hybrid") == 0 )
+            caps |= Capability::HybridSleep;
+
+
+        return caps;
+    }
+
+            void powerOff() const {
+            QProcess::execute(daemonApp->configuration()->haltCommand());
+        }
+
+        void reboot() const {
+            QProcess::execute(daemonApp->configuration()->rebootCommand());
+        }
+        
+        void suspend() const {
+            QProcess::execute("pm-suspend");
+        }
+        
+        void hibernate() const {
+            QProcess::execute("pm-hibernate");
+        }
+        
+        void hybridSleep() const {
+            QProcess::execute("pm-suspend-hybrid");
+        }
+    };
+
 
     /**********************************************/
     /* UPOWER BACKEND                             */
@@ -199,6 +252,15 @@ namespace SDDM {
         // check if upower interface exists
         if (interface->isServiceRegistered(UPOWER_SERVICE))
             m_backends << new UPowerBackend();
+
+        // check if pm-utils is installed
+        QFile PMInstalled("/usr/bin/pm-is-supported");
+
+        //Only add pm-utils if no other option exists
+        if(PMInstalled.exists() && m_backends.empty())
+        {
+            m_backends << new PMUtilsBackend();
+        }
     }
 
     PowerManager::~PowerManager() {
