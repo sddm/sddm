@@ -25,9 +25,17 @@
 namespace SDDM {
     ThemeConfig::ThemeConfig(const QString &path) {
         QSettings settings(path, QSettings::IniFormat);
+        QSettings userSettings(path + ".user", QSettings::IniFormat);
 
-        // read keys
-        for (const QString &key: settings.allKeys())
+        // read default keys
+        for (const QString &key: settings.allKeys()) {
             insert(key, settings.value(key));
+        }
+        // read user set themes overwriting defaults if they exist
+        for (const QString &key: userSettings.allKeys()) {
+            if (!userSettings.value(key).toString().isEmpty()) {
+                insert(key, userSettings.value(key));
+            }
+        }
     }
 }
