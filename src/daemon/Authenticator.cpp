@@ -340,7 +340,7 @@ namespace SDDM {
         env.insert("LOGNAME", pw->pw_name);
         env.insert("PATH", daemonApp->configuration()->defaultPath());
         env.insert("DISPLAY", m_display->name());
-        env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
+        env.insert("XAUTHORITY", daemonApp->configuration()->userAuthFile().arg(pw->pw_dir));
         env.insert("XDG_SEAT", seat->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(process->name()));
@@ -350,7 +350,7 @@ namespace SDDM {
         process->setProcessEnvironment(env);
 
         // redirect error output to ~/.xession-errors
-        process->setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
+        process->setStandardErrorFile(daemonApp->configuration()->clientLogFile().arg(pw->pw_dir));
 
         // start session
         process->start(daemonApp->configuration()->sessionCommand(), { command });
