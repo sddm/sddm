@@ -52,6 +52,11 @@ Rectangle {
             x: geometry.x; y: geometry.y; width: geometry.width; height:geometry.height
             source: config.background
             fillMode: Image.Tile
+            onStatusChanged: {
+                if (status == Image.Error && source != config.defaultBackground) {
+                    source = config.defaultBackground
+                }
+            }
         }
     }
 
