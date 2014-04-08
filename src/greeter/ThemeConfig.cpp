@@ -1,5 +1,6 @@
 /***************************************************************************
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2014 David Edmundson <davidedmundson@kde.org>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -36,6 +37,12 @@ namespace SDDM {
             if (!userSettings.value(key).toString().isEmpty()) {
                 insert(key, userSettings.value(key));
             }
+        }
+
+        //if the main config contains a background, save this to a new config value
+        //to themes can use it if the user set config background cannot be loaded
+        if (settings.contains("background")) {
+            insert("defaultBackground", settings.value("background"));
         }
     }
 }
