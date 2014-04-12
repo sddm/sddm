@@ -215,22 +215,23 @@ namespace SDDM {
         if (m_pam)
             delete m_pam;
 
-        m_pam = new PamService("sddm", user, password, passwordless);
+        if (!passwordless)
+            m_pam = new PamService("sddm", user, password, passwordless);
+        else
+            m_pam = new PamService("sddm-autologin", user, password, passwordless);
 
         if (!m_pam)
             return false;
 
-        if (!passwordless) {
-            // authenticate the applicant
-            if ((m_pam->result = pam_authenticate(m_pam->handle, 0)) != PAM_SUCCESS)
-                return false;
+        // authenticate the applicant
+        if ((m_pam->result = pam_authenticate(m_pam->handle, 0)) != PAM_SUCCESS)
+            return false;
 
-            if ((m_pam->result = pam_acct_mgmt(m_pam->handle, 0)) == PAM_NEW_AUTHTOK_REQD)
-                m_pam->result = pam_chauthtok(m_pam->handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+        if ((m_pam->result = pam_acct_mgmt(m_pam->handle, 0)) == PAM_NEW_AUTHTOK_REQD)
+            m_pam->result = pam_chauthtok(m_pam->handle, PAM_CHANGE_EXPIRED_AUTHTOK);
 
-            if (m_pam->result != PAM_SUCCESS)
-                return false;
-        }
+        if (m_pam->result != PAM_SUCCESS)
+            return false;
 
         // set username
         if ((m_pam->result = pam_set_item(m_pam->handle, PAM_USER, qPrintable(user))) != PAM_SUCCESS)
