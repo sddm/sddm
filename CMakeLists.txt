@@ -92,6 +92,11 @@ set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACH
 set(SYS_CONFIG_DIR              "/etc"                                      CACHE PATH      "System config directory")
 set(DBUS_CONFIG_DIR             "${SYS_CONFIG_DIR}/dbus-1/system.d"         CACHE PATH      "DBus config files directory")
 
+
+# ~ is expanded by CMake to current user's home directory so we use $HOME here
+set(USER_AUTH_FILE              "$HOME/.Xauthority"                         CACHE PATH      "Path of the User Configuration FIle")
+set(USER_LOG_FILE               "$HOME/.xsession-errors"                    CACHE PATH      "Path of the User Log File")
+
 set(PASSWD_FILE                 "${SYS_CONFIG_DIR}/passwd"                  CACHE PATH      "Path of the passwd file")
 set(CONFIG_FILE                 "${SYS_CONFIG_DIR}/sddm.conf"               CACHE PATH      "Path of the sddm config file")
 set(LOG_FILE                    "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")

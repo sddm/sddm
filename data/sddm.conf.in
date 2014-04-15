@@ -89,3 +89,12 @@ MinimumVT=7
 # Valid values: on|off|none
 # If property is set to none, numlock won't be changed
 Numlock=none
+
+# Change Default Log File Path
+# Default: @USER_LOG_FILE@
+ClientLogFile=@USER_LOG_FILE@
+
+# Change Default Auth File
+# Default: @USER_AUTH_FILE@ 
+UserAuthFile=@USER_AUTH_FILE@
+
