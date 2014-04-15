@@ -26,7 +26,6 @@
 #define IMPORTS_INSTALL_DIR         "@QT_IMPORTS_DIR@"
 #define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
 
-#define PASSWD_FILE                 "@PASSWD_FILE@"
 #define CONFIG_FILE                 "@CONFIG_FILE@"
 #define LOG_FILE                    "@LOG_FILE@"
 
