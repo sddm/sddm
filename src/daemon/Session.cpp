@@ -90,7 +90,7 @@ namespace SDDM {
         }
 
         // add cookie
-        m_authenticator->display()->addCookie(QString("%1/.Xauthority").arg(m_dir));
+        m_authenticator->display()->addCookie(daemonApp->configuration()->userAuthFile());
 
         // change to user home dir
         if (chdir(qPrintable(m_dir))) {

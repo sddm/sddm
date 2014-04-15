@@ -36,6 +36,10 @@ namespace SDDM {
 
         QString xauthPath { "" };
 
+        QString userAuthFile { "~/.Xauthority" };
+
+        QString clientLogFile { "~/.xsession-errors" };
+
         QString authDir { "" };
 
         QString haltCommand { "" };
@@ -112,6 +116,8 @@ namespace SDDM {
         d->lastUser = settings.value("LastUser", "").toString();
         d->autoUser = settings.value("AutoUser", "").toString();
         d->autoRelogin = settings.value("AutoRelogin", d->autoRelogin).toBool();
+        d->clientLogFile = settings.value("ClientLogFile", d->clientLogFile).toString();
+        d->userAuthFile = settings.value("UserAuthFile", d->userAuthFile).toString();
         minimumVT = settings.value("MinimumVT", minimumVT).toUInt();
 
         QString num_val = settings.value("Numlock", "none").toString().toLower();
@@ -150,6 +156,8 @@ namespace SDDM {
         settings.setValue("LastUser", d->lastUser);
         settings.setValue("AutoUser", d->autoUser);
         settings.setValue("AutoRelogin", d->autoRelogin);
+        settings.setValue("ClientLogFile", d->clientLogFile);
+        settings.setValue("UserAuthFile", d->userAuthFile);
         settings.setValue("MinimumVT", minimumVT);
 
         if (d->numlock == NUM_NONE)
@@ -260,5 +268,13 @@ namespace SDDM {
 
     const Configuration::NumState Configuration::numlock() const {
         return d->numlock;
+    }   
+
+    const QString &Configuration::clientLogFile() const {
+         return d->clientLogFile;
+    }
+
+    const QString &Configuration::userAuthFile() const {
+        return d->userAuthFile;
     }
 }
