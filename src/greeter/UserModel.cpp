@@ -28,6 +28,7 @@
 #include <QStringList>
 
 #include <memory>
+#include <pwd.h>
 
 namespace SDDM {
     class User {
@@ -59,53 +60,31 @@ namespace SDDM {
         // set role names
         setRoleNames(roleNames);
 #endif
-
-        // create file object
-        QFile file(PASSWD_FILE);
-
-        // open file
-        if (!file.open(QIODevice::ReadOnly))
-            return;
-
-        // create text stream
-        QTextStream in(&file);
-
-        // process lines
-        while (!in.atEnd()) {
-
-            // read line
-            QString line = in.readLine();
-
-            // split line into fields
-            QStringList fields = line.split(":", QString::KeepEmptyParts);
-
-            // there should be exactly 7 fields
-            if (fields.length() != 7)
-                continue;
+        struct passwd *current_pw;
+        while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid
-            if (fields.at(2).toInt() < Configuration::instance()->minimumUid())
+            if ( int(current_pw->pw_uid) < Configuration::instance()->minimumUid())
                 continue;
 
             // skip entries with uids greater than maximum uid
-            if (fields.at(2).toInt() > Configuration::instance()->maximumUid())
+            if ( int(current_pw->pw_uid) > Configuration::instance()->maximumUid())
                 continue;
-
             // skip entries with user names in the hide users list
-            if (Configuration::instance()->hideUsers().contains(fields.at(0)))
+            if (Configuration::instance()->hideUsers().contains(current_pw->pw_name))
                 continue;
 
             // skip entries with shells in the hide shells list
-            if (Configuration::instance()->hideShells().contains(fields.at(6)))
+            if (Configuration::instance()->hideShells().contains(current_pw->pw_shell))
                 continue;
 
             // create user
             UserPtr user { new User() };
-            user->name = fields.at(0);
-            user->realName = fields.at(4).split(",").first();
-            user->homeDir = fields.at(5);
-            user->uid = fields.at(2).toInt();
-            user->gid = fields.at(3).toInt();
+            user->name = QString(current_pw->pw_name);
+            user->realName = QString::fromLatin1(current_pw->pw_gecos).split(",").first();
+            user->homeDir = QString(current_pw->pw_dir);
+            user->uid = int(current_pw->pw_uid);
+            user->gid = int(current_pw->pw_gid);
 
             // search for face icon
             QString userFace = QString("%1/.face.icon").arg(user->homeDir);
@@ -121,8 +100,7 @@ namespace SDDM {
             d->users << user;
         }
 
-        // close file
-        file.close();
+        endpwent();
 
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
