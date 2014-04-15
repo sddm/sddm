@@ -33,6 +33,7 @@
 #include <QDebug>
 #include <QHostInfo>
 #include <QTimer>
+#include <QFile>
 
 #include <iostream>
 
@@ -49,6 +50,16 @@ namespace SDDM {
 
         // log message
         qDebug() << " DAEMON: Initializing...";
+
+        // Write PID File
+        if ( ! QString(PID_FILE) ) {
+            QFile pidFile(PID_FILE);
+            QString pid = QString::number(QCoreApplication::applicationPid());
+            if ( pidFile.open(QIODevice::WriteOnly | QIODevice::Text) ) {
+                pidFile.write(pid.toLatin1().data(), qstrlen(pid.toLatin1().data()));
+                pidFile.close();
+            }
+        }
 
         // create configuration
         m_configuration = new Configuration(CONFIG_FILE, this);
@@ -85,6 +96,14 @@ namespace SDDM {
 
         // add a seat
         m_seatManager->createSeat("seat0");
+    }
+
+    void DaemonApp::quit() {
+        // Delete PID File If it Exists
+        if ( ! QString(PID_FILE) )  {
+            QFile::remove(PID_FILE);
+        }
+        QCoreApplication::quit();
     }
 
     QString DaemonApp::hostName() const {
