@@ -426,8 +426,6 @@ namespace SDDM {
         if (m_pam) {
             m_pam->result = pam_close_session(m_pam->handle, 0);
             m_pam->result = pam_setcred(m_pam->handle, PAM_DELETE_CRED);
-            // for some reason this has to be called here too
-            pam_end(m_pam->handle, m_pam->result);
             delete m_pam;
             m_pam = nullptr;
         }
