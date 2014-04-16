@@ -7,6 +7,7 @@ Build-Depends: debhelper (>= 8.0.0),
                libpam0g-dev,
                pkg-config,
                libxcb1-dev,
+               libxcb-xkb-dev,
                libqt4-dev | qtbase5-dev,
                libsystemd-login-dev,
                libupower-glib-dev
