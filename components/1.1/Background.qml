@@ -29,6 +29,7 @@ FocusScope {
 
     property alias source: image.source
     property alias fillMode: image.fillMode
+    property alias status: image.status
 
     Image {
         id: image
