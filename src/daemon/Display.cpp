@@ -124,7 +124,7 @@ namespace SDDM {
         // Touch file
         QFile file_handler(file);
         file_handler.open(QIODevice::WriteOnly);
-        file_handler.close()
+        file_handler.close();
 
         QString cmd = QString("%1 -f %2 -q").arg(daemonApp->configuration()->xauthPath()).arg(file);
 
