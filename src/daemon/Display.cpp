@@ -121,8 +121,10 @@ namespace SDDM {
         // log message
         qDebug() << " DAEMON: Adding cookie to" << file;
 
-        // remove file
-        QFile::remove(file);
+        // Touch file
+        QFile file_handler(file);
+        file_handler.open(QIODevice::WriteOnly);
+        file_handler.close()
 
         QString cmd = QString("%1 -f %2 -q").arg(daemonApp->configuration()->xauthPath()).arg(file);
 
