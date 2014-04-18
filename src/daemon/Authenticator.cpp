@@ -354,6 +354,7 @@ namespace SDDM {
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(process->name()));
         env.insert("XDG_VTNR", QString::number(m_display->terminalId()));
         env.insert("DESKTOP_SESSION", sessionName);
+        env.insert("GDMSESSION", sessionName);
         process->setProcessEnvironment(env);
 
         // redirect error output to ~/.xession-errors
