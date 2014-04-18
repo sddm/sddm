@@ -28,5 +28,6 @@
 
 #define CONFIG_FILE                 "@CONFIG_FILE@"
 #define LOG_FILE                    "@LOG_FILE@"
+#define PID_FILE                    "@PID_FILE@"
 
 #endif // SDDM_CONSTANTS_H
