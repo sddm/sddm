@@ -39,6 +39,7 @@ namespace SDDM {
         static DaemonApp *instance() { return self; }
 
         QString hostName() const;
+        void quit();
 
         Configuration *configuration() const;
         DisplayManager *displayManager() const;
