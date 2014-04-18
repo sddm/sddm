@@ -47,6 +47,7 @@ namespace SDDM {
 
     public slots:
         int newSessionId();
+        void quit();
 
     private:
         static DaemonApp *self;
