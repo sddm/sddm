@@ -1,5 +1,7 @@
 ## INTRODUCTION
 
+[![Build Status](https://travis-ci.org/sddm/sddm.svg?branch=master)](https://travis-ci.org/sddm/sddm)
+
 SDDM is a modern display manager for X11 aiming to be fast, simple and beatiful. It uses modern technologies like QtQuick, which in turn gives the designer the ability to create smooth, animated user interfaces.
 
 SDDM is extremely themeable. We put no restrictions on the user interface design, it is completely up to the designer. We simply provide a few callbacks to the user interface which can be used for authentication, suspend etc. To further ease theme creation we provide some premade components like a textbox, a combox etc.
