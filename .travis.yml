@@ -2,19 +2,46 @@ language: cpp
 
 compiler:
   - gcc
-  - clang
+
+env:
+  matrix:
+    - QT5=ON
+    - QT5=OFF
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq qt4-dev-tools libpam0g-dev libX11-dev
+  - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
+  - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+
+  - if [ "$QT5" == "ON" ]; then sudo apt-add-repository -y ppa:ubuntu-sdk-team/ppa; fi
+
   - sudo add-apt-repository ppa:czchen/travis-ci -y
   - sudo apt-get update -y
-  - sudo apt-get install cmake -y 
+install:
+  # gcc
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8"; fi
+  # clang
+  - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
+  - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
+
+  - if [ "$QT5" == "OFF" ]; then sudo apt-get install -qq qt4-dev-tools; fi
+  - if [ "$QT5" == "ON" ]; then sudo apt-get install qtdeclarative5-dev qttools5-dev qttools5-dev-tools; fi
+  - sudo apt-get install -qq libpam0g-dev libX11-dev libx11-xcb-dev
+  - sudo apt-get install cmake -y
+
+  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb1_1.10-2ubuntu1_amd64.deb
+  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb-xkb1_1.10-2ubuntu1_amd64.deb
+  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb1-dev_1.10-2ubuntu1_amd64.deb
+  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb-xkb-dev_1.10-2ubuntu1_amd64.deb
+  - sudo dpkg --force-depends -i libxcb1_1.10-2ubuntu1_amd64.deb
+  - sudo dpkg --force-depends -i libxcb-xkb1_1.10-2ubuntu1_amd64.deb
+  - sudo dpkg --force-depends -i libxcb1-dev_1.10-2ubuntu1_amd64.deb
+  - sudo dpkg --force-depends -i libxcb-xkb-dev_1.10-2ubuntu1_amd64.deb
 
 before_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -DUSE_QT5=$QT5 ..
 
 script: make
 
