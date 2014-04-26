@@ -56,9 +56,11 @@ namespace SDDM {
         // set role names
         setRoleNames(roleNames);
 #endif
+#ifndef USE_WAYLAND
         // add custom and failsafe session
         d->sessions << SessionPtr { new Session {"custom", "Custom", "custom", "Custom Session"} };
         d->sessions << SessionPtr { new Session {"failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
+#endif
         // read session files
         QDir dir(Configuration::instance()->sessionsDir());
         dir.setNameFilters(QStringList() << "*.desktop");

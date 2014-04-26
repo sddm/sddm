@@ -38,7 +38,8 @@ UserSession::~UserSession() {
 bool UserSession::start() {
     QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
-    if (env.value("XDG_SESSION_CLASS") == "greeter")
+    if (env.value("XDG_SESSION_CLASS") == "greeter" ||
+            env.value("XDG_SESSION_TYPE") == "wayland")
         QProcess::start(m_path);
     else
         QProcess::start(SESSION_COMMAND, {m_path});

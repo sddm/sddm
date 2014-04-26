@@ -23,7 +23,11 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
-#include "XorgDisplayServer.h"
+#ifdef USE_WAYLAND
+#  include "WaylandDisplayServer.h"
+#else
+#  include "XorgDisplayServer.h"
+#endif
 
 #include <QDebug>
 #include <QFile>
@@ -57,7 +61,11 @@ namespace SDDM {
             displayId = findUnused(0, [&](const int number) {
                 bool alreadyExists = m_displayIds.contains(number);
                 if (!alreadyExists)
+#ifdef USE_WAYLAND
+                    alreadyExists = WaylandDisplayServer::displayExists(number);
+#else
                     alreadyExists = XorgDisplayServer::displayExists(number);
+#endif
                 return alreadyExists;
             });
 

@@ -20,6 +20,7 @@ set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERS
 
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
+option(USE_WAYLAND "Experimental Wayland support" OFF)
 
 add_definitions(-Wall -std=c++11)
 
@@ -60,14 +61,40 @@ if(NOT NO_PAM)
   endif()
 endif()
 
-# XCB
-find_package(XCB REQUIRED)
+if(NOT USE_WAYLAND)
+  # XCB
+  find_package(XCB REQUIRED)
 
-# XKB
-find_package(XKB REQUIRED)
+  # XKB
+  find_package(XKB REQUIRED)
+endif()
+
+if(USE_WAYLAND)
+  if(USE_QT5)
+    include(Wayland)
+    pkg_check_modules(WaylandClient wayland-client REQUIRED)
+    pkg_check_modules(Weston "weston >= 1.5.0" REQUIRED)
+
+    include(QtWayland)
+
+    add_definitions(-DUSE_WAYLAND)
+    set(CMAKE_AUTOMOC_MOC_OPTIONS -DUSE_WAYLAND)
+  else()
+    message(FATAL_ERROR "Wayland support requires Qt 5!")
+  endif()
+
+  set(DISPLAY_SERVER_COMMAND "/usr/bin/weston")
+  set(SESSIONS_DIR "/usr/share/wayland-sessions")
+  set(SESSION_COMMAND "${DATA_INSTALL_DIR}/scripts/wayland-session")
+else()
+  set(DISPLAY_SERVER_COMMAND "/usr/bin/X")
+  set(SESSIONS_DIR "/usr/share/xsessions")
+  set(SESSION_COMMAND "${DATA_INSTALL_DIR}/scripts/Xsession")
+endif()
 
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)
+  find_package(Qt5Gui REQUIRED)
   find_package(Qt5DBus REQUIRED)
   find_package(Qt5LinguistTools REQUIRED)
 
@@ -99,7 +126,11 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 # systemd
-pkg_check_modules(SYSTEMD "systemd")
+if(USE_WAYLAND)
+  pkg_check_modules(SYSTEMD "systemd >= 209")
+else()
+  pkg_check_modules(SYSTEMD "systemd")
+endif()
 
 if(SYSTEMD_FOUND)
     pkg_check_modules(JOURNALD "libsystemd-journal")
@@ -123,6 +154,10 @@ else()
     set(MINIMUM_VT 7)
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
+
+    if(USE_WAYLAND)
+        message(FATAL_ERROR "Wayland support needs systemd >= 209")
+    endif()
 endif()
 
 # set constants

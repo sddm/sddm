@@ -53,6 +53,9 @@ namespace SDDM {
         const char *digits = "0123456789abcdef";
         for (int i = 0; i < 32; ++i)
             m_cookie[i] = digits[dis(gen)];
+
+        // emit signal when the server is started
+        connect(DaemonApp::instance()->signalHandler(), SIGNAL(sigusr1Received()), this, SIGNAL(started()));
     }
 
     XorgDisplayServer::~XorgDisplayServer() {

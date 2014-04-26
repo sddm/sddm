@@ -24,7 +24,11 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
-#include "XorgDisplayServer.h"
+#ifdef USE_WAYLAND
+#  include "WaylandDisplayServer.h"
+#else
+#  include "XorgDisplayServer.h"
+#endif
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -43,7 +47,11 @@ namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_auth(new Auth(this)),
+#ifdef USE_WAYLAND
+        m_displayServer(new WaylandDisplayServer(this)),
+#else
         m_displayServer(new XorgDisplayServer(this)),
+#endif
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
@@ -61,7 +69,7 @@ namespace SDDM {
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
 
         // notify the display after display server started
-        connect(DaemonApp::instance()->signalHandler(), SIGNAL(sigusr1Received()), this, SLOT(displayServerStarted()));
+        connect(m_displayServer, SIGNAL(started()), this, SLOT(displayServerStarted()));
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
@@ -102,8 +110,8 @@ namespace SDDM {
 
         // get runtime directory and create it
         QString runtimeDir = daemonApp->configuration()->runtimeDir();
+        QDir().rmpath(runtimeDir);
         QDir().mkpath(runtimeDir);
-qDebug() << "***" << runtimeDir;
 
         // change owner and group
         if (!daemonApp->configuration()->testing)
@@ -156,7 +164,9 @@ qDebug() << "***" << runtimeDir;
 
         // set greeter params
         m_greeter->setDisplay(this);
-        m_greeter->setAuthPath(m_displayServer->authPath());
+#ifndef USE_WAYLAND
+        m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
+#endif
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
 
@@ -276,11 +286,13 @@ qDebug() << "***" << runtimeDir;
         if (success) {
             qDebug() << "Authenticated successfully";
 
+#ifndef USE_WAYLAND
             struct passwd *pw = getpwnam(qPrintable(user));
             if (pw) {
-                m_displayServer->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
+                qobject_cast<XorgDisplayServer *>(m_displayServer)->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
                 changeOwner(QString("%1/.Xauthority").arg(pw->pw_dir));
             }
+#endif
 
             // save last user and session
             daemonApp->configuration()->setLastUser(m_auth->user());

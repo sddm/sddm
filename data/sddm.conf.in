@@ -21,7 +21,7 @@ RebootCommand=@REBOOT_COMMAND@
 
 # Path of the directory containing session files,
 # e.g kde-plasma.desktop
-SessionsDir=/usr/share/xsessions
+SessionsDir=@SESSIONS_DIR@
 
 # Name of the session file of the last session
 # selected. This session will be preselected when

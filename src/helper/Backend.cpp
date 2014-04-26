@@ -25,6 +25,7 @@
 #include "backend/PasswdBackend.h"
 #include "UserSession.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QProcessEnvironment>
 
 #include <pwd.h>
@@ -63,8 +64,13 @@ bool Backend::openSession() {
         m_app->session()->setProcessEnvironment(env);
 
         // redirect standard error to a file
+#ifdef USE_WAYLAND
+        m_app->session()->setStandardErrorFile(QString("%1/.wayland-session-errors").arg(pw->pw_dir));
+#else
         m_app->session()->setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
+#endif
     }
+    qDebug() << "Running:" << qPrintable(m_app->session()->path());
     return m_app->session()->start();
 }
 

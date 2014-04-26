@@ -1,6 +1,10 @@
 include_directories("common")
 include_directories("${CMAKE_BINARY_DIR}/src/common")
 
+if(USE_QT5)
+  include_directories(${Qt5Gui_PRIVATE_INCLUDE_DIRS})
+endif()
+
 configure_file("common/Constants.h.in" "common/Constants.h" IMMEDIATE @ONLY)
 
 ## DAEMON ##
@@ -11,9 +15,8 @@ set(DAEMON_SOURCES
     common/SocketWriter.cpp
     daemon/DaemonApp.cpp
     daemon/Display.cpp
-    daemon/DisplayManager.cpp
     daemon/DisplayServer.cpp
-    daemon/XorgDisplayServer.cpp
+    daemon/DisplayManager.cpp
     daemon/Greeter.cpp
     daemon/PowerManager.cpp
     daemon/Seat.cpp
@@ -26,13 +29,29 @@ set(DAEMON_SOURCES
     auth/AuthRequest.cpp
 )
 
+if(USE_WAYLAND)
+  set(DAEMON_SOURCES
+      ${DAEMON_SOURCES}
+      daemon/WaylandDisplayServer.cpp
+  )
+else()
+  set(DAEMON_SOURCES
+      ${DAEMON_SOURCES}
+      daemon/XorgDisplayServer.cpp
+  )
+endif()
+
 if(USE_QT5)
     qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "daemon/DisplayManager.h" SDDM::DisplayManager)
     qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml"     "daemon/DisplayManager.h" SDDM::DisplayManagerSeat)
     qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml"  "daemon/DisplayManager.h" SDDM::DisplayManagerSession)
 
     add_executable(sddm ${DAEMON_SOURCES})
-    target_link_libraries(sddm ${LIBXCB_LIBRARIES})
+    if(USE_WAYLAND)
+      target_link_libraries(sddm ${WaylandClient_LIBRARIES})
+    else()
+      target_link_libraries(sddm ${LIBXCB_LIBRARIES})
+    endif()
     if(PAM_FOUND)
       target_link_libraries(sddm ${PAM_LIBRARIES})
     else()
@@ -63,6 +82,24 @@ if(JOURNALD_FOUND)
 endif()
 
 install(TARGETS sddm DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+## DISPLAY-SERVER ##
+
+if(USE_WAYLAND)
+    set(DISPLAYSERVER_SOURCES
+        display-server/DisplayServerApp.cpp
+    )
+
+    add_executable(sddm-display-server ${DISPLAYSERVER_SOURCES})
+    qt5_use_modules(sddm-display-server Core)
+    target_link_libraries(sddm-display-server ${WaylandClient_LIBRARIES})
+
+    if(JOURNALD_FOUND)
+        target_link_libraries(sddm-display-server ${JOURNALD_LIBRARIES})
+    endif()
+
+    install(TARGETS sddm-display-server RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
+endif()
 
 ## HELPER ##
 
@@ -114,6 +151,8 @@ set(GREETER_SOURCES
     common/SocketWriter.cpp
     greeter/GreeterApp.cpp
     greeter/GreeterProxy.cpp
+    greeter/KeyboardBackend.cpp
+    greeter/KeyboardLayout.cpp
     greeter/KeyboardModel.cpp
     greeter/ScreenModel.cpp
     greeter/SessionModel.cpp
@@ -122,9 +161,35 @@ set(GREETER_SOURCES
     greeter/UserModel.cpp
 )
 
+if(USE_WAYLAND)
+  set(GREETER_SOURCES
+      ${GREETER_SOURCES}
+      greeter/WaylandKeyboardBackend.cpp
+      greeter/WaylandIntegration.cpp
+  )
+
+  wayland_add_protocol_client(GREETER_SOURCES
+    ${CMAKE_SOURCE_DIR}/data/protocols/fullscreen-shell.xml
+    fullscreen-shell _wl_
+  )
+  qtwayland_add_protocol_client(GREETER_SOURCES
+    ${CMAKE_SOURCE_DIR}/data/protocols/fullscreen-shell.xml
+    fullscreen-shell _wl_
+  )
+else()
+  set(GREETER_SOURCES
+      ${GREETER_SOURCES}
+      greeter/XcbKeyboardBackend.cpp
+  )
+endif()
+
 if(USE_QT5)
     add_executable(sddm-greeter ${GREETER_SOURCES})
-    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
+    if(USE_WAYLAND)
+      target_link_libraries(sddm-greeter ${WaylandClient_LIBRARIES})
+    else()
+      target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
+    endif()
     qt5_use_modules(sddm-greeter Quick)
 else()
     set(QT_USE_QTDECLARATIVE TRUE)

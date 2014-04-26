@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -28,6 +29,10 @@
 #include "UserModel.h"
 #include "KeyboardModel.h"
 
+#ifdef USE_WAYLAND
+#include "WaylandIntegration.h"
+#endif
+
 #ifdef USE_QT5
 #include "MessageHandler.h"
 
@@ -42,6 +47,9 @@
 #include <QDeclarativeEngine>
 #endif
 #include <QDebug>
+#ifdef USE_WAYLAND
+#include <QScreen>
+#endif
 #include <QTranslator>
 
 #include <iostream>
@@ -85,6 +93,11 @@ namespace SDDM {
         // get theme path
         QString themePath = parameter(arguments(), "--theme", "");
 
+    #ifdef USE_WAYLAND
+        // Wayland integration
+        m_waylandIntegration = new WaylandIntegration();
+    #endif
+
         // Initialize
     #ifdef USE_QT5
         // create view
@@ -94,6 +107,10 @@ namespace SDDM {
         // create view
         m_view = new QDeclarativeView();
         m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    #endif
+
+    #ifdef USE_WAYLAND
+        m_view->setFlags(Qt::BypassWindowManagerHint);
     #endif
 
         m_view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
@@ -171,10 +188,24 @@ namespace SDDM {
 #endif
     }
 
+    GreeterApp::~GreeterApp() {
+#ifdef USE_WAYLAND
+        delete m_waylandIntegration;
+#endif
+    }
+
     void GreeterApp::show() {
+#ifdef USE_WAYLAND
+        m_view->setGeometry(QGuiApplication::primaryScreen()->geometry());
+        m_view->setScreen(QGuiApplication::primaryScreen());
+#else
         m_view->setGeometry(m_screenModel->geometry());
+#endif
 #ifdef USE_QT5
         m_view->show();
+#endif
+#ifdef USE_WAYLAND
+        m_waylandIntegration->presentWindow(m_view);
 #endif
     }
 
