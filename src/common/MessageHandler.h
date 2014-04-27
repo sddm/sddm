@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -25,36 +26,43 @@
 #include <QDateTime>
 #include <QFile>
 
+#include <iostream>
+
 namespace SDDM {
     void MessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
         Q_UNUSED(context)
 
-        QFile file(LOG_FILE);
+        static QFile file(LOG_FILE);
 
-        // open file
-        if (!file.open(QFile::Append | QFile::WriteOnly))
-            if (!file.open(QFile::Truncate | QFile::WriteOnly))
-                return;
+        // try to open file only if it's not already open
+        if (!file.isOpen()) {
+            if (!file.open(QFile::Append | QFile::WriteOnly))
+                file.open(QFile::Truncate | QFile::WriteOnly);
+        }
 
         // create timestamp
         QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
 
-        // log message
+        // prepare log message
+        QString logMessage = msg;
         switch (type) {
             case QtDebugMsg:
-                file.write(QString("[%1] (II) %2\n").arg(timestamp).arg(msg).toLocal8Bit());
+                logMessage = QString("[%1] (II) %2\n").arg(timestamp).arg(msg);
             break;
             case QtWarningMsg:
-                file.write(QString("[%1] (WW) %2\n").arg(timestamp).arg(msg).toLocal8Bit());
+                logMessage = QString("[%1] (WW) %2\n").arg(timestamp).arg(msg);
             break;
             case QtCriticalMsg:
             case QtFatalMsg:
-                file.write(QString("[%1] (EE) %2\n").arg(timestamp).arg(msg).toLocal8Bit());
+                logMessage = QString("[%1] (EE) %2\n").arg(timestamp).arg(msg);
             break;
         }
 
-        // close file
-        file.close();
+        // log message
+        if (file.isOpen())
+            file.write(logMessage.toLocal8Bit());
+        else
+            std::cout << qPrintable(logMessage);
     }
 }
 
