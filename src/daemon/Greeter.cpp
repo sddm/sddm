@@ -72,7 +72,12 @@ namespace SDDM {
         m_process->setProcessEnvironment(env);
 
         // start greeter
-        m_process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), { "--socket", m_socket, "--theme", m_theme });
+        QStringList args;
+        if (daemonApp->configuration()->testing)
+            args << "--test-mode";
+        args << "--socket" << m_socket
+             << "--theme" << m_theme;
+        m_process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), args);
 
         // wait for greeter to start
         if (!m_process->waitForStarted()) {
