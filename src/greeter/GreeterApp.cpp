@@ -76,7 +76,7 @@ namespace SDDM {
         // Parse arguments
         bool testing = false;
 
-        if (arguments().contains("--test"))
+        if (arguments().contains("--test-mode"))
             testing = true;
 
         // get socket name
@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
                      "Options: \n"
                      "  --theme <theme path>       Set greeter theme\n"
                      "  --socket <socket name>     Set socket name\n"
-                     "  --test                     Testing mode" << std::endl;
+                     "  --test-mode                Start greeter in test mode" << std::endl;
 
         return EXIT_FAILURE;
     }
