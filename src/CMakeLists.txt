@@ -8,7 +8,6 @@ configure_file(common/Constants.h.in common/Constants.h IMMEDIATE @ONLY)
 set(DAEMON_SOURCES
     common/Configuration.cpp
     common/SocketWriter.cpp
-    daemon/Authenticator.cpp
     daemon/DaemonApp.cpp
     daemon/Display.cpp
     daemon/DisplayManager.cpp
@@ -17,7 +16,6 @@ set(DAEMON_SOURCES
     daemon/PowerManager.cpp
     daemon/Seat.cpp
     daemon/SeatManager.cpp
-    daemon/Session.cpp
     daemon/SignalHandler.cpp
     daemon/SocketServer.cpp
 )
@@ -28,12 +26,6 @@ if(USE_QT5)
     qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml  daemon/DisplayManager.h SDDM::DisplayManagerSession)
 
     add_executable(sddm ${DAEMON_SOURCES})
-    target_link_libraries(sddm ${LIBXCB_LIBRARIES})
-    if(PAM_FOUND)
-      target_link_libraries(sddm ${PAM_LIBRARIES})
-    else()
-      target_link_libraries(sddm crypt)
-    endif()
     qt5_use_modules(sddm DBus Network)
 else()
     set(QT_USE_QTNETWORK TRUE)
@@ -45,13 +37,10 @@ else()
     qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml  daemon/DisplayManager.h SDDM::DisplayManagerSession)
 
     add_executable(sddm ${DAEMON_SOURCES})
-    target_link_libraries(sddm ${LIBXCB_LIBRARIES} ${QT_LIBRARIES})
-    if(PAM_FOUND)
-      target_link_libraries(sddm ${PAM_LIBRARIES})
-    else()
-      target_link_libraries(sddm crypt)
-    endif()
+    target_link_libraries(sddm ${QT_LIBRARIES})
 endif()
+
+target_link_libraries(sddm ${QAUTH_LIBRARIES} ${LIBXCB_LIBRARIES})
 
 install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
 
@@ -72,15 +61,16 @@ set(GREETER_SOURCES
 
 if(USE_QT5)
     add_executable(sddm-greeter ${GREETER_SOURCES})
-    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
     qt5_use_modules(sddm-greeter Quick)
 else()
     set(QT_USE_QTDECLARATIVE TRUE)
     include(${QT_USE_FILE})
 
     add_executable(sddm-greeter ${GREETER_SOURCES})
-    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES} ${QT_LIBRARIES})
+    target_link_libraries(sddm-greeter ${QT_LIBRARIES})
 endif()
+
+target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
 
 # Translations
 add_dependencies(sddm-greeter components-translation)

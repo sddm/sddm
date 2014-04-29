@@ -25,14 +25,8 @@ endif()
 # PKG-CONFIG
 find_package(PkgConfig)
 
-# PAM
-if(NOT NO_PAM)
-  find_package(PAM)
-
-  if(PAM_FOUND)
-    add_definitions(-DUSE_PAM)
-  endif()
-endif()
+# QAuth
+find_package(QAuth REQUIRED)
 
 # XCB
 find_package(XCB REQUIRED)

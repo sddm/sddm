@@ -23,8 +23,8 @@
 #include "DaemonApp.h"
 #include "Display.h"
 
-#include <QDebug>
-#include <QProcess>
+#include <QtCore/QDebug>
+#include <QtCore/QProcess>
 
 #include <xcb/xcb.h>
 
