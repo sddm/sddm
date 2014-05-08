@@ -23,13 +23,11 @@
 #include <QProcess>
 
 namespace SDDM {
-    class Authenticator;
-
     class Session : public QProcess {
         Q_OBJECT
         Q_DISABLE_COPY(Session)
     public:
-        explicit Session(const QString &name, Authenticator *parent);
+        explicit Session(const QString &name, QObject *parent);
 
         const QString &name() const;
 
@@ -42,8 +40,6 @@ namespace SDDM {
         void setupChildProcess();
 
     private:
-        Authenticator *m_authenticator;
-
         QString m_name { "" };
         QString m_user { "" };
         QString m_dir { "" };
