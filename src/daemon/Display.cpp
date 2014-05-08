@@ -159,8 +159,6 @@ namespace SDDM {
         for (int i = 0; i < 32; ++i)
             m_cookie[i] = digits[dis(gen)];
 
-        // generate auth file
-        addCookie(m_authPath);
 
         // set display server params
         m_displayServer->setDisplay(m_display);
