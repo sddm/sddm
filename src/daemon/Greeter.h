@@ -42,6 +42,10 @@ namespace SDDM {
         void stop();
         void finished();
 
+    private slots:
+        void onReadyReadStandardOutput();
+        void onReadyReadStandardError();
+
     private:
         bool m_started { false };
 
