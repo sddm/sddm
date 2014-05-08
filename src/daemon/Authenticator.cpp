@@ -318,6 +318,8 @@ namespace SDDM {
         // create user session process
         process = new Session(QString("Session%1").arg(daemonApp->newSessionId()), this);
 
+        m_display->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
+
         // set session process params
         process->setUser(pw->pw_name);
         process->setDir(pw->pw_dir);
