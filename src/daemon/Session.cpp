@@ -31,7 +31,10 @@
 #include <unistd.h>
 
 namespace SDDM {
-    Session::Session(const QString &name, Authenticator *parent) : QProcess(parent), m_authenticator(parent), m_name(name) {
+    Session::Session(const QString &name, QObject *parent) :
+        QProcess(parent),
+        m_name(name)
+    {
     }
 
     const QString &Session::name() const {
@@ -88,9 +91,6 @@ namespace SDDM {
             exit(EXIT_FAILURE);
 
         }
-
-        // add cookie
-        m_authenticator->display()->addCookie(QString("%1/.Xauthority").arg(m_dir));
 
         // change to user home dir
         if (chdir(qPrintable(m_dir))) {
