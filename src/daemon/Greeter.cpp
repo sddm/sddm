@@ -61,6 +61,9 @@ namespace SDDM {
         // delete process on finish
         connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
 
+        connect(m_process, SIGNAL(readyReadStandardOutput()), SLOT(onReadyReadStandardOutput()));
+        connect(m_process, SIGNAL(readyReadStandardError()), SLOT(onReadyReadStandardError()));
+
         // log message
         qDebug() << "Greeter starting...";
 
@@ -128,5 +131,19 @@ namespace SDDM {
         // clean up
         m_process->deleteLater();
         m_process = nullptr;
+    }
+
+    void Greeter::onReadyReadStandardError()
+    {
+        if (m_process) {
+            qDebug() << "Greeter StdErr: " << m_process->readAllStandardError();
+        }
+    }
+
+    void Greeter::onReadyReadStandardOutput()
+    {
+        if (m_process) {
+            qDebug() << "Greeter StdOut: " << m_process->readAllStandardOutput();
+        }
     }
 }
