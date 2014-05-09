@@ -69,9 +69,6 @@ namespace SDDM {
 
         // set auth path
         m_authPath = QString("%1/A%2-%3").arg(authDir).arg(m_display).arg(generateName(6));
-
-        // set socket name
-        m_socket = QString("sddm-%1-%2").arg(m_display).arg(generateName(6));
     }
 
     Display::~Display() {
@@ -163,16 +160,13 @@ namespace SDDM {
             return;
         }
 
-        // set socket server name
-        m_socketServer->setSocket(m_socket);
-
         // start socket server
-        m_socketServer->start();
+        m_socketServer->start(m_display);
 
         // set greeter params
         m_greeter->setDisplay(m_display);
         m_greeter->setAuthPath(m_authPath);
-        m_greeter->setSocket(m_socket);
+        m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
 
         // start greeter
