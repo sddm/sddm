@@ -26,6 +26,7 @@
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
+#include "Utils.h"
 
 #include <QDebug>
 #include <QDir>
@@ -33,26 +34,6 @@
 #include <QTimer>
 
 namespace SDDM {
-    QString generateName(int length) {
-        QString digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        // reserve space for name
-        QString name;
-        name.reserve(length);
-
-        // create random device
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, digits.length() - 1);
-
-        // generate name
-        for (int i = 0; i < length; ++i)
-            name[i] = digits.at(dis(gen));
-
-        // return result
-        return name;
-    }
-
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_authenticator(new Authenticator(this)),
