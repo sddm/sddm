@@ -23,6 +23,7 @@
 #include "Messages.h"
 #include "PowerManager.h"
 #include "SocketWriter.h"
+#include "Utils.h"
 
 #include <QLocalServer>
 
@@ -30,31 +31,32 @@ namespace SDDM {
     SocketServer::SocketServer(QObject *parent) : QObject(parent) {
     }
 
-    void SocketServer::setSocket(const QString &socket) {
-        m_socket = socket;
+    QString SocketServer::socketAddress() const {
+        if (m_server)
+            return m_server->fullServerName();
+        return QString();
     }
 
-    bool SocketServer::start() {
-        // check flag
-        if (m_started)
+    bool SocketServer::start(const QString &displayName) {
+        // check if the server has been created already
+        if (m_server)
             return false;
+
+        QString socketName = QString("sddm-%1-%2").arg(displayName).arg(generateName(6));
 
         // log message
         qDebug() << "Socket server starting...";
 
         // create server
-        server = new QLocalServer(this);
+        m_server = new QLocalServer(this);
 
 #ifdef USE_QT5
         // set server options
-        server->setSocketOptions(QLocalServer::UserAccessOption);
+        m_server->setSocketOptions(QLocalServer::UserAccessOption);
 #endif
 
-        // remove existing server
-        QLocalServer::removeServer(m_socket);
-
         // start listening
-        if (!server->listen(m_socket)) {
+        if (!m_server->listen(socketName)) {
             // log message
             qCritical() << "Failed to start socket server.";
 
@@ -62,14 +64,12 @@ namespace SDDM {
             return false;
         }
 
+
         // log message
         qDebug() << "Socket server started.";
 
         // connect signals
-        connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-
-        // set flag
-        m_started = true;
+        connect(m_server, SIGNAL(newConnection()), this, SLOT(newConnection()));
 
         // return success
         return true;
@@ -77,18 +77,15 @@ namespace SDDM {
 
     void SocketServer::stop() {
         // check flag
-        if (!m_started)
+        if (!m_server)
             return;
-
-        // reset flag
-        m_started = false;
 
         // log message
         qDebug() << "Socket server stopping...";
 
         // delete server
-        server->deleteLater();
-        server = nullptr;
+        m_server->deleteLater();
+        m_server = nullptr;
 
         // log message
         qDebug() << "Socket server stopped.";
@@ -96,7 +93,7 @@ namespace SDDM {
 
     void SocketServer::newConnection() {
         // get pending connection
-        QLocalSocket *socket = server->nextPendingConnection();
+        QLocalSocket *socket = m_server->nextPendingConnection();
 
         // connect signals
         connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
