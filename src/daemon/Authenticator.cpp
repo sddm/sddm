@@ -248,6 +248,14 @@ namespace SDDM {
         if ((m_pam->result = pam_set_item(m_pam->handle, PAM_XDISPLAY, qPrintable(m_display->name()))) != PAM_SUCCESS)
             return false;
 
+        // specify session information for logind
+        if ((pam_putenv(m_pam->handle, "XDG_SESSION_CLASS=user")) != PAM_SUCCESS)
+            return false;
+        if ((pam_putenv(m_pam->handle, "XDG_SESSION_TYPE=x11")) != PAM_SUCCESS)
+            return false;
+        if ((pam_putenv(m_pam->handle, qPrintable("XDG_SESSION_DESKTOP=" + xdgSessionName))) != PAM_SUCCESS)
+            return false;
+
         // open session
         if ((m_pam->result = pam_open_session(m_pam->handle, 0)) != PAM_SUCCESS)
             return false;
@@ -339,6 +347,11 @@ namespace SDDM {
 #else
         // we strdup'd the string before in this branch
         free(mapped);
+
+        // session information
+        env.insert("XDG_SESSION_CLASS", "user");
+        env.insert("XDG_SESSION_TYPE", "x11");
+        env.insert("XDG_SESSION_DESKTOP", xdgSessionName);
 #endif
         env.insert("HOME", pw->pw_dir);
         env.insert("PWD", pw->pw_dir);
