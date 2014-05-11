@@ -62,7 +62,7 @@ namespace SDDM {
         connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
 
         // log message
-        qDebug() << " DAEMON: Greeter starting...";
+        qDebug() << "Greeter starting...";
 
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -77,14 +77,14 @@ namespace SDDM {
         // wait for greeter to start
         if (!m_process->waitForStarted()) {
             // log message
-            qCritical() << " DAEMON: Failed to start greeter.";
+            qCritical() << "Failed to start greeter.";
 
             // return fail
             return false;
         }
 
         // log message
-        qDebug() << " DAEMON: Greeter started.";
+        qDebug() << "Greeter started.";
 
         // set flag
         m_started = true;
@@ -99,7 +99,7 @@ namespace SDDM {
             return;
 
         // log message
-        qDebug() << " DAEMON: Greeter stopping...";
+        qDebug() << "Greeter stopping...";
 
         // terminate process
         m_process->terminate();
@@ -118,7 +118,7 @@ namespace SDDM {
         m_started = false;
 
         // log message
-        qDebug() << " DAEMON: Greeter stopped.";
+        qDebug() << "Greeter stopped.";
 
         // clean up
         m_process->deleteLater();
