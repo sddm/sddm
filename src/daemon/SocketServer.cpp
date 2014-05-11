@@ -40,7 +40,7 @@ namespace SDDM {
             return false;
 
         // log message
-        qDebug() << " DAEMON: Socket server starting...";
+        qDebug() << "Socket server starting...";
 
         // create server
         server = new QLocalServer(this);
@@ -56,14 +56,14 @@ namespace SDDM {
         // start listening
         if (!server->listen(m_socket)) {
             // log message
-            qCritical() << " DAEMON: Failed to start socket server.";
+            qCritical() << "Failed to start socket server.";
 
             // return fail
             return false;
         }
 
         // log message
-        qDebug() << " DAEMON: Socket server started.";
+        qDebug() << "Socket server started.";
 
         // connect signals
         connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
@@ -84,14 +84,14 @@ namespace SDDM {
         m_started = false;
 
         // log message
-        qDebug() << " DAEMON: Socket server stopping...";
+        qDebug() << "Socket server stopping...";
 
         // delete server
         server->deleteLater();
         server = nullptr;
 
         // log message
-        qDebug() << " DAEMON: Socket server stopped.";
+        qDebug() << "Socket server stopped.";
     }
 
     void SocketServer::newConnection() {
@@ -120,7 +120,7 @@ namespace SDDM {
         switch (GreeterMessages(message)) {
             case GreeterMessages::Connect: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: Connect";
+                qDebug() << "Message received from greeter: Connect";
 
                 // send capabilities
                 SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(daemonApp->powerManager()->capabilities());
@@ -131,7 +131,7 @@ namespace SDDM {
             break;
             case GreeterMessages::Login: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: Login";
+                qDebug() << "Message received from greeter: Login";
 
                 // read username, pasword etc.
                 QString user, password, session;
@@ -143,7 +143,7 @@ namespace SDDM {
             break;
             case GreeterMessages::PowerOff: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: PowerOff";
+                qDebug() << "Message received from greeter: PowerOff";
 
                 // power off
                 daemonApp->powerManager()->powerOff();
@@ -151,7 +151,7 @@ namespace SDDM {
             break;
             case GreeterMessages::Reboot: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: Reboot";
+                qDebug() << "Message received from greeter: Reboot";
 
                 // reboot
                 daemonApp->powerManager()->reboot();
@@ -159,7 +159,7 @@ namespace SDDM {
             break;
             case GreeterMessages::Suspend: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: Suspend";
+                qDebug() << "Message received from greeter: Suspend";
 
                 // suspend
                 daemonApp->powerManager()->suspend();
@@ -167,7 +167,7 @@ namespace SDDM {
             break;
             case GreeterMessages::Hibernate: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: Hibernate";
+                qDebug() << "Message received from greeter: Hibernate";
 
                 // hibernate
                 daemonApp->powerManager()->hibernate();
@@ -175,7 +175,7 @@ namespace SDDM {
             break;
             case GreeterMessages::HybridSleep: {
                 // log message
-                qDebug() << " DAEMON: Message received from greeter: HybridSleep";
+                qDebug() << "Message received from greeter: HybridSleep";
 
                 // hybrid sleep
                 daemonApp->powerManager()->hybridSleep();
@@ -183,7 +183,7 @@ namespace SDDM {
             break;
             default: {
                 // log message
-                qWarning() << " DAEMON: Unknown message" << message;
+                qWarning() << "Unknown message" << message;
             }
         }
     }

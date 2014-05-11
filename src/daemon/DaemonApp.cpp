@@ -44,11 +44,11 @@ namespace SDDM {
         self = this;
 
 #ifdef USE_QT5
-        qInstallMessageHandler(SDDM::MessageHandler);
+        qInstallMessageHandler(SDDM::DaemonMessageHandler);
 #endif
 
         // log message
-        qDebug() << " DAEMON: Initializing...";
+        qDebug() << "Initializing...";
 
         // create configuration
         m_configuration = new Configuration(CONFIG_FILE, this);
@@ -81,7 +81,7 @@ namespace SDDM {
         connect(signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
 
         // log message
-        qDebug() << " DAEMON: Starting...";
+        qDebug() << "Starting...";
 
         // add a seat
         m_seatManager->createSeat("seat0");

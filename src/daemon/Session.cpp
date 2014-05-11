@@ -59,7 +59,7 @@ namespace SDDM {
             return;
 
         if (initgroups(qPrintable(m_user), m_gid)) {
-            qCritical() << " DAEMON: Failed to initialize user groups.";
+            qCritical() << "Failed to initialize user groups.";
 
             // emit signal
             emit finished(EXIT_FAILURE, QProcess::NormalExit);
@@ -69,7 +69,7 @@ namespace SDDM {
         }
 
         if (setgid(m_gid)) {
-            qCritical() << " DAEMON: Failed to set group id.";
+            qCritical() << "Failed to set group id.";
 
             // emit signal
             emit finished(EXIT_FAILURE, QProcess::NormalExit);
@@ -79,7 +79,7 @@ namespace SDDM {
         }
 
         if (setuid(m_uid)) {
-            qCritical() << " DAEMON: Failed to set user id.";
+            qCritical() << "Failed to set user id.";
 
             // emit signal
             emit finished(EXIT_FAILURE, QProcess::NormalExit);
@@ -94,7 +94,7 @@ namespace SDDM {
 
         // change to user home dir
         if (chdir(qPrintable(m_dir))) {
-            qCritical() << " DAEMON: Failed to change dir to user home.";
+            qCritical() << "Failed to change dir to user home.";
 
             // emit signal
             emit finished(EXIT_FAILURE, QProcess::NormalExit);

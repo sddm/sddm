@@ -119,7 +119,7 @@ namespace SDDM {
 
     void Display::addCookie(const QString &file) {
         // log message
-        qDebug() << " DAEMON: Adding cookie to" << file;
+        qDebug() << "Adding cookie to" << file;
 
         // Touch file
         QFile file_handler(file);
