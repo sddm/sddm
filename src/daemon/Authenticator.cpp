@@ -202,7 +202,7 @@ namespace SDDM {
 
         if (command.isEmpty()) {
             // log error
-            qCritical() << " DAEMON: Failed to find command for session:" << session;
+            qCritical() << "Failed to find command for session:" << session;
 
             // return fail
             return false;
@@ -262,7 +262,7 @@ namespace SDDM {
             struct passwd *pw;
             if ((pw = getpwnam(qPrintable(user))) == nullptr) {
                 // log error
-                qCritical() << " DAEMON: Failed to get user entry.";
+                qCritical() << "Failed to get user entry.";
 
                 // return fail
                 return false;
@@ -271,7 +271,7 @@ namespace SDDM {
             struct spwd *sp;
             if ((sp = getspnam(pw->pw_name)) == nullptr) {
                 // log error
-                qCritical() << " DAEMON: Failed to get shadow entry.";
+                qCritical() << "Failed to get shadow entry.";
 
                 // return fail
                 return false;
@@ -295,7 +295,7 @@ namespace SDDM {
         struct passwd *pw;
         if ((pw = getpwnam(mapped)) == nullptr) {
             // log error
-            qCritical() << " DAEMON: Failed to get user name.";
+            qCritical() << "Failed to get user name.";
 
             // return fail
             return false;
@@ -368,14 +368,14 @@ namespace SDDM {
         // wait for started
         if (!process->waitForStarted()) {
             // log error
-            qDebug() << " DAEMON: Failed to start user session.";
+            qDebug() << "Failed to start user session.";
 
             // return fail
             return false;
         }
 
         // log message
-        qDebug() << " DAEMON: User session started.";
+        qDebug() << "User session started.";
 
         // register to the display manager
         daemonApp->displayManager()->AddSession(process->name(), seat->name(), pw->pw_name);
@@ -393,7 +393,7 @@ namespace SDDM {
             return;
 
         // log message
-        qDebug() << " DAEMON: User session stopping...";
+        qDebug() << "User session stopping...";
 
         // terminate process
         process->terminate();
@@ -412,7 +412,7 @@ namespace SDDM {
         m_started = false;
 
         // log message
-        qDebug() << " DAEMON: User session ended.";
+        qDebug() << "User session ended.";
 
         // unregister from the display manager
         daemonApp->displayManager()->RemoveSession(process->name());

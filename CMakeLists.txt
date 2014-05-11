@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
+option(ENABLE_JOURNALD "Enable logging to journald" ON)
+
 add_definitions(-Wall -march=native -std=c++11)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -76,6 +78,17 @@ add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_D
 pkg_check_modules(SYSTEMD "systemd")
 
 if(SYSTEMD_FOUND)
+    pkg_check_modules(JOURNALD "libsystemd-journal")
+
+    if(ENABLE_JOURNALD)
+        if(JOURNALD_FOUND)
+            add_definitions(-DHAVE_JOURNALD)
+            set(CMAKE_AUTOMOC_MOC_OPTIONS -DHAVE_JOURNALD)
+        else()
+            message(WARNING "Disable journald support for lack of libsystemd-journal")
+        endif()
+    endif()
+
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
     string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
     set(HALT_COMMAND "/usr/bin/systemctl poweroff")
