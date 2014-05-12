@@ -23,11 +23,13 @@
 #include <QProcess>
 
 namespace SDDM {
+    class Display;
+
     class Session : public QProcess {
         Q_OBJECT
         Q_DISABLE_COPY(Session)
     public:
-        explicit Session(const QString &name, QObject *parent);
+        explicit Session(const QString &name, Display *display, QObject *parent);
 
         const QString &name() const;
 
@@ -44,6 +46,7 @@ namespace SDDM {
         QString m_user { "" };
         QString m_dir { "" };
 
+        Display *m_display { nullptr };
         int m_uid { 0 };
         int m_gid { 0 };
     };

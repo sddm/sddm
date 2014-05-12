@@ -22,9 +22,10 @@
 
 #include <QObject>
 
-class QProcess;
-
 namespace SDDM {
+    class Session;
+    class Display;
+
     class Greeter : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(Greeter)
@@ -32,7 +33,7 @@ namespace SDDM {
         explicit Greeter(QObject *parent = 0);
         ~Greeter();
 
-        void setDisplay(const QString &display);
+        void setDisplay(Display *display);
         void setAuthPath(const QString &authPath);
         void setSocket(const QString &socket);
         void setTheme(const QString &theme);
@@ -49,12 +50,12 @@ namespace SDDM {
     private:
         bool m_started { false };
 
-        QString m_display { "" };
+        Display *m_display { nullptr };
         QString m_authPath { "" };
         QString m_socket { "" };
         QString m_theme { "" };
 
-        QProcess *m_process { nullptr };
+        Session *m_process { nullptr };
     };
 }
 

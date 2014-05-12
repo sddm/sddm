@@ -164,7 +164,7 @@ namespace SDDM {
         m_socketServer->start(m_display);
 
         // set greeter params
-        m_greeter->setDisplay(m_display);
+        m_greeter->setDisplay(this);
         m_greeter->setAuthPath(m_authPath);
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
