@@ -61,46 +61,51 @@ namespace SDDM {
         if (daemonApp->configuration()->testing)
             return;
 
-        if (initgroups(qPrintable(m_user), m_gid)) {
-            qCritical() << "Failed to initialize user groups.";
+        if (m_gid > 0) {
+            if (initgroups(qPrintable(m_user), m_gid)) {
+                qCritical() << " Failed to initialize user groups.";
 
-            // emit signal
-            emit finished(EXIT_FAILURE, QProcess::NormalExit);
+                // emit signal
+                emit finished(EXIT_FAILURE, QProcess::NormalExit);
 
-            // exit
-            exit(EXIT_FAILURE);
+                // exit
+                exit(EXIT_FAILURE);
+            }
+
+            if (setgid(m_gid)) {
+                qCritical() << "Failed to set group id.";
+
+                // emit signal
+                emit finished(EXIT_FAILURE, QProcess::NormalExit);
+
+                // exit
+                exit(EXIT_FAILURE);
+            }
         }
 
-        if (setgid(m_gid)) {
-            qCritical() << "Failed to set group id.";
+        if (m_uid > 0) {
+            if (setuid(m_uid)) {
+                qCritical() << "Failed to set user id.";
 
-            // emit signal
-            emit finished(EXIT_FAILURE, QProcess::NormalExit);
+                // emit signal
+                emit finished(EXIT_FAILURE, QProcess::NormalExit);
 
-            // exit
-            exit(EXIT_FAILURE);
+                // exit
+                exit(EXIT_FAILURE);
+            }
         }
 
-        if (setuid(m_uid)) {
-            qCritical() << "Failed to set user id.";
+        if (!m_dir.isEmpty()) {
+            // change to user home dir
+            if (chdir(qPrintable(m_dir))) {
+                qCritical() << "Failed to change dir to user home.";
 
-            // emit signal
-            emit finished(EXIT_FAILURE, QProcess::NormalExit);
+                // emit signal
+                emit finished(EXIT_FAILURE, QProcess::NormalExit);
 
-            // exit
-            exit(EXIT_FAILURE);
-
-        }
-
-        // change to user home dir
-        if (chdir(qPrintable(m_dir))) {
-            qCritical() << "Failed to change dir to user home.";
-
-            // emit signal
-            emit finished(EXIT_FAILURE, QProcess::NormalExit);
-
-            // exit
-            exit(EXIT_FAILURE);
+                // exit
+                exit(EXIT_FAILURE);
+            }
         }
     }
 }
