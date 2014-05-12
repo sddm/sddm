@@ -31,9 +31,10 @@
 #include <unistd.h>
 
 namespace SDDM {
-    Session::Session(const QString &name, QObject *parent) :
+    Session::Session(const QString &name, Display *display, QObject *parent) :
         QProcess(parent),
-        m_name(name)
+        m_name(name),
+        m_display(display)
     {
     }
 
@@ -95,7 +96,11 @@ namespace SDDM {
             }
         }
 
+
+
         if (!m_dir.isEmpty()) {
+            m_display->addCookie(QString("%1/.Xauthority").arg(m_dir));
+
             // change to user home dir
             if (chdir(qPrintable(m_dir))) {
                 qCritical() << "Failed to change dir to user home.";
