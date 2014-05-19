@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>警告、Caps ロックがオンになっています!</translation>
+        <translation>注意: Caps ロックがオンになっています!</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>レイアウト</translation>
+        <translation>キーボード</translation>
     </message>
     <message>
         <source>Login</source>
@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>あなたのユーザ名とパスワードを入力してください</translation>
+        <translation>ユーザ名とパスワードを入力してください</translation>
     </message>
     <message>
         <source>Reboot</source>
@@ -53,7 +53,7 @@
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>あなたのユーザ名を選び、パスワードを入力してください</translation>
+        <translation>ユーザ名を選び、パスワードを入力してください</translation>
     </message>
 </context>
 </TS>
