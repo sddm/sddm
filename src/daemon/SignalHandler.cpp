@@ -34,19 +34,19 @@ namespace SDDM {
 
     SignalHandler::SignalHandler(QObject *parent) : QObject(parent) {
         if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sighupFd))
-            qCritical() << " DAEMON: Failed to create socket pair for SIGHUP handling.";
+            qCritical() << "Failed to create socket pair for SIGHUP handling.";
 
         snhup = new QSocketNotifier(sighupFd[1], QSocketNotifier::Read, this);
         connect(snhup, SIGNAL(activated(int)), this, SLOT(handleSighup()));
 
         if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigintFd))
-            qCritical() << " DAEMON: Failed to create socket pair for SIGINT handling.";
+            qCritical() << "Failed to create socket pair for SIGINT handling.";
 
         snint = new QSocketNotifier(sigintFd[1], QSocketNotifier::Read, this);
         connect(snint, SIGNAL(activated(int)), this, SLOT(handleSigint()));
 
         if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigtermFd))
-            qCritical() << " DAEMON: Failed to create socket pair for SIGTERM handling.";
+            qCritical() << "Failed to create socket pair for SIGTERM handling.";
 
         snterm = new QSocketNotifier(sigtermFd[1], QSocketNotifier::Read, this);
         connect(snterm, SIGNAL(activated(int)), this, SLOT(handleSigterm()));
@@ -60,7 +60,7 @@ namespace SDDM {
         sighup.sa_flags |= SA_RESTART;
 
         if (sigaction(SIGHUP, &sighup, 0) > 0) {
-            qCritical() << " DAEMON: Failed to setup SIGHUP handler.";
+            qCritical() << "Failed to setup SIGHUP handler.";
             return;
         }
 
@@ -70,7 +70,7 @@ namespace SDDM {
         sigint.sa_flags |= SA_RESTART;
 
         if (sigaction(SIGINT, &sigint, 0) > 0) {
-            qCritical() << " DAEMON: Failed to set up SIGINT handler.";
+            qCritical() << "Failed to set up SIGINT handler.";
             return;
         }
 
@@ -80,7 +80,7 @@ namespace SDDM {
         sigterm.sa_flags |= SA_RESTART;
 
         if (sigaction(SIGTERM, &sigterm, 0) > 0) {
-            qCritical() << " DAEMON: Failed to set up SIGTERM handler.";
+            qCritical() << "Failed to set up SIGTERM handler.";
             return;
         }
     }
@@ -88,7 +88,7 @@ namespace SDDM {
     void SignalHandler::hupSignalHandler(int) {
         char a = 1;
         if (::write(sighupFd[0], &a, sizeof(a)) == -1) {
-            qCritical() << " DAEMON: Error writing to the SIGHUP handler";
+            qCritical() << "Error writing to the SIGHUP handler";
             return;
         }
     }
@@ -96,7 +96,7 @@ namespace SDDM {
     void SignalHandler::intSignalHandler(int) {
         char a = 1;
         if (::write(sigintFd[0], &a, sizeof(a)) == -1) {
-            qCritical() << " DAEMON: Error writing to the SIGINT handler";
+            qCritical() << "Error writing to the SIGINT handler";
             return;
         }
     }
@@ -104,7 +104,7 @@ namespace SDDM {
     void SignalHandler::termSignalHandler(int) {
         char a = 1;
         if (::write(sigtermFd[0], &a, sizeof(a)) == -1) {
-            qCritical() << " DAEMON: Error writing to the SIGTERM handler";
+            qCritical() << "Error writing to the SIGTERM handler";
             return;
         }
     }
@@ -117,12 +117,12 @@ namespace SDDM {
         char a;
         if (::read(sighupFd[1], &a, sizeof(a)) == -1) {
             // something went wrong!
-            qCritical() << " DAEMON: Error reading from the socket";
+            qCritical() << "Error reading from the socket";
             return;
         }
 
         // log event
-        qWarning() << " DAEMON: Signal received: SIGHUP";
+        qWarning() << "Signal received: SIGHUP";
 
         // emit signal
         emit sighupReceived();
@@ -139,12 +139,12 @@ namespace SDDM {
         char a;
         if (::read(sigintFd[1], &a, sizeof(a)) == -1) {
             // something went wrong!
-            qCritical() << " DAEMON: Error reading from the socket";
+            qCritical() << "Error reading from the socket";
             return;
         }
 
         // log event
-        qWarning() << " DAEMON: Signal received: SIGINT";
+        qWarning() << "Signal received: SIGINT";
 
         // emit signal
         emit sigintReceived();
@@ -161,12 +161,12 @@ namespace SDDM {
         char a;
         if (::read(sigtermFd[1], &a, sizeof(a)) == -1) {
             // something went wrong!
-            qCritical() << " DAEMON: Error reading from the socket";
+            qCritical() << "Error reading from the socket";
             return;
         }
 
         // log event
-        qWarning() << " DAEMON: Signal received: SIGTERM";
+        qWarning() << "Signal received: SIGTERM";
 
         // emit signal
         emit sigtermReceived();

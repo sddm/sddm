@@ -111,7 +111,7 @@ namespace SDDM {
     void GreeterProxy::login(const QString &user, const QString &password, const int sessionIndex) const {
         if (!d->sessionModel) {
             // log error
-            qCritical() << "GREETER: Session model is not set.";
+            qCritical() << "Session model is not set.";
 
             // return
             return;
@@ -126,7 +126,7 @@ namespace SDDM {
 
     void GreeterProxy::connected() {
         // log connection
-        qDebug() << "GREETER: Connected to the daemon.";
+        qDebug() << "Connected to the daemon.";
 
         // send connected message
         SocketWriter(d->socket) << quint32(GreeterMessages::Connect);
@@ -134,11 +134,11 @@ namespace SDDM {
 
     void GreeterProxy::disconnected() {
         // log disconnection
-        qDebug() << "GREETER: Disconnected from the daemon.";
+        qDebug() << "Disconnected from the daemon.";
     }
 
     void GreeterProxy::error() {
-        qCritical() << "GREETER: Socket error: " << d->socket->errorString();
+        qCritical() << "Socket error: " << d->socket->errorString();
     }
 
     void GreeterProxy::readyRead() {
@@ -153,7 +153,7 @@ namespace SDDM {
             switch (DaemonMessages(message)) {
                 case DaemonMessages::Capabilities: {
                     // log message
-                    qDebug() << "GREETER: Message received from daemon: Capabilities";
+                    qDebug() << "Message received from daemon: Capabilities";
 
                     // read capabilities
                     quint32 capabilities;
@@ -176,7 +176,7 @@ namespace SDDM {
                 break;
                 case DaemonMessages::HostName: {
                     // log message
-                    qDebug() << "GREETER: Message received from daemon: HostName";
+                    qDebug() << "Message received from daemon: HostName";
 
                     // read host name
                     input >> d->hostName;
@@ -187,7 +187,7 @@ namespace SDDM {
                 break;
                 case DaemonMessages::LoginSucceeded: {
                     // log message
-                    qDebug() << "GREETER: Message received from daemon: LoginSucceeded";
+                    qDebug() << "Message received from daemon: LoginSucceeded";
 
                     // emit signal
                     emit loginSucceeded();
@@ -195,7 +195,7 @@ namespace SDDM {
                 break;
                 case DaemonMessages::LoginFailed: {
                     // log message
-                    qDebug() << "GREETER: Message received from daemon: LoginFailed";
+                    qDebug() << "Message received from daemon: LoginFailed";
 
                     // emit signal
                     emit loginFailed();
@@ -203,7 +203,7 @@ namespace SDDM {
                 break;
                 default: {
                     // log message
-                    qWarning() << "GREETER: Unknown message received from daemon.";
+                    qWarning() << "Unknown message received from daemon.";
                 }
             }
         }

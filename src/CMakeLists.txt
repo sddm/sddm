@@ -53,6 +53,10 @@ else()
     endif()
 endif()
 
+if(JOURNALD_FOUND)
+    target_link_libraries(sddm ${JOURNALD_LIBRARIES})
+endif()
+
 install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
 
 ## GREETER ##
@@ -80,6 +84,10 @@ else()
 
     add_executable(sddm-greeter ${GREETER_SOURCES})
     target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES} ${QT_LIBRARIES})
+endif()
+
+if(JOURNALD_FOUND)
+    target_link_libraries(sddm-greeter ${JOURNALD_LIBRARIES})
 endif()
 
 # Translations
