@@ -58,7 +58,7 @@ namespace SDDM {
         connect(process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
 
         // log message
-        qDebug() << " DAEMON: Display server starting...";
+        qDebug() << "Display server starting...";
 
         if (daemonApp->configuration()->testing) {
             process->start("/usr/bin/Xephyr", { m_display, "-ac", "-br", "-noreset", "-screen",  "800x600"});
@@ -77,7 +77,7 @@ namespace SDDM {
         // wait for display server to start
         if (!process->waitForStarted()) {
             // log message
-            qCritical() << " DAEMON: Failed to start display server process.";
+            qCritical() << "Failed to start display server process.";
 
             // return fail
             return false;
@@ -86,14 +86,14 @@ namespace SDDM {
         // wait until we can connect to the display server
         if (!this->waitForStarted()) {
             // log message
-            qCritical() << " DAEMON: Failed to connect to the display server.";
+            qCritical() << "Failed to connect to the display server.";
 
             // return fail
             return false;
         }
 
         // log message
-        qDebug() << " DAEMON: Display server started.";
+        qDebug() << "Display server started.";
 
         // set flag
         m_started = true;
@@ -108,7 +108,7 @@ namespace SDDM {
             return;
 
         // log message
-        qDebug() << " DAEMON: Display server stopping...";
+        qDebug() << "Display server stopping...";
 
         // terminate process
         process->terminate();
@@ -127,7 +127,7 @@ namespace SDDM {
         m_started = false;
 
         // log message
-        qDebug() << " DAEMON: Display server stopped.";
+        qDebug() << "Display server stopped.";
 
         // clean up
         process->deleteLater();

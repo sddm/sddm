@@ -69,7 +69,7 @@ namespace SDDM {
         m_terminalIds << terminalId;
 
         // log message
-        qDebug() << " DAEMON: Adding new display :" << displayId << " on vt" << terminalId << "...";
+        qDebug() << "Adding new display :" << displayId << " on vt" << terminalId << "...";
 
         // create a new display
         Display *display = new Display(displayId, terminalId, this);
@@ -85,7 +85,7 @@ namespace SDDM {
     }
 
     void Seat::removeDisplay(int displayId) {
-        qDebug() << " DAEMON: Removing display :" << displayId << "...";
+        qDebug() << "Removing display :" << displayId << "...";
 
         // display object
         Display *display = nullptr;

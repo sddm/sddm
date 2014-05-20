@@ -183,7 +183,7 @@ namespace SDDM {
 int main(int argc, char **argv) {
 #ifdef USE_QT5
     // install message handler
-    qInstallMessageHandler(SDDM::MessageHandler);
+    qInstallMessageHandler(SDDM::GreeterMessageHandler);
 #endif
     QStringList arguments;
 
