@@ -26,7 +26,7 @@
 #include <QDateTime>
 #include <QFile>
 
-#include <iostream>
+#include <stdio.h>
 
 #ifdef HAVE_JOURNALD
 #include <systemd/sd-journal.h>
@@ -92,10 +92,12 @@ namespace SDDM {
         }
 
         // log message
-        if (file.isOpen())
+        if (file.isOpen()) {
             file.write(logMessage.toLocal8Bit());
-        else
-            std::cout << qPrintable(logMessage);
+        } else {
+            printf("%s", qPrintable(logMessage));
+            fflush(stdout);
+        }
     }
 
     static void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &prefix, const QString &msg) {
