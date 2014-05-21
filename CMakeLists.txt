@@ -14,7 +14,7 @@ set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERS
 
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 
-add_definitions(-Wall -march=native -std=c++11)
+add_definitions(-Wall -std=c++11)
 
 if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Release)
