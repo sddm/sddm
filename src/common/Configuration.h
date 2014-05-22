@@ -49,6 +49,10 @@ namespace SDDM {
 
         const QString &authDir() const;
 
+        const QString &userAuthFile() const;
+        
+        const QString &clientLogFile() const;
+
         const QString &haltCommand() const;
         const QString &rebootCommand() const;
 
