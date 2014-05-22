@@ -139,6 +139,7 @@ namespace SDDM {
 
     Authenticator::~Authenticator() {
         stop();
+        delete m_pam;
     }
 
     Display *Authenticator::display() const {
@@ -414,6 +415,8 @@ namespace SDDM {
         // wait for finished
         if (!process->waitForFinished(5000))
             process->kill();
+        process->deleteLater();
+        process = nullptr;
     }
 
     void Authenticator::finished() {
