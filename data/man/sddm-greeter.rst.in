@@ -1,0 +1,61 @@
+==============
+ sddm-greeter
+==============
+
+----------------------------
+sddm display manager greeter
+----------------------------
+
+:Date: May 2014
+:Version: sddm @SDDM_VERSION_STRING@
+:Manual section: 1
+:Manual group: sddm
+
+SYNOPSIS
+========
+
+  sddm-greeter [OPTIONS...]
+
+DESCRIPTION
+===========
+
+sddm is a display and login manager based on Qt technologies.
+
+Using QtQuick and QML, designers are given the ability to
+easily create pleasant, modern looking interfaces for sddm.
+
+sddm-greeter is an auxiliary process that displays the greeter, a graphical
+user interface to perform the authentication and select the session to run.
+
+It is launched by the sddm daemon, end users are not meant to run it.
+
+OPTIONS
+=======
+
+--theme `PATH`
+	Specify theme full path.
+
+--socket `NAME`
+	Specify the socket used to communicate with sddm daemon.
+
+--test-mode
+	Start greeter in test mode.
+
+--help, -h
+	Show help message and exit.
+
+FILES
+=====
+
+**/etc/sddm.conf**
+	System configuration file
+
+**@DATA_INSTALL_DIR@/sddm/themes**
+	Where sddm looks for themes
+
+SEE ALSO
+========
+
+**sddm**\(1\), **sddm.conf**\(5\)
+
+The full documentation for sddm is avaialble at https://github.com/sddm/sddm
