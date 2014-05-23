@@ -50,11 +50,8 @@ namespace SDDM {
         // log message
         qDebug() << "Initializing...";
 
-        // create configuration
-        m_configuration = new Configuration(CONFIG_FILE, this);
-
         // set testing parameter
-        m_configuration->testing = (arguments().indexOf("--test-mode") != -1);
+        m_testing = (arguments().indexOf("--test-mode") != -1);
 
         // create display manager
         m_displayManager = new DisplayManager(this);
@@ -87,12 +84,13 @@ namespace SDDM {
         m_seatManager->createSeat("seat0");
     }
 
-    QString DaemonApp::hostName() const {
-        return QHostInfo::localHostName();
+    bool DaemonApp::testing() const {
+        return m_testing;
     }
 
-    Configuration *DaemonApp::configuration() const {
-        return m_configuration;
+
+    QString DaemonApp::hostName() const {
+        return QHostInfo::localHostName();
     }
 
     DisplayManager *DaemonApp::displayManager() const {

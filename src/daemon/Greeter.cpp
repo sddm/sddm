@@ -58,7 +58,7 @@ namespace SDDM {
         if (m_started)
             return false;
 
-        if (daemonApp->configuration()->testing) {
+        if (daemonApp->testing()) {
             // create process
             m_process = new QProcess(this);
 
@@ -75,12 +75,12 @@ namespace SDDM {
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
-            env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
+            env.insert("XCURSOR_THEME", mainConfig.CursorTheme.get());
             m_process->setProcessEnvironment(env);
 
             // start greeter
             QStringList args;
-            if (daemonApp->configuration()->testing)
+            if (daemonApp->testing())
                 args << "--test-mode";
             args << "--socket" << m_socket
                  << "--theme" << m_theme;
@@ -118,17 +118,17 @@ namespace SDDM {
             // greeter command
             QStringList args;
             args << QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR);
-            if (daemonApp->configuration()->testing)
+            if (daemonApp->testing())
                 args << "--test-mode";
             args << "--socket" << m_socket
                  << "--theme" << m_theme;
 
             // greeter environment
             QProcessEnvironment env;
-            env.insert("PATH", daemonApp->configuration()->defaultPath());
+            env.insert("PATH", mainConfig.DefaultPath.get());
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
-            env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
+            env.insert("XCURSOR_THEME", mainConfig.CursorTheme.get());
             env.insert("XDG_SEAT", m_display->seat()->name());
             env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
@@ -158,7 +158,7 @@ namespace SDDM {
         // log message
         qDebug() << "Greeter stopping...";
 
-        if (daemonApp->configuration()->testing) {
+        if (daemonApp->testing()) {
             // terminate process
             m_process->terminate();
 

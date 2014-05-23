@@ -57,7 +57,7 @@ namespace SDDM {
             });
 
             // find unused terminal
-            terminalId = findUnused(daemonApp->configuration()->minimumVT, [&](const int number) {
+            terminalId = findUnused(mainConfig.MinimumVT.get(), [&](const int number) {
                 return m_terminalIds.contains(number);
             });
         }
