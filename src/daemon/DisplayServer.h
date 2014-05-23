@@ -43,6 +43,7 @@ namespace SDDM {
         bool start();
         void stop();
         void finished();
+        void setupDisplay();
 
     signals:
         void stopped();

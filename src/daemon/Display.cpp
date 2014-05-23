@@ -65,6 +65,9 @@ namespace SDDM {
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
 
+        // setup display when the greeter is ready
+        connect(m_socketServer, SIGNAL(connected()), m_displayServer, SLOT(setupDisplay()));
+
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
@@ -172,6 +175,9 @@ namespace SDDM {
             !daemonApp->configuration()->autoUser().isEmpty() && !daemonApp->configuration()->lastSession().isEmpty()) {
             // reset first flag
             daemonApp->configuration()->first = false;
+
+            // setup display
+            m_displayServer->setupDisplay();
 
             // set flags
             m_started = true;
