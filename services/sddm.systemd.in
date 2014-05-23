@@ -1,6 +1,7 @@
 [Unit]
 Description=Simple Desktop Display Manager
-After=systemd-user-sessions.service
+Conflicts=getty@tty1.service
+After=systemd-user-sessions.service getty@tty1.service
 
 [Service]
 ExecStart=@BIN_INSTALL_DIR@/sddm
