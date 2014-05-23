@@ -8,6 +8,7 @@ configure_file("common/Constants.h.in" "common/Constants.h" IMMEDIATE @ONLY)
 set(DAEMON_SOURCES
     common/Configuration.cpp
     common/SafeDataStream.cpp
+    common/ConfigReader.cpp
     common/SocketWriter.cpp
     daemon/DaemonApp.cpp
     daemon/Display.cpp
@@ -109,6 +110,7 @@ install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 set(GREETER_SOURCES
     common/Configuration.cpp
+    common/ConfigReader.cpp
     common/SocketWriter.cpp
     greeter/GreeterApp.cpp
     greeter/GreeterProxy.cpp

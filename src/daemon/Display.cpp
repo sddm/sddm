@@ -74,10 +74,10 @@ namespace SDDM {
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
         // get auth dir
-        QString authDir = daemonApp->configuration()->stateDir();
+        QString authDir = RUNTIME_DIR;
 
         // use "." as authdir in test mode
-        if (daemonApp->configuration()->testing)
+        if (daemonApp->testing())
             authDir = QLatin1String(".");
 
         // create auth dir if not existing
@@ -120,7 +120,7 @@ namespace SDDM {
         file_handler.open(QIODevice::WriteOnly);
         file_handler.close();
 
-        QString cmd = QString("%1 -f %2 -q").arg(daemonApp->configuration()->xauthPath()).arg(file);
+        QString cmd = QString("%1 -f %2 -q").arg(mainConfig.XauthPath.get()).arg(file);
 
         // execute xauth
         FILE *fp = popen(qPrintable(cmd), "w");
@@ -184,17 +184,17 @@ namespace SDDM {
         // log message
         qDebug() << "Display server started.";
 
-        if ((daemonApp->configuration()->first || daemonApp->configuration()->autoRelogin()) &&
-            !daemonApp->configuration()->autoUser().isEmpty() && !daemonApp->configuration()->lastSession().isEmpty()) {
+        if ((daemonApp->first || mainConfig.AutoRelogin.get()) &&
+            !mainConfig.AutoUser.get().isEmpty() && !mainConfig.LastSession.get().isEmpty()) {
             // reset first flag
-            daemonApp->configuration()->first = false;
+            daemonApp->first = false;
 
             // set flags
             m_started = true;
 
             // start session
             m_auth->setAutologin(true);
-            startAuth(daemonApp->configuration()->autoUser(), QString(), daemonApp->configuration()->lastSession());
+            startAuth(mainConfig.AutoUser.get(), QString(), mainConfig.LastSession.get());
 
             // return
             return;
@@ -203,7 +203,7 @@ namespace SDDM {
         // start socket server
         m_socketServer->start(m_display);
 
-        if (!daemonApp->configuration()->testing) {
+        if (!daemonApp->testing()) {
             // change the owner and group of the socket to avoid permission denied errors
             struct passwd *pw = getpwnam("sddm");
             if (pw) {
@@ -218,13 +218,13 @@ namespace SDDM {
         m_greeter->setDisplay(this);
         m_greeter->setAuthPath(m_authPath);
         m_greeter->setSocket(m_socketServer->socketAddress());
-        m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
+        m_greeter->setTheme(QString("%1/%2").arg(mainConfig.ThemesDir.get()).arg(mainConfig.CurrentTheme.get()));
 
         // start greeter
         m_greeter->start();
 
         // reset first flag
-        daemonApp->configuration()->first = false;
+        daemonApp->first = false;
 
         // set flags
         m_started = true;
@@ -270,7 +270,7 @@ namespace SDDM {
 
         if (session.endsWith(".desktop")) {
             // session directory
-            QDir dir(daemonApp->configuration()->sessionsDir());
+            QDir dir(mainConfig.SessionsDir.get());
 
             // session file
             QFile file(dir.absoluteFilePath(session));
@@ -314,7 +314,7 @@ namespace SDDM {
         m_sessionName = session;
 
         QProcessEnvironment env;
-        env.insert("PATH", daemonApp->configuration()->defaultPath());
+        env.insert("PATH", mainConfig.DefaultPath.get());
         env.insert("DISPLAY", name());
         env.insert("XDG_SEAT", seat()->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat()->name()));
@@ -342,10 +342,10 @@ namespace SDDM {
                 chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
             }
 
-            // save last user and session
-            daemonApp->configuration()->setLastUser(m_auth->user());
-            daemonApp->configuration()->setLastSession(m_sessionName);
-            daemonApp->configuration()->save();
+            // save last user and last session
+            mainConfig.LastUser.set(m_auth->user());
+            mainConfig.LastSession.set(m_sessionName);
+            mainConfig.save();
 
             if (m_socket)
                 emit loginSucceeded(m_socket);
