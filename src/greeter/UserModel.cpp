@@ -64,18 +64,18 @@ namespace SDDM {
         while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid
-            if ( int(current_pw->pw_uid) < Configuration::instance()->minimumUid())
+            if ( int(current_pw->pw_uid) < mainConfig.MinimumUid.get())
                 continue;
 
             // skip entries with uids greater than maximum uid
-            if ( int(current_pw->pw_uid) > Configuration::instance()->maximumUid())
+            if ( int(current_pw->pw_uid) > mainConfig.MaximumUid.get())
                 continue;
             // skip entries with user names in the hide users list
-            if (Configuration::instance()->hideUsers().contains(current_pw->pw_name))
+            if (mainConfig.HideUsers.get().contains(current_pw->pw_name))
                 continue;
 
             // skip entries with shells in the hide shells list
-            if (Configuration::instance()->hideShells().contains(current_pw->pw_shell))
+            if (mainConfig.HideShells.get().contains(current_pw->pw_shell))
                 continue;
 
             // create user
@@ -88,13 +88,13 @@ namespace SDDM {
 
             // search for face icon
             QString userFace = QString("%1/.face.icon").arg(user->homeDir);
-            QString systemFace = QString("%1/%2.face.icon").arg(Configuration::instance()->facesDir()).arg(user->name);
+            QString systemFace = QString("%1/%2.face.icon").arg(mainConfig.FacesDir.get()).arg(user->name);
             if (QFile::exists(userFace))
                 user->icon = userFace;
             else if (QFile::exists(systemFace))
                 user->icon = systemFace;
             else
-                user->icon = QString("%1/default.face.icon").arg(Configuration::instance()->facesDir());
+                user->icon = QString("%1/default.face.icon").arg(mainConfig.FacesDir.get());
 
             // add user
             d->users << user;
@@ -107,7 +107,7 @@ namespace SDDM {
 
         // find out index of the last user
         for (int i = 0; i < d->users.size(); ++i) {
-            if (d->users.at(i)->name == Configuration::instance()->lastUser())
+            if (d->users.at(i)->name == mainConfig.LastUser.get())
                 d->lastIndex = i;
         }
     }
@@ -133,8 +133,8 @@ namespace SDDM {
         return d->lastIndex;
     }
 
-    const QString &UserModel::lastUser() const {
-        return Configuration::instance()->lastUser();
+    QString UserModel::lastUser() const {
+        return mainConfig.LastUser.get();
     }
 
     int UserModel::rowCount(const QModelIndex &parent) const {

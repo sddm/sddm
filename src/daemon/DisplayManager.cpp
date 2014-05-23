@@ -19,7 +19,6 @@
 
 #include "DisplayManager.h"
 
-#include "Configuration.h"
 #include "DaemonApp.h"
 #include "SeatManager.h"
 
@@ -38,7 +37,7 @@ namespace SDDM {
         new DisplayManagerAdaptor(this);
 
         // register object
-        QDBusConnection connection = (daemonApp->configuration()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
+        QDBusConnection connection = (daemonApp->testing()) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(DISPLAYMANAGER_PATH, this);
     }
@@ -139,7 +138,7 @@ namespace SDDM {
         new SeatAdaptor(this);
 
         // register object
-        QDBusConnection connection = (daemonApp->configuration()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
+        QDBusConnection connection = (daemonApp->testing()) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(m_path, this);
     }
@@ -180,7 +179,7 @@ namespace SDDM {
         new SessionAdaptor(this);
 
         // register object
-        QDBusConnection connection = (daemonApp->configuration()->testing) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
+        QDBusConnection connection = (daemonApp->testing()) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(m_path, this);
     }

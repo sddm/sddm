@@ -1,0 +1,120 @@
+/*
+ * Configuration parser tests
+ * Copyright (C) 2014 Martin Bříza <mbriza@redhat.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ */
+
+#include "ConfigurationTest.h"
+#include <QtCore/QFile>
+
+#include <QtTest/QtTest>
+#include <QtCore/QFile>
+#include <QtCore/QDir>
+
+QTEST_MAIN(ConfigurationTest);
+
+void ConfigurationTest::initTestCase() { }
+
+void ConfigurationTest::cleanupTestCase() { }
+
+void ConfigurationTest::init() {
+    QFile::remove(CONF_FILE);
+    QFile::remove(CONF_FILE_COPY);
+    config = new TestConfig;
+}
+
+void ConfigurationTest::cleanup() {
+    QFile::remove(CONF_FILE);
+    QFile::remove(CONF_FILE_COPY);
+    if (config)
+        delete config;
+    config = nullptr;
+}
+
+void ConfigurationTest::Basic() {
+    QVERIFY(config->String.get() == TEST_STRING_1);
+    QVERIFY(config->Int.get() == TEST_INT_1);
+    QVERIFY(config->StringList.get() == QStringList(TEST_STRINGLIST_1));
+    QVERIFY(config->Boolean.get() == TEST_BOOL_1);
+    config->save();
+    QVERIFY(!QFile::exists(CONF_FILE));
+    config->String.set(config->String.get().append(" Appended"));
+    config->save();
+    QVERIFY(QFile::exists(CONF_FILE));
+    config->String.set(config->String.get().append(" Appended Again"));
+    config->save();
+    QVERIFY(QFile::exists(CONF_FILE));
+}
+
+void ConfigurationTest::Sections() {
+    QVERIFY(config->Section.String.get() == TEST_STRING_1);
+    QVERIFY(config->Section.Int.get() == TEST_INT_1);
+    QVERIFY(config->Section.StringList.get() == QStringList(TEST_STRINGLIST_1));
+    QVERIFY(config->Section.Boolean.get() == TEST_BOOL_1);
+    config->save();
+    QVERIFY(!QFile::exists(CONF_FILE));
+    config->Section.String.set(config->Section.String.get().append(" Appended"));
+    config->save();
+    QVERIFY(QFile::exists(CONF_FILE));
+    config->Section.String.set(config->Section.String.get().append(" Appended Again"));
+    config->save();
+    QVERIFY(QFile::exists(CONF_FILE));
+}
+
+void ConfigurationTest::Unused() {
+    QFile confFile(CONF_FILE);
+    QFile confCopy(CONF_FILE_COPY);
+    confFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    confFile.write("InvalidGeneralValue=(null)\n");
+    confFile.write("#InvalidSection Comment\n");
+    confFile.write("[InvalidSection]\n");
+    confFile.write("BadSectionValue=0\n");
+    confFile.close();
+    config->load();
+    config->String.set("Changed String");
+    config->Section.String.set("Changed String");
+    config->save();
+    QFile::copy(CONF_FILE, CONF_FILE_COPY);
+    config->load();
+    config->save();
+    QVERIFY(confFile.open(QIODevice::ReadOnly));
+    QVERIFY(confCopy.open(QIODevice::ReadOnly));
+    // the file must not change on consecutive loads and reads
+    QByteArray contents = confFile.readAll();
+    QVERIFY(contents == confCopy.readAll());
+    QVERIFY(contents.contains("InvalidGeneralValue"));
+    QVERIFY(contents.contains("InvalidSection"));
+    QVERIFY(contents.contains("BadSectionValue"));
+}
+
+void ConfigurationTest::LineChanges() {
+    QFile confFile(CONF_FILE);
+    QFile confCopy(CONF_FILE_COPY);
+    // put some junk there to make it a bit harder to parse
+    confFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    confFile.write("InvalidGeneralValue=(null)\n");
+    confFile.close();
+    // assuming the integers will be of the same length when saved
+    config->Int.set(1);
+    config->save();
+    QFile::copy(CONF_FILE, CONF_FILE_COPY);
+    config->Int.set(2);
+    config->save();
+    QVERIFY(confFile.size() == confCopy.size());
+}
+
+#include "ConfigurationTest.moc"

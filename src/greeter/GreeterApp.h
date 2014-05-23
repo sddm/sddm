@@ -70,7 +70,6 @@ namespace SDDM {
         QTranslator *m_theme_translator { nullptr },
                     *m_components_tranlator { nullptr };
 
-        Configuration *m_configuration { nullptr };
         ThemeMetadata *m_metadata { nullptr };
         ThemeConfig *m_themeConfig { nullptr };
         SessionModel *m_sessionModel { nullptr };

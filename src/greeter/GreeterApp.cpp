@@ -98,9 +98,6 @@ namespace SDDM {
 
         m_view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
 
-        // create configuration instance
-        m_configuration = new Configuration(CONFIG_FILE);
-
         // read theme metadata
         m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(themePath));
 
@@ -137,9 +134,9 @@ namespace SDDM {
 
         // Set numlock upon start
         if (m_keyboard->enabled()) {
-            if (m_configuration->numlock() == Configuration::NUM_SET_ON)
+            if (mainConfig.Numlock.get() == MainConfig::NUM_SET_ON)
                 m_keyboard->setNumLockState(true);
-            else if (m_configuration->numlock() == Configuration::NUM_SET_OFF)
+            else if (mainConfig.Numlock.get() == MainConfig::NUM_SET_OFF)
                 m_keyboard->setNumLockState(false);
         }
 

@@ -87,11 +87,11 @@ namespace SDDM {
         }
 
         void powerOff() const {
-            QProcess::execute(daemonApp->configuration()->haltCommand());
+            QProcess::execute(mainConfig.HaltCommand.get());
         }
 
         void reboot() const {
-            QProcess::execute(daemonApp->configuration()->rebootCommand());
+            QProcess::execute(mainConfig.RebootCommand.get());
         }
 
         void suspend() const {
@@ -166,7 +166,7 @@ namespace SDDM {
         }
 
         void reboot() const {
-            if (!daemonApp->configuration()->testing)
+            if (!daemonApp->testing())
                 m_interface->call("Reboot", true);
         }
 
@@ -216,7 +216,7 @@ namespace SDDM {
     }
 
     void PowerManager::powerOff() const {
-        if (daemonApp->configuration()->testing)
+        if (daemonApp->testing())
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -228,7 +228,7 @@ namespace SDDM {
     }
 
     void PowerManager::reboot() const {
-        if (daemonApp->configuration()->testing)
+        if (daemonApp->testing())
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -240,7 +240,7 @@ namespace SDDM {
     }
 
     void PowerManager::suspend() const {
-        if (daemonApp->configuration()->testing)
+        if (daemonApp->testing())
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -252,7 +252,7 @@ namespace SDDM {
     }
 
     void PowerManager::hibernate() const {
-        if (daemonApp->configuration()->testing)
+        if (daemonApp->testing())
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
@@ -264,7 +264,7 @@ namespace SDDM {
     }
 
     void PowerManager::hybridSleep() const {
-        if (daemonApp->configuration()->testing)
+        if (daemonApp->testing())
             return;
 
         for (PowerManagerBackend *backend: m_backends) {
