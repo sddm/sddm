@@ -37,6 +37,9 @@ RememberLastSession=true
 # Path of script to execute when starting the desktop session
 SessionCommand=${DATA_INSTALL_DIR}/scripts/Xsession
 
+# Path of script to execute when starting the display server
+DisplayCommand=${DATA_INSTALL_DIR}/scripts/Xsetup
+
 # Path of the directory containing face files
 # Face files should be in username.face.icon format
 FacesDir=${DATA_INSTALL_DIR}/faces

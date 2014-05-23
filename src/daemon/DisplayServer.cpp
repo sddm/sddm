@@ -95,6 +95,18 @@ namespace SDDM {
         // log message
         qDebug() << "Display server started.";
 
+        // create display setup script process
+        QProcess *displayScript = new QProcess();
+
+        // set process environment
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        env.insert("HOME", "/");
+        env.insert("PATH", daemonApp->configuration()->defaultPath());
+        displayScript->setProcessEnvironment(env);
+
+        // start session
+        displayScript->start(daemonApp->configuration()->displayCommand());	
+        
         // set flag
         m_started = true;
 
