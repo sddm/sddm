@@ -72,6 +72,10 @@ All options are configured in the [General] section:
 	Path of script to execute when starting the desktop session.
 	Default value is "@SESSION_COMMAND@".
 
+`DisplayCommand=`
+	Path of script to execute when starting the display server.
+	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
+
 `FacesDir=`
 	Path of the directory containing face files,
 	face files should be in username.face.icon format.

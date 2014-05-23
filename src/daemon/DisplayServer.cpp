@@ -178,4 +178,24 @@ namespace SDDM {
         // return result
         return result;
     }
+
+    void DisplayServer::setupDisplay() {
+        QString displayCommand = daemonApp->configuration()->displayCommand();
+
+        // create display setup script process
+        QProcess *displayScript = new QProcess();
+
+        // set process environment
+        QProcessEnvironment env;
+        env.insert("DISPLAY", m_display);
+        env.insert("HOME", "/");
+        env.insert("PATH", daemonApp->configuration()->defaultPath());
+        env.insert("XAUTHORITY", m_authPath);
+        env.insert("SHELL", "/bin/sh");
+        displayScript->setProcessEnvironment(env);
+
+        // start display setup script
+        qDebug() << "Running display setup script " << displayCommand;
+        displayScript->start(displayCommand);
+    }
 }

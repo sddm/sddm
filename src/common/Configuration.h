@@ -58,6 +58,7 @@ namespace SDDM {
         void setLastSession(const QString &lastSession);
 
         const QString &sessionCommand() const;
+        const QString &displayCommand() const;
 
         const QString &facesDir() const;
 
