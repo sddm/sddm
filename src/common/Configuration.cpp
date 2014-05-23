@@ -45,6 +45,7 @@ namespace SDDM {
         bool rememberLastSession { true };
         QString lastSession { "" };
         QString sessionCommand { "" };
+        QString displayCommand { "" };
 
         QString facesDir { "" };
 
@@ -101,6 +102,7 @@ namespace SDDM {
         d->rememberLastSession = settings.value("RememberLastSession", d->rememberLastSession).toBool();
         d->lastSession = settings.value("LastSession", "").toString();
         d->sessionCommand = settings.value("SessionCommand", "").toString();
+        d->displayCommand = settings.value("DisplayCommand", "").toString();
         d->facesDir = appendSlash(settings.value("FacesDir", "").toString());
         d->themesDir = appendSlash(settings.value("ThemesDir", "").toString());
         d->currentTheme = settings.value("CurrentTheme", "").toString();
@@ -139,6 +141,7 @@ namespace SDDM {
         settings.setValue("RememberLastSession", d->rememberLastSession);
         settings.setValue("LastSession", d->lastSession);
         settings.setValue("SessionCommand", d->sessionCommand);
+        settings.setValue("DisplayCommand", d->displayCommand);
         settings.setValue("FacesDir", d->facesDir);
         settings.setValue("ThemesDir", d->themesDir);
         settings.setValue("CurrentTheme", d->currentTheme);
@@ -204,6 +207,10 @@ namespace SDDM {
         return d->sessionCommand;
     }
 
+    const QString &Configuration::displayCommand() const {
+        return d->displayCommand;
+    }
+    
     void Configuration::setLastSession(const QString &lastSession) {
         if (d->rememberLastSession)
             d->lastSession = lastSession;
