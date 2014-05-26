@@ -218,22 +218,23 @@ namespace SDDM {
         if (m_pam)
             delete m_pam;
 
-        m_pam = new PamService("sddm", user, password, passwordless);
+        if (!passwordless)
+            m_pam = new PamService("sddm", user, password, passwordless);
+        else
+            m_pam = new PamService("sddm-autologin", user, password, passwordless);
 
         if (!m_pam)
             return false;
 
-        if (!passwordless) {
-            // authenticate the applicant
-            if ((m_pam->result = pam_authenticate(m_pam->handle, 0)) != PAM_SUCCESS)
-                return false;
+        // authenticate the applicant
+        if ((m_pam->result = pam_authenticate(m_pam->handle, 0)) != PAM_SUCCESS)
+            return false;
 
-            if ((m_pam->result = pam_acct_mgmt(m_pam->handle, 0)) == PAM_NEW_AUTHTOK_REQD)
-                m_pam->result = pam_chauthtok(m_pam->handle, PAM_CHANGE_EXPIRED_AUTHTOK);
+        if ((m_pam->result = pam_acct_mgmt(m_pam->handle, 0)) == PAM_NEW_AUTHTOK_REQD)
+            m_pam->result = pam_chauthtok(m_pam->handle, PAM_CHANGE_EXPIRED_AUTHTOK);
 
-            if (m_pam->result != PAM_SUCCESS)
-                return false;
-        }
+        if (m_pam->result != PAM_SUCCESS)
+            return false;
 
         // set username
         if ((m_pam->result = pam_set_item(m_pam->handle, PAM_USER, qPrintable(user))) != PAM_SUCCESS)
@@ -258,6 +259,14 @@ namespace SDDM {
             return false;
         if ((pam_putenv(m_pam->handle, qPrintable("XDG_SESSION_DESKTOP=" + xdgSessionName))) != PAM_SUCCESS)
             return false;
+
+        //set the seat name. This is saves the logind PAM module trying to find it.
+        //The logind pam module is not always able to find it if we have only just started the X server
+        QString pamSeatEnv = "XDG_SEAT=" + seat->name();
+        pam_putenv(m_pam->handle, qPrintable(pamSeatEnv));
+
+        QString pamVtnrEnv = "XDG_VTNR=" + QString::number(m_display->terminalId());
+        pam_putenv(m_pam->handle, qPrintable(pamVtnrEnv));
 
         // open session
         if ((m_pam->result = pam_open_session(m_pam->handle, 0)) != PAM_SUCCESS)
