@@ -139,7 +139,9 @@ namespace SDDM {
 
     Authenticator::~Authenticator() {
         stop();
+    #ifdef USE_PAM
         delete m_pam;
+    #endif
     }
 
     Display *Authenticator::display() const {
