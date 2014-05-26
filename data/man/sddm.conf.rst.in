@@ -129,7 +129,7 @@ All options are configured in the [General] section:
 	Minimum virtual terminal number that will be used
 	by the first display. Virtual terminal number will
 	increase as new displays added.
-	Default value is 7.
+	Default value is @MINIMUM_VT@.
 
 `Numlock=`
 	Change numlock state when **sddm-greeter** starts.

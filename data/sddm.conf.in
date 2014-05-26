@@ -83,7 +83,7 @@ AutoRelogin=false
 # Minimum virtual terminal number that will be used
 # by the first display. Virtual terminal number will
 # increase as new displays added.
-MinimumVT=7
+MinimumVT=@MINIMUM_VT@
 
 # Change numlock state when sddm-greeter starts
 # Valid values: on|off|none
