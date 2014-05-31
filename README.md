@@ -37,3 +37,9 @@ https://groups.google.com/group/sddm-devel
 [Maui theme 1](https://www.youtube.com/watch?v=-0d1wkcU9DU)
 
 [Maui theme 2](https://www.youtube.com/watch?v=dJ28mrOeuNA)
+
+## INSTALLATION
+
+The repository builds against both Qt4 and Qt5. For Qt5 pass -DUSE_QT5 to cmake.
+
+SDDM runs the greeter as a system user "sddm". It is strongly recommended to create this user with a home directory set to /var/lib/sddm
