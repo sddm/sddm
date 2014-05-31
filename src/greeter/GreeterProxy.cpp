@@ -52,7 +52,6 @@ namespace SDDM {
     }
 
     GreeterProxy::~GreeterProxy() {
-        delete d->socket;
         delete d;
     }
 

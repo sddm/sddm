@@ -22,9 +22,15 @@
 #include "Configuration.h"
 #include "Constants.h"
 #include "DaemonApp.h"
+#include "Session.h"
+#include "Display.h"
 
 #include <QDebug>
 #include <QProcess>
+
+#include <sys/types.h>
+#include <pwd.h>
+#include <unistd.h>
 
 namespace SDDM {
     Greeter::Greeter(QObject *parent) : QObject(parent) {
@@ -34,7 +40,7 @@ namespace SDDM {
         stop();
     }
 
-    void Greeter::setDisplay(const QString &display) {
+    void Greeter::setDisplay(Display *display) {
         m_display = display;
     }
 
@@ -55,18 +61,43 @@ namespace SDDM {
         if (m_started)
             return false;
 
+        struct passwd *pw = nullptr;
+        if (!daemonApp->configuration()->testing)
+        {
+            pw = getpwnam(qPrintable("sddm"));
+            if (!pw) {
+                qWarning() << "Failed to switch greeter to user sddm. Running greeter as root";
+                //continue anyway?? Otherwise we'll block out everyone self compiling
+                //from logging in
+            }
+        }
+        
         // create process
-        m_process = new QProcess(this);
+        m_process = new Session("sddm-greeter", m_display, this);
+
+        if (pw) {
+            m_process->setUser(pw->pw_name);
+            m_process->setDir(pw->pw_dir);
+            m_process->setUid(pw->pw_uid);
+            m_process->setGid(pw->pw_gid);
+
+            // take ownership of the socket so we can read/write to it
+            // -1 = don't change group
+            chown(qPrintable(m_socket), pw->pw_uid, -1);
+        }
 
         // delete process on finish
         connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
+
+        connect(m_process, SIGNAL(readyReadStandardOutput()), SLOT(onReadyReadStandardOutput()));
+        connect(m_process, SIGNAL(readyReadStandardError()), SLOT(onReadyReadStandardError()));
 
         // log message
         qDebug() << "Greeter starting...";
 
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-        env.insert("DISPLAY", m_display);
+        env.insert("DISPLAY", m_display->name());
         env.insert("XAUTHORITY", m_authPath);
         env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
         m_process->setProcessEnvironment(env);
@@ -79,6 +110,11 @@ namespace SDDM {
              << "--theme" << m_theme;
         m_process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), args);
 
+        //if we fail to start bail immediately, and don't block in waitForStarted
+        if (m_process->state() == QProcess::NotRunning) {
+            qCritical() << "Greeter failed to launch.";
+            return false;
+        }
         // wait for greeter to start
         if (!m_process->waitForStarted()) {
             // log message
@@ -128,5 +164,19 @@ namespace SDDM {
         // clean up
         m_process->deleteLater();
         m_process = nullptr;
+    }
+
+    void Greeter::onReadyReadStandardError()
+    {
+        if (m_process) {
+            qDebug() << "Greeter StdErr: " << m_process->readAllStandardError();
+        }
+    }
+
+    void Greeter::onReadyReadStandardOutput()
+    {
+        if (m_process) {
+            qDebug() << "Greeter StdOut: " << m_process->readAllStandardOutput();
+        }
     }
 }

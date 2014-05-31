@@ -33,10 +33,10 @@ namespace SDDM {
     public:
         explicit SocketServer(QObject *parent = 0);
 
-        void setSocket(const QString &name);
-
-        bool start();
+        bool start(const QString &sddmName);
         void stop();
+
+        QString socketAddress() const;
 
     private slots:
         void newConnection();
@@ -49,11 +49,7 @@ namespace SDDM {
         void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
 
     private:
-        bool m_started { false };
-
-        QString m_socket { "" };
-
-        QLocalServer *server { nullptr };
+        QLocalServer *m_server { nullptr };
     };
 }
 

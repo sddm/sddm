@@ -26,6 +26,7 @@
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
+#include "Utils.h"
 
 #include <QDebug>
 #include <QDir>
@@ -33,26 +34,6 @@
 #include <QTimer>
 
 namespace SDDM {
-    QString generateName(int length) {
-        QString digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-        // reserve space for name
-        QString name;
-        name.reserve(length);
-
-        // create random device
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, digits.length() - 1);
-
-        // generate name
-        for (int i = 0; i < length; ++i)
-            name[i] = digits.at(dis(gen));
-
-        // return result
-        return name;
-    }
-
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_authenticator(new Authenticator(this)),
@@ -88,9 +69,6 @@ namespace SDDM {
 
         // set auth path
         m_authPath = QString("%1/A%2-%3").arg(authDir).arg(m_display).arg(generateName(6));
-
-        // set socket name
-        m_socket = QString("sddm-%1-%2").arg(m_display).arg(generateName(6));
     }
 
     Display::~Display() {
@@ -159,8 +137,6 @@ namespace SDDM {
         for (int i = 0; i < 32; ++i)
             m_cookie[i] = digits[dis(gen)];
 
-        // generate auth file
-        addCookie(m_authPath);
 
         // set display server params
         m_displayServer->setDisplay(m_display);
@@ -184,16 +160,13 @@ namespace SDDM {
             return;
         }
 
-        // set socket server name
-        m_socketServer->setSocket(m_socket);
-
         // start socket server
-        m_socketServer->start();
+        m_socketServer->start(m_display);
 
         // set greeter params
-        m_greeter->setDisplay(m_display);
+        m_greeter->setDisplay(this);
         m_greeter->setAuthPath(m_authPath);
-        m_greeter->setSocket(m_socket);
+        m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
 
         // start greeter
