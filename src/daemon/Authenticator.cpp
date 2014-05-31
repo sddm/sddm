@@ -328,7 +328,7 @@ namespace SDDM {
         }
 
         // create user session process
-        process = new Session(QString("Session%1").arg(daemonApp->newSessionId()), this);
+        process = new Session(QString("Session%1").arg(daemonApp->newSessionId()), m_display, this);
 
         // set session process params
         process->setUser(pw->pw_name);

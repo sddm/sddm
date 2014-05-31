@@ -1,5 +1,6 @@
 /***************************************************************************
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2014 David Edmundson <davidedmundson@kde.org>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -17,46 +18,30 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_GREETER_H
-#define SDDM_GREETER_H
-
-#include <QObject>
+#ifndef SDDM_UTILS_H
+#define SDDM_UTILS_H
 
 namespace SDDM {
-    class Session;
-    class Display;
 
-    class Greeter : public QObject {
-        Q_OBJECT
-        Q_DISABLE_COPY(Greeter)
-    public:
-        explicit Greeter(QObject *parent = 0);
-        ~Greeter();
+inline QString generateName(int length) {
+    QString digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        void setDisplay(Display *display);
-        void setAuthPath(const QString &authPath);
-        void setSocket(const QString &socket);
-        void setTheme(const QString &theme);
+    // reserve space for name
+    QString name;
+    name.reserve(length);
 
-    public slots:
-        bool start();
-        void stop();
-        void finished();
+    // create random device
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, digits.length() - 1);
 
-    private slots:
-        void onReadyReadStandardOutput();
-        void onReadyReadStandardError();
+    // generate name
+    for (int i = 0; i < length; ++i)
+        name[i] = digits.at(dis(gen));
 
-    private:
-        bool m_started { false };
-
-        Display *m_display { nullptr };
-        QString m_authPath { "" };
-        QString m_socket { "" };
-        QString m_theme { "" };
-
-        Session *m_process { nullptr };
-    };
+    // return result
+    return name;
+}
 }
 
-#endif // SDDM_GREETER_H
+#endif
