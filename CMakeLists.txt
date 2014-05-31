@@ -79,7 +79,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
                                                          "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
                                                          IMMEDIATE @ONLY)
 
-add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 # systemd
 pkg_check_modules(SYSTEMD "systemd")
@@ -97,7 +97,7 @@ if(SYSTEMD_FOUND)
     endif()
 
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
-    string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR "${SYSTEMD_SYSTEM_UNIT_DIR}")
+    string(REGEX REPLACE "[ \t\n]+" \; SYSTEMD_SYSTEM_UNIT_DIR ${SYSTEMD_SYSTEM_UNIT_DIR})
     set(MINIMUM_VT 1)
     set(HALT_COMMAND "/usr/bin/systemctl poweroff")
     set(REBOOT_COMMAND "/usr/bin/systemctl reboot")

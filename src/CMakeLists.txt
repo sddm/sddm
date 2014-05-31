@@ -1,7 +1,7 @@
-include_directories(common)
-include_directories(${CMAKE_BINARY_DIR}/src/common)
+include_directories("common")
+include_directories("${CMAKE_BINARY_DIR}/src/common")
 
-configure_file(common/Constants.h.in common/Constants.h IMMEDIATE @ONLY)
+configure_file("common/Constants.h.in" "common/Constants.h" IMMEDIATE @ONLY)
 
 ## DAEMON ##
 
@@ -23,9 +23,9 @@ set(DAEMON_SOURCES
 )
 
 if(USE_QT5)
-    qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml          daemon/DisplayManager.h SDDM::DisplayManager)
-    qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml     daemon/DisplayManager.h SDDM::DisplayManagerSeat)
-    qt5_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml  daemon/DisplayManager.h SDDM::DisplayManagerSession)
+    qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "daemon/DisplayManager.h" SDDM::DisplayManager)
+    qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml"     "daemon/DisplayManager.h" SDDM::DisplayManagerSeat)
+    qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml"  "daemon/DisplayManager.h" SDDM::DisplayManagerSession)
 
     add_executable(sddm ${DAEMON_SOURCES})
     target_link_libraries(sddm ${LIBXCB_LIBRARIES})
@@ -40,9 +40,9 @@ else()
     set(QT_USE_QTDBUS TRUE)
     include(${QT_USE_FILE})
 
-    qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml          daemon/DisplayManager.h SDDM::DisplayManager)
-    qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml     daemon/DisplayManager.h SDDM::DisplayManagerSeat)
-    qt4_add_dbus_adaptor(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml  daemon/DisplayManager.h SDDM::DisplayManagerSession)
+    qt4_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          daemon/DisplayManager.h SDDM::DisplayManager)
+    qt4_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml"     daemon/DisplayManager.h SDDM::DisplayManagerSeat)
+    qt4_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml"  daemon/DisplayManager.h SDDM::DisplayManagerSession)
 
     add_executable(sddm ${DAEMON_SOURCES})
     target_link_libraries(sddm ${LIBXCB_LIBRARIES} ${QT_LIBRARIES})
@@ -94,4 +94,4 @@ endif()
 add_dependencies(sddm-greeter components-translation)
 add_dependencies(sddm-greeter themes-translation)
 
-install(TARGETS sddm-greeter DESTINATION ${BIN_INSTALL_DIR})
+install(TARGETS sddm-greeter DESTINATION "${BIN_INSTALL_DIR}")
