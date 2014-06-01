@@ -68,7 +68,7 @@ namespace SDDM {
         QDir().mkpath(authDir);
 
         // set auth path
-        m_authPath = QString("%1/A%2-%3").arg(authDir).arg(m_display).arg(generateName(6));
+        m_authPath = QString("%1/%2").arg(authDir).arg(m_display);
     }
 
     Display::~Display() {
