@@ -6,6 +6,7 @@ After=systemd-user-sessions.service getty@tty1.service
 [Service]
 ExecStart=@BIN_INSTALL_DIR@/sddm
 Restart=always
+PrivateTmp=yes
 
 [Install]
 Alias=display-manager.service
