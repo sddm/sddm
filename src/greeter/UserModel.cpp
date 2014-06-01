@@ -81,7 +81,7 @@ namespace SDDM {
             // create user
             UserPtr user { new User() };
             user->name = QString(current_pw->pw_name);
-            user->realName = QString::fromLatin1(current_pw->pw_gecos).split(",").first();
+            user->realName = QString::fromUtf8(current_pw->pw_gecos).split(",").first();
             user->homeDir = QString(current_pw->pw_dir);
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
