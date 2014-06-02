@@ -109,9 +109,6 @@ namespace SDDM {
         // the case when running sddm in test mode
         static bool isInteractive = isatty(STDIN_FILENO);
         if (!isInteractive) {
-            // journald doesn't like trailing \n
-            logMessage.chop(1);
-
             // log to journald
             journaldLogger(type, context, logMessage);
         } else {
