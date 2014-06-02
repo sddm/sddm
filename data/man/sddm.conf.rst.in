@@ -42,9 +42,9 @@ All options are configured in the [General] section:
 	Path of the Xauth.
 	Default value is "/usr/bin/xauth".
 
-`AuthDir=`
-	Path of the directory to create auth files in.
-	Default value is "/var/run/xauth".
+`StateDir=`
+	Path of the directory where sddm state is kept.
+	Default value is "@STATE_DIR@".
 
 `HaltCommand=`
 	Halt command.
