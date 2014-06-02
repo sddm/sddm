@@ -58,7 +58,7 @@ namespace SDDM {
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
         // get auth dir
-        QString authDir = daemonApp->configuration()->authDir();
+        QString authDir = daemonApp->configuration()->stateDir();
 
         // use "." as authdir in test mode
         if (daemonApp->configuration()->testing)
