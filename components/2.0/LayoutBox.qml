@@ -39,7 +39,6 @@ ComboBox {
     }
 
     rowDelegate: Rectangle {
-        anchors.fill: parent
         color: "transparent"
 
         Image {
