@@ -18,6 +18,7 @@
 ***************************************************************************/
 
 #include "Configuration.h"
+#include "Constants.h"
 
 #include <QSettings>
 
@@ -36,7 +37,7 @@ namespace SDDM {
 
         QString xauthPath { "" };
 
-        QString authDir { "" };
+        QString stateDir { "" };
 
         QString haltCommand { "" };
         QString rebootCommand { "" };
@@ -94,7 +95,7 @@ namespace SDDM {
         d->defaultPath = settings.value("DefaultPath", "").toString();
         d->serverPath = settings.value("ServerPath", "").toString();
         d->xauthPath = settings.value("XauthPath", "").toString();
-        d->authDir = appendSlash(settings.value("AuthDir", "").toString());
+        d->stateDir = settings.value("StateDir", STATE_DIR).toString();
         d->haltCommand = settings.value("HaltCommand", "").toString();
         d->rebootCommand = settings.value("RebootCommand", "").toString();
         d->sessionsDir = appendSlash(settings.value("SessionsDir", "").toString());
@@ -132,7 +133,7 @@ namespace SDDM {
         settings.setValue("DefaultPath", d->defaultPath);
         settings.setValue("ServerPath", d->serverPath);
         settings.setValue("XauthPath", d->xauthPath);
-        settings.setValue("AuthDir", d->authDir);
+        settings.setValue("StateDir", d->stateDir);
         settings.setValue("HaltCommand", d->haltCommand);
         settings.setValue("RebootCommand", d->rebootCommand);
         settings.setValue("SessionsDir", d->sessionsDir);
@@ -180,8 +181,8 @@ namespace SDDM {
         return d->xauthPath;
     }
 
-    const QString &Configuration::authDir() const {
-        return d->authDir;
+    const QString &Configuration::stateDir() const {
+        return d->stateDir;
     }
 
     const QString &Configuration::haltCommand() const {

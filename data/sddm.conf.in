@@ -12,8 +12,8 @@ ServerPath=/usr/bin/X
 # Path of the Xauth
 XauthPath=/usr/bin/xauth
 
-# Path of the directory to create auth files in
-AuthDir=/var/run/xauth
+# Path of the directory where sddm state is kept
+StateDir=@STATE_DIR@
 
 # Halt and reboot commands
 HaltCommand=@HALT_COMMAND@
