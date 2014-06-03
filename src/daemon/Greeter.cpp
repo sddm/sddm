@@ -24,6 +24,9 @@
 #include "DaemonApp.h"
 #include "Session.h"
 #include "Display.h"
+#ifdef USE_PAM
+#include "PamService.h"
+#endif
 
 #include <QDebug>
 #include <QProcess>
@@ -64,14 +67,41 @@ namespace SDDM {
         struct passwd *pw = nullptr;
         if (!daemonApp->configuration()->testing)
         {
-            pw = getpwnam(qPrintable("sddm"));
+#ifdef USE_PAM
+            m_pam = new PamService("sddm-greeter", "sddm", "", true);
+
+            // setup pam service
+            m_pam->setDisplay(m_display);
+            m_pam->setSessionClass("greeter");
+            m_pam->setSessionType("x11");
+
+            // authenticate the applicant
+            char *mapped;
+            if (!m_pam->authenticate(&mapped)) {
+                qCritical() << "Unable to authenticate sddm-greeter session";
+
+                delete m_pam;
+                m_pam = nullptr;
+
+                return false;
+            }
+#else
+            char *mapped = strdup("sddm");
+#endif
+
+            // check for greeter user
+            pw = getpwnam(mapped);
             if (!pw) {
                 qWarning() << "Failed to switch greeter to user sddm. Running greeter as root";
                 //continue anyway?? Otherwise we'll block out everyone self compiling
                 //from logging in
             }
+
+#ifndef USE_PAM
+            free(mapped);
+#endif
         }
-        
+
         // create process
         m_process = new Session("sddm-greeter", m_display, this);
 
@@ -96,7 +126,27 @@ namespace SDDM {
         qDebug() << "Greeter starting...";
 
         // set process environment
-        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        QProcessEnvironment env;
+#ifdef USE_PAM
+        if (daemonApp->configuration()->testing || !m_pam)
+            env = QProcessEnvironment::systemEnvironment();
+        else
+            env = m_pam->systemEnvironment();
+#else
+        env = QProcessEnvironment::systemEnvironment();
+
+        // session information
+        env.insert("XDG_SEAT", m_display->seat()->name());
+        env.insert("XDG_VTNR", QString::number(m_display->terminalId()));
+#endif
+        if (pw) {
+            env.insert("HOME", pw->pw_dir);
+            env.insert("PWD", pw->pw_dir);
+            env.insert("SHELL", pw->pw_shell);
+            env.insert("USER", pw->pw_name);
+            env.insert("LOGNAME", pw->pw_name);
+            env.insert("PATH", daemonApp->configuration()->defaultPath());
+        }
         env.insert("DISPLAY", m_display->name());
         env.insert("XAUTHORITY", m_authPath);
         env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
@@ -165,7 +215,6 @@ namespace SDDM {
         m_process->deleteLater();
         m_process = nullptr;
 
-#ifdef USE_PAM
         // delete pam session
         delete m_pam;
         m_pam = nullptr;
