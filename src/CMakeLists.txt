@@ -22,6 +22,13 @@ set(DAEMON_SOURCES
     daemon/SocketServer.cpp
 )
 
+if(PAM_FOUND)
+    set(DAEMON_SOURCES
+        ${DAEMON_SOURCES}
+        daemon/PamService.cpp
+    )
+endif()
+
 if(USE_QT5)
     qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "daemon/DisplayManager.h" SDDM::DisplayManager)
     qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml"     "daemon/DisplayManager.h" SDDM::DisplayManagerSeat)

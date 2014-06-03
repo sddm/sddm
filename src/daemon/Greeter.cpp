@@ -164,6 +164,12 @@ namespace SDDM {
         // clean up
         m_process->deleteLater();
         m_process = nullptr;
+
+#ifdef USE_PAM
+        // delete pam session
+        delete m_pam;
+        m_pam = nullptr;
+#endif
     }
 
     void Greeter::onReadyReadStandardError()
