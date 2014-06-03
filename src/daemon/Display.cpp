@@ -33,6 +33,9 @@
 #include <QFile>
 #include <QTimer>
 
+#include <pwd.h>
+#include <unistd.h>
+
 namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
@@ -139,6 +142,15 @@ namespace SDDM {
 
         // generate auth file
         addCookie(m_authPath);
+
+        // change the owner and group of the auth file to the sddm user
+        struct passwd *pw = getpwnam("sddm");
+        if (!pw)
+            qWarning() << "Failed to find the sddm user. Owner of the auth file will not be changed.";
+        else {
+            if(chown(qPrintable(m_authPath), pw->pw_uid, pw->pw_gid) == -1)
+                qWarning() << "Failed to change owner of the auth file.";
+        }
 
         // set display server params
         m_displayServer->setDisplay(m_display);
