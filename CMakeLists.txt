@@ -32,6 +32,9 @@ else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
+# Standard installation paths
+include(GNUInstallDirs)
+
 # PKG-CONFIG
 find_package(PkgConfig)
 
@@ -110,15 +113,13 @@ else()
 endif()
 
 # set constants
-set(BIN_INSTALL_DIR             "${CMAKE_INSTALL_PREFIX}/bin"               CACHE PATH      "System binary install directory")
-set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_PREFIX}/share/apps/sddm"   CACHE PATH      "System application data install directory")
-set(SYS_CONFIG_DIR              "/etc"                                      CACHE PATH      "System config directory")
-set(DBUS_CONFIG_DIR             "${SYS_CONFIG_DIR}/dbus-1/system.d"         CACHE PATH      "DBus config files directory")
-set(STATE_DIR                   "/var/lib/sddm"                             CACHE PATH      "State directory")
+set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
+set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
+set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")
 
-set(CONFIG_FILE                 "${SYS_CONFIG_DIR}/sddm.conf"               CACHE PATH      "Path of the sddm config file")
-set(LOG_FILE                    "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")
-set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"          CACHE PATH      "Components translations directory")
+set(CONFIG_FILE                 "${CMAKE_INSTALL_SYSCONFDIR}/sddm.conf"             CACHE PATH      "Path of the sddm config file")
+set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
+set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
 
 add_subdirectory(components)
 add_subdirectory(data)

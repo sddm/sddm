@@ -20,9 +20,9 @@
 #ifndef SDDM_CONSTANTS_H
 #define SDDM_CONSTANTS_H
 
-#define BIN_INSTALL_DIR             "@BIN_INSTALL_DIR@"
+#define BIN_INSTALL_DIR             "@CMAKE_INSTALL_FULL_BINDIR@"
 #define DATA_INSTALL_DIR            "@DATA_INSTALL_DIR@"
-#define SYS_CONFIG_DIR              "@SYS_CONFIG_DIR@"
+#define SYS_CONFIG_DIR              "@CMAKE_INSTALL_FULL_SYSCONFDIR@"
 #define IMPORTS_INSTALL_DIR         "@QT_IMPORTS_DIR@"
 #define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
 #define STATE_DIR                   "@STATE_DIR@"
