@@ -116,6 +116,7 @@ set(SYS_CONFIG_DIR              "/etc"                                      CACH
 set(DBUS_CONFIG_DIR             "${SYS_CONFIG_DIR}/dbus-1/system.d"         CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "/var/lib/sddm"                             CACHE PATH      "State directory")
 
+set(PID_FILE			"/run/sddm.pid"                             CACHE PATH      "Path to pid file")
 set(CONFIG_FILE                 "${SYS_CONFIG_DIR}/sddm.conf"               CACHE PATH      "Path of the sddm config file")
 set(LOG_FILE                    "/var/log/sddm.log"                         CACHE PATH      "Path of the sddm log file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"          CACHE PATH      "Components translations directory")
