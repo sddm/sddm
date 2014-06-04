@@ -33,6 +33,9 @@
 #include <QFile>
 #include <QTimer>
 
+#include <pwd.h>
+#include <unistd.h>
+
 namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
@@ -58,7 +61,7 @@ namespace SDDM {
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
 
         // get auth dir
-        QString authDir = daemonApp->configuration()->authDir();
+        QString authDir = daemonApp->configuration()->stateDir();
 
         // use "." as authdir in test mode
         if (daemonApp->configuration()->testing)
@@ -68,7 +71,7 @@ namespace SDDM {
         QDir().mkpath(authDir);
 
         // set auth path
-        m_authPath = QString("%1/A%2-%3").arg(authDir).arg(m_display).arg(generateName(6));
+        m_authPath = QString("%1/%2").arg(authDir).arg(m_display);
     }
 
     Display::~Display() {
@@ -137,6 +140,17 @@ namespace SDDM {
         for (int i = 0; i < 32; ++i)
             m_cookie[i] = digits[dis(gen)];
 
+        // generate auth file
+        addCookie(m_authPath);
+
+        // change the owner and group of the auth file to the sddm user
+        struct passwd *pw = getpwnam("sddm");
+        if (!pw)
+            qWarning() << "Failed to find the sddm user. Owner of the auth file will not be changed.";
+        else {
+            if(chown(qPrintable(m_authPath), pw->pw_uid, pw->pw_gid) == -1)
+                qWarning() << "Failed to change owner of the auth file.";
+        }
 
         // set display server params
         m_displayServer->setDisplay(m_display);
