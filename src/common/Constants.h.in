@@ -25,6 +25,7 @@
 #define SYS_CONFIG_DIR              "@SYS_CONFIG_DIR@"
 #define IMPORTS_INSTALL_DIR         "@QT_IMPORTS_DIR@"
 #define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
+#define STATE_DIR                   "@STATE_DIR@"
 
 #define CONFIG_FILE                 "@CONFIG_FILE@"
 #define LOG_FILE                    "@LOG_FILE@"
