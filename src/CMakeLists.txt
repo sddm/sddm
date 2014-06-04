@@ -57,7 +57,7 @@ if(JOURNALD_FOUND)
     target_link_libraries(sddm ${JOURNALD_LIBRARIES})
 endif()
 
-install(TARGETS sddm DESTINATION ${BIN_INSTALL_DIR})
+install(TARGETS sddm DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
 ## GREETER ##
 
@@ -94,4 +94,4 @@ endif()
 add_dependencies(sddm-greeter components-translation)
 add_dependencies(sddm-greeter themes-translation)
 
-install(TARGETS sddm-greeter DESTINATION "${BIN_INSTALL_DIR}")
+install(TARGETS sddm-greeter DESTINATION "${CMAKE_INSTALL_BINDIR}")
