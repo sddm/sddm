@@ -43,3 +43,9 @@ https://groups.google.com/group/sddm-devel
 The repository builds against both Qt4 and Qt5. For Qt5 pass -DUSE_QT5 to cmake.
 
 SDDM runs the greeter as a system user "sddm". It is strongly recommended to create this user with a home directory set to /var/lib/sddm
+
+If pam and systemd are available, the greeter will go through logind
+which will give it access to drm devices.
+
+Distributions without pam and systemd will need to put the "sddm" user into the "video" group,
+otherwise they might experience errors regarding GL and drm devices.

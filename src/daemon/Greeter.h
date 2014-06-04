@@ -25,6 +25,9 @@
 namespace SDDM {
     class Session;
     class Display;
+#ifdef USE_PAM
+    class PamService;
+#endif
 
     class Greeter : public QObject {
         Q_OBJECT
@@ -56,6 +59,10 @@ namespace SDDM {
         QString m_theme { "" };
 
         Session *m_process { nullptr };
+
+#ifdef USE_PAM
+        PamService *m_pam { nullptr };
+#endif
     };
 }
 

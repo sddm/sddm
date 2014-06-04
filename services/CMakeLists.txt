@@ -5,3 +5,4 @@ endif()
 
 install(FILES sddm.pam DESTINATION /etc/pam.d RENAME sddm)
 install(FILES sddm-autologin.pam DESTINATION /etc/pam.d RENAME sddm-autologin)
+install(FILES sddm-greeter.pam DESTINATION /etc/pam.d RENAME sddm-greeter)
