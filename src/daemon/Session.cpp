@@ -99,7 +99,8 @@ namespace SDDM {
 
 
         if (!m_dir.isEmpty()) {
-            m_display->addCookie(QString("%1/.Xauthority").arg(m_dir));
+            if(m_user.compare("sddm") != 0)
+                m_display->addCookie(QString("%1/.Xauthority").arg(m_dir));
 
             // change to user home dir
             if (chdir(qPrintable(m_dir))) {
