@@ -7,6 +7,7 @@ configure_file("common/Constants.h.in" "common/Constants.h" IMMEDIATE @ONLY)
 
 set(DAEMON_SOURCES
     common/Configuration.cpp
+    common/SafeDataStream.cpp
     common/SocketWriter.cpp
     daemon/Authenticator.cpp
     daemon/DaemonApp.cpp
@@ -20,6 +21,9 @@ set(DAEMON_SOURCES
     daemon/Session.cpp
     daemon/SignalHandler.cpp
     daemon/SocketServer.cpp
+    qauth/QAuth.cpp
+    qauth/QAuthPrompt.cpp
+    qauth/QAuthRequest.cpp
 )
 
 if(USE_QT5)
@@ -34,10 +38,11 @@ if(USE_QT5)
     else()
       target_link_libraries(sddm crypt)
     endif()
-    qt5_use_modules(sddm DBus Network)
+    qt5_use_modules(sddm DBus Network Qml)
 else()
     set(QT_USE_QTNETWORK TRUE)
     set(QT_USE_QTDBUS TRUE)
+    set(QT_USE_QTDECLARATIVE TRUE)
     include(${QT_USE_FILE})
 
     qt4_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          daemon/DisplayManager.h SDDM::DisplayManager)
@@ -58,6 +63,45 @@ if(JOURNALD_FOUND)
 endif()
 
 install(TARGETS sddm DESTINATION "${CMAKE_INSTALL_BINDIR}")
+
+## HELPER ##
+
+set(HELPER_SOURCES
+    helper/Backend.cpp
+    helper/QAuthApp.cpp
+    helper/QAuthSession.cpp
+    common/SafeDataStream.cpp
+)
+
+if(PAM_FOUND)
+    set(HELPER_SOURCES
+        ${HELPER_SOURCES}
+        helper/backend/PamHandle.cpp
+        helper/backend/PamBackend.cpp
+    )
+else()
+    set(HELPER_SOURCES
+        ${HELPER_SOURCES}
+        helper/backend/PasswdBackend.cpp
+    )
+endif()
+
+add_executable(sddm-helper ${HELPER_SOURCES})
+if(USE_QT5)
+    qt5_use_modules(sddm-helper Network)
+else()
+    set(QT_USE_QTNETWORK TRUE)
+    include(${QT_USE_FILE})
+
+    target_link_libraries(sddm-helper ${QT_LIBRARIES})
+endif()
+if(PAM_FOUND)
+    target_link_libraries(sddm-helper ${PAM_LIBRARIES})
+else()
+    target_link_libraries(sddm-helper crypt)
+endif()
+
+install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 ## GREETER ##
 
