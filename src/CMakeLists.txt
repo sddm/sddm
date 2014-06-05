@@ -9,7 +9,6 @@ set(DAEMON_SOURCES
     common/Configuration.cpp
     common/SafeDataStream.cpp
     common/SocketWriter.cpp
-    daemon/Authenticator.cpp
     daemon/DaemonApp.cpp
     daemon/Display.cpp
     daemon/DisplayManager.cpp
