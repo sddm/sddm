@@ -4,7 +4,7 @@ Conflicts=getty@tty1.service
 After=systemd-user-sessions.service getty@tty1.service
 
 [Service]
-ExecStart=@BIN_INSTALL_DIR@/sddm
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sddm
 Restart=always
 PrivateTmp=yes
 
