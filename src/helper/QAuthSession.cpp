@@ -36,7 +36,7 @@ QAuthSession::~QAuthSession() {
 }
 
 bool QAuthSession::start() {
-    QProcess::start(QAUTH_XSESSION_PATH, {m_path});
+    QProcess::start(SESSION_COMMAND, {m_path});
     return waitForStarted();
 }
 

@@ -19,7 +19,6 @@
 
 #include "Session.h"
 
-#include "Authenticator.h"
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
