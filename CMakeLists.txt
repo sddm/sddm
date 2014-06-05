@@ -32,6 +32,14 @@ else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
+# Default absolute paths
+if(NOT DEFINED CMAKE_INSTALL_SYSCONFDIR)
+  set(CMAKE_INSTALL_SYSCONFDIR "/etc")
+endif()
+if(NOT DEFINED CMAKE_INSTALL_LOCALSTATEDIR)
+  set(CMAKE_INSTALL_LOCALSTATEDIR "/var")
+endif()
+
 # Standard installation paths
 include(GNUInstallDirs)
 
