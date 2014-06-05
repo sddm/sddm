@@ -3,5 +3,5 @@ if(SYSTEMD_FOUND)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sddm.service" DESTINATION "${SYSTEMD_SYSTEM_UNIT_DIR}")
 endif()
 
-install(FILES sddm.pam DESTINATION /etc/pam.d RENAME sddm)
-install(FILES sddm-autologin.pam DESTINATION /etc/pam.d RENAME sddm-autologin)
+install(FILES sddm.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm)
+install(FILES sddm-autologin.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-autologin)
