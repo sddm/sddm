@@ -28,9 +28,9 @@
 #define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
 #define STATE_DIR                   "@STATE_DIR@"
 
+#define SESSION_COMMAND             "@SESSION_COMMAND@"
+
 #define CONFIG_FILE                 "@CONFIG_FILE@"
 #define LOG_FILE                    "@LOG_FILE@"
-
-#define QAUTH_XSESSION_PATH         "/etc/X11/xinit/Xsession"
 
 #endif // SDDM_CONSTANTS_H

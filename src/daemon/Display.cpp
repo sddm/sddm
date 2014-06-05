@@ -1,4 +1,6 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2014 Martin Bříza <mbriza@redhat.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -19,9 +21,9 @@
 
 #include "Display.h"
 
-#include "Authenticator.h"
 #include "Configuration.h"
 #include "DaemonApp.h"
+#include "DisplayManager.h"
 #include "DisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
@@ -33,13 +35,14 @@
 #include <QFile>
 #include <QTimer>
 
+#include <grp.h>
 #include <pwd.h>
 #include <unistd.h>
 
 namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
-        m_authenticator(new Authenticator(this)),
+        m_auth(new QAuth(this)),
         m_displayServer(new DisplayServer(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
@@ -47,8 +50,14 @@ namespace SDDM {
 
         m_display = QString(":%1").arg(m_displayId);
 
-        // restart display after user session ended
-        connect(m_authenticator, SIGNAL(stopped()), this, SLOT(stop()));
+        // respond to authentication requests
+        m_auth->setVerbose(true);
+        connect(m_auth, SIGNAL(requestChanged()), this, SLOT(slotRequestChanged()));
+        connect(m_auth, SIGNAL(authentication(QString,bool)), this, SLOT(slotAuthenticationFinished(QString,bool)));
+        connect(m_auth, SIGNAL(session(bool)), this, SLOT(slotSessionStarted(bool)));
+        connect(m_auth, SIGNAL(finished(bool)), this, SLOT(slotHelperFinished(bool)));
+        connect(m_auth, SIGNAL(info(QString,QAuth::Info)), this, SLOT(slotAuthInfo(QString,QAuth::Info)));
+        connect(m_auth, SIGNAL(error(QString,QAuth::Error)), this, SLOT(slotAuthError(QString,QAuth::Error)));
 
         // restart display after display server ended
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
@@ -168,7 +177,8 @@ namespace SDDM {
             m_started = true;
 
             // start session
-            m_authenticator->start(daemonApp->configuration()->autoUser(), daemonApp->configuration()->lastSession());
+            m_auth->setAutologin(true);
+            startAuth(daemonApp->configuration()->autoUser(), QString(), daemonApp->configuration()->lastSession());
 
             // return
             return;
@@ -198,11 +208,6 @@ namespace SDDM {
         if (!m_started)
             return;
 
-        // stop user session
-        m_authenticator->blockSignals(true);
-        m_authenticator->stop();
-        m_authenticator->blockSignals(false);
-
         // stop the greeter
         m_greeter->stop();
 
@@ -225,21 +230,133 @@ namespace SDDM {
     }
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {
-        // start session
-        if (!m_authenticator->start(user, password, session)) {
-            // emit signal
-            emit loginFailed(socket);
+        m_socket = socket;
+        startAuth(user, password, session);
+    }
 
-            // return
+    void Display::startAuth(const QString &user, const QString &password, const QString &session) {
+        QString sessionName;
+        QString xdgSessionName;
+        QString command;
+
+        m_passPhrase = password;
+
+        if (session.endsWith(".desktop")) {
+            // session directory
+            QDir dir(daemonApp->configuration()->sessionsDir());
+
+            // session file
+            QFile file(dir.absoluteFilePath(session));
+
+            // open file
+            if (file.open(QIODevice::ReadOnly)) {
+                // read line-by-line
+                QTextStream in(&file);
+                while (!in.atEnd()) {
+                    QString line = in.readLine();
+
+                    // line starting with Exec
+                    if (line.startsWith("Exec="))
+                        command = line.mid(5);
+
+                    // Desktop names, change the separator
+                    if (line.startsWith("DesktopNames=")) {
+                        xdgSessionName = line.mid(13);
+                        xdgSessionName.replace(';', ':');
+                    }
+                }
+
+                // close file
+                file.close();
+            }
+
+            // remove extension
+            sessionName = session.left(session.lastIndexOf("."));
+        } else {
+            command = session;
+            sessionName = session;
+        }
+
+        if (command.isEmpty()) {
+            qCritical() << "Failed to find command for session:" << session;
             return;
         }
 
-        // save last user and last session
-        daemonApp->configuration()->setLastUser(user);
-        daemonApp->configuration()->setLastSession(session);
-        daemonApp->configuration()->save();
+        // save session desktop file name, we'll use it to set the
+        // last session later, in slotAuthenticationFinished()
+        m_sessionName = session;
 
-        // emit signal
-        emit loginSucceeded(socket);
+        QProcessEnvironment env;
+        env.insert("PATH", daemonApp->configuration()->defaultPath());
+        env.insert("DISPLAY", name());
+        env.insert("XDG_SEAT", seat()->name());
+        env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat()->name()));
+        env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
+        env.insert("XDG_VTNR", QString::number(terminalId()));
+        env.insert("DESKTOP_SESSION", sessionName);
+        env.insert("XDG_CURRENT_DESKTOP", xdgSessionName);
+        env.insert("XDG_SESSION_CLASS", "user");
+        env.insert("XDG_SESSION_TYPE", "x11");
+        env.insert("XDG_SESSION_DESKTOP", xdgSessionName);
+        m_auth->insertEnvironment(env);
+
+        m_auth->setUser(user);
+        m_auth->setSession(command);
+        m_auth->start();
+    }
+
+    void Display::slotAuthenticationFinished(const QString &user, bool success) {
+        if (success) {
+            qDebug() << "Authenticated successfully";
+
+            struct passwd *pw = getpwnam(qPrintable(user));
+            if (pw) {
+                addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
+                chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
+            }
+
+            // save last user and session
+            daemonApp->configuration()->setLastUser(m_auth->user());
+            daemonApp->configuration()->setLastSession(m_sessionName);
+            daemonApp->configuration()->save();
+
+            if (m_socket)
+                emit loginSucceeded(m_socket);
+        } else if (m_socket) {
+            qDebug() << "Authentication failure";
+            emit loginFailed(m_socket);
+        }
+        m_socket = nullptr;
+    }
+
+    void Display::slotAuthInfo(const QString &message, QAuth::Info info) {
+        // TODO: presentable to the user, eventually
+        Q_UNUSED(info);
+        qWarning() << "Authentication information:" << message;
+    }
+
+    void Display::slotAuthError(const QString &message, QAuth::Error error) {
+        // TODO: presentable to the user, eventually
+        Q_UNUSED(error);
+        qWarning() << "Authentication error:" << message;
+    }
+
+    void Display::slotHelperFinished(bool success) {
+        stop();
+    }
+
+    void Display::slotRequestChanged() {
+        if (m_auth->request()->prompts().length() == 1) {
+            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_passPhrase));
+            m_auth->request()->done();
+        } else if (m_auth->request()->prompts().length() == 2) {
+            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_auth->user()));
+            m_auth->request()->prompts()[1]->setResponse(qPrintable(m_passPhrase));
+            m_auth->request()->done();
+        }
+    }
+
+    void Display::slotSessionStarted(bool success) {
+        qDebug() << "Session started";
     }
 }

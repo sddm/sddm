@@ -70,7 +70,7 @@ All options are configured in the [General] section:
 
 `SessionCommand=`
 	Path of script to execute when starting the desktop session.
-	Default value is "@DATA_INSTALL_DIR@/scripts/Xsession".
+	Default value is "@SESSION_COMMAND@".
 
 `FacesDir=`
 	Path of the directory containing face files,
