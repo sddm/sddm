@@ -100,6 +100,10 @@ else()
     target_link_libraries(sddm-helper crypt)
 endif()
 
+if(JOURNALD_FOUND)
+    target_link_libraries(sddm-helper ${JOURNALD_LIBRARIES})
+endif()
+
 install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 ## GREETER ##
