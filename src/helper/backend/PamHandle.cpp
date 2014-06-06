@@ -26,7 +26,7 @@ bool PamHandle::putEnv(const QProcessEnvironment& env) {
     foreach (const QString& s, env.toStringList()) {
         m_result = pam_putenv(m_handle, qPrintable(s));
         if (m_result != PAM_SUCCESS) {
-            qWarning() << " AUTH: PAM: putEnv:" << pam_strerror(m_handle, m_result);
+            qWarning() << "[PAM] putEnv:" << pam_strerror(m_handle, m_result);
             return false;
         }
     }
@@ -38,7 +38,7 @@ QProcessEnvironment PamHandle::getEnv() {
     // get pam environment
     char **envlist = pam_getenvlist(m_handle);
     if (envlist == NULL) {
-        qWarning() << " AUTH: PAM: getEnv: Returned NULL";
+        qWarning() << "[PAM] getEnv: Returned NULL";
         return env;
     }
 
@@ -62,7 +62,7 @@ QProcessEnvironment PamHandle::getEnv() {
 bool PamHandle::chAuthTok(int flags) {
     m_result = pam_chauthtok(m_handle, flags | m_silent);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: chAuthTok:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] chAuthTok:" << pam_strerror(m_handle, m_result);
     }
     return m_result == PAM_SUCCESS;
 }
@@ -74,26 +74,26 @@ bool PamHandle::acctMgmt(int flags) {
         return chAuthTok(PAM_CHANGE_EXPIRED_AUTHTOK);
     }
     else if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: acctMgmt:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] acctMgmt:" << pam_strerror(m_handle, m_result);
         return false;
     }
     return true;
 }
 
 bool PamHandle::authenticate(int flags) {
-    qDebug() << " AUTH: PAM: Authenticating...";
+    qDebug() << "[PAM] Authenticating...";
     m_result = pam_authenticate(m_handle, flags | m_silent);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: authenticate:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] authenticate:" << pam_strerror(m_handle, m_result);
     }
-    qDebug() << " AUTH: PAM: returning.";
+    qDebug() << "[PAM] returning.";
     return m_result == PAM_SUCCESS;
 }
 
 bool PamHandle::setCred(int flags) {
     m_result = pam_setcred(m_handle, flags | m_silent);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: setCred:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] setCred:" << pam_strerror(m_handle, m_result);
     }
     return m_result == PAM_SUCCESS;
 }
@@ -101,7 +101,7 @@ bool PamHandle::setCred(int flags) {
 bool PamHandle::openSession() {
     m_result = pam_open_session(m_handle, m_silent);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: openSession:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] openSession:" << pam_strerror(m_handle, m_result);
     }
     return m_result == PAM_SUCCESS;
 }
@@ -109,7 +109,7 @@ bool PamHandle::openSession() {
 bool PamHandle::closeSession() {
     m_result = pam_close_session(m_handle, m_silent);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: closeSession:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] closeSession:" << pam_strerror(m_handle, m_result);
     }
     return m_result == PAM_SUCCESS;
 }
@@ -117,7 +117,7 @@ bool PamHandle::closeSession() {
 bool PamHandle::setItem(int item_type, const void* item) {
     m_result = pam_set_item(m_handle, item_type, item);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: setItem:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] setItem:" << pam_strerror(m_handle, m_result);
     }
     return m_result == PAM_SUCCESS;
 }
@@ -126,13 +126,13 @@ const void* PamHandle::getItem(int item_type) {
     const void *item;
     m_result = pam_get_item(m_handle, item_type, &item);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: getItem:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] getItem:" << pam_strerror(m_handle, m_result);
     }
     return item;
 }
 
 int PamHandle::converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
-    qDebug() << " AUTH: PAM: Preparing to converse...";
+    qDebug() << "[PAM] Preparing to converse...";
     PamBackend *c = static_cast<PamBackend *>(data);
     return c->converse(n, msg, resp);
 }
@@ -143,11 +143,11 @@ bool PamHandle::start(const QString &service, const QString &user) {
     else
         m_result = pam_start(qPrintable(service), qPrintable(user), &m_conv, &m_handle);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: start" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] start" << pam_strerror(m_handle, m_result);
         return false;
     }
     else {
-        qDebug() << " AUTH: PAM: Starting...";
+        qDebug() << "[PAM] Starting...";
     }
     return true;
 }
@@ -157,11 +157,11 @@ bool PamHandle::end(int flags) {
         return false;
     m_result = pam_end(m_handle, m_result | flags);
     if (m_result != PAM_SUCCESS) {
-        qWarning() << " AUTH: PAM: end:" << pam_strerror(m_handle, m_result);
+        qWarning() << "[PAM] end:" << pam_strerror(m_handle, m_result);
         return false;
     }
     else {
-        qDebug() << " AUTH: PAM: Ended.";
+        qDebug() << "[PAM] Ended.";
     }
     m_handle = NULL;
     return true;

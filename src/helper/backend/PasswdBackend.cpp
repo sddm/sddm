@@ -66,7 +66,7 @@ bool PasswdBackend::authenticate() {
 
     struct spwd *spw = getspnam(pw->pw_name);
     if (!spw) {
-        qWarning() << " QAuth: Shadow: Could get passwd but not shadow";
+        qWarning() << "[Passwd] Could get passwd but not shadow";
         return false;
     }
 
