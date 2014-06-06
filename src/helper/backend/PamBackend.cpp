@@ -180,7 +180,7 @@ const Request& PamData::getRequest() const {
 
 void PamData::completeRequest(const Request& request) {
     if (request.prompts.length() != m_currentRequest.prompts.length()) {
-        qWarning() << " AUTH: PAM: Different request/response list length, ignoring";
+        qWarning() << "[PAM] Different request/response list length, ignoring";
         return;
     }
 
@@ -188,7 +188,7 @@ void PamData::completeRequest(const Request& request) {
         if (request.prompts[i].type != m_currentRequest.prompts[i].type
             || request.prompts[i].message != m_currentRequest.prompts[i].message
             || request.prompts[i].hidden != m_currentRequest.prompts[i].hidden) {
-            qWarning() << " AUTH: PAM: Order or type of the messages doesn't match, ignoring";
+            qWarning() << "[PAM] Order or type of the messages doesn't match, ignoring";
             return;
         }
     }
@@ -264,7 +264,7 @@ QString PamBackend::userName() {
 }
 
 int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {
-    qDebug() << " AUTH: PAM: Conversation with" << n << "messages";
+    qDebug() << "[PAM] Conversation with" << n << "messages";
 
     bool newRequest = false;
 

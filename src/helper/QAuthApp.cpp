@@ -23,6 +23,10 @@
 #include "QAuthSession.h"
 #include "SafeDataStream.h"
 
+#ifdef USE_QT5
+#include "MessageHandler.h"
+#endif
+
 #include <QtCore/QTimer>
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
@@ -37,6 +41,10 @@ QAuthApp::QAuthApp(int& argc, char** argv)
         , m_backend(Backend::get(this))
         , m_session(new QAuthSession(this))
         , m_socket(new QLocalSocket(this)) {
+#ifdef USE_QT5
+        qInstallMessageHandler(SDDM::HelperMessageHandler);
+#endif
+
     QTimer::singleShot(0, this, SLOT(setUp()));
 }
 
