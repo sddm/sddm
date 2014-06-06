@@ -22,5 +22,5 @@ build_man_page(MAN1_OUTPUT "sddm.rst" "sddm.1")
 build_man_page(MAN1_OUTPUT "sddm-greeter.rst" "sddm-greeter.1")
 build_man_page(MAN5_OUTPUT "sddm.conf.rst" "sddm.conf.5")
 
-install(FILES "${MAN1_OUTPUT}" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/man/man1")
-install(FILES "${MAN5_OUTPUT}" DESTINATION "${CMAKE_INSTALL_PREFIX}/share/man/man5")
+install(FILES ${MAN1_OUTPUT} DESTINATION "${CMAKE_INSTALL_FULL_MANDIR}/man1")
+install(FILES ${MAN5_OUTPUT} DESTINATION "${CMAKE_INSTALL_FULL_MANDIR}/man5")
