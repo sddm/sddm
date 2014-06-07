@@ -71,7 +71,7 @@ namespace SDDM {
             process->setProcessEnvironment(env);
 
             // start display server
-            process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(QString::number(m_displayPtr->terminalId()), 2, '0')});
+            process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(m_displayPtr->terminalId()) });
         }
 
         // wait for display server to start
