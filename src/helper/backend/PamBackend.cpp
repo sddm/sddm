@@ -214,12 +214,15 @@ PamBackend::~PamBackend() {
 bool PamBackend::start(const QString &user) {
     bool result;
 
-    if (m_app->session()->path().isEmpty())
-        result = m_pam->start("sddm-check", user);
+    QString service = "sddm";
+
+    if (user == "sddm")
+        service = "sddm-greeter";
+    else if (m_app->session()->path().isEmpty())
+        service = "sddm-check";
     else if (m_autologin)
-        result = m_pam->start("sddm-autologin", user);
-    else
-        result = m_pam->start("sddm", user);
+        service = "sddm-autologin";
+    result = m_pam->start(service, user);
 
     if (!result)
         m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
