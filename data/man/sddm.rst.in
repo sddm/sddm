@@ -46,10 +46,10 @@ OPTIONS
 FILES
 =====
 
-**/etc/sddm.conf**
+**@CONFIG_FILE@**
 	System configuration file
 
-**@DATA_INSTALL_DIR@/sddm/themes**
+**@DATA_INSTALL_DIR@/themes**
 	Where sddm looks for themes
 
 SEE ALSO
