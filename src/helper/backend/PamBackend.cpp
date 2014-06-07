@@ -252,6 +252,10 @@ bool PamBackend::openSession() {
         m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
         m_pam->setItem(PAM_TTY, qPrintable(display));
     }
+    if (!m_pam->putEnv(m_app->session()->processEnvironment())) {
+        m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
+        return false;
+    }
     if (!m_pam->openSession()) {
         m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
         return false;
