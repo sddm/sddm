@@ -14,7 +14,7 @@ sddm display manager configuration
 SYNOPSIS
 ========
 
-  /etc/sddm.conf
+  @CONFIG_FILE@
 
 DESCRIPTION
 ===========
