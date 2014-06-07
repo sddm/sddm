@@ -22,6 +22,8 @@
 
 #include <QObject>
 
+#include "qauth/QAuth.h"
+
 namespace SDDM {
     class Session;
     class Display;
@@ -44,8 +46,13 @@ namespace SDDM {
         void finished();
 
     private slots:
+        void onRequestChanged();
+        void onSessionStarted(bool success);
+        void onHelperFinished(bool success);
         void onReadyReadStandardOutput();
         void onReadyReadStandardError();
+        void authInfo(const QString &message, QAuth::Info info);
+        void authError(const QString &message, QAuth::Error error);
 
     private:
         bool m_started { false };
@@ -55,6 +62,7 @@ namespace SDDM {
         QString m_socket { "" };
         QString m_theme { "" };
 
+        QAuth *m_auth { nullptr };
         Session *m_process { nullptr };
     };
 }
