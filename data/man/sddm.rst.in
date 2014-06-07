@@ -24,6 +24,16 @@ sddm is a display and login manager based on Qt technologies.
 Using QtQuick and QML, designers are given the ability to
 easily create pleasant, modern looking interfaces for sddm.
 
+sddm runs the greeter as a system user named **sddm**
+whose home directory need to be set to **/var/lib/sddm**.
+
+If pam and systemd are available, the greeter will go through logind
+which will give it access to drm devices.
+
+Distributions without pam and systemd will need to put the **sddm** user
+into the **video** group, otherwise errors regarding GL and drm devices
+might be experienced.
+
 OPTIONS
 =======
 
