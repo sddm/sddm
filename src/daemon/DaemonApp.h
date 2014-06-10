@@ -29,6 +29,7 @@ namespace SDDM {
     class DisplayManager;
     class PowerManager;
     class SeatManager;
+    class SignalHandler;
 
     class DaemonApp : public QCoreApplication {
         Q_OBJECT
@@ -44,6 +45,7 @@ namespace SDDM {
         DisplayManager *displayManager() const;
         PowerManager *powerManager() const;
         SeatManager *seatManager() const;
+        SignalHandler *signalHandler() const;
 
     public slots:
         int newSessionId();
@@ -57,6 +59,7 @@ namespace SDDM {
         DisplayManager *m_displayManager { nullptr };
         PowerManager *m_powerManager { nullptr };
         SeatManager *m_seatManager { nullptr };
+        SignalHandler *m_signalHandler { nullptr };
     };
 }
 
