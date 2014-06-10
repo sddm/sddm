@@ -29,6 +29,7 @@
 #include "SocketServer.h"
 #include "Greeter.h"
 #include "Utils.h"
+#include "SignalHandler.h"
 
 #include <QDebug>
 #include <QDir>
@@ -61,6 +62,9 @@ namespace SDDM {
 
         // restart display after display server ended
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+
+        // notify the display after display server started
+        connect(DaemonApp::instance()->signalHandler(), SIGNAL(sigusr1Received()), this, SLOT(displayServerStarted()));
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
@@ -170,6 +174,15 @@ namespace SDDM {
 
         // start display server
         m_displayServer->start();
+    }
+
+    void Display::displayServerStarted() {
+        // check flag
+        if (m_started)
+            return;
+
+        // log message
+        qDebug() << "Display server started.";
 
         if ((daemonApp->configuration()->first || daemonApp->configuration()->autoRelogin()) &&
             !daemonApp->configuration()->autoUser().isEmpty() && !daemonApp->configuration()->lastSession().isEmpty()) {
