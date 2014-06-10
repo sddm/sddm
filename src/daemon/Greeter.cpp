@@ -82,8 +82,11 @@ namespace SDDM {
             m_process->setGid(pw->pw_gid);
 
             // take ownership of the socket so we can read/write to it
-            // -1 = don't change group
-            chown(qPrintable(m_socket), pw->pw_uid, -1);
+            if (chown(qPrintable(m_socket), pw->pw_uid, pw->pw_gid) == -1) {
+                qCritical() << "Failed to change owner of socket to user sddm.";
+                return false;
+            }
+
         }
 
         // delete process on finish
