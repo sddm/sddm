@@ -70,15 +70,15 @@ namespace SDDM {
         connect(m_seatManager, SIGNAL(seatRemoved(QString)), m_displayManager, SLOT(RemoveSeat(QString)));
 
         // create signal handler
-        SignalHandler *signalHandler = new SignalHandler(this);
+        m_signalHandler = new SignalHandler(this);
 
         // initialize signal signalHandler
         SignalHandler::initialize();
 
         // quit when SIGHUP, SIGINT, SIGTERM received
-        connect(signalHandler, SIGNAL(sighupReceived()), this, SLOT(quit()));
-        connect(signalHandler, SIGNAL(sigintReceived()), this, SLOT(quit()));
-        connect(signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
+        connect(m_signalHandler, SIGNAL(sighupReceived()), this, SLOT(quit()));
+        connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(quit()));
+        connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
 
         // log message
         qDebug() << "Starting...";
@@ -105,6 +105,10 @@ namespace SDDM {
 
     SeatManager *DaemonApp::seatManager() const {
         return m_seatManager;
+    }
+
+    SignalHandler *DaemonApp::signalHandler() const {
+        return m_signalHandler;
     }
 
     int DaemonApp::newSessionId() {
