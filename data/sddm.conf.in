@@ -35,7 +35,7 @@ LastSession=
 RememberLastSession=true
 
 # Path of script to execute when starting the desktop session
-SessionCommand=${DATA_INSTALL_DIR}/scripts/Xsession
+SessionCommand=@SESSION_COMMAND@
 
 # Path of the directory containing face files
 # Face files should be in username.face.icon format

@@ -1,4 +1,6 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2014 Martin Bříza <mbriza@redhat.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -21,6 +23,8 @@
 #define SDDM_DISPLAY_H
 
 #include <QObject>
+
+#include "qauth/QAuth.h"
 
 class QLocalSocket;
 
@@ -61,6 +65,8 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
+        void startAuth(const QString &user, const QString &password, const QString &session);
+
         bool m_relogin { true };
         bool m_started { false };
 
@@ -69,14 +75,24 @@ namespace SDDM {
 
         QString m_display { ":0" };
         QString m_cookie { "" };
-        QString m_socket { "" };
         QString m_authPath { "" };
+        QString m_passPhrase;
+        QString m_sessionName;
 
-        Authenticator *m_authenticator { nullptr };
+        QAuth *m_auth { nullptr };
         DisplayServer *m_displayServer { nullptr };
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };
+        QLocalSocket *m_socket { nullptr };
         Greeter *m_greeter { nullptr };
+
+    private slots:
+        void slotRequestChanged();
+        void slotAuthenticationFinished(const QString &user, bool success);
+        void slotSessionStarted(bool success);
+        void slotHelperFinished(bool success);
+        void slotAuthInfo(const QString &message, QAuth::Info info);
+        void slotAuthError(const QString &message, QAuth::Error error);
     };
 }
 
