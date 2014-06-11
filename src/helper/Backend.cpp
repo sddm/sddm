@@ -57,8 +57,8 @@ bool Backend::openSession() {
         env.insert("SHELL", pw->pw_shell);
         env.insert("USER", pw->pw_name);
         env.insert("LOGNAME", pw->pw_name);
-        // TODO if XDISPLAY?
-        env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
+        if (env.contains("DISPLAY") && !env.contains("XAUTHORITY"))
+            env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
         // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
         m_app->session()->setProcessEnvironment(env);
 

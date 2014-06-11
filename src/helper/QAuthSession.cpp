@@ -36,7 +36,13 @@ QAuthSession::~QAuthSession() {
 }
 
 bool QAuthSession::start() {
-    QProcess::start(SESSION_COMMAND, {m_path});
+    QProcessEnvironment env = qobject_cast<QAuthApp*>(parent())->session()->processEnvironment();
+
+    if (env.value("XDG_SESSION_CLASS") == "greeter")
+        QProcess::start(m_path);
+    else
+        QProcess::start(SESSION_COMMAND, {m_path});
+
     return waitForStarted();
 }
 
