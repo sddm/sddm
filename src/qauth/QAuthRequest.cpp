@@ -71,15 +71,9 @@ QList<QAuthPrompt*> QAuthRequest::prompts() {
     return d->prompts;
 }
 
-#if QT_VERSION >= 0x050000
 QQmlListProperty<QAuthPrompt> QAuthRequest::promptsDecl() {
     return QQmlListProperty<QAuthPrompt>(this, d->prompts);
 }
-#else
-QDeclarativeListProperty<QAuthPrompt> QAuthRequest::promptsDecl() {
-    return QDeclarativeListProperty<QAuthPrompt>(this, d->prompts);
-}
-#endif
 
 void QAuthRequest::done() {
     if (!d->finished) {
