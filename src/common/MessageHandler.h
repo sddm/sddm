@@ -131,6 +131,10 @@ namespace SDDM {
         messageHandler(type, context, "DAEMON: ", msg);
     }
 
+    void HelperMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+        messageHandler(type, context, "HELPER: ", msg);
+    }
+
     void GreeterMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
         messageHandler(type, context, "GREETER: ", msg);
     }

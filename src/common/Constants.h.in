@@ -21,11 +21,14 @@
 #define SDDM_CONSTANTS_H
 
 #define BIN_INSTALL_DIR             "@CMAKE_INSTALL_FULL_BINDIR@"
+#define LIBEXEC_INSTALL_DIR         "@CMAKE_INSTALL_FULL_LIBEXECDIR@"
 #define DATA_INSTALL_DIR            "@DATA_INSTALL_DIR@"
 #define SYS_CONFIG_DIR              "@CMAKE_INSTALL_FULL_SYSCONFDIR@"
 #define IMPORTS_INSTALL_DIR         "@QT_IMPORTS_DIR@"
 #define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
 #define STATE_DIR                   "@STATE_DIR@"
+
+#define SESSION_COMMAND             "@SESSION_COMMAND@"
 
 #define CONFIG_FILE                 "@CONFIG_FILE@"
 #define LOG_FILE                    "@LOG_FILE@"

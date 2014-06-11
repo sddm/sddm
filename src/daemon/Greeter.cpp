@@ -172,14 +172,14 @@ namespace SDDM {
     void Greeter::onReadyReadStandardError()
     {
         if (m_process) {
-            qDebug() << "Greeter StdErr: " << m_process->readAllStandardError();
+            qDebug() << "Greeter errors:" << qPrintable(m_process->readAllStandardError());
         }
     }
 
     void Greeter::onReadyReadStandardOutput()
     {
         if (m_process) {
-            qDebug() << "Greeter StdOut: " << m_process->readAllStandardOutput();
+            qDebug() << "Greeter output:" << qPrintable(m_process->readAllStandardOutput());
         }
     }
 }
