@@ -75,7 +75,14 @@ namespace SDDM {
             SignalHandler::ignoreSigusr1();
 
             // start display server
-            process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(m_displayPtr->terminalId()) });
+            QStringList args;
+            args << m_display
+                 << "-auth" << m_authPath
+                 << "-nolisten" << "tcp"
+                 << "-background" << "none"
+                 << "-noreset"
+                 << QString("vt%1").arg(m_displayPtr->terminalId()),
+            process->start(daemonApp->configuration()->serverPath(), args);
             SignalHandler::initializeSigusr1();
         }
 
