@@ -43,13 +43,13 @@ namespace SDDM {
         bool start();
         void stop();
         void finished();
+        void setupDisplay();
 
     signals:
+        void started();
         void stopped();
 
     private:
-        bool waitForStarted(int msecs = 10000);
-
         bool m_started { false };
 
         QString m_display { "" };

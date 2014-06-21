@@ -31,6 +31,7 @@ namespace SDDM {
     int sighupFd[2];
     int sigintFd[2];
     int sigtermFd[2];
+    int sigusr1Fd[2];
 
     SignalHandler::SignalHandler(QObject *parent) : QObject(parent) {
         if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sighupFd))
@@ -50,6 +51,12 @@ namespace SDDM {
 
         snterm = new QSocketNotifier(sigtermFd[1], QSocketNotifier::Read, this);
         connect(snterm, SIGNAL(activated(int)), this, SLOT(handleSigterm()));
+
+        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
+            qCritical() << "Failed to create socket pair for SIGUSR1 handling.";
+
+        snusr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
+        connect(snusr1, SIGNAL(activated(int)), this, SLOT(handleSigusr1()));
     }
 
     void SignalHandler::initialize() {
@@ -85,6 +92,30 @@ namespace SDDM {
         }
     }
 
+    void SignalHandler::initializeSigusr1() {
+        struct sigaction sigusr1;
+        sigusr1.sa_handler = SignalHandler::usr1SignalHandler;
+        sigemptyset(&sigusr1.sa_mask);
+        sigusr1.sa_flags |= SA_RESTART;
+
+        if (sigaction(SIGUSR1, &sigusr1, 0) > 0) {
+            qCritical() << "Failed to set up SIGUSR1 handler.";
+            return;
+        }
+    }
+
+    void SignalHandler::ignoreSigusr1() {
+        struct sigaction sigusr1;
+        sigusr1.sa_handler = SIG_IGN;
+        sigemptyset(&sigusr1.sa_mask);
+        sigusr1.sa_flags |= SA_RESTART;
+
+        if (sigaction(SIGUSR1, &sigusr1, 0) > 0) {
+            qCritical() << "Failed to set up SIGUSR1 handler.";
+            return;
+        }
+    }
+
     void SignalHandler::hupSignalHandler(int) {
         char a = 1;
         if (::write(sighupFd[0], &a, sizeof(a)) == -1) {
@@ -105,6 +136,14 @@ namespace SDDM {
         char a = 1;
         if (::write(sigtermFd[0], &a, sizeof(a)) == -1) {
             qCritical() << "Error writing to the SIGTERM handler";
+            return;
+        }
+    }
+
+    void SignalHandler::usr1SignalHandler(int) {
+        char a = 1;
+        if (::write(sigusr1Fd[0], &a, sizeof(a)) == -1) {
+            qCritical() << "Error writing to the SIGUSR1 handler";
             return;
         }
     }
@@ -173,5 +212,27 @@ namespace SDDM {
 
         // enable notifier
         snterm->setEnabled(true);
+    }
+
+    void SignalHandler::handleSigusr1() {
+        // disable notifier
+        snusr1->setEnabled(false);
+
+        // read from socket
+        char a;
+        if (::read(sigusr1Fd[1], &a, sizeof(a)) == -1) {
+            // something went wrong!
+            qCritical() << "Error reading from the socket";
+            return;
+        }
+
+        // log event
+        qWarning() << "Signal received: SIGUSR1";
+
+        // emit signal
+        emit sigusr1Received();
+
+        // enable notifier
+        snusr1->setEnabled(true);
     }
 }
