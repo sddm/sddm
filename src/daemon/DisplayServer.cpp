@@ -22,6 +22,7 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
+#include "SignalHandler.h"
 
 #include <QDebug>
 #include <QProcess>
@@ -70,8 +71,12 @@ namespace SDDM {
             env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
             process->setProcessEnvironment(env);
 
+            // tell the display server to notify us when we can connect
+            SignalHandler::ignoreSigusr1();
+
             // start display server
             process->start(daemonApp->configuration()->serverPath(), { m_display, "-auth", m_authPath, "-nolisten", "tcp", QString("vt%1").arg(m_displayPtr->terminalId()) });
+            SignalHandler::initializeSigusr1();
         }
 
         // wait for display server to start
@@ -82,18 +87,6 @@ namespace SDDM {
             // return fail
             return false;
         }
-
-        // wait until we can connect to the display server
-        if (!this->waitForStarted()) {
-            // log message
-            qCritical() << "Failed to connect to the display server.";
-
-            // return fail
-            return false;
-        }
-
-        // log message
-        qDebug() << "Display server started.";
 
         // set flag
         m_started = true;
@@ -137,45 +130,23 @@ namespace SDDM {
         emit stopped();
     }
 
-    bool DisplayServer::waitForStarted(int msecs) {
-        bool result = false;
+    void DisplayServer::setupDisplay() {
+        QString displayCommand = daemonApp->configuration()->displayCommand();
 
-        // get cookie from the display
-        QString cookie = m_displayPtr->cookie();
+        // create display setup script process
+        QProcess *displayScript = new QProcess();
 
-        // connection object
-        xcb_connection_t *connection = nullptr;
+        // set process environment
+        QProcessEnvironment env;
+        env.insert("DISPLAY", m_display);
+        env.insert("HOME", "/");
+        env.insert("PATH", daemonApp->configuration()->defaultPath());
+        env.insert("XAUTHORITY", m_authPath);
+        env.insert("SHELL", "/bin/sh");
+        displayScript->setProcessEnvironment(env);
 
-        // auth object
-        xcb_auth_info_t auth_info { 18, strdup("MIT-MAGIC-COOKIE-1"), cookie.length(), strdup(qPrintable(cookie)) };
-
-        // try to connect to the server
-        for (int i = 0; i < (msecs / 100); ++i) {
-
-            // try to connect to the server
-            connection = xcb_connect_to_display_with_auth_info(qPrintable(m_display), &auth_info, nullptr);
-
-            // check connection
-            if (connection != nullptr)
-                break;
-
-            // sleep for 100 miliseconds
-            usleep(100000);
-        }
-
-        if (connection != nullptr) {
-            // close connection
-            xcb_disconnect(connection);
-
-            // set success flag
-            result = true;
-        }
-
-        // free resources
-        free(auth_info.data);
-        free(auth_info.name);
-
-        // return result
-        return result;
+        // start display setup script
+        qDebug() << "Running display setup script " << displayCommand;
+        displayScript->start(displayCommand);
     }
 }

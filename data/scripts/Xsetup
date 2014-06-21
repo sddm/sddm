@@ -1,0 +1,3 @@
+#!/bin/sh
+# Xsetup - run as root before the login dialog appears
+
