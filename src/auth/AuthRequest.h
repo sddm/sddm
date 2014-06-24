@@ -30,12 +30,12 @@
 # define QQmlListProperty QDeclarativeListProperty
 #endif
 
-class QAuth;
-class QAuthPrompt;
+class Auth;
+class AuthPrompt;
 class Request;
 /**
  * \brief
- * QAuthRequest is the main class for tracking requests from the underlying auth stack
+ * AuthRequest is the main class for tracking requests from the underlying auth stack
  *
  * \section description
  * Typically, when logging in, you'll receive a list containing one or two fields:
@@ -46,29 +46,29 @@ class Request;
  *  * Second one for the user's password
  *    hidden = true, type = LOGIN_PASSWORD, message = whatever the stack provides
  *
- * It's up to you to fill the \ref QAuthPrompt::response property.
+ * It's up to you to fill the \ref AuthPrompt::response property.
  * When all the fields are filled to your satisfaction, just trigger the \ref done 
  * slot and the response will go back to the authenticator.
  *
  * \todo Decide if it's sane to use the info messages from PAM or to somehow parse them
  * and make the password changing message into a Request::Type of some kind
  */
-class QAuthRequest : public QObject {
+class AuthRequest : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QQmlListProperty<QAuthPrompt> prompts READ promptsDecl NOTIFY promptsChanged)
+    Q_PROPERTY(QQmlListProperty<AuthPrompt> prompts READ promptsDecl NOTIFY promptsChanged)
     Q_PROPERTY(bool finishAutomatically READ finishAutomatically WRITE setFinishAutomatically NOTIFY finishAutomaticallyChanged)
 public:
     /**
      * @return list of the contained prompts
      */
-    QList<QAuthPrompt*> prompts();
+    QList<AuthPrompt*> prompts();
     /**
      * For QML apps
      * @return list of the contained prompts
      */
-    QQmlListProperty<QAuthPrompt> promptsDecl();
+    QQmlListProperty<AuthPrompt> promptsDecl();
 
-    static QAuthRequest *empty();
+    static AuthRequest *empty();
 
     bool finishAutomatically();
     void setFinishAutomatically(bool value);
@@ -86,10 +86,10 @@ Q_SIGNALS:
     void finishAutomaticallyChanged();
     void promptsChanged();
 private:
-    QAuthRequest(QAuth *parent);
+    AuthRequest(Auth *parent);
     void setRequest(const Request *request = nullptr);
     Request request() const;
-    friend class QAuth;
+    friend class Auth;
     class Private;
     Private *d { nullptr };
 };

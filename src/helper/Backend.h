@@ -23,7 +23,7 @@
 
 #include <QtCore/QObject>
 
-class QAuthApp;
+class HelperApp;
 class Backend : public QObject
 {
     Q_OBJECT
@@ -32,7 +32,7 @@ public:
      * Requests allocation of a new backend instance.
      * The method chooses the most suitable one for the current system.
      */
-    static Backend *get(QAuthApp *parent);
+    static Backend *get(HelperApp *parent);
 
     void setAutologin(bool on = true);
 
@@ -44,8 +44,8 @@ public slots:
     virtual QString userName() = 0;
 
 protected:
-    Backend(QAuthApp *parent);
-    QAuthApp *m_app;
+    Backend(HelperApp *parent);
+    HelperApp *m_app;
     bool m_autologin { false };
 
 private:

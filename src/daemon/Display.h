@@ -24,7 +24,7 @@
 
 #include <QObject>
 
-#include "qauth/QAuth.h"
+#include "auth/Auth.h"
 
 class QLocalSocket;
 
@@ -80,7 +80,7 @@ namespace SDDM {
         QString m_passPhrase;
         QString m_sessionName;
 
-        QAuth *m_auth { nullptr };
+        Auth *m_auth { nullptr };
         DisplayServer *m_displayServer { nullptr };
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };
@@ -92,8 +92,8 @@ namespace SDDM {
         void slotAuthenticationFinished(const QString &user, bool success);
         void slotSessionStarted(bool success);
         void slotHelperFinished(bool success);
-        void slotAuthInfo(const QString &message, QAuth::Info info);
-        void slotAuthError(const QString &message, QAuth::Error error);
+        void slotAuthInfo(const QString &message, Auth::Info info);
+        void slotAuthError(const QString &message, Auth::Error error);
     };
 }
 

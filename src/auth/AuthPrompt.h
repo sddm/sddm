@@ -23,8 +23,8 @@
 
 #include <QtCore/QObject>
 
-class QAuth;
-class QAuthRequest;
+class Auth;
+class AuthRequest;
 class Prompt;
 /**
  * \brief
@@ -37,7 +37,7 @@ class Prompt;
  *      the \ref Type -s. PAM sends horrible horrible stuff and passwd obviously
  *      doesn't tell us a thing.
  */
-class QAuthPrompt : public QObject {
+class AuthPrompt : public QObject {
     Q_OBJECT
     Q_ENUMS(Type)
     Q_PROPERTY(Type type READ type CONSTANT)
@@ -45,7 +45,7 @@ class QAuthPrompt : public QObject {
     Q_PROPERTY(bool hidden READ hidden CONSTANT)
     Q_PROPERTY(QByteArray response WRITE setResponse NOTIFY responseChanged)
 public:
-    virtual ~QAuthPrompt();
+    virtual ~AuthPrompt();
     /**
      * \note In hex not for binary operations but to leave space for adding other codes
      */
@@ -82,9 +82,9 @@ Q_SIGNALS:
      */
     void responseChanged();
 private:
-    QAuthPrompt(const Prompt *prompt, QAuthRequest *parent = 0);
+    AuthPrompt(const Prompt *prompt, AuthRequest *parent = 0);
     QByteArray response() const;
-    friend class QAuthRequest;
+    friend class AuthRequest;
     class Private;
     Private *d { nullptr };
 };

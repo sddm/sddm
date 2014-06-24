@@ -18,25 +18,25 @@
  *
  */
 
-#ifndef QAuth_H
-#define QAuth_H
+#ifndef Auth_H
+#define Auth_H
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QProcessEnvironment>
 
-#include "QAuthMessages.h"
+#include "auth/AuthMessages.h"
 
 class Backend;
-class QAuthSession;
+class UserSession;
 class QLocalSocket;
-class QAuthApp : public QCoreApplication
+class HelperApp : public QCoreApplication
 {
     Q_OBJECT
 public:
-    QAuthApp(int& argc, char** argv);
-    virtual ~QAuthApp();
+    HelperApp(int& argc, char** argv);
+    virtual ~HelperApp();
 
-    QAuthSession *session();
+    UserSession *session();
     const QString &user() const;
 
     enum RetVal {
@@ -48,8 +48,8 @@ public:
 
 public slots:
     Request request(const Request &request);
-    void info(const QString &message, QAuth::Info type);
-    void error(const QString &message, QAuth::Error type);
+    void info(const QString &message, Auth::Info type);
+    void error(const QString &message, Auth::Error type);
     QProcessEnvironment authenticated(const QString &user);
     void sessionOpened(bool success);
 
@@ -62,9 +62,9 @@ private slots:
 private:
     qint64 m_id { -1 };
     Backend *m_backend { nullptr };
-    QAuthSession *m_session { nullptr };
+    UserSession *m_session { nullptr };
     QLocalSocket *m_socket { nullptr };
     QString m_user { };
 };
 
-#endif // QAuth_H
+#endif // Auth_H

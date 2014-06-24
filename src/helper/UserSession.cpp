@@ -19,24 +19,24 @@
  */
 
 #include "Constants.h"
-#include "QAuthSession.h"
-#include "QAuthApp.h"
+#include "UserSession.h"
+#include "HelperApp.h"
 
 #include <sys/types.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
 
-QAuthSession::QAuthSession(QAuthApp *parent)
+UserSession::UserSession(HelperApp *parent)
         : QProcess(parent) {
 }
 
-QAuthSession::~QAuthSession() {
+UserSession::~UserSession() {
 
 }
 
-bool QAuthSession::start() {
-    QProcessEnvironment env = qobject_cast<QAuthApp*>(parent())->session()->processEnvironment();
+bool UserSession::start() {
+    QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
     if (env.value("XDG_SESSION_CLASS") == "greeter")
         QProcess::start(m_path);
@@ -46,21 +46,21 @@ bool QAuthSession::start() {
     return waitForStarted();
 }
 
-void QAuthSession::setPath(const QString& path) {
+void UserSession::setPath(const QString& path) {
     m_path = path;
 }
 
-QString QAuthSession::path() const {
+QString UserSession::path() const {
     return m_path;
 }
 
-void QAuthSession::bail(int status) {
+void UserSession::bail(int status) {
     emit finished(status, QProcess::NormalExit);
     exit(status);
 }
 
-void QAuthSession::setupChildProcess() {
-    struct passwd *pw = getpwnam(qobject_cast<QAuthApp*>(parent())->user().toLocal8Bit());
+void UserSession::setupChildProcess() {
+    struct passwd *pw = getpwnam(qobject_cast<HelperApp*>(parent())->user().toLocal8Bit());
     if (setgid(pw->pw_gid) != 0)
         bail(2);
     if (initgroups(pw->pw_name, pw->pw_gid) != 0)

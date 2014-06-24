@@ -18,20 +18,20 @@
  *
  */
 
-#ifndef QAUTH_SESSION_H
-#define QAUTH_SESSION_H
+#ifndef SDDM_AUTH_SESSION_H
+#define SDDM_AUTH_SESSION_H
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QProcess>
 
-class QAuthApp;
-class QAuthSession : public QProcess
+class HelperApp;
+class UserSession : public QProcess
 {
     Q_OBJECT
 public:
-    explicit QAuthSession(QAuthApp *parent);
-    virtual ~QAuthSession();
+    explicit UserSession(HelperApp *parent);
+    virtual ~UserSession();
 
     bool start();
 
@@ -46,4 +46,4 @@ private:
     QString m_path { };
 };
 
-#endif // QAUTH_SESSION_H
+#endif // SDDM_AUTH_SESSION_H
