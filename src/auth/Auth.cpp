@@ -18,9 +18,9 @@
  *
  */
 
-#include "QAuth.h"
+#include "Auth.h"
 #include "Constants.h"
-#include "QAuthMessages.h"
+#include "AuthMessages.h"
 #include "SafeDataStream.h"
 
 #include <QtCore/QProcess>
@@ -35,25 +35,25 @@
 
 #include <unistd.h>
 
-class QAuth::SocketServer : public QLocalServer {
+class Auth::SocketServer : public QLocalServer {
     Q_OBJECT
 public slots:
     void handleNewConnection();
 public:
     static SocketServer *instance();
 
-    QMap<qint64, QAuth::Private*> helpers;
+    QMap<qint64, Auth::Private*> helpers;
 private:
-    static QAuth::SocketServer *self;
+    static Auth::SocketServer *self;
     SocketServer();
 };
 
-QAuth::SocketServer *QAuth::SocketServer::self = nullptr;
+Auth::SocketServer *Auth::SocketServer::self = nullptr;
 
-class QAuth::Private : public QObject {
+class Auth::Private : public QObject {
     Q_OBJECT
 public:
-    Private(QAuth *parent);
+    Private(Auth *parent);
     void setSocket(QLocalSocket *socket);
 public slots:
     void dataPending();
@@ -61,7 +61,7 @@ public slots:
     void childError(QProcess::ProcessError error);
     void requestFinished();
 public:
-    QAuthRequest *request { nullptr };
+    AuthRequest *request { nullptr };
     QProcess *child { nullptr };
     QLocalSocket *socket { nullptr };
     QString sessionPath { };
@@ -72,16 +72,16 @@ public:
     static qint64 lastId;
 };
 
-qint64 QAuth::Private::lastId = 1;
+qint64 Auth::Private::lastId = 1;
 
 
 
-QAuth::SocketServer::SocketServer()
+Auth::SocketServer::SocketServer()
         : QLocalServer() {
     connect(this, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
 }
 
-void QAuth::SocketServer::handleNewConnection()  {
+void Auth::SocketServer::handleNewConnection()  {
     while (hasPendingConnections()) {
         Msg m = Msg::MSG_UNKNOWN;
         qint64 id;
@@ -97,19 +97,19 @@ void QAuth::SocketServer::handleNewConnection()  {
     }
 }
 
-QAuth::SocketServer* QAuth::SocketServer::instance() {
+Auth::SocketServer* Auth::SocketServer::instance() {
     if (!self) {
         self = new SocketServer();
         // TODO until i'm not too lazy to actually hash something
-        self->listen(QString("QAuth%1.%2").arg(getpid()).arg(time(NULL)));
+        self->listen(QString("Auth%1.%2").arg(getpid()).arg(time(NULL)));
     }
     return self;
 }
 
 
-QAuth::Private::Private(QAuth *parent)
+Auth::Private::Private(Auth *parent)
         : QObject(parent)
-        , request(new QAuthRequest(parent))
+        , request(new AuthRequest(parent))
         , child(new QProcess(this))
         , id(lastId++) {
     SocketServer::instance()->helpers[id] = this;
@@ -122,13 +122,13 @@ QAuth::Private::Private(QAuth *parent)
     connect(request, SIGNAL(promptsChanged()), parent, SIGNAL(requestChanged()));
 }
 
-void QAuth::Private::setSocket(QLocalSocket *socket) {
+void Auth::Private::setSocket(QLocalSocket *socket) {
     this->socket = socket;
     connect(socket, SIGNAL(readyRead()), this, SLOT(dataPending()));
 }
 
-void QAuth::Private::dataPending() {
-    QAuth *auth = qobject_cast<QAuth*>(parent());
+void Auth::Private::dataPending() {
+    Auth *auth = qobject_cast<Auth*>(parent());
     Msg m = MSG_UNKNOWN;
     SafeDataStream str(socket);
     str.receive();
@@ -179,23 +179,23 @@ void QAuth::Private::dataPending() {
             break;
         }
         default: {
-            Q_EMIT auth->error(QString("QAuth: Unexpected value received: %1").arg(m), ERROR_INTERNAL);
+            Q_EMIT auth->error(QString("Auth: Unexpected value received: %1").arg(m), ERROR_INTERNAL);
         }
     }
 }
 
-void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
+void Auth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
     if (exitStatus != QProcess::NormalExit)
-        Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
-    Q_EMIT qobject_cast<QAuth*>(parent())->finished(!exitCode);
+        Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
+    Q_EMIT qobject_cast<Auth*>(parent())->finished(!exitCode);
 }
 
-void QAuth::Private::childError(QProcess::ProcessError error) {
+void Auth::Private::childError(QProcess::ProcessError error) {
     Q_UNUSED(error);
-    Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
+    Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
 }
 
-void QAuth::Private::requestFinished() {
+void Auth::Private::requestFinished() {
     SafeDataStream str(socket);
     Request r = request->request();
     str << REQUEST << r;
@@ -204,7 +204,7 @@ void QAuth::Private::requestFinished() {
 }
 
 
-QAuth::QAuth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
+Auth::Auth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
         : QObject(parent)
         , d(new Private(this)) {
     setUser(user);
@@ -213,71 +213,71 @@ QAuth::QAuth(const QString &user, const QString &session, bool autologin, QObjec
     setVerbose(verbose);
 }
 
-QAuth::QAuth(QObject* parent)
+Auth::Auth(QObject* parent)
         : QObject(parent)
         , d(new Private(this)) {
 }
 
-QAuth::~QAuth() {
+Auth::~Auth() {
     delete d;
 }
 
-void QAuth::registerTypes() {
-    qmlRegisterType<QAuthPrompt>();
-    qmlRegisterType<QAuthRequest>();
-    qmlRegisterType<QAuth>("QAuth", 1, 0, "QAuth");
+void Auth::registerTypes() {
+    qmlRegisterType<AuthPrompt>();
+    qmlRegisterType<AuthRequest>();
+    qmlRegisterType<Auth>("Auth", 1, 0, "Auth");
 }
 
-bool QAuth::autologin() const {
+bool Auth::autologin() const {
     return d->autologin;
 }
 
-const QString &QAuth::session() const {
+const QString &Auth::session() const {
     return d->sessionPath;
 }
 
-const QString &QAuth::user() const {
+const QString &Auth::user() const {
     return d->user;
 }
 
-bool QAuth::verbose() const {
+bool Auth::verbose() const {
     return d->child->processChannelMode() == QProcess::ForwardedChannels;
 }
 
-QAuthRequest *QAuth::request() {
+AuthRequest *Auth::request() {
     return d->request;
 }
 
-void QAuth::insertEnvironment(const QProcessEnvironment &env) {
+void Auth::insertEnvironment(const QProcessEnvironment &env) {
     d->environment.insert(env);
 }
 
-void QAuth::insertEnvironment(const QString &key, const QString &value) {
+void Auth::insertEnvironment(const QString &key, const QString &value) {
     d->environment.insert(key, value);
 }
 
-void QAuth::setUser(const QString &user) {
+void Auth::setUser(const QString &user) {
     if (user != d->user) {
         d->user = user;
         Q_EMIT userChanged();
     }
 }
 
-void QAuth::setAutologin(bool on) {
+void Auth::setAutologin(bool on) {
     if (on != d->autologin) {
         d->autologin = on;
         Q_EMIT autologinChanged();
     }
 }
 
-void QAuth::setSession(const QString& path) {
+void Auth::setSession(const QString& path) {
     if (path != d->sessionPath) {
         d->sessionPath = path;
         Q_EMIT sessionChanged();
     }
 }
 
-void QAuth::setVerbose(bool on) {
+void Auth::setVerbose(bool on) {
     if (on != verbose()) {
         if (on)
             d->child->setProcessChannelMode(QProcess::ForwardedChannels);
@@ -287,7 +287,7 @@ void QAuth::setVerbose(bool on) {
     }
 }
 
-void QAuth::start() {
+void Auth::start() {
     QStringList args;
     args << "--socket" << SocketServer::instance()->fullServerName();
     args << "--id" << QString("%1").arg(d->id);
@@ -300,4 +300,4 @@ void QAuth::start() {
     d->child->start(QString("%1/sddm-helper").arg(LIBEXEC_INSTALL_DIR), args);
 }
 
-#include "QAuth.moc"
+#include "Auth.moc"

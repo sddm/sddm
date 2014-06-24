@@ -137,13 +137,13 @@ namespace SDDM {
             m_started = true;
         } else {
             // authentication
-            m_auth = new QAuth(this);
+            m_auth = new Auth(this);
             m_auth->setVerbose(true);
             connect(m_auth, SIGNAL(requestChanged()), this, SLOT(onRequestChanged()));
             connect(m_auth, SIGNAL(session(bool)), this, SLOT(onSessionStarted(bool)));
             connect(m_auth, SIGNAL(finished(bool)), this, SLOT(onHelperFinished(bool)));
-            connect(m_auth, SIGNAL(info(QString,QAuth::Info)), this, SLOT(authInfo(QString,QAuth::Info)));
-            connect(m_auth, SIGNAL(error(QString,QAuth::Error)), this, SLOT(authError(QString,QAuth::Error)));
+            connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(authInfo(QString,Auth::Info)));
+            connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(authError(QString,Auth::Error)));
 
             // greeter command
             QStringList args;
@@ -255,12 +255,12 @@ namespace SDDM {
         }
     }
 
-    void Greeter::authInfo(const QString &message, QAuth::Info info) {
+    void Greeter::authInfo(const QString &message, Auth::Info info) {
         Q_UNUSED(info);
         qDebug() << "Information from greeter session:" << message;
     }
 
-    void Greeter::authError(const QString &message, QAuth::Error error) {
+    void Greeter::authError(const QString &message, Auth::Error error) {
         Q_UNUSED(error);
         qWarning() << "Error from greeter session:" << message;
     }

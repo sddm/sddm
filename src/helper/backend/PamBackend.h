@@ -22,7 +22,7 @@
 #define PAMBACKEND_H
 
 #include "Constants.h"
-#include "QAuthMessages.h"
+#include "auth/AuthMessages.h"
 #include "../Backend.h"
 
 #include <QtCore/QObject>
@@ -37,7 +37,7 @@ public:
     PamData();
 
     bool insertPrompt(const struct pam_message *msg, bool predict = true);
-    QAuth::Info handleInfo(const struct pam_message *msg, bool predict);
+    Auth::Info handleInfo(const struct pam_message *msg, bool predict);
 
     const Request& getRequest() const;
     void completeRequest(const Request& request);
@@ -45,7 +45,7 @@ public:
     QByteArray getResponse(const struct pam_message *msg);
 
 private:
-    QAuthPrompt::Type detectPrompt(const struct pam_message *msg) const;
+    AuthPrompt::Type detectPrompt(const struct pam_message *msg) const;
 
     const Prompt& findPrompt(const struct pam_message *msg) const;
     Prompt& findPrompt(const struct pam_message *msg);
@@ -58,7 +58,7 @@ class PamBackend : public Backend
 {
     Q_OBJECT
 public:
-    explicit PamBackend(QAuthApp *parent);
+    explicit PamBackend(HelperApp *parent);
     virtual ~PamBackend();
     int converse(int n, const struct pam_message **msg, struct pam_response **resp);
 

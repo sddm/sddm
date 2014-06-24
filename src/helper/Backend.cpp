@@ -19,22 +19,22 @@
  */
 
 #include "Backend.h"
-#include "QAuthApp.h"
+#include "HelperApp.h"
 
 #include "backend/PamBackend.h"
 #include "backend/PasswdBackend.h"
-#include "QAuthSession.h"
+#include "UserSession.h"
 
 #include <QtCore/QProcessEnvironment>
 
 #include <pwd.h>
 
-Backend::Backend(QAuthApp* parent)
+Backend::Backend(HelperApp* parent)
         : QObject(parent)
         , m_app(parent) {
 }
 
-Backend *Backend::get(QAuthApp* parent)
+Backend *Backend::get(HelperApp* parent)
 {
 #ifdef USE_PAM
     return new PamBackend(parent);
@@ -49,7 +49,7 @@ void Backend::setAutologin(bool on) {
 
 bool Backend::openSession() {
     struct passwd *pw;
-    pw = getpwnam(qPrintable(qobject_cast<QAuthApp*>(parent())->user()));
+    pw = getpwnam(qPrintable(qobject_cast<HelperApp*>(parent())->user()));
     if (pw) {
         QProcessEnvironment env = m_app->session()->processEnvironment();
         env.insert("HOME", pw->pw_dir);

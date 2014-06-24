@@ -24,12 +24,12 @@
 #include <QtCore/QDataStream>
 #include <QtCore/QProcessEnvironment>
 
-#include "qauth/QAuth.h"
+#include "auth/Auth.h"
 
 class Prompt {
 public:
     Prompt() { }
-    Prompt(QAuthPrompt::Type type, QString message, bool hidden)
+    Prompt(AuthPrompt::Type type, QString message, bool hidden)
             : type(type), message(message), hidden(hidden) { }
     Prompt(const Prompt &o)
             : type(o.type), response(o.response), message(o.message), hidden(o.hidden) { }
@@ -47,10 +47,10 @@ public:
         return type == o.type && response == o.response && message == o.message && hidden == o.hidden;
     }
     bool valid() const {
-        return !(type == QAuthPrompt::NONE && response.isEmpty() && message.isEmpty());
+        return !(type == AuthPrompt::NONE && response.isEmpty() && message.isEmpty());
     }
     void clear() {
-        type = QAuthPrompt::NONE;
+        type = AuthPrompt::NONE;
         // overwrite the whole thing with zeroes before clearing
         memset(response.data(), 0, response.length());
         response.clear();
@@ -58,7 +58,7 @@ public:
         hidden = false;
     }
 
-    QAuthPrompt::Type type { QAuthPrompt::NONE };
+    AuthPrompt::Type type { AuthPrompt::NONE };
     QByteArray response { };
     QString message { };
     bool hidden { false };
@@ -116,37 +116,37 @@ inline QDataStream& operator>>(QDataStream &s, Msg &m) {
     return s;
 }
 
-inline QDataStream& operator<<(QDataStream &s, const QAuth::Error &m) {
+inline QDataStream& operator<<(QDataStream &s, const Auth::Error &m) {
     s << qint32(m);
     return s;
 }
 
-inline QDataStream& operator>>(QDataStream &s, QAuth::Error &m) {
+inline QDataStream& operator>>(QDataStream &s, Auth::Error &m) {
     // TODO seriously?
     qint32 i;
     s >> i;
-    if (i >= QAuth::_ERROR_LAST || i < QAuth::ERROR_NONE) {
+    if (i >= Auth::_ERROR_LAST || i < Auth::ERROR_NONE) {
         s.setStatus(QDataStream::ReadCorruptData);
         return s;
     }
-    m = QAuth::Error(i);
+    m = Auth::Error(i);
     return s;
 }
 
-inline QDataStream& operator<<(QDataStream &s, const QAuth::Info &m) {
+inline QDataStream& operator<<(QDataStream &s, const Auth::Info &m) {
     s << qint32(m);
     return s;
 }
 
-inline QDataStream& operator>>(QDataStream &s, QAuth::Info &m) {
+inline QDataStream& operator>>(QDataStream &s, Auth::Info &m) {
     // TODO seriously?
     qint32 i;
     s >> i;
-    if (i >= QAuth::_INFO_LAST || i < QAuth::INFO_NONE) {
+    if (i >= Auth::_INFO_LAST || i < Auth::INFO_NONE) {
         s.setStatus(QDataStream::ReadCorruptData);
         return s;
     }
-    m = QAuth::Info(i);
+    m = Auth::Info(i);
     return s;
 }
 
@@ -176,7 +176,7 @@ inline QDataStream& operator>>(QDataStream &s, Prompt &m) {
     bool hidden;
     QByteArray response;
     s >> type >> message >> hidden >> response;
-    m.type = QAuthPrompt::Type(type);
+    m.type = AuthPrompt::Type(type);
     m.message = message;
     m.hidden = hidden;
     m.response = response;
