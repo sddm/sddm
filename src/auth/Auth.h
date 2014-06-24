@@ -18,11 +18,11 @@
  *
  */
 
-#ifndef QAUTH_H
-#define QAUTH_H
+#ifndef SDDM_AUTH_H
+#define SDDM_AUTH_H
 
-#include "QAuthRequest.h"
-#include "QAuthPrompt.h"
+#include "AuthRequest.h"
+#include "AuthPrompt.h"
 
 #include <QtCore/QObject>
 #include <QtCore/QProcessEnvironment>
@@ -47,18 +47,18 @@
  * Just construct, connect the signals (especially \ref requestChanged)
  * and fire up \ref start
  */
-class QAuth : public QObject {
+class Auth : public QObject {
     Q_OBJECT
     // not setting NOTIFY for the properties - they should be set only once before calling start
     Q_PROPERTY(bool autologin READ autologin WRITE setAutologin NOTIFY autologinChanged)
     Q_PROPERTY(bool verbose READ verbose WRITE setVerbose NOTIFY verboseChanged)
     Q_PROPERTY(QString user READ user WRITE setUser NOTIFY userChanged)
     Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
-    Q_PROPERTY(QAuthRequest* request READ request NOTIFY requestChanged)
+    Q_PROPERTY(AuthRequest* request READ request NOTIFY requestChanged)
 public:
-    explicit QAuth(const QString &user = QString(), const QString &session = QString(), bool autologin = false, QObject *parent = 0, bool verbose = false);
-    explicit QAuth(QObject *parent);
-    ~QAuth();
+    explicit Auth(const QString &user = QString(), const QString &session = QString(), bool autologin = false, QObject *parent = 0, bool verbose = false);
+    explicit Auth(QObject *parent);
+    ~Auth();
 
     enum Info {
         INFO_NONE = 0,
@@ -81,7 +81,7 @@ public:
     bool verbose() const;
     const QString &user() const;
     const QString &session() const;
-    QAuthRequest *request();
+    AuthRequest *request();
 
     /**
      * If starting a session, you will probably want to provide some basic env variables for the session.
@@ -167,14 +167,14 @@ Q_SIGNALS:
      *
      * @param message message to be displayed to the user
      */
-    void error(QString message, QAuth::Error type);
+    void error(QString message, Auth::Error type);
 
     /**
      * Information from the underlying stack is to be presented to the user
      *
      * @param message message to be displayed to the user
      */
-    void info(QString message, QAuth::Info type);
+    void info(QString message, Auth::Info type);
 
 private:
     class Private;
@@ -184,4 +184,4 @@ private:
     Private *d { nullptr };
 };
 
-#endif // QAUTH_H
+#endif // SDDM_AUTH_H

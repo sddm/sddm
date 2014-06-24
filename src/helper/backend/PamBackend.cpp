@@ -20,9 +20,9 @@
 
 #include "PamBackend.h"
 #include "PamHandle.h"
-#include "helper/QAuthApp.h"
-#include "helper/QAuthSession.h"
-#include "qauth/QAuth.h"
+#include "helper/HelperApp.h"
+#include "helper/UserSession.h"
+#include "auth/Auth.h"
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>
@@ -30,21 +30,21 @@
 #include <stdlib.h>
 
 static Request loginRequest {
-    {   { QAuthPrompt::LOGIN_USER, "login:", false },
-        { QAuthPrompt::LOGIN_PASSWORD, "Password: ", true }
+    {   { AuthPrompt::LOGIN_USER, "login:", false },
+        { AuthPrompt::LOGIN_PASSWORD, "Password: ", true }
     }
 };
 
 static Request changePassRequest {
-    {   { QAuthPrompt::CHANGE_CURRENT, "(current) UNIX password: ", true },
-        { QAuthPrompt::CHANGE_NEW, "New password: ", true },
-        { QAuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
+    {   { AuthPrompt::CHANGE_CURRENT, "(current) UNIX password: ", true },
+        { AuthPrompt::CHANGE_NEW, "New password: ", true },
+        { AuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
     }
 };
 
 static Request changePassNoOldRequest {
-    {   { QAuthPrompt::CHANGE_NEW, "New password: ", true },
-        { QAuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
+    {   { AuthPrompt::CHANGE_NEW, "New password: ", true },
+        { AuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
     }
 };
 
@@ -54,33 +54,33 @@ static Prompt invalidPrompt {};
 
 PamData::PamData() { }
 
-QAuthPrompt::Type PamData::detectPrompt(const struct pam_message* msg) const {
+AuthPrompt::Type PamData::detectPrompt(const struct pam_message* msg) const {
     if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
         QString message(msg->msg);
         if (message.indexOf(QRegExp("\\bpassword\\b", Qt::CaseInsensitive)) >= 0) {
             if (message.indexOf(QRegExp("\\b(re-?(enter|type)|again|confirm|repeat)\\b", Qt::CaseInsensitive)) >= 0) {
-                return QAuthPrompt::CHANGE_REPEAT;
+                return AuthPrompt::CHANGE_REPEAT;
             }
             else if (message.indexOf(QRegExp("\\bnew\\b", Qt::CaseInsensitive)) >= 0) {
-                return QAuthPrompt::CHANGE_NEW;
+                return AuthPrompt::CHANGE_NEW;
             }
             else if (message.indexOf(QRegExp("\\b(old|current)\\b", Qt::CaseInsensitive)) >= 0) {
-                return QAuthPrompt::CHANGE_CURRENT;
+                return AuthPrompt::CHANGE_CURRENT;
             }
             else {
-                return QAuthPrompt::LOGIN_PASSWORD;
+                return AuthPrompt::LOGIN_PASSWORD;
             }
         }
     }
     else {
-        return QAuthPrompt::LOGIN_USER;
+        return AuthPrompt::LOGIN_USER;
     }
 
-    return QAuthPrompt::UNKNOWN;
+    return AuthPrompt::UNKNOWN;
 }
 
 const Prompt& PamData::findPrompt(const struct pam_message* msg) const {
-    QAuthPrompt::Type type = detectPrompt(msg);
+    AuthPrompt::Type type = detectPrompt(msg);
 
     for (const Prompt &p : m_currentRequest.prompts) {
         if (type == p.type && p.message == msg->msg)
@@ -91,10 +91,10 @@ const Prompt& PamData::findPrompt(const struct pam_message* msg) const {
 }
 
 Prompt& PamData::findPrompt(const struct pam_message* msg) {
-    QAuthPrompt::Type type = detectPrompt(msg);
+    AuthPrompt::Type type = detectPrompt(msg);
 
     for (Prompt &p : m_currentRequest.prompts) {
-        if (type == QAuthPrompt::UNKNOWN && msg->msg == p.message)
+        if (type == AuthPrompt::UNKNOWN && msg->msg == p.message)
             return p;
         if (type == p.type)
             return p;
@@ -129,15 +129,15 @@ bool PamData::insertPrompt(const struct pam_message* msg, bool predict) {
 
     // we'll predict what will come next
     if (predict) {
-        QAuthPrompt::Type type = detectPrompt(msg);
+        AuthPrompt::Type type = detectPrompt(msg);
         switch (type) {
-            case QAuthPrompt::LOGIN_USER:
+            case AuthPrompt::LOGIN_USER:
                 m_currentRequest = Request(loginRequest);
                 return true;
-            case QAuthPrompt::CHANGE_CURRENT:
+            case AuthPrompt::CHANGE_CURRENT:
                 m_currentRequest = Request(changePassRequest);
                 return true;
-            case QAuthPrompt::CHANGE_NEW:
+            case AuthPrompt::CHANGE_NEW:
                 m_currentRequest = Request(changePassNoOldRequest);
                 return true;
             default:
@@ -151,13 +151,13 @@ bool PamData::insertPrompt(const struct pam_message* msg, bool predict) {
     return true;
 }
 
-QAuth::Info PamData::handleInfo(const struct pam_message* msg, bool predict) {
+Auth::Info PamData::handleInfo(const struct pam_message* msg, bool predict) {
     if (QString(msg->msg).indexOf(QRegExp("^Changing password for [^ ]+$"))) {
         if (predict)
             m_currentRequest = Request(changePassRequest);
-        return QAuth::INFO_PASS_CHANGE_REQUIRED;
+        return Auth::INFO_PASS_CHANGE_REQUIRED;
     }
-    return QAuth::INFO_UNKNOWN;
+    return Auth::INFO_UNKNOWN;
 }
 
 /*
@@ -200,7 +200,7 @@ void PamData::completeRequest(const Request& request) {
 
 
 
-PamBackend::PamBackend(QAuthApp *parent)
+PamBackend::PamBackend(HelperApp *parent)
         : Backend(parent)
         , m_data(new PamData())
         , m_pam(new PamHandle(this)) {
@@ -225,18 +225,18 @@ bool PamBackend::start(const QString &user) {
     result = m_pam->start(service, user);
 
     if (!result)
-        m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
+        m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
 
     return result;
 }
 
 bool PamBackend::authenticate() {
     if (!m_pam->authenticate()) {
-        m_app->error(m_pam->errorString(), QAuth::ERROR_AUTHENTICATION);
+        m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
         return false;
     }
     if (!m_pam->acctMgmt()) {
-        m_app->error(m_pam->errorString(), QAuth::ERROR_AUTHENTICATION);
+        m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
         return false;
     }
     return true;
@@ -244,7 +244,7 @@ bool PamBackend::authenticate() {
 
 bool PamBackend::openSession() {
     if (!m_pam->setCred(PAM_ESTABLISH_CRED)) {
-        m_app->error(m_pam->errorString(), QAuth::ERROR_AUTHENTICATION);
+        m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
         return false;
     }
     QString display = m_app->session()->processEnvironment().value("DISPLAY");
@@ -253,11 +253,11 @@ bool PamBackend::openSession() {
         m_pam->setItem(PAM_TTY, qPrintable(display));
     }
     if (!m_pam->putEnv(m_app->session()->processEnvironment())) {
-        m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
+        m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
         return false;
     }
     if (!m_pam->openSession()) {
-        m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
+        m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
         return false;
     }
     QProcessEnvironment env = m_pam->getEnv();
@@ -285,7 +285,7 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
                 newRequest = m_data->insertPrompt(msg[i], n == 1);
                 break;
             case PAM_ERROR_MSG:
-                m_app->error(msg[i]->msg, QAuth::ERROR_AUTHENTICATION);
+                m_app->error(msg[i]->msg, Auth::ERROR_AUTHENTICATION);
                 break;
             case PAM_TEXT_INFO:
                 // if there's only the info message, let's predict the prompts too

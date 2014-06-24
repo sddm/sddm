@@ -20,9 +20,9 @@ set(DAEMON_SOURCES
     daemon/Session.cpp
     daemon/SignalHandler.cpp
     daemon/SocketServer.cpp
-    qauth/QAuth.cpp
-    qauth/QAuthPrompt.cpp
-    qauth/QAuthRequest.cpp
+    auth/Auth.cpp
+    auth/AuthPrompt.cpp
+    auth/AuthRequest.cpp
 )
 
 if(USE_QT5)
@@ -67,8 +67,8 @@ install(TARGETS sddm DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
 set(HELPER_SOURCES
     helper/Backend.cpp
-    helper/QAuthApp.cpp
-    helper/QAuthSession.cpp
+    helper/HelperApp.cpp
+    helper/UserSession.cpp
     common/SafeDataStream.cpp
 )
 

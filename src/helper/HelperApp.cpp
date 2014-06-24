@@ -18,9 +18,9 @@
  *
  */
 
-#include "QAuthApp.h"
+#include "HelperApp.h"
 #include "Backend.h"
-#include "QAuthSession.h"
+#include "UserSession.h"
 #include "SafeDataStream.h"
 
 #ifdef USE_QT5
@@ -36,10 +36,10 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
-QAuthApp::QAuthApp(int& argc, char** argv)
+HelperApp::HelperApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
         , m_backend(Backend::get(this))
-        , m_session(new QAuthSession(this))
+        , m_session(new UserSession(this))
         , m_socket(new QLocalSocket(this)) {
 #ifdef USE_QT5
         qInstallMessageHandler(SDDM::HelperMessageHandler);
@@ -48,7 +48,7 @@ QAuthApp::QAuthApp(int& argc, char** argv)
     QTimer::singleShot(0, this, SLOT(setUp()));
 }
 
-void QAuthApp::setUp() {
+void HelperApp::setUp() {
     QStringList args = QCoreApplication::arguments();
     QString server;
     int pos;
@@ -104,7 +104,7 @@ void QAuthApp::setUp() {
     m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
 }
 
-void QAuthApp::doAuth() {
+void HelperApp::doAuth() {
     SafeDataStream str(m_socket);
     str << Msg::HELLO << m_id;
     str.send();
@@ -142,25 +142,25 @@ void QAuthApp::doAuth() {
     return;
 }
 
-void QAuthApp::sessionFinished(int status) {
+void HelperApp::sessionFinished(int status) {
     exit(status);
 }
 
-void QAuthApp::info(const QString& message, QAuth::Info type) {
+void HelperApp::info(const QString& message, Auth::Info type) {
     SafeDataStream str(m_socket);
     str << Msg::INFO << message << type;
     str.send();
     m_socket->waitForBytesWritten();
 }
 
-void QAuthApp::error(const QString& message, QAuth::Error type) {
+void HelperApp::error(const QString& message, Auth::Error type) {
     SafeDataStream str(m_socket);
     str << Msg::ERROR << message << type;
     str.send();
     m_socket->waitForBytesWritten();
 }
 
-Request QAuthApp::request(const Request& request) {
+Request HelperApp::request(const Request& request) {
     Msg m = Msg::MSG_UNKNOWN;
     Request response;
     SafeDataStream str(m_socket);
@@ -175,7 +175,7 @@ Request QAuthApp::request(const Request& request) {
     return response;
 }
 
-QProcessEnvironment QAuthApp::authenticated(const QString &user) {
+QProcessEnvironment HelperApp::authenticated(const QString &user) {
     Msg m = Msg::MSG_UNKNOWN;
     QProcessEnvironment response;
     SafeDataStream str(m_socket);
@@ -192,7 +192,7 @@ QProcessEnvironment QAuthApp::authenticated(const QString &user) {
     return response;
 }
 
-void QAuthApp::sessionOpened(bool success) {
+void HelperApp::sessionOpened(bool success) {
     Msg m = Msg::MSG_UNKNOWN;
     SafeDataStream str(m_socket);
     str << Msg::SESSION_STATUS << success;
@@ -204,20 +204,20 @@ void QAuthApp::sessionOpened(bool success) {
     }
 }
 
-QAuthSession *QAuthApp::session() {
+UserSession *HelperApp::session() {
     return m_session;
 }
 
-const QString& QAuthApp::user() const {
+const QString& HelperApp::user() const {
     return m_user;
 }
 
-QAuthApp::~QAuthApp() {
+HelperApp::~HelperApp() {
 
 }
 
 int main(int argc, char** argv) {
-    QAuthApp app(argc, argv);
+    HelperApp app(argc, argv);
     return app.exec();
 }
 

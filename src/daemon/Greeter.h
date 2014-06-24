@@ -22,7 +22,7 @@
 
 #include <QObject>
 
-#include "qauth/QAuth.h"
+#include "auth/Auth.h"
 
 namespace SDDM {
     class Session;
@@ -51,8 +51,8 @@ namespace SDDM {
         void onHelperFinished(bool success);
         void onReadyReadStandardOutput();
         void onReadyReadStandardError();
-        void authInfo(const QString &message, QAuth::Info info);
-        void authError(const QString &message, QAuth::Error error);
+        void authInfo(const QString &message, Auth::Info info);
+        void authError(const QString &message, Auth::Error error);
 
     private:
         bool m_started { false };
@@ -62,7 +62,7 @@ namespace SDDM {
         QString m_socket { "" };
         QString m_theme { "" };
 
-        QAuth *m_auth { nullptr };
+        Auth *m_auth { nullptr };
         Session *m_process { nullptr };
     };
 }
