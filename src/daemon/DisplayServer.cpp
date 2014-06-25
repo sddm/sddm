@@ -81,7 +81,7 @@ namespace SDDM {
                  << "-nolisten" << "tcp"
                  << "-background" << "none"
                  << "-noreset"
-                 << QString("vt%1").arg(m_displayPtr->terminalId()),
+                 << QString("vt%1").arg(m_displayPtr->terminalId());
             process->start(daemonApp->configuration()->serverPath(), args);
             SignalHandler::initializeSigusr1();
         }
