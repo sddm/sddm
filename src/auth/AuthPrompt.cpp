@@ -18,11 +18,11 @@
  *
  */
 
-#include "QAuthPrompt.h"
-#include "QAuth.h"
-#include "QAuthMessages.h"
+#include "AuthPrompt.h"
+#include "Auth.h"
+#include "AuthMessages.h"
 
-class QAuthPrompt::Private : public Prompt {
+class AuthPrompt::Private : public Prompt {
 public:
     Private(const Prompt *p) {
         // initializers are too mainstream i guess
@@ -33,35 +33,35 @@ public:
     }
 };
 
-QAuthPrompt::QAuthPrompt(const Prompt *prompt, QAuthRequest *parent)
+AuthPrompt::AuthPrompt(const Prompt *prompt, AuthRequest *parent)
         : QObject(parent)
         , d(new Private(prompt)) {
 }
 
-QAuthPrompt::~QAuthPrompt() {
+AuthPrompt::~AuthPrompt() {
     delete d;
 }
 
-QAuthPrompt::Type QAuthPrompt::type() const {
+AuthPrompt::Type AuthPrompt::type() const {
     return d->type;
 }
 
-QString QAuthPrompt::message() const {
+QString AuthPrompt::message() const {
     return d->message;
 }
 
-QByteArray QAuthPrompt::response() const {
+QByteArray AuthPrompt::response() const {
     return d->response;
 }
 
-void QAuthPrompt::setResponse(const QByteArray &r) {
+void AuthPrompt::setResponse(const QByteArray &r) {
     if (r != d->response) {
         d->response = r;
         Q_EMIT responseChanged();
     }
 }
 
-bool QAuthPrompt::hidden() const {
+bool AuthPrompt::hidden() const {
     return d->hidden;
 }
 

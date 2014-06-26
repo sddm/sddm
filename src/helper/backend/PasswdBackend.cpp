@@ -20,8 +20,8 @@
 
 #include "PasswdBackend.h"
 
-#include "QAuthMessages.h"
-#include "../QAuthApp.h"
+#include "AuthMessages.h"
+#include "../AuthApp.h"
 
 #include <QtCore/QDebug>
 
@@ -30,7 +30,7 @@
 #include <shadow.h>
 #include <crypt.h>
 
-PasswdBackend::PasswdBackend(QAuthApp* parent)
+PasswdBackend::PasswdBackend(AuthApp* parent)
         : Backend(parent) { }
 
 bool PasswdBackend::authenticate() {
@@ -41,16 +41,16 @@ bool PasswdBackend::authenticate() {
     QString password;
 
     if (m_user.isEmpty())
-        r.prompts << Prompt(QAuthPrompt::LOGIN_USER, "Login", false);
-    r.prompts << Prompt(QAuthPrompt::LOGIN_PASSWORD, "Password", true);
+        r.prompts << Prompt(AuthPrompt::LOGIN_USER, "Login", false);
+    r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, "Password", true);
 
     Request response = m_app->request(r);
     Q_FOREACH(const Prompt &p, response.prompts) {
         switch (p.type) {
-            case QAuthPrompt::LOGIN_USER:
+            case AuthPrompt::LOGIN_USER:
                 m_user = p.response;
                 break;
-            case QAuthPrompt::LOGIN_PASSWORD:
+            case AuthPrompt::LOGIN_PASSWORD:
                 password = p.response;
                 break;
             default:
@@ -60,7 +60,7 @@ bool PasswdBackend::authenticate() {
 
     struct passwd *pw = getpwnam(qPrintable(m_user));
     if (!pw) {
-        m_app->error(QString("Wrong user/password combination"), QAuth::ERROR_AUTHENTICATION);
+        m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
         return false;
     }
 
@@ -78,7 +78,7 @@ bool PasswdBackend::authenticate() {
         return true;
     }
 
-    m_app->error(QString("Wrong user/password combination"), QAuth::ERROR_AUTHENTICATION);
+    m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
     return false;
 }
 

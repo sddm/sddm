@@ -30,14 +30,14 @@ void SafeDataStream::send() {
     qint64 length = m_data.length();
     qint64 writtenTotal = 0;
     if (!m_device->isOpen()) {
-        qCritical() << " QAuth: SafeDataStream: Could not write any data";
+        qCritical() << " Auth: SafeDataStream: Could not write any data";
         return;
     }
     m_device->write((const char*) &length, sizeof(length));
     while (writtenTotal != length) {
         qint64 written = m_device->write(m_data.mid(writtenTotal));
         if (written < 0 || !m_device->isOpen()) {
-            qCritical() << " QAuth: SafeDataStream: Could not write all stored data";
+            qCritical() << " Auth: SafeDataStream: Could not write all stored data";
             return;
         }
         writtenTotal += written;
@@ -51,7 +51,7 @@ void SafeDataStream::receive() {
     qint64 length = -1;
 
     if (!m_device->isOpen()) {
-        qCritical() << " QAuth: SafeDataStream: Could not read from the device";
+        qCritical() << " Auth: SafeDataStream: Could not read from the device";
         return;
     }
     if (!m_device->bytesAvailable())
@@ -64,7 +64,7 @@ void SafeDataStream::receive() {
 
     while (m_data.length() < length) {
         if (!m_device->isOpen()) {
-            qCritical() << " QAuth: SafeDataStream: Could not read from the device";
+            qCritical() << " Auth: SafeDataStream: Could not read from the device";
             return;
         }
         if (!m_device->bytesAvailable())
