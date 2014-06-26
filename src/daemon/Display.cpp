@@ -43,7 +43,7 @@
 namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
-        m_auth(new QAuth(this)),
+        m_auth(new Auth(this)),
         m_displayServer(new DisplayServer(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
@@ -57,8 +57,8 @@ namespace SDDM {
         connect(m_auth, SIGNAL(authentication(QString,bool)), this, SLOT(slotAuthenticationFinished(QString,bool)));
         connect(m_auth, SIGNAL(session(bool)), this, SLOT(slotSessionStarted(bool)));
         connect(m_auth, SIGNAL(finished(bool)), this, SLOT(slotHelperFinished(bool)));
-        connect(m_auth, SIGNAL(info(QString,QAuth::Info)), this, SLOT(slotAuthInfo(QString,QAuth::Info)));
-        connect(m_auth, SIGNAL(error(QString,QAuth::Error)), this, SLOT(slotAuthError(QString,QAuth::Error)));
+        connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(slotAuthInfo(QString,Auth::Info)));
+        connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(slotAuthError(QString,Auth::Error)));
 
         // restart display after display server ended
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
@@ -348,13 +348,13 @@ namespace SDDM {
         m_socket = nullptr;
     }
 
-    void Display::slotAuthInfo(const QString &message, QAuth::Info info) {
+    void Display::slotAuthInfo(const QString &message, Auth::Info info) {
         // TODO: presentable to the user, eventually
         Q_UNUSED(info);
         qWarning() << "Authentication information:" << message;
     }
 
-    void Display::slotAuthError(const QString &message, QAuth::Error error) {
+    void Display::slotAuthError(const QString &message, Auth::Error error) {
         // TODO: presentable to the user, eventually
         Q_UNUSED(error);
         qWarning() << "Authentication error:" << message;
