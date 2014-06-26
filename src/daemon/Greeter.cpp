@@ -165,6 +165,11 @@ namespace SDDM {
             env.insert("XDG_VTNR", QString::number(m_display->terminalId()));
             env.insert("XDG_SESSION_CLASS", "greeter");
             env.insert("XDG_SESSION_TYPE", "x11");
+
+            //unset any random variables we inherit from the system environment relating to home
+            env.insert("XDG_CONFIG_HOME", QString());
+            env.insert("XDG_CACHE_HOME", QString());
+            env.insert("XDG_DATA_HOME", QString());
             m_auth->insertEnvironment(env);
 
             // log message
