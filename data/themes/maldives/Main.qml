@@ -46,8 +46,6 @@ Rectangle {
         }
     }
 
-    FontLoader { id: clockFont; source: "GeosansLight.ttf" }
-
     Repeater {
         model: screenModel
         Background {
@@ -73,7 +71,7 @@ Rectangle {
             anchors.top: parent.top; anchors.right: parent.right
 
             color: "white"
-            timeFont.family: clockFont.name
+            timeFont.family: "Oxygen"
         }
 
         Image {
