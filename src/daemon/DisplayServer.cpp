@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -25,32 +26,96 @@
 #include "SignalHandler.h"
 
 #include <QDebug>
+#include <QDir>
+#include <QFile>
 #include <QProcess>
 
 #include <xcb/xcb.h>
 
+#include <pwd.h>
 #include <unistd.h>
 
 namespace SDDM {
     DisplayServer::DisplayServer(Display *parent) : QObject(parent), m_displayPtr(parent) {
+        // figure out the X11 display
+        m_display = QString(":%1").arg(m_displayPtr->displayId());
+
+        // get auth directory
+        QString authDir = RUNTIME_DIR;
+
+        // use "." as authdir in test mode
+        if (daemonApp->testing())
+            authDir = QLatin1String(".");
+
+        // create auth dir if not existing
+        QDir().mkpath(authDir);
+
+        // set auth path
+        m_authPath = QString("%1/%2").arg(authDir).arg(m_display);
+
+        // generate cookie
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, 15);
+
+        // resever 32 bytes
+        m_cookie.reserve(32);
+
+        // create a random hexadecimal number
+        const char *digits = "0123456789abcdef";
+        for (int i = 0; i < 32; ++i)
+            m_cookie[i] = digits[dis(gen)];
     }
 
     DisplayServer::~DisplayServer() {
         stop();
     }
 
-    void DisplayServer::setDisplay(const QString &display) {
-        m_display = display;
+    const QString &DisplayServer::display() const {
+        return m_display;
     }
 
-    void DisplayServer::setAuthPath(const QString &authPath) {
-        m_authPath = authPath;
+    const QString &DisplayServer::authPath() const {
+        return m_authPath;
+    }
+
+    const QString &DisplayServer::cookie() const {
+        return m_cookie;
+    }
+
+    void DisplayServer::addCookie(const QString &file) {
+        // log message
+        qDebug() << "Adding cookie to" << file;
+
+        // Touch file
+        QFile file_handler(file);
+        file_handler.open(QIODevice::WriteOnly);
+        file_handler.close();
+
+        QString cmd = QString("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
+
+        // execute xauth
+        FILE *fp = popen(qPrintable(cmd), "w");
+
+        // check file
+        if (!fp)
+            return;
+        fprintf(fp, "remove %s\n", qPrintable(m_display));
+        fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
+        fprintf(fp, "exit\n");
+
+        // close pipe
+        pclose(fp);
     }
 
     bool DisplayServer::start() {
         // check flag
         if (m_started)
             return false;
+
+        // generate auth file
+        addCookie(m_authPath);
+        changeOwner(m_authPath);
 
         // create process
         process = new QProcess(this);
@@ -135,6 +200,9 @@ namespace SDDM {
         process->deleteLater();
         process = nullptr;
 
+        // remove authority file
+        QFile::remove(m_authPath);
+
         // emit signal
         emit stopped();
     }
@@ -157,5 +225,16 @@ namespace SDDM {
         // start display setup script
         qDebug() << "Running display setup script " << displayCommand;
         displayScript->start(displayCommand);
+    }
+
+    void DisplayServer::changeOwner(const QString &fileName) {
+        // change the owner and group of the auth file to the sddm user
+        struct passwd *pw = getpwnam("sddm");
+        if (!pw)
+            qWarning() << "Failed to find the sddm user. Owner of the auth file will not be changed.";
+        else {
+            if (chown(qPrintable(fileName), pw->pw_uid, pw->pw_gid) == -1)
+                qWarning() << "Failed to change owner of the auth file.";
+        }
     }
 }
