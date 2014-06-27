@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -36,8 +37,12 @@ namespace SDDM {
 
         Display *displayPtr() const;
 
-        void setDisplay(const QString &display);
-        void setAuthPath(const QString &authPath);
+        const QString &display() const;
+        const QString &authPath() const;
+
+        const QString &cookie() const;
+
+        void addCookie(const QString &file);
 
     public slots:
         bool start();
@@ -52,11 +57,14 @@ namespace SDDM {
     private:
         bool m_started { false };
 
-        QString m_display { "" };
+        QString m_display { ":0" };
         QString m_authPath { "" };
+        QString m_cookie { "" };
 
         Display *m_displayPtr { nullptr };
         QProcess *process { nullptr };
+
+        void changeOwner(const QString &fileName);
     };
 }
 
