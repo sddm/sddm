@@ -85,7 +85,7 @@ namespace SDDM {
         }
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
-            if (d->sessions.at(i)->file == mainConfig.LastSession.get())
+            if (d->sessions.at(i)->file == stateConfig.LastSession.get())
                 d->lastIndex = i;
         }
     }
