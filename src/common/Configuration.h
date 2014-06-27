@@ -25,6 +25,8 @@
 #include <QtCore/QList>
 #include <QtCore/QTextStream>
 #include <QtCore/QStringList>
+#include <QtCore/QDir>
+#include <pwd.h>
 
 #include "Constants.h"
 
@@ -43,7 +45,6 @@ namespace SDDM {
         Entry(HaltCommand,         QString,     _S(HALT_COMMAND),                           _S("Halt command"));
         Entry(RebootCommand,       QString,     _S(REBOOT_COMMAND),                         _S("Reboot command"));
         Entry(SessionsDir,         QString,     _S("/usr/share/xsessions"),                 _S("Path of the directory containing session files, e.g kde-plasma.desktop"));
-        Entry(LastSession,         QString,     QString(),                                  _S("Name of the session file of the last session selected. This session will be preselected when the login screen shows up."));
         Entry(RememberLastSession, bool,        true,                                       _S("If this flag is true, LastSession value will updated on every successful login\n"
                                                                                                "Default value is true"));
         Entry(SessionCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsession"),   _S("Path of script to execute when starting the desktop session"));
@@ -56,10 +57,10 @@ namespace SDDM {
         Entry(MaximumUid,          int,         65000,                                      _S("Maximum user id of the users to be listed in the user interface"));
         Entry(HideUsers,           QStringList, QStringList(),                              _S("Users that shouldn't show up in the user list"));
         Entry(HideShells,          QStringList, QStringList(),                              _S("Shells of users that shouldn't show up in the user list"));
-        Entry(LastUser,            QString,     QString(),                                  _S("Name of the last logged-in user. This username will be preselected/shown when the login screen shows up"));
         Entry(RememberLastUser,    bool,        true,                                       _S("If this flag is true, LastUser value will updated on every successful login\n"
                                                                                                "Default value is true"));
         Entry(AutoUser,            QString,     QString(),                                  _S("Name of the user to automatically log in when the system starts for the first time"));
+        Entry(AutoSession,         QString,     QString(),                                  _S("Name of the session file to log into automatically."));
         Entry(AutoRelogin,         bool,        false,                                      _S("If true and AutoUser is set, automatic login will kick in again, otherwise autologin will work only for the first time"));
         Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("Minimum virtual terminal number that will be used by the first display.\n"
                                                                                                "Virtual terminal number will increase as new displays are added."));
@@ -73,7 +74,13 @@ namespace SDDM {
 //         );
     );
 
+    Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? tmp->pw_dir : STATE_DIR;}().append("/state.conf"),
+        Entry(LastSession,         QString,     QString(),                                  _S("Name of the session file of the last session selected. This session will be preselected when the login screen shows up."));
+        Entry(LastUser,            QString,     QString(),                                  _S("Name of the last logged-in user. This username will be preselected/shown when the login screen shows up"));
+    );
+
     extern MainConfig mainConfig;
+    extern StateConfig stateConfig;
 
     inline QTextStream& operator>>(QTextStream &str, MainConfig::NumState &state) {
         QString text = str.readLine().trimmed();

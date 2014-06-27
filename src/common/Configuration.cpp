@@ -23,4 +23,5 @@
 
 namespace SDDM {
     MainConfig mainConfig;
+    StateConfig stateConfig;
 }

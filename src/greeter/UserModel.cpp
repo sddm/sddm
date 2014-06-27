@@ -107,7 +107,7 @@ namespace SDDM {
 
         // find out index of the last user
         for (int i = 0; i < d->users.size(); ++i) {
-            if (d->users.at(i)->name == mainConfig.LastUser.get())
+            if (d->users.at(i)->name == stateConfig.LastUser.get())
                 d->lastIndex = i;
         }
     }
@@ -134,7 +134,7 @@ namespace SDDM {
     }
 
     QString UserModel::lastUser() const {
-        return mainConfig.LastUser.get();
+        return stateConfig.LastUser.get();
     }
 
     int UserModel::rowCount(const QModelIndex &parent) const {
