@@ -24,8 +24,9 @@
 
 #include "auth/Auth.h"
 
+class QProcess;
+
 namespace SDDM {
-    class Session;
     class Display;
 
     class Greeter : public QObject {
@@ -63,7 +64,7 @@ namespace SDDM {
         QString m_theme { "" };
 
         Auth *m_auth { nullptr };
-        Session *m_process { nullptr };
+        QProcess *m_process { nullptr };
     };
 }
 

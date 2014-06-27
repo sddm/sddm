@@ -24,15 +24,10 @@
 #include "DaemonApp.h"
 #include "DisplayManager.h"
 #include "Seat.h"
-#include "Session.h"
 #include "Display.h"
 
-#include <QDebug>
-#include <QProcess>
-
-#include <sys/types.h>
-#include <pwd.h>
-#include <unistd.h>
+#include <QtCore/QDebug>
+#include <QtCore/QProcess>
 
 namespace SDDM {
     Greeter::Greeter(QObject *parent) : QObject(parent) {
@@ -63,34 +58,9 @@ namespace SDDM {
         if (m_started)
             return false;
 
-        struct passwd *pw = nullptr;
-        if (!daemonApp->configuration()->testing)
-        {
-            pw = getpwnam(qPrintable("sddm"));
-            if (pw) {
-                // take ownership of the socket so we can read/write to it
-                if (chown(qPrintable(m_socket), pw->pw_uid, pw->pw_gid) == -1) {
-                    qCritical("Couldn't change owner and group to \"%s\": %s",
-                              qPrintable(m_socket), strerror(errno));
-                    return false;
-                }
-            } else {
-                qCritical() << "Unable to find the sddm user, cannot continue";
-                return false;
-            }
-        }
-
         if (daemonApp->configuration()->testing) {
             // create process
-            m_process = new Session("sddm-greeter", m_display, this);
-
-            // set user information
-            if (pw) {
-                m_process->setUser(pw->pw_name);
-                m_process->setDir(pw->pw_dir);
-                m_process->setUid(pw->pw_uid);
-                m_process->setGid(pw->pw_gid);
-            }
+            m_process = new QProcess(this);
 
             // delete process on finish
             connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
