@@ -60,31 +60,30 @@ namespace SDDM {
     }
 
     void SignalHandler::initialize() {
-        struct sigaction sighup;
+        struct sigaction sighup = { };
         sighup.sa_handler = SignalHandler::hupSignalHandler;
         sigemptyset(&sighup.sa_mask);
-        sighup.sa_flags = 0;
-        sighup.sa_flags |= SA_RESTART;
+        sighup.sa_flags = SA_RESTART;
 
         if (sigaction(SIGHUP, &sighup, 0) > 0) {
             qCritical() << "Failed to setup SIGHUP handler.";
             return;
         }
 
-        struct sigaction sigint;
+        struct sigaction sigint = { };
         sigint.sa_handler = SignalHandler::intSignalHandler;
         sigemptyset(&sigint.sa_mask);
-        sigint.sa_flags |= SA_RESTART;
+        sigint.sa_flags = SA_RESTART;
 
         if (sigaction(SIGINT, &sigint, 0) > 0) {
             qCritical() << "Failed to set up SIGINT handler.";
             return;
         }
 
-        struct sigaction sigterm;
+        struct sigaction sigterm = { };
         sigterm.sa_handler = SignalHandler::termSignalHandler;
         sigemptyset(&sigterm.sa_mask);
-        sigterm.sa_flags |= SA_RESTART;
+        sigterm.sa_flags = SA_RESTART;
 
         if (sigaction(SIGTERM, &sigterm, 0) > 0) {
             qCritical() << "Failed to set up SIGTERM handler.";
@@ -93,10 +92,10 @@ namespace SDDM {
     }
 
     void SignalHandler::initializeSigusr1() {
-        struct sigaction sigusr1;
+        struct sigaction sigusr1 = { };
         sigusr1.sa_handler = SignalHandler::usr1SignalHandler;
         sigemptyset(&sigusr1.sa_mask);
-        sigusr1.sa_flags |= SA_RESTART;
+        sigusr1.sa_flags = SA_RESTART;
 
         if (sigaction(SIGUSR1, &sigusr1, 0) > 0) {
             qCritical() << "Failed to set up SIGUSR1 handler.";
@@ -105,10 +104,10 @@ namespace SDDM {
     }
 
     void SignalHandler::ignoreSigusr1() {
-        struct sigaction sigusr1;
+        struct sigaction sigusr1 = { };
         sigusr1.sa_handler = SIG_IGN;
         sigemptyset(&sigusr1.sa_mask);
-        sigusr1.sa_flags |= SA_RESTART;
+        sigusr1.sa_flags = SA_RESTART;
 
         if (sigaction(SIGUSR1, &sigusr1, 0) > 0) {
             qCritical() << "Failed to set up SIGUSR1 handler.";
