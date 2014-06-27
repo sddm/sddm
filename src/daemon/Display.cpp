@@ -36,7 +36,6 @@
 #include <QFile>
 #include <QTimer>
 
-#include <grp.h>
 #include <pwd.h>
 #include <unistd.h>
 
@@ -48,8 +47,6 @@ namespace SDDM {
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
-
-        m_display = QString(":%1").arg(m_displayId);
 
         // respond to authentication requests
         m_auth->setVerbose(true);
@@ -72,19 +69,6 @@ namespace SDDM {
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
-
-        // get auth dir
-        QString authDir = RUNTIME_DIR;
-
-        // use "." as authdir in test mode
-        if (daemonApp->testing())
-            authDir = QLatin1String(".");
-
-        // create auth dir if not existing
-        QDir().mkpath(authDir);
-
-        // set auth path
-        m_authPath = QString("%1/%2").arg(authDir).arg(m_display);
     }
 
     Display::~Display() {
@@ -100,74 +84,17 @@ namespace SDDM {
     }
 
     const QString &Display::name() const {
-        return m_display;
-    }
-
-    const QString &Display::cookie() const {
-        return m_cookie;
+        return m_displayServer->display();
     }
 
     Seat *Display::seat() const {
         return m_seat;
     }
 
-    void Display::addCookie(const QString &file) {
-        // log message
-        qDebug() << "Adding cookie to" << file;
-
-        // Touch file
-        QFile file_handler(file);
-        file_handler.open(QIODevice::WriteOnly);
-        file_handler.close();
-
-        QString cmd = QString("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
-
-        // execute xauth
-        FILE *fp = popen(qPrintable(cmd), "w");
-
-        // check file
-        if (!fp)
-            return;
-        fprintf(fp, "remove %s\n", qPrintable(m_display));
-        fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
-        fprintf(fp, "exit\n");
-        // close pipe
-        pclose(fp);
-    }
-
     void Display::start() {
         // check flag
         if (m_started)
             return;
-
-        // generate cookie
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
-
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = digits[dis(gen)];
-
-        // generate auth file
-        addCookie(m_authPath);
-
-        // change the owner and group of the auth file to the sddm user
-        struct passwd *pw = getpwnam("sddm");
-        if (!pw)
-            qWarning() << "Failed to find the sddm user. Owner of the auth file will not be changed.";
-        else {
-            if(chown(qPrintable(m_authPath), pw->pw_uid, pw->pw_gid) == -1)
-                qWarning() << "Failed to change owner of the auth file.";
-        }
-
-        // set display server params
-        m_displayServer->setDisplay(m_display);
-        m_displayServer->setAuthPath(m_authPath);
 
         // start display server
         m_displayServer->start();
@@ -201,7 +128,7 @@ namespace SDDM {
         }
 
         // start socket server
-        m_socketServer->start(m_display);
+        m_socketServer->start(m_displayServer->display());
 
         if (!daemonApp->testing()) {
             // change the owner and group of the socket to avoid permission denied errors
@@ -216,7 +143,7 @@ namespace SDDM {
 
         // set greeter params
         m_greeter->setDisplay(this);
-        m_greeter->setAuthPath(m_authPath);
+        m_greeter->setAuthPath(m_displayServer->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(QString("%1/%2").arg(mainConfig.Theme.ThemeDir.get()).arg(mainConfig.Theme.Current.get()));
 
@@ -245,9 +172,6 @@ namespace SDDM {
         m_displayServer->blockSignals(true);
         m_displayServer->stop();
         m_displayServer->blockSignals(false);
-
-        // remove authority file
-        QFile::remove(m_authPath);
 
         // reset flag
         m_started = false;
@@ -338,7 +262,7 @@ namespace SDDM {
 
             struct passwd *pw = getpwnam(qPrintable(user));
             if (pw) {
-                addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
+                m_displayServer->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
                 chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
             }
 
