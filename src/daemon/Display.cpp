@@ -185,7 +185,7 @@ namespace SDDM {
         qDebug() << "Display server started.";
 
         if ((daemonApp->first || mainConfig.AutoRelogin.get()) &&
-            !mainConfig.AutoUser.get().isEmpty() && !mainConfig.LastSession.get().isEmpty()) {
+            !mainConfig.AutoUser.get().isEmpty() && !mainConfig.AutoSession.get().isEmpty()) {
             // reset first flag
             daemonApp->first = false;
 
@@ -194,7 +194,7 @@ namespace SDDM {
 
             // start session
             m_auth->setAutologin(true);
-            startAuth(mainConfig.AutoUser.get(), QString(), mainConfig.LastSession.get());
+            startAuth(mainConfig.AutoUser.get(), QString(), mainConfig.AutoSession.get());
 
             // return
             return;
@@ -343,8 +343,8 @@ namespace SDDM {
             }
 
             // save last user and last session
-            mainConfig.LastUser.set(m_auth->user());
-            mainConfig.LastSession.set(m_sessionName);
+            stateConfig.LastUser.set(m_auth->user());
+            stateConfig.LastSession.set(m_sessionName);
             mainConfig.save();
 
             if (m_socket)
