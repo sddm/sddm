@@ -26,7 +26,6 @@
 #include "SignalHandler.h"
 
 #include <QDebug>
-#include <QDir>
 #include <QFile>
 #include <QProcess>
 
@@ -40,14 +39,9 @@ namespace SDDM {
         // figure out the X11 display
         m_display = QString(":%1").arg(m_displayPtr->displayId());
 
-        // get state directory
-        QString stateDir = daemonApp->configuration()->stateDir();
-
-        // create auth dir if not existing
-        QDir().mkpath(stateDir);
-
         // set auth path
-        m_authPath = QString("%1/%2").arg(stateDir).arg(m_display);
+        QString runtimeDir = daemonApp->configuration()->runtimeDir();
+        m_authPath = QString("%1/%2").arg(runtimeDir).arg(m_display);
 
         // generate cookie
         std::random_device rd;
