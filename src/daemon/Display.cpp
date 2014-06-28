@@ -24,7 +24,7 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
-#include "DisplayServer.h"
+#include "XorgDisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -43,7 +43,7 @@ namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_auth(new Auth(this)),
-        m_displayServer(new DisplayServer(this)),
+        m_displayServer(new XorgDisplayServer(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
@@ -85,6 +85,10 @@ namespace SDDM {
 
     const QString &Display::name() const {
         return m_displayServer->display();
+    }
+
+    QString Display::sessionType() const {
+        return m_displayServer->sessionType();
     }
 
     Seat *Display::seat() const {
@@ -156,7 +160,7 @@ namespace SDDM {
 
         // set greeter params
         m_greeter->setDisplay(this);
-        m_greeter->setAuthPath(m_displayServer->authPath());
+        m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
 
@@ -263,7 +267,7 @@ namespace SDDM {
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("XDG_CURRENT_DESKTOP", xdgSessionName);
         env.insert("XDG_SESSION_CLASS", "user");
-        env.insert("XDG_SESSION_TYPE", "x11");
+        env.insert("XDG_SESSION_TYPE", m_displayServer->sessionType());
         env.insert("XDG_SESSION_DESKTOP", xdgSessionName);
         m_auth->insertEnvironment(env);
 
@@ -278,7 +282,7 @@ namespace SDDM {
 
             struct passwd *pw = getpwnam(qPrintable(user));
             if (pw) {
-                m_displayServer->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
+                qobject_cast<XorgDisplayServer *>(m_displayServer)->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
                 chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
             }
 
