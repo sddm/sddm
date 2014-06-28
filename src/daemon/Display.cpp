@@ -96,6 +96,19 @@ namespace SDDM {
         if (m_started)
             return;
 
+        // get runtime directory and create it
+        QString runtimeDir = daemonApp->configuration()->runtimeDir();
+        QDir().mkpath(runtimeDir);
+
+        // change owner and group
+        if (!daemonApp->configuration()->testing) {
+            struct passwd *pw = getpwnam("sddm");
+            if (pw) {
+                if (chown(qPrintable(runtimeDir), pw->pw_uid, pw->pw_gid) == -1)
+                    qWarning() << "Failed to change owner of the runtime directory" << runtimeDir;
+            }
+        }
+
         // start display server
         m_displayServer->start();
     }
@@ -175,6 +188,9 @@ namespace SDDM {
 
         // reset flag
         m_started = false;
+
+        // remove runtime directory
+        QDir().rmpath(daemonApp->configuration()->runtimeDir());
 
         // emit signal
         emit stopped();
