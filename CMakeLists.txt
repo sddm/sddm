@@ -8,7 +8,9 @@ set(CMAKE_AUTOMOC ON)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Silence CMake 3.0 warnings
-cmake_policy(SET CMP0043 OLD)
+if(POLICY CMP0043)
+  cmake_policy(SET CMP0043 OLD)
+endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
