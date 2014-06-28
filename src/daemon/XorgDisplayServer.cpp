@@ -24,15 +24,13 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "SignalHandler.h"
+#include "Utils.h"
 
 #include <QDebug>
 #include <QFile>
 #include <QProcess>
 
 #include <xcb/xcb.h>
-
-#include <pwd.h>
-#include <unistd.h>
 
 namespace SDDM {
     XorgDisplayServer::XorgDisplayServer(Display *parent) : DisplayServer(parent) {
@@ -224,16 +222,5 @@ namespace SDDM {
         // start display setup script
         qDebug() << "Running display setup script " << displayCommand;
         displayScript->start(displayCommand);
-    }
-
-    void XorgDisplayServer::changeOwner(const QString &fileName) {
-        // change the owner and group of the auth file to the sddm user
-        struct passwd *pw = getpwnam("sddm");
-        if (!pw)
-            qWarning() << "Failed to find the sddm user. Owner of the auth file will not be changed.";
-        else {
-            if (chown(qPrintable(fileName), pw->pw_uid, pw->pw_gid) == -1)
-                qWarning() << "Failed to change owner of the auth file.";
-        }
     }
 }

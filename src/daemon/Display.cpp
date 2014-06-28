@@ -103,15 +103,11 @@ namespace SDDM {
         // get runtime directory and create it
         QString runtimeDir = daemonApp->configuration()->runtimeDir();
         QDir().mkpath(runtimeDir);
+qDebug() << "***" << runtimeDir;
 
         // change owner and group
-        if (!daemonApp->configuration()->testing) {
-            struct passwd *pw = getpwnam("sddm");
-            if (pw) {
-                if (chown(qPrintable(runtimeDir), pw->pw_uid, pw->pw_gid) == -1)
-                    qWarning() << "Failed to change owner of the runtime directory" << runtimeDir;
-            }
-        }
+        if (!daemonApp->configuration()->testing)
+            changeOwner(runtimeDir);
 
         // start display server
         m_displayServer->start();
@@ -283,7 +279,7 @@ namespace SDDM {
             struct passwd *pw = getpwnam(qPrintable(user));
             if (pw) {
                 m_displayServer->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
-                chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
+                changeOwner(QString("%1/.Xauthority").arg(pw->pw_dir));
             }
 
             // save last user and session
