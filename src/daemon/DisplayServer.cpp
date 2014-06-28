@@ -137,6 +137,9 @@ namespace SDDM {
                  << "-background" << "none"
                  << "-noreset"
                  << QString("vt%1").arg(m_displayPtr->terminalId());
+            qDebug() << "Running:"
+                     << qPrintable(daemonApp->configuration()->serverPath())
+                     << qPrintable(args.join(" "));
             process->start(daemonApp->configuration()->serverPath(), args);
             SignalHandler::initializeSigusr1();
         }
