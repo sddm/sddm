@@ -203,6 +203,17 @@ namespace SDDM {
         // start socket server
         m_socketServer->start(m_display);
 
+        if (!daemonApp->configuration()->testing) {
+            // change the owner and group of the socket to avoid permission denied errors
+            struct passwd *pw = getpwnam("sddm");
+            if (pw) {
+                if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
+                    qWarning() << "Failed to change owner of the socket";
+                    return;
+                }
+            }
+        }
+
         // set greeter params
         m_greeter->setDisplay(this);
         m_greeter->setAuthPath(m_authPath);

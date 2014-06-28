@@ -52,7 +52,7 @@ namespace SDDM {
 
 #ifdef USE_QT5
         // set server options
-        m_server->setSocketOptions(QLocalServer::WorldAccessOption);
+        m_server->setSocketOptions(QLocalServer::UserAccessOption);
 #endif
 
         // start listening
