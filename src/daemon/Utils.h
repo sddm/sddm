@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 * Copyright (c) 2014 David Edmundson <davidedmundson@kde.org>
 *
@@ -21,7 +22,10 @@
 #ifndef SDDM_UTILS_H
 #define SDDM_UTILS_H
 
+#include <QString>
+
 namespace SDDM {
+    bool changeOwner(const QString &fileName);
 
 inline QString generateName(int length) {
     QString digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

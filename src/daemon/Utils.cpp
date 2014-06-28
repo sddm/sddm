@@ -1,6 +1,5 @@
 /***************************************************************************
 * Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,44 +17,28 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_XORGDISPLAYSERVER_H
-#define SDDM_XORGDISPLAYSERVER_H
+#include "Utils.h"
 
-#include "DisplayServer.h"
+#include <QDebug>
 
-class QProcess;
+#include <pwd.h>
+#include <unistd.h>
 
 namespace SDDM {
-    class XorgDisplayServer : public DisplayServer {
-        Q_OBJECT
-        Q_DISABLE_COPY(XorgDisplayServer)
-    public:
-        explicit XorgDisplayServer(Display *parent);
-        ~XorgDisplayServer();
+    bool changeOwner(const QString &fileName) {
+        // change the owner and group of the file to the sddm user
+        struct passwd *pw = getpwnam("sddm");
+        if (pw) {
+            if (chown(qPrintable(fileName), pw->pw_uid, pw->pw_gid) == -1) {
+                qCritical() << "Failed to change owner of" << fileName;
+                return false;
+            }
+        } else {
+            qCritical("Cannot change owner of \"%s\": failed to find the sddm user",
+                      qPrintable(fileName));
+            return false;
+        }
 
-        static bool displayExists(int number);
-
-        const QString &display() const;
-        const QString &authPath() const;
-
-        QString sessionType() const;
-
-        const QString &cookie() const;
-
-        void addCookie(const QString &file);
-
-    public slots:
-        bool start();
-        void stop();
-        void finished();
-        void setupDisplay();
-
-    private:
-        QString m_authPath { "" };
-        QString m_cookie { "" };
-
-        QProcess *process { nullptr };
-    };
+        return true;
+    }
 }
-
-#endif // SDDM_XORGDISPLAYSERVER_H

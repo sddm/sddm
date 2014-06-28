@@ -105,13 +105,8 @@ namespace SDDM {
         QDir().mkpath(runtimeDir);
 
         // change owner and group
-        if (!daemonApp->configuration()->testing) {
-            struct passwd *pw = getpwnam("sddm");
-            if (pw) {
-                if (chown(qPrintable(runtimeDir), pw->pw_uid, pw->pw_gid) == -1)
-                    qWarning() << "Failed to change owner of the runtime directory" << runtimeDir;
-            }
-        }
+        if (!daemonApp->configuration()->testing)
+            changeOwner(runtimeDir);
 
         // start display server
         m_displayServer->start();
@@ -147,16 +142,9 @@ namespace SDDM {
         // start socket server
         m_socketServer->start(m_displayServer->display());
 
-        if (!daemonApp->configuration()->testing) {
+        if (!daemonApp->configuration()->testing)
             // change the owner and group of the socket to avoid permission denied errors
-            struct passwd *pw = getpwnam("sddm");
-            if (pw) {
-                if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
-                    qWarning() << "Failed to change owner of the socket";
-                    return;
-                }
-            }
-        }
+            changeOwner(m_socketServer->socketAddress());
 
         // set greeter params
         m_greeter->setDisplay(this);
@@ -283,7 +271,7 @@ namespace SDDM {
             struct passwd *pw = getpwnam(qPrintable(user));
             if (pw) {
                 qobject_cast<XorgDisplayServer *>(m_displayServer)->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
-                chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
+                changeOwner(QString("%1/.Xauthority").arg(pw->pw_dir));
             }
 
             // save last user and session

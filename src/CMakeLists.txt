@@ -20,6 +20,7 @@ set(DAEMON_SOURCES
     daemon/SeatManager.cpp
     daemon/SignalHandler.cpp
     daemon/SocketServer.cpp
+    daemon/Utils.cpp
     auth/Auth.cpp
     auth/AuthPrompt.cpp
     auth/AuthRequest.cpp
