@@ -184,7 +184,11 @@ namespace SDDM {
         return d->xauthPath;
     }
 
-    const QString &Configuration::stateDir() const {
+    QString Configuration::stateDir() const {
+        // use "." as stateDir in test mode to
+        // avoid permission denied errors
+        if (testing)
+            return QLatin1String(".");
         return d->stateDir;
     }
 

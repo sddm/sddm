@@ -43,10 +43,6 @@ namespace SDDM {
         // get state directory
         QString stateDir = daemonApp->configuration()->stateDir();
 
-        // use "." as authdir in test mode
-        if (daemonApp->configuration()->testing)
-            stateDir = QLatin1String(".");
-
         // create auth dir if not existing
         QDir().mkpath(stateDir);
 
