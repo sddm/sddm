@@ -14,6 +14,7 @@ set(DAEMON_SOURCES
     daemon/Display.cpp
     daemon/DisplayManager.cpp
     daemon/DisplayServer.cpp
+    daemon/XorgDisplayServer.cpp
     daemon/Greeter.cpp
     daemon/PowerManager.cpp
     daemon/Seat.cpp
