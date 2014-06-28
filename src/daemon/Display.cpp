@@ -24,7 +24,7 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
-#include "DisplayServer.h"
+#include "XorgDisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -43,7 +43,7 @@ namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_auth(new Auth(this)),
-        m_displayServer(new DisplayServer(this)),
+        m_displayServer(new XorgDisplayServer(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
@@ -85,6 +85,10 @@ namespace SDDM {
 
     const QString &Display::name() const {
         return m_displayServer->display();
+    }
+
+    QString Display::sessionType() const {
+        return m_displayServer->sessionType();
     }
 
     Seat *Display::seat() const {
@@ -263,7 +267,7 @@ namespace SDDM {
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("XDG_CURRENT_DESKTOP", xdgSessionName);
         env.insert("XDG_SESSION_CLASS", "user");
-        env.insert("XDG_SESSION_TYPE", "x11");
+        env.insert("XDG_SESSION_TYPE", m_displayServer->sessionType());
         env.insert("XDG_SESSION_DESKTOP", xdgSessionName);
         m_auth->insertEnvironment(env);
 

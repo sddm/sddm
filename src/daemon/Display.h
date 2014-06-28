@@ -47,6 +47,8 @@ namespace SDDM {
 
         const QString &name() const;
 
+        QString sessionType() const;
+
         Seat *seat() const;
 
     public slots:
