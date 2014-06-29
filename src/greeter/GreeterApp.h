@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Nikita Mikhaylov <nslqqq@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -40,6 +41,9 @@ namespace SDDM {
     class UserModel;
     class GreeterProxy;
     class KeyboardModel;
+#ifdef USE_WAYLAND
+    class WaylandIntegration;
+#endif
 
 
     class GreeterApp : public
@@ -53,6 +57,7 @@ namespace SDDM {
         Q_DISABLE_COPY(GreeterApp)
     public:
         explicit GreeterApp(int argc, char **argv);
+        ~GreeterApp();
 
         static GreeterApp *instance() { return self; }
 
@@ -61,6 +66,10 @@ namespace SDDM {
 
     private:
         static GreeterApp *self;
+
+#ifdef USE_WAYLAND
+        WaylandIntegration *m_waylandIntegration { nullptr };
+#endif
 
 #ifdef USE_QT5
         QQuickView *m_view { nullptr };

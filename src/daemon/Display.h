@@ -47,8 +47,7 @@ namespace SDDM {
 
         const QString &name() const;
 
-        const QString &cookie() const;
-        void addCookie(const QString &file);
+        QString sessionType() const;
 
         Seat *seat() const;
 
@@ -74,9 +73,6 @@ namespace SDDM {
         int m_displayId { 0 };
         int m_terminalId { 7 };
 
-        QString m_display { ":0" };
-        QString m_cookie { "" };
-        QString m_authPath { "" };
         QString m_passPhrase;
         QString m_sessionName;
 

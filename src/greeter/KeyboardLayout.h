@@ -1,6 +1,6 @@
 /***************************************************************************
 * Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2013 Nikita Mikhaylov <nslqqq@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,46 +18,27 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_DISPLAYSERVER_H
-#define SDDM_DISPLAYSERVER_H
+#ifndef KEYBOARDLAYOUT_H
+#define KEYBOARDLAYOUT_H
 
 #include <QObject>
 
-class QProcess;
-
 namespace SDDM {
-    class Display;
-
-    class DisplayServer : public QObject {
+    class KeyboardLayout : public QObject {
         Q_OBJECT
-        Q_DISABLE_COPY(DisplayServer)
+        Q_PROPERTY(QString shortName READ shortName CONSTANT)
+        Q_PROPERTY(QString longName READ longName CONSTANT)
     public:
-        explicit DisplayServer(Display *parent);
+        KeyboardLayout(QString shortName, QString longName);
 
-        Display *displayPtr() const;
+        virtual ~KeyboardLayout() = default;
 
-        const QString &display() const;
-
-        virtual QString sessionType() const = 0;
-
-    public slots:
-        virtual bool start() = 0;
-        virtual void stop() = 0;
-        virtual void finished() = 0;
-        virtual void setupDisplay() = 0;
-
-    signals:
-        void started();
-        void stopped();
-
-    protected:
-        bool m_started { false };
-
-        QString m_display { "" };
+        QString shortName() const;
+        QString longName() const;
 
     private:
-        Display *m_displayPtr { nullptr };
+        QString m_short, m_long;
     };
 }
 
-#endif // SDDM_DISPLAYSERVER_H
+#endif // KEYBOARDLAYOUT_H

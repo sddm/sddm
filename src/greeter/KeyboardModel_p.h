@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2013 Nikita Mikhaylov <nslqqq@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -17,21 +17,31 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_CONSTANTS_H
-#define SDDM_CONSTANTS_H
+#ifndef KEYBOARDMODEL_P_H
+#define KEYBOARDMODEL_P_H
 
-#define BIN_INSTALL_DIR             "@CMAKE_INSTALL_FULL_BINDIR@"
-#define LIBEXEC_INSTALL_DIR         "@CMAKE_INSTALL_FULL_LIBEXECDIR@"
-#define DATA_INSTALL_DIR            "@DATA_INSTALL_DIR@"
-#define SYS_CONFIG_DIR              "@CMAKE_INSTALL_FULL_SYSCONFDIR@"
-#define IMPORTS_INSTALL_DIR         "@QT_IMPORTS_DIR@"
-#define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
-#define STATE_DIR                   "@STATE_DIR@"
-#define RUNTIME_DIR                 "@RUNTIME_DIR@"
+#include <QObject>
 
-#define SESSION_COMMAND             "@SESSION_COMMAND@"
+#include <cstdint>
 
-#define CONFIG_FILE                 "@CONFIG_FILE@"
-#define LOG_FILE                    "@LOG_FILE@"
+namespace SDDM {
+    struct Indicator {
+        bool enabled { false };
+        uint8_t mask { 0 };
+    };
 
-#endif // SDDM_CONSTANTS_H
+    class KeyboardModelPrivate {
+    public:
+        // is extension enabled
+        bool enabled { true };
+
+        // indicator state
+        Indicator numlock, capslock;
+
+        // Layouts
+        int layout_id { 0 };
+        QList<QObject*> layouts;
+    };
+}
+
+#endif // KEYBOARDMODEL_P_H

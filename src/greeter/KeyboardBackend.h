@@ -1,6 +1,6 @@
 /***************************************************************************
 * Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2013 Nikita Mikhaylov <nslqqq@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,46 +18,29 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_DISPLAYSERVER_H
-#define SDDM_DISPLAYSERVER_H
-
-#include <QObject>
-
-class QProcess;
+#ifndef KEYBOARDBACKEND_H
+#define KEYBOARDBACKEND_H
 
 namespace SDDM {
-    class Display;
+    class KeyboardModel;
+    class KeyboardModelPrivate;
 
-    class DisplayServer : public QObject {
-        Q_OBJECT
-        Q_DISABLE_COPY(DisplayServer)
+    class KeyboardBackend {
     public:
-        explicit DisplayServer(Display *parent);
+        KeyboardBackend(KeyboardModelPrivate *kmp);
 
-        Display *displayPtr() const;
+        virtual ~KeyboardBackend();
 
-        const QString &display() const;
+        virtual void init() = 0;
+        virtual void disconnect() = 0;
+        virtual void sendChanges() = 0;
+        virtual void dispatchEvents() = 0;
 
-        virtual QString sessionType() const = 0;
-
-    public slots:
-        virtual bool start() = 0;
-        virtual void stop() = 0;
-        virtual void finished() = 0;
-        virtual void setupDisplay() = 0;
-
-    signals:
-        void started();
-        void stopped();
+        virtual void connectEventsDispatcher(KeyboardModel *model) = 0;
 
     protected:
-        bool m_started { false };
-
-        QString m_display { "" };
-
-    private:
-        Display *m_displayPtr { nullptr };
+        KeyboardModelPrivate *d;
     };
 }
 
-#endif // SDDM_DISPLAYSERVER_H
+#endif // KEYBOARDBACKEND_H

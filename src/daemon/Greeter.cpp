@@ -73,16 +73,20 @@ namespace SDDM {
 
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+#ifdef USE_WAYLAND
+            env.insert("QT_QPA_PLATFORM", "wayland");
+            env.insert("WAYLAND_DISPLAY", m_display->name());
+#else
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
+#endif
             env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
             m_process->setProcessEnvironment(env);
 
             // start greeter
             QStringList args;
-            if (daemonApp->configuration()->testing)
-                args << "--test-mode";
-            args << "--socket" << m_socket
+            args << "--test-mode"
+                 << "--socket" << m_socket
                  << "--theme" << m_theme;
             m_process->start(QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR), args);
 
@@ -117,24 +121,31 @@ namespace SDDM {
 
             // greeter command
             QStringList args;
-            args << QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR);
-            if (daemonApp->configuration()->testing)
-                args << "--test-mode";
-            args << "--socket" << m_socket
+#ifdef USE_WAYLAND
+            args << QString("%1/sddm-display-server").arg(LIBEXEC_INSTALL_DIR)
+                 << "--display" << m_display->name()
+#else
+            args << QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR)
+#endif
+                 << "--socket" << m_socket
                  << "--theme" << m_theme;
 
             // greeter environment
             QProcessEnvironment env;
             env.insert("PATH", daemonApp->configuration()->defaultPath());
+#ifdef USE_WAYLAND
+            env.insert("QT_QPA_PLATFORM", "wayland");
+#else
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
+#endif
             env.insert("XCURSOR_THEME", daemonApp->configuration()->cursorTheme());
             env.insert("XDG_SEAT", m_display->seat()->name());
             env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
             env.insert("XDG_VTNR", QString::number(m_display->terminalId()));
             env.insert("XDG_SESSION_CLASS", "greeter");
-            env.insert("XDG_SESSION_TYPE", "x11");
+            env.insert("XDG_SESSION_TYPE", m_display->sessionType());
             m_auth->insertEnvironment(env);
 
             // log message

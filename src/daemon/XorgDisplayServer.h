@@ -18,46 +18,44 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_DISPLAYSERVER_H
-#define SDDM_DISPLAYSERVER_H
+#ifndef SDDM_XORGDISPLAYSERVER_H
+#define SDDM_XORGDISPLAYSERVER_H
 
-#include <QObject>
+#include "DisplayServer.h"
 
 class QProcess;
 
 namespace SDDM {
-    class Display;
-
-    class DisplayServer : public QObject {
+    class XorgDisplayServer : public DisplayServer {
         Q_OBJECT
-        Q_DISABLE_COPY(DisplayServer)
+        Q_DISABLE_COPY(XorgDisplayServer)
     public:
-        explicit DisplayServer(Display *parent);
+        explicit XorgDisplayServer(Display *parent);
+        ~XorgDisplayServer();
 
-        Display *displayPtr() const;
+        static bool displayExists(int number);
 
         const QString &display() const;
+        const QString &authPath() const;
 
-        virtual QString sessionType() const = 0;
+        QString sessionType() const;
+
+        const QString &cookie() const;
+
+        void addCookie(const QString &file);
 
     public slots:
-        virtual bool start() = 0;
-        virtual void stop() = 0;
-        virtual void finished() = 0;
-        virtual void setupDisplay() = 0;
-
-    signals:
-        void started();
-        void stopped();
-
-    protected:
-        bool m_started { false };
-
-        QString m_display { "" };
+        bool start();
+        void stop();
+        void finished();
+        void setupDisplay();
 
     private:
-        Display *m_displayPtr { nullptr };
+        QString m_authPath { "" };
+        QString m_cookie { "" };
+
+        QProcess *process { nullptr };
     };
 }
 
-#endif // SDDM_DISPLAYSERVER_H
+#endif // SDDM_XORGDISPLAYSERVER_H

@@ -18,46 +18,41 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_DISPLAYSERVER_H
-#define SDDM_DISPLAYSERVER_H
+#ifndef SDDM_WAYLANDDISPLAYSERVER_H
+#define SDDM_WAYLANDDISPLAYSERVER_H
 
-#include <QObject>
+#include "DisplayServer.h"
 
 class QProcess;
 
 namespace SDDM {
     class Display;
 
-    class DisplayServer : public QObject {
+    class WaylandDisplayServer : public DisplayServer {
         Q_OBJECT
-        Q_DISABLE_COPY(DisplayServer)
+        Q_DISABLE_COPY(WaylandDisplayServer)
     public:
-        explicit DisplayServer(Display *parent);
+        explicit WaylandDisplayServer(Display *parent);
+        ~WaylandDisplayServer();
 
-        Display *displayPtr() const;
+        static bool displayExists(int number);
 
-        const QString &display() const;
-
-        virtual QString sessionType() const = 0;
+        QString sessionType() const;
 
     public slots:
-        virtual bool start() = 0;
-        virtual void stop() = 0;
-        virtual void finished() = 0;
-        virtual void setupDisplay() = 0;
-
-    signals:
-        void started();
-        void stopped();
-
-    protected:
-        bool m_started { false };
-
-        QString m_display { "" };
+        bool start();
+        void stop();
+        void finished();
+        void setupDisplay();
 
     private:
-        Display *m_displayPtr { nullptr };
+        bool waitForStarted(int msecs = 10000);
+
+        bool m_started { false };
+        int m_ttyFd { -1 };
+
+        QProcess *process { nullptr };
     };
 }
 
-#endif // SDDM_DISPLAYSERVER_H
+#endif // SDDM_WAYLANDDISPLAYSERVER_H

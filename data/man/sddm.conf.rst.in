@@ -35,11 +35,11 @@ All options are configured in the [General] section:
 	the display server.
 
 `ServerPath=`
-	Path of the X server.
+	Path of the X server. Ignored when running on Wayland.
 	Default value is "/usr/bin/X".
 
 `XauthPath=`
-	Path of the Xauth.
+	Path of the Xauth. Ignored when running on Wayland.
 	Default value is "/usr/bin/xauth".
 
 `StateDir=`
@@ -56,7 +56,7 @@ All options are configured in the [General] section:
 
 `SessionsDir=`
 	Path of the directory containing session files.
-	Default value is "/usr/share/xsessions".
+	Default value is "@SESSIONS_DIR@".
 
 `LastSession=`
 	Name of the session file of the last session selected.
@@ -74,6 +74,7 @@ All options are configured in the [General] section:
 
 `DisplayCommand=`
 	Path of script to execute when starting the display server.
+	Ignored when running on Wayland.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
 
 `FacesDir=`

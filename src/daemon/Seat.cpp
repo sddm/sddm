@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -22,6 +23,11 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
+#ifdef USE_WAYLAND
+#  include "WaylandDisplayServer.h"
+#else
+#  include "XorgDisplayServer.h"
+#endif
 
 #include <QDebug>
 #include <QFile>
@@ -53,7 +59,14 @@ namespace SDDM {
         if (displayId == -1) {
             // find unused display
             displayId = findUnused(0, [&](const int number) {
-                return m_displayIds.contains(number) || QFile(QString("/tmp/.X%1-lock").arg(number)).exists();
+                bool alreadyExists = m_displayIds.contains(number);
+                if (!alreadyExists)
+#ifdef USE_WAYLAND
+                    alreadyExists = WaylandDisplayServer::displayExists(number);
+#else
+                    alreadyExists = XorgDisplayServer::displayExists(number);
+#endif
+                return alreadyExists;
             });
 
             // find unused terminal
@@ -69,7 +82,7 @@ namespace SDDM {
         m_terminalIds << terminalId;
 
         // log message
-        qDebug() << "Adding new display :" << displayId << " on vt" << terminalId << "...";
+        qDebug() << "Adding new display" << displayId << "on vt" << terminalId << "...";
 
         // create a new display
         Display *display = new Display(displayId, terminalId, this);
@@ -85,7 +98,7 @@ namespace SDDM {
     }
 
     void Seat::removeDisplay(int displayId) {
-        qDebug() << "Removing display :" << displayId << "...";
+        qDebug() << "Removing display" << displayId << "...";
 
         // display object
         Display *display = nullptr;

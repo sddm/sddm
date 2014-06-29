@@ -1,6 +1,5 @@
 /***************************************************************************
 * Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,46 +17,41 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_DISPLAYSERVER_H
-#define SDDM_DISPLAYSERVER_H
+#ifndef SDDM_DISPLAYSERVER_APP_H
+#define SDDM_DISPLAYSERVER_APP_H
 
-#include <QObject>
-
-class QProcess;
+#include <QCoreApplication>
+#include <QProcess>
 
 namespace SDDM {
-    class Display;
-
-    class DisplayServer : public QObject {
+    class DisplayServerApp : public QCoreApplication {
         Q_OBJECT
-        Q_DISABLE_COPY(DisplayServer)
+        Q_DISABLE_COPY(DisplayServerApp)
     public:
-        explicit DisplayServer(Display *parent);
-
-        Display *displayPtr() const;
-
-        const QString &display() const;
-
-        virtual QString sessionType() const = 0;
-
-    public slots:
-        virtual bool start() = 0;
-        virtual void stop() = 0;
-        virtual void finished() = 0;
-        virtual void setupDisplay() = 0;
-
-    signals:
-        void started();
-        void stopped();
-
-    protected:
-        bool m_started { false };
-
-        QString m_display { "" };
+        explicit DisplayServerApp(int argc, char **argv);
 
     private:
-        Display *m_displayPtr { nullptr };
+        QString m_display;
+        QString m_socket;
+        QString m_theme;
+
+        QProcess *m_displayServer { nullptr };
+        QProcess *m_greeter { nullptr };
+
+        void configureWeston(const QString &runtimeDir);
+        bool waitForStarted(int msecs = 5000);
+        void stopDisplayServer();
+
+    private slots:
+        void displayServerStarted();
+        void displayServerFinished(int status);
+
+        void greeterStarted();
+        void greeterFinished(int status);
+
+        void readyReadStandardOutput();
+        void readyReadStandardError();
     };
 }
 
-#endif // SDDM_DISPLAYSERVER_H
+#endif // SDDM_DISPLAYSERVER_APP_H

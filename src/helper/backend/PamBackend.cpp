@@ -247,11 +247,19 @@ bool PamBackend::openSession() {
         m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
         return false;
     }
+
+#ifdef USE_WAYLAND
+    QString vtNr = m_app->session()->processEnvironment().value("XDG_VTNR");
+    if (!vtNr.isEmpty())
+        m_pam->setItem(PAM_TTY, qPrintable(QString("/dev/tty%1").arg(vtNr)));
+#else
     QString display = m_app->session()->processEnvironment().value("DISPLAY");
     if (!display.isEmpty()) {
         m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
         m_pam->setItem(PAM_TTY, qPrintable(display));
     }
+#endif
+
     if (!m_pam->putEnv(m_app->session()->processEnvironment())) {
         m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
         return false;
