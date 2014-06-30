@@ -24,7 +24,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QProcessEnvironment>
 
-#include "auth/AuthMessages.h"
+#include "AuthMessages.h"
 
 class Backend;
 class UserSession;

@@ -22,7 +22,7 @@
 
 #include <QObject>
 
-#include "auth/Auth.h"
+#include "Auth.h"
 
 class QProcess;
 
