@@ -22,7 +22,7 @@
 #define PAMBACKEND_H
 
 #include "Constants.h"
-#include "auth/AuthMessages.h"
+#include "AuthMessages.h"
 #include "../Backend.h"
 
 #include <QtCore/QObject>

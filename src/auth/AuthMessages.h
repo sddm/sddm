@@ -24,7 +24,7 @@
 #include <QtCore/QDataStream>
 #include <QtCore/QProcessEnvironment>
 
-#include "auth/Auth.h"
+#include "Auth.h"
 
 class Prompt {
 public:
