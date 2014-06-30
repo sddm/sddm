@@ -79,6 +79,10 @@ if(USE_QT5)
   set(CMAKE_AUTOMOC_MOC_OPTIONS -DUSE_QT5)
 
   set(COMPONENTS_VERSION 2.0)
+
+  macro(qt4_add_dbus_adaptor)
+    qt5_add_dbus_adaptor(${ARGN})
+  endmacro()
 else()
   find_package(Qt4 REQUIRED)
 
