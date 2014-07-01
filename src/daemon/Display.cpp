@@ -120,7 +120,7 @@ namespace SDDM {
         file_handler.open(QIODevice::WriteOnly);
         file_handler.close();
 
-        QString cmd = QString("%1 -f %2 -q").arg(mainConfig.XauthPath.get()).arg(file);
+        QString cmd = QString("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
 
         // execute xauth
         FILE *fp = popen(qPrintable(cmd), "w");
@@ -184,8 +184,8 @@ namespace SDDM {
         // log message
         qDebug() << "Display server started.";
 
-        if ((daemonApp->first || mainConfig.AutoRelogin.get()) &&
-            !mainConfig.AutoUser.get().isEmpty() && !mainConfig.AutoSession.get().isEmpty()) {
+        if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
+            !mainConfig.Autologin.User.get().isEmpty() && !mainConfig.Autologin.Session.get().isEmpty()) {
             // reset first flag
             daemonApp->first = false;
 
@@ -194,7 +194,7 @@ namespace SDDM {
 
             // start session
             m_auth->setAutologin(true);
-            startAuth(mainConfig.AutoUser.get(), QString(), mainConfig.AutoSession.get());
+            startAuth(mainConfig.Autologin.User.get(), QString(), mainConfig.Autologin.Session.get());
 
             // return
             return;
@@ -218,7 +218,7 @@ namespace SDDM {
         m_greeter->setDisplay(this);
         m_greeter->setAuthPath(m_authPath);
         m_greeter->setSocket(m_socketServer->socketAddress());
-        m_greeter->setTheme(QString("%1/%2").arg(mainConfig.ThemesDir.get()).arg(mainConfig.CurrentTheme.get()));
+        m_greeter->setTheme(QString("%1/%2").arg(mainConfig.Theme.ThemeDir.get()).arg(mainConfig.Theme.Current.get()));
 
         // start greeter
         m_greeter->start();
@@ -270,7 +270,7 @@ namespace SDDM {
 
         if (session.endsWith(".desktop")) {
             // session directory
-            QDir dir(mainConfig.SessionsDir.get());
+            QDir dir(mainConfig.XDisplay.SessionDir.get());
 
             // session file
             QFile file(dir.absoluteFilePath(session));
@@ -314,7 +314,7 @@ namespace SDDM {
         m_sessionName = session;
 
         QProcessEnvironment env;
-        env.insert("PATH", mainConfig.DefaultPath.get());
+        env.insert("PATH", mainConfig.Users.DefaultPath.get());
         env.insert("DISPLAY", name());
         env.insert("XDG_SEAT", seat()->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat()->name()));
@@ -343,8 +343,8 @@ namespace SDDM {
             }
 
             // save last user and last session
-            stateConfig.LastUser.set(m_auth->user());
-            stateConfig.LastSession.set(m_sessionName);
+            stateConfig.Last.User.set(m_auth->user());
+            stateConfig.Last.Session.set(m_sessionName);
             mainConfig.save();
 
             if (m_socket)

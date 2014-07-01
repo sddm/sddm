@@ -38,45 +38,53 @@ namespace SDDM {
         enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
 
         //    Name                 Type         Default value                               Description
-        Entry(DefaultPath,         QString,     _S("/bin:/usr/bin:/usr/local/bin"),         _S("Default path to set after successfully logging in"));
-        Entry(CursorTheme,         QString,     QString(),                                  _S("Name of the cursor theme to be set before starting the display server"));
-        Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("Path of the X server"));
-        Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Path of the Xauth"));
         Entry(HaltCommand,         QString,     _S(HALT_COMMAND),                           _S("Halt command"));
         Entry(RebootCommand,       QString,     _S(REBOOT_COMMAND),                         _S("Reboot command"));
-        Entry(SessionsDir,         QString,     _S("/usr/share/xsessions"),                 _S("Path of the directory containing session files, e.g kde-plasma.desktop"));
-        Entry(RememberLastSession, bool,        true,                                       _S("If this flag is true, LastSession value will updated on every successful login\n"
-                                                                                               "Default value is true"));
-        Entry(SessionCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsession"),   _S("Path of script to execute when starting the desktop session"));
-        Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/XSetup"),     _S("Path of script to execute when starting the display server"));
-        Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Path of the directory containing face files\n"
-                                                                                               "Face files should be in username.face.icon format"));
-        Entry(ThemesDir,           QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Path of the directory containing theme files"));
-        Entry(CurrentTheme,        QString,     _S("maui"),                                 _S("Name of the current theme"));
-        Entry(MinimumUid,          int,         1000,                                       _S("Minimum user id of the users to be listed in the user interface"));
-        Entry(MaximumUid,          int,         65000,                                      _S("Maximum user id of the users to be listed in the user interface"));
-        Entry(HideUsers,           QStringList, QStringList(),                              _S("Users that shouldn't show up in the user list"));
-        Entry(HideShells,          QStringList, QStringList(),                              _S("Shells of users that shouldn't show up in the user list"));
-        Entry(RememberLastUser,    bool,        true,                                       _S("If this flag is true, LastUser value will updated on every successful login\n"
-                                                                                               "Default value is true"));
-        Entry(AutoUser,            QString,     QString(),                                  _S("Name of the user to automatically log in when the system starts for the first time"));
-        Entry(AutoSession,         QString,     QString(),                                  _S("Name of the session file to log into automatically."));
-        Entry(AutoRelogin,         bool,        false,                                      _S("If true and AutoUser is set, automatic login will kick in again, otherwise autologin will work only for the first time"));
-        Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("Minimum virtual terminal number that will be used by the first display.\n"
-                                                                                               "Virtual terminal number will increase as new displays are added."));
-        Entry(Numlock,             NumState,    NUM_NONE,                                   _S("Change numlock state when sddm-greeter starts\n"
+        Entry(Numlock,             NumState,    NUM_NONE,                                   _S("Initial NumLock state\n"
                                                                                                "Valid values: on|off|none\n"
                                                                                                "If property is set to none, numlock won't be changed"));
-//         // SECTION EXAMPLE
-//         //      Name         Entries (but anything else too, it's a class)
-//         Section(TestSection,
-//             Entry(TestEntry1,      QString,     _S("TestStringInSource"),                   _S("TestDescription"));
-//         );
+        //      Name   Entries (but it's a regular class again)
+        Section(Theme,
+            Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));
+            Entry(Current,             QString,     _S("maui"),                                 _S("Current theme name"));
+            Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Face icon directory\n"
+                                                                                                   "The files should be in username.face.icon format"));
+            Entry(CursorTheme,         QString,     QString(),                                  _S("Cursor theme"));
+        );
+        // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal
+        Section(XDisplay,
+            Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("X server path"));
+            Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Xauth path"));
+            Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Session description directory"));
+            Entry(SessionCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsession"),   _S("XSession script path\n"
+                                                                                                   "A script to execute when starting the desktop session"));
+            Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/XSetup"),     _S("XSetup script path\n"
+                                                                                                   "A script to execute when starting the display server"));
+            Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("Minimum VT\n"
+                                                                                                   "The lowest virtual terminal number that will be used."));
+        );
+        Section(Users,
+            Entry(DefaultPath,         QString,     _S("/bin:/usr/bin:/usr/local/bin"),         _S("Default $PATH"));
+            Entry(MinimumUid,          int,         1000,                                       _S("Minimum user id for displayed users"));
+            Entry(MaximumUid,          int,         65000,                                      _S("Maximum user id for displayed users"));
+            Entry(HideUsers,           QStringList, QStringList(),                              _S("Hidden users"));
+            Entry(HideShells,          QStringList, QStringList(),                              _S("Hidden shells\n"
+                                                                                                   "Users with these shells as their default won't be listed"));
+            Entry(RememberLastUser,    bool,        true,                                       _S("Remember the last successfully logged in user"));
+            Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
+        );
+        Section(Autologin,
+            Entry(User,                QString,     QString(),                                  _S("Autologin user"));
+            Entry(Session,             QString,     QString(),                                  _S("Autologin session"));
+            Entry(Relogin,             bool,        false,                                      _S("Autologin again on session exit"));
+        );
     );
 
     Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? tmp->pw_dir : STATE_DIR;}().append("/state.conf"),
-        Entry(LastSession,         QString,     QString(),                                  _S("Name of the session file of the last session selected. This session will be preselected when the login screen shows up."));
-        Entry(LastUser,            QString,     QString(),                                  _S("Name of the last logged-in user. This username will be preselected/shown when the login screen shows up"));
+        Section(Last,
+            Entry(Session,         QString,     QString(),                                  _S("Name of the session file of the last session selected. This session will be preselected when the login screen shows up."));
+            Entry(User,            QString,     QString(),                                  _S("Name of the last logged-in user. This username will be preselected/shown when the login screen shows up"));
+        );
     );
 
     extern MainConfig mainConfig;
