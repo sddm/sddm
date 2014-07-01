@@ -109,6 +109,9 @@ if(NOT NO_SYSTEMD)
 endif()
 
 if(SYSTEMD_FOUND)
+    add_definitions(-DHAVE_SYSTEMD)
+    set(CMAKE_AUTOMOC_MOC_OPTIONS -DHAVE_SYSTEMD)
+
     pkg_check_modules(JOURNALD "libsystemd-journal")
 
     if(ENABLE_JOURNALD)
