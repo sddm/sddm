@@ -68,7 +68,7 @@ namespace SDDM {
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
             env.insert("DISPLAY", m_display);
             env.insert("XAUTHORITY", m_authPath);
-            env.insert("XCURSOR_THEME", mainConfig.CursorTheme.get());
+            env.insert("XCURSOR_THEME", mainConfig.Theme.CursorTheme.get());
             process->setProcessEnvironment(env);
 
             // tell the display server to notify us when we can connect
@@ -82,7 +82,7 @@ namespace SDDM {
                  << "-background" << "none"
                  << "-noreset"
                  << QString("vt%1").arg(m_displayPtr->terminalId());
-            process->start(mainConfig.ServerPath.get(), args);
+            process->start(mainConfig.XDisplay.ServerPath.get(), args);
             SignalHandler::initializeSigusr1();
         }
 
@@ -138,7 +138,7 @@ namespace SDDM {
     }
 
     void DisplayServer::setupDisplay() {
-        QString displayCommand = mainConfig.DisplayCommand.get();
+        QString displayCommand = mainConfig.XDisplay.DisplayCommand.get();
 
         // create display setup script process
         QProcess *displayScript = new QProcess();
@@ -147,7 +147,7 @@ namespace SDDM {
         QProcessEnvironment env;
         env.insert("DISPLAY", m_display);
         env.insert("HOME", "/");
-        env.insert("PATH", mainConfig.DefaultPath.get());
+        env.insert("PATH", mainConfig.Users.DefaultPath.get());
         env.insert("XAUTHORITY", m_authPath);
         env.insert("SHELL", "/bin/sh");
         displayScript->setProcessEnvironment(env);

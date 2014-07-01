@@ -75,7 +75,7 @@ namespace SDDM {
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
-            env.insert("XCURSOR_THEME", mainConfig.CursorTheme.get());
+            env.insert("XCURSOR_THEME", mainConfig.Theme.CursorTheme.get());
             m_process->setProcessEnvironment(env);
 
             // start greeter
@@ -125,10 +125,10 @@ namespace SDDM {
 
             // greeter environment
             QProcessEnvironment env;
-            env.insert("PATH", mainConfig.DefaultPath.get());
+            env.insert("PATH", mainConfig.Users.DefaultPath.get());
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
-            env.insert("XCURSOR_THEME", mainConfig.CursorTheme.get());
+            env.insert("XCURSOR_THEME", mainConfig.Theme.CursorTheme.get());
             env.insert("XDG_SEAT", m_display->seat()->name());
             env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
