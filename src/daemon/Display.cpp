@@ -36,9 +36,11 @@
 #include <QFile>
 #include <QTimer>
 
+#include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
@@ -338,8 +340,11 @@ namespace SDDM {
 
             struct passwd *pw = getpwnam(qPrintable(user));
             if (pw) {
-                addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
-                chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
+                m_auth->insertEnvironment("XAUTHORITY", m_authPath);
+                if (chmod(qPrintable(m_authPath), S_IRUSR) != 0)
+                    qWarning() << "Can't set proper permissions for" << m_authPath << strerror(errno);
+                if (chown(qPrintable(m_authPath), pw->pw_uid, pw->pw_gid) != 0)
+                    qWarning() << "Can't set proper permissions for" << m_authPath << strerror(errno);
             }
 
             // save last user and session
