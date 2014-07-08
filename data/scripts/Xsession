@@ -73,12 +73,6 @@ case $session in
   failsafe)
     exec xterm -geometry 80x24-0-0
     ;;
-  custom)
-    exec $HOME/.xsession
-    ;;
-  default)
-    exec /usr/bin/startkde
-    ;;
   *)
     eval exec "$session"
     ;;
