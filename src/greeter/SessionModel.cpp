@@ -56,8 +56,7 @@ namespace SDDM {
         // set role names
         setRoleNames(roleNames);
 #endif
-        // add custom and failsafe session
-        d->sessions << SessionPtr { new Session {"custom", "Custom", "custom", "Custom Session"} };
+        // add failsafe session
         d->sessions << SessionPtr { new Session {"failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
         // read session files
         QDir dir(Configuration::instance()->sessionsDir());
