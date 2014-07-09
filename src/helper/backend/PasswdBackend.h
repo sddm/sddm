@@ -26,7 +26,7 @@
 class PasswdBackend : public Backend {
     Q_OBJECT
 public:
-    PasswdBackend(AuthApp *parent);
+    PasswdBackend(HelperApp *parent);
 
 public slots:
     virtual bool start(const QString &user = QString());
