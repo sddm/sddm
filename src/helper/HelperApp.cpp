@@ -112,6 +112,7 @@ void HelperApp::doAuth() {
         qCritical() << "Couldn't write initial message:" << str.status();
 
     if (!m_backend->start(m_user)) {
+        authenticated(QString(""));
         exit(AUTH_ERROR);
         return;
     }
