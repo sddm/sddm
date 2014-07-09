@@ -99,7 +99,9 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 # systemd
-pkg_check_modules(SYSTEMD "systemd")
+if(NOT NO_SYSTEMD)
+    pkg_check_modules(SYSTEMD "systemd")
+endif()
 
 if(SYSTEMD_FOUND)
     pkg_check_modules(JOURNALD "libsystemd-journal")
