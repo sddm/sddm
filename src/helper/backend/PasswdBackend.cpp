@@ -20,8 +20,8 @@
 
 #include "PasswdBackend.h"
 
-#include "AuthMessages.h"
-#include "../AuthApp.h"
+#include "auth/AuthMessages.h"
+#include "helper/HelperApp.h"
 
 #include <QtCore/QDebug>
 
@@ -30,7 +30,7 @@
 #include <shadow.h>
 #include <crypt.h>
 
-PasswdBackend::PasswdBackend(AuthApp* parent)
+PasswdBackend::PasswdBackend(HelperApp *parent)
         : Backend(parent) { }
 
 bool PasswdBackend::authenticate() {
