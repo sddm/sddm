@@ -369,7 +369,10 @@ namespace SDDM {
     }
 
     void Display::slotHelperFinished(bool success) {
-        stop();
+        // Don't restart greeter and display server unless sddm-helper exited
+        // with an internal error
+        if (!success)
+            stop();
     }
 
     void Display::slotRequestChanged() {
