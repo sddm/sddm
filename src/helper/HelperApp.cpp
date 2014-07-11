@@ -113,13 +113,13 @@ void HelperApp::doAuth() {
 
     if (!m_backend->start(m_user)) {
         authenticated(QString(""));
-        exit(AUTH_ERROR);
+        exit(EXIT_SUCCESS);
         return;
     }
 
     if (!m_backend->authenticate()) {
         authenticated(QString(""));
-        exit(AUTH_ERROR);
+        exit(EXIT_SUCCESS);
         return;
     }
 
