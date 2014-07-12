@@ -27,6 +27,7 @@
 #define IMPORTS_INSTALL_DIR         "@QT_IMPORTS_DIR@"
 #define COMPONENTS_TRANSLATION_DIR  "@COMPONENTS_TRANSLATION_DIR@"
 #define STATE_DIR                   "@STATE_DIR@"
+#define RUNTIME_DIR                 "@RUNTIME_DIR@"
 
 #define SESSION_COMMAND             "@SESSION_COMMAND@"
 

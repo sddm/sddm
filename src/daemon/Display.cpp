@@ -24,7 +24,7 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
-#include "DisplayServer.h"
+#include "XorgDisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -36,7 +36,6 @@
 #include <QFile>
 #include <QTimer>
 
-#include <grp.h>
 #include <pwd.h>
 #include <unistd.h>
 
@@ -44,12 +43,10 @@ namespace SDDM {
     Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
         m_displayId(displayId), m_terminalId(terminalId),
         m_auth(new Auth(this)),
-        m_displayServer(new DisplayServer(this)),
+        m_displayServer(new XorgDisplayServer(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
-
-        m_display = QString(":%1").arg(m_displayId);
 
         // respond to authentication requests
         m_auth->setVerbose(true);
@@ -72,19 +69,6 @@ namespace SDDM {
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
-
-        // get auth dir
-        QString authDir = daemonApp->configuration()->stateDir();
-
-        // use "." as authdir in test mode
-        if (daemonApp->configuration()->testing)
-            authDir = QLatin1String(".");
-
-        // create auth dir if not existing
-        QDir().mkpath(authDir);
-
-        // set auth path
-        m_authPath = QString("%1/%2").arg(authDir).arg(m_display);
     }
 
     Display::~Display() {
@@ -100,39 +84,15 @@ namespace SDDM {
     }
 
     const QString &Display::name() const {
-        return m_display;
+        return m_displayServer->display();
     }
 
-    const QString &Display::cookie() const {
-        return m_cookie;
+    QString Display::sessionType() const {
+        return m_displayServer->sessionType();
     }
 
     Seat *Display::seat() const {
         return m_seat;
-    }
-
-    void Display::addCookie(const QString &file) {
-        // log message
-        qDebug() << "Adding cookie to" << file;
-
-        // Touch file
-        QFile file_handler(file);
-        file_handler.open(QIODevice::WriteOnly);
-        file_handler.close();
-
-        QString cmd = QString("%1 -f %2 -q").arg(daemonApp->configuration()->xauthPath()).arg(file);
-
-        // execute xauth
-        FILE *fp = popen(qPrintable(cmd), "w");
-
-        // check file
-        if (!fp)
-            return;
-        fprintf(fp, "remove %s\n", qPrintable(m_display));
-        fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
-        fprintf(fp, "exit\n");
-        // close pipe
-        pclose(fp);
     }
 
     void Display::start() {
@@ -140,34 +100,13 @@ namespace SDDM {
         if (m_started)
             return;
 
-        // generate cookie
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
+        // get runtime directory and create it
+        QString runtimeDir = daemonApp->configuration()->runtimeDir();
+        QDir().mkpath(runtimeDir);
 
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = digits[dis(gen)];
-
-        // generate auth file
-        addCookie(m_authPath);
-
-        // change the owner and group of the auth file to the sddm user
-        struct passwd *pw = getpwnam("sddm");
-        if (!pw)
-            qWarning() << "Failed to find the sddm user. Owner of the auth file will not be changed.";
-        else {
-            if(chown(qPrintable(m_authPath), pw->pw_uid, pw->pw_gid) == -1)
-                qWarning() << "Failed to change owner of the auth file.";
-        }
-
-        // set display server params
-        m_displayServer->setDisplay(m_display);
-        m_displayServer->setAuthPath(m_authPath);
+        // change owner and group
+        if (!daemonApp->configuration()->testing)
+            changeOwner(runtimeDir);
 
         // start display server
         m_displayServer->start();
@@ -201,22 +140,15 @@ namespace SDDM {
         }
 
         // start socket server
-        m_socketServer->start(m_display);
+        m_socketServer->start(m_displayServer->display());
 
-        if (!daemonApp->configuration()->testing) {
+        if (!daemonApp->configuration()->testing)
             // change the owner and group of the socket to avoid permission denied errors
-            struct passwd *pw = getpwnam("sddm");
-            if (pw) {
-                if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
-                    qWarning() << "Failed to change owner of the socket";
-                    return;
-                }
-            }
-        }
+            changeOwner(m_socketServer->socketAddress());
 
         // set greeter params
         m_greeter->setDisplay(this);
-        m_greeter->setAuthPath(m_authPath);
+        m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(QString("%1/%2").arg(daemonApp->configuration()->themesDir()).arg(daemonApp->configuration()->currentTheme()));
 
@@ -246,11 +178,11 @@ namespace SDDM {
         m_displayServer->stop();
         m_displayServer->blockSignals(false);
 
-        // remove authority file
-        QFile::remove(m_authPath);
-
         // reset flag
         m_started = false;
+
+        // remove runtime directory
+        QDir().rmpath(daemonApp->configuration()->runtimeDir());
 
         // emit signal
         emit stopped();
@@ -323,7 +255,7 @@ namespace SDDM {
         env.insert("DESKTOP_SESSION", sessionName);
         env.insert("XDG_CURRENT_DESKTOP", xdgSessionName);
         env.insert("XDG_SESSION_CLASS", "user");
-        env.insert("XDG_SESSION_TYPE", "x11");
+        env.insert("XDG_SESSION_TYPE", m_displayServer->sessionType());
         env.insert("XDG_SESSION_DESKTOP", xdgSessionName);
         m_auth->insertEnvironment(env);
 
@@ -338,8 +270,8 @@ namespace SDDM {
 
             struct passwd *pw = getpwnam(qPrintable(user));
             if (pw) {
-                addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
-                chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
+                qobject_cast<XorgDisplayServer *>(m_displayServer)->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
+                changeOwner(QString("%1/.Xauthority").arg(pw->pw_dir));
             }
 
             // save last user and session

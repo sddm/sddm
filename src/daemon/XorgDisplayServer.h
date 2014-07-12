@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -17,55 +18,44 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_GREETER_H
-#define SDDM_GREETER_H
+#ifndef SDDM_XORGDISPLAYSERVER_H
+#define SDDM_XORGDISPLAYSERVER_H
 
-#include <QObject>
-
-#include "Auth.h"
+#include "DisplayServer.h"
 
 class QProcess;
 
 namespace SDDM {
-    class Display;
-
-    class Greeter : public QObject {
+    class XorgDisplayServer : public DisplayServer {
         Q_OBJECT
-        Q_DISABLE_COPY(Greeter)
+        Q_DISABLE_COPY(XorgDisplayServer)
     public:
-        explicit Greeter(QObject *parent = 0);
-        ~Greeter();
+        explicit XorgDisplayServer(Display *parent);
+        ~XorgDisplayServer();
 
-        void setDisplay(Display *display);
-        void setAuthPath(const QString &authPath);
-        void setSocket(const QString &socket);
-        void setTheme(const QString &theme);
+        static bool displayExists(int number);
+
+        const QString &display() const;
+        const QString &authPath() const;
+
+        QString sessionType() const;
+
+        const QString &cookie() const;
+
+        void addCookie(const QString &file);
 
     public slots:
         bool start();
         void stop();
         void finished();
-
-    private slots:
-        void onRequestChanged();
-        void onSessionStarted(bool success);
-        void onHelperFinished(bool success);
-        void onReadyReadStandardOutput();
-        void onReadyReadStandardError();
-        void authInfo(const QString &message, Auth::Info info);
-        void authError(const QString &message, Auth::Error error);
+        void setupDisplay();
 
     private:
-        bool m_started { false };
-
-        Display *m_display { nullptr };
         QString m_authPath { "" };
-        QString m_socket { "" };
-        QString m_theme { "" };
+        QString m_cookie { "" };
 
-        Auth *m_auth { nullptr };
-        QProcess *m_process { nullptr };
+        QProcess *process { nullptr };
     };
 }
 
-#endif // SDDM_GREETER_H
+#endif // SDDM_XORGDISPLAYSERVER_H

@@ -20,9 +20,9 @@
 
 #include "PamBackend.h"
 #include "PamHandle.h"
-#include "helper/HelperApp.h"
-#include "helper/UserSession.h"
-#include "auth/Auth.h"
+#include "HelperApp.h"
+#include "UserSession.h"
+#include "Auth.h"
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>

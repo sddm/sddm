@@ -1,6 +1,5 @@
 /***************************************************************************
 * Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,46 +17,28 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_DISPLAYSERVER_H
-#define SDDM_DISPLAYSERVER_H
+#include "Utils.h"
 
-#include <QObject>
+#include <QDebug>
 
-class QProcess;
+#include <pwd.h>
+#include <unistd.h>
 
 namespace SDDM {
-    class Display;
+    bool changeOwner(const QString &fileName) {
+        // change the owner and group of the file to the sddm user
+        struct passwd *pw = getpwnam("sddm");
+        if (pw) {
+            if (chown(qPrintable(fileName), pw->pw_uid, pw->pw_gid) == -1) {
+                qCritical() << "Failed to change owner of" << fileName;
+                return false;
+            }
+        } else {
+            qCritical("Cannot change owner of \"%s\": failed to find the sddm user",
+                      qPrintable(fileName));
+            return false;
+        }
 
-    class DisplayServer : public QObject {
-        Q_OBJECT
-        Q_DISABLE_COPY(DisplayServer)
-    public:
-        explicit DisplayServer(Display *parent);
-
-        Display *displayPtr() const;
-
-        const QString &display() const;
-
-        virtual QString sessionType() const = 0;
-
-    public slots:
-        virtual bool start() = 0;
-        virtual void stop() = 0;
-        virtual void finished() = 0;
-        virtual void setupDisplay() = 0;
-
-    signals:
-        void started();
-        void stopped();
-
-    protected:
-        bool m_started { false };
-
-        QString m_display { "" };
-
-    private:
-        Display *m_displayPtr { nullptr };
-    };
+        return true;
+    }
 }
-
-#endif // SDDM_DISPLAYSERVER_H

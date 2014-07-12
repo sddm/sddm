@@ -22,6 +22,13 @@
 
 #include <QSettings>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QStandardPaths>
+#else
+#  include <QFileInfo>
+#  include <QProcessEnvironment>
+#endif
+
 namespace SDDM {
     static Configuration *_instance = nullptr;
 
@@ -184,8 +191,39 @@ namespace SDDM {
         return d->xauthPath;
     }
 
-    const QString &Configuration::stateDir() const {
+    QString Configuration::stateDir() const {
+        // use "." as stateDir in test mode to
+        // avoid permission denied errors
+        if (testing)
+            return QLatin1String(".");
         return d->stateDir;
+    }
+
+    QString Configuration::runtimeDir() const {
+        // in test mode everything runs under the same user, so
+        // we first look if $XDG_RUNTIME_DIR is defined otherwise
+        // fallback to "/tmp/sddm"
+        if (testing) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+            QString location = QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+
+            if (location.isEmpty())
+                location = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+            if (location.isEmpty())
+                location = QStringLiteral("/tmp");
+
+            return QString("%1/sddm").arg(location);
+#else
+            QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+            if (!env.value("XDG_RUNTIME_DIR").isEmpty())
+                return QString("%1/sddm").arg(env.value("XDG_RUNTIME_DIR"));
+
+            return QLatin1String("/tmp/sddm");
+#endif
+        }
+
+        return QLatin1String(RUNTIME_DIR);
     }
 
     const QString &Configuration::haltCommand() const {
