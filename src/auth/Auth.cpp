@@ -185,9 +185,17 @@ void Auth::Private::dataPending() {
 }
 
 void Auth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
-    if (exitStatus != QProcess::NormalExit)
+    if (exitStatus != QProcess::NormalExit) {
+        qWarning("Auth: sddm-helper crashed (exit code %d)", exitCode);
         Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
-    Q_EMIT qobject_cast<Auth*>(parent())->finished(!exitCode);
+    }
+
+    if (exitCode == 0)
+        qDebug() << "Auth: sddm-helper exited successfully";
+    else
+        qWarning("Auth: sddm-helper exited with %d", exitCode);
+
+    Q_EMIT qobject_cast<Auth*>(parent())->finished(exitCode == 0);
 }
 
 void Auth::Private::childError(QProcess::ProcessError error) {
