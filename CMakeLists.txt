@@ -9,7 +9,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Silence CMake 3.0 warnings
 if(POLICY CMP0043)
-  cmake_policy(SET CMP0043 OLD)
+    cmake_policy(SET CMP0043 OLD)
 endif()
 
 # Set version
@@ -18,31 +18,35 @@ set(SDDM_VERSION_MINOR 1)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
+# Options
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 
+# Definitions
 add_definitions(-Wall -std=c++11)
 
+# Default build type
 if(NOT CMAKE_BUILD_TYPE)
-        set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# Handle build type
 if(CMAKE_BUILD_TYPE MATCHES [Dd]ebug)
-        message(STATUS "Debug build")
-        add_definitions(-DDEBUG)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+    message(STATUS "Debug build")
+    add_definitions(-DDEBUG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 else()
-        message(STATUS "Release build")
-        add_definitions(-DNDEBUG)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+    message(STATUS "Release build")
+    add_definitions(-DNDEBUG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
 # Default absolute paths
 if(NOT DEFINED CMAKE_INSTALL_SYSCONFDIR)
-  set(CMAKE_INSTALL_SYSCONFDIR "/etc")
+    set(CMAKE_INSTALL_SYSCONFDIR "/etc")
 endif()
 if(NOT DEFINED CMAKE_INSTALL_LOCALSTATEDIR)
-  set(CMAKE_INSTALL_LOCALSTATEDIR "/var")
+    set(CMAKE_INSTALL_LOCALSTATEDIR "/var")
 endif()
 
 # Standard installation paths
@@ -53,11 +57,11 @@ find_package(PkgConfig)
 
 # PAM
 if(NOT NO_PAM)
-  find_package(PAM)
+    find_package(PAM)
 
-  if(PAM_FOUND)
-    add_definitions(-DUSE_PAM)
-  endif()
+    if(PAM_FOUND)
+        add_definitions(-DUSE_PAM)
+    endif()
 endif()
 
 # XCB
@@ -66,6 +70,7 @@ find_package(XCB REQUIRED)
 # XKB
 find_package(XKB REQUIRED)
 
+# Qt
 if(USE_QT5)
   find_package(Qt5Core REQUIRED)
   find_package(Qt5DBus REQUIRED)
@@ -91,10 +96,10 @@ else()
   set(COMPONENTS_VERSION 1.1)
 endif()
 
-# uninstall target
+# Uninstall target
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-                                                         "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-                                                         IMMEDIATE @ONLY)
+               "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+               IMMEDIATE @ONLY)
 
 add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
@@ -127,7 +132,7 @@ else()
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
 
-# set constants
+# Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
 set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")
@@ -138,6 +143,7 @@ set(CONFIG_FILE                 "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf"    
 set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
 
+# Add subdirectories
 add_subdirectory(components)
 add_subdirectory(data)
 add_subdirectory(services)
