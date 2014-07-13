@@ -190,12 +190,12 @@ void Auth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
         Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
     }
 
-    if (exitCode == 0)
+    if (exitCode == HELPER_SUCCESS)
         qDebug() << "Auth: sddm-helper exited successfully";
     else
         qWarning("Auth: sddm-helper exited with %d", exitCode);
 
-    Q_EMIT qobject_cast<Auth*>(parent())->finished(exitCode == 0);
+    Q_EMIT qobject_cast<Auth*>(parent())->finished((Auth::HelperExitStatus)exitCode);
 }
 
 void Auth::Private::childError(QProcess::ProcessError error) {
