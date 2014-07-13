@@ -56,7 +56,7 @@ void HelperApp::setUp() {
     if ((pos = args.indexOf("--socket")) >= 0) {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(OTHER_ERROR);
+            exit(Auth::HELPER_OTHER_ERROR);
             return;
         }
         server = args[pos + 1];
@@ -65,7 +65,7 @@ void HelperApp::setUp() {
     if ((pos = args.indexOf("--id")) >= 0) {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(OTHER_ERROR);
+            exit(Auth::HELPER_OTHER_ERROR);
             return;
         }
         m_id = QString(args[pos + 1]).toLongLong();
@@ -74,7 +74,7 @@ void HelperApp::setUp() {
     if ((pos = args.indexOf("--start")) >= 0) {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(OTHER_ERROR);
+            exit(Auth::HELPER_OTHER_ERROR);
             return;
         }
         m_session->setPath(args[pos + 1]);
@@ -83,7 +83,7 @@ void HelperApp::setUp() {
     if ((pos = args.indexOf("--user")) >= 0) {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(OTHER_ERROR);
+            exit(Auth::HELPER_OTHER_ERROR);
             return;
         }
         m_user = args[pos + 1];
@@ -95,7 +95,7 @@ void HelperApp::setUp() {
 
     if (server.isEmpty() || m_id <= 0) {
         qCritical() << "This application is not supposed to be executed manually";
-        exit(OTHER_ERROR);
+        exit(Auth::HELPER_OTHER_ERROR);
         return;
     }
 
@@ -113,13 +113,13 @@ void HelperApp::doAuth() {
 
     if (!m_backend->start(m_user)) {
         authenticated(QString(""));
-        exit(EXIT_SUCCESS);
+        exit(Auth::HELPER_AUTH_ERROR);
         return;
     }
 
     if (!m_backend->authenticate()) {
         authenticated(QString(""));
-        exit(EXIT_SUCCESS);
+        exit(Auth::HELPER_AUTH_ERROR);
         return;
     }
 
@@ -132,14 +132,14 @@ void HelperApp::doAuth() {
 
         if (!m_backend->openSession()) {
             sessionOpened(false);
-            exit(SESSION_ERROR);
+            exit(Auth::HELPER_SESSION_ERROR);
             return;
         }
 
         sessionOpened(true);
     }
     else
-        exit(AUTH_SUCCESS);
+        exit(Auth::HELPER_SUCCESS);
     return;
 }
 

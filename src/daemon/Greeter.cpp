@@ -111,7 +111,7 @@ namespace SDDM {
             m_auth->setVerbose(true);
             connect(m_auth, SIGNAL(requestChanged()), this, SLOT(onRequestChanged()));
             connect(m_auth, SIGNAL(session(bool)), this, SLOT(onSessionStarted(bool)));
-            connect(m_auth, SIGNAL(finished(bool)), this, SLOT(onHelperFinished(bool)));
+            connect(m_auth, SIGNAL(finished(Auth::HelperExitStatus)), this, SLOT(onHelperFinished(Auth::HelperExitStatus)));
             connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(authInfo(QString,Auth::Info)));
             connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(authError(QString,Auth::Error)));
 
@@ -199,7 +199,7 @@ namespace SDDM {
             qDebug() << "Greeter session failed to start";
     }
 
-    void Greeter::onHelperFinished(bool success) {
+    void Greeter::onHelperFinished(Auth::HelperExitStatus status) {
         // reset flag
         m_started = false;
 

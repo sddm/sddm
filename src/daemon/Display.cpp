@@ -56,7 +56,7 @@ namespace SDDM {
         connect(m_auth, SIGNAL(requestChanged()), this, SLOT(slotRequestChanged()));
         connect(m_auth, SIGNAL(authentication(QString,bool)), this, SLOT(slotAuthenticationFinished(QString,bool)));
         connect(m_auth, SIGNAL(session(bool)), this, SLOT(slotSessionStarted(bool)));
-        connect(m_auth, SIGNAL(finished(bool)), this, SLOT(slotHelperFinished(bool)));
+        connect(m_auth, SIGNAL(finished(Auth::HelperExitStatus)), this, SLOT(slotHelperFinished(Auth::HelperExitStatus)));
         connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(slotAuthInfo(QString,Auth::Info)));
         connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(slotAuthError(QString,Auth::Error)));
 
@@ -373,10 +373,13 @@ namespace SDDM {
             emit loginFailed(m_socket);
     }
 
-    void Display::slotHelperFinished(bool success) {
+    void Display::slotHelperFinished(Auth::HelperExitStatus status) {
         // Don't restart greeter and display server unless sddm-helper exited
-        // with an internal error
-        if (!success)
+        // with an internal error or the user session finished successfully,
+        // we want to avoid greeter from restarting when an authentication
+        // error happens (in this case we want to show the message from the
+        // greeter
+        if (status != Auth::HELPER_AUTH_ERROR)
             stop();
     }
 

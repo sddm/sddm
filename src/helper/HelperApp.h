@@ -39,13 +39,6 @@ public:
     UserSession *session();
     const QString &user() const;
 
-    enum RetVal {
-        AUTH_SUCCESS = 0,
-        AUTH_ERROR,
-        SESSION_ERROR,
-        OTHER_ERROR
-    };
-
 public slots:
     Request request(const Request &request);
     void info(const QString &message, Auth::Info type);
