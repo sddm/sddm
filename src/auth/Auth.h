@@ -75,6 +75,13 @@ public:
         _ERROR_LAST
     };
 
+    enum HelperExitStatus {
+        HELPER_SUCCESS = 0,
+        HELPER_AUTH_ERROR,
+        HELPER_SESSION_ERROR,
+        HELPER_OTHER_ERROR
+    };
+
     static void registerTypes();
 
     bool autologin() const;
@@ -156,11 +163,11 @@ Q_SIGNALS:
 
     /**
      * Emitted when the helper quits, either after authentication or when the session ends.
-     * Or, when something goes wrong
+     * Or, when something goes wrong.
      *
      * @param success true if every underlying task went fine
      */
-    void finished(bool success);
+    void finished(Auth::HelperExitStatus status);
 
     /**
      * Emitted on error

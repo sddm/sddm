@@ -49,7 +49,7 @@ namespace SDDM {
     private slots:
         void onRequestChanged();
         void onSessionStarted(bool success);
-        void onHelperFinished(bool success);
+        void onHelperFinished(Auth::HelperExitStatus status);
         void onReadyReadStandardOutput();
         void onReadyReadStandardError();
         void authInfo(const QString &message, Auth::Info info);
