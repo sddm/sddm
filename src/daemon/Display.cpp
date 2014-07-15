@@ -345,7 +345,7 @@ namespace SDDM {
             // save last user and last session
             stateConfig.Last.User.set(m_auth->user());
             stateConfig.Last.Session.set(m_sessionName);
-            mainConfig.save();
+            stateConfig.save();
 
             if (m_socket)
                 emit loginSucceeded(m_socket);
