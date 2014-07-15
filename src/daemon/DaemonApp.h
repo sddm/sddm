@@ -39,9 +39,11 @@ namespace SDDM {
 
         static DaemonApp *instance() { return self; }
 
-        QString hostName() const;
+        // TODO: move these two away
+        bool testing() const;
+        bool first { false };
 
-        Configuration *configuration() const;
+        QString hostName() const;
         DisplayManager *displayManager() const;
         PowerManager *powerManager() const;
         SeatManager *seatManager() const;
@@ -55,7 +57,7 @@ namespace SDDM {
 
         int m_lastSessionId { 0 };
 
-        Configuration *m_configuration { nullptr };
+        bool m_testing { false };
         DisplayManager *m_displayManager { nullptr };
         PowerManager *m_powerManager { nullptr };
         SeatManager *m_seatManager { nullptr };

@@ -1,0 +1,179 @@
+/*
+ * INI Configuration parser classes
+ * Copyright (C) 2014 Martin Bříza <mbriza@redhat.com>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+ *
+ */
+
+#ifndef CONFIGREADER_H
+#define CONFIGREADER_H
+
+#include <QtCore/QString>
+#include <QtCore/QList>
+#include <QtCore/QTextStream>
+#include <QtCore/QStringList>
+#include <QtCore/QDebug>
+
+#define IMPLICIT_SECTION "General"
+#define UNUSED_VARIABLE_COMMENT "# Unused variable"
+#define UNUSED_SECTION_COMMENT "### These sections and their variables were not used: ###\n"
+
+///// convenience macros
+// efficient qstring initializer
+#if QT_VERSION >= 0x050000
+#   define _S(x) QStringLiteral(x)
+#else
+#   define _S(x) (x)
+#endif
+
+// config wrapper
+#define Config(name, file, ...) class name : public SDDM::ConfigBase, public SDDM::ConfigSection { public: name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, IMPLICIT_SECTION) { } void save() { SDDM::ConfigBase::save(nullptr, nullptr); } void save(SDDM::ConfigEntryBase *) const = delete; __VA_ARGS__ }
+// entry wrapper
+#define Entry(name, type, default, description) SDDM::ConfigEntry<type> name { this, #name, (default), (description) }
+// section wrapper
+#define Section(name, ...) class name : public SDDM::ConfigSection { public: name (SDDM::ConfigBase *_parent, const QString &_name) : SDDM::ConfigSection(_parent, _name) { } __VA_ARGS__ } name { this, #name };
+
+namespace SDDM {
+    template<class> class ConfigEntry;
+    class ConfigSection;
+    class ConfigBase;
+
+    class ConfigEntryBase {
+    public:
+        virtual const QString &name() const = 0;
+        virtual QString value() const = 0;
+        virtual void setValue(const QString &str) = 0;
+        virtual QString toConfigShort() const = 0;
+        virtual QString toConfigFull() const = 0;
+        virtual bool isDefault() const = 0;
+    };
+
+    class ConfigSection {
+    public:
+        ConfigSection(ConfigBase *parent, const QString &name);
+        ConfigEntryBase *entry(const QString &name);
+        const ConfigEntryBase *entry(const QString &name) const;
+        void save(ConfigEntryBase *entry);
+        const QString &name() const;
+        QString toConfigShort() const;
+        QString toConfigFull() const;
+        const QMap<QString, ConfigEntryBase*> &entries() const;
+    private:
+        template<class T> friend class ConfigEntryPrivate;
+        QMap<QString, ConfigEntryBase*> m_entries {};
+
+        ConfigBase *m_parent { nullptr };
+        QString m_name { };
+        template<class T> friend class ConfigEntry;
+    };
+
+    template <class T>
+    class ConfigEntry : public ConfigEntryBase {
+    public:
+        ConfigEntry(ConfigSection *parent, const QString &name, const T &value, const QString &description) : ConfigEntryBase(),
+            m_name(name),
+            m_description(description),
+            m_default(value),
+            m_value(value),
+            m_parent(parent) {
+            m_parent->m_entries[name] = this;
+        }
+
+        T get() const {
+            return m_value;
+        }
+
+        void set(const T val) {
+            m_value = val;
+        }
+
+        bool isDefault() const {
+            return m_value == m_default;
+        }
+
+        bool setDefault() {
+            if (m_value == m_default)
+                return false;
+            m_value = m_default;
+            return true;
+        }
+
+        void save() {
+            m_parent->save(this);
+        }
+
+        const QString &name() const {
+            return m_name;
+        }
+
+        QString value() const {
+            QString str;
+            QTextStream out(&str);
+            out << m_value;
+            return str;
+        }
+
+        // specialised for QString
+        void setValue(const QString &str) {
+            QTextStream in(qPrintable(str));
+            in >> m_value;
+        }
+
+        QString toConfigShort() const {
+            return QString("%1=%2").arg(m_name).arg(value());
+        }
+
+        QString toConfigFull() const {
+            QString str;
+            for (const QString &line : m_description.split('\n'))
+                str.append(QString("# %1\n").arg(line));
+            str.append(QString("%1=%2\n\n").arg(m_name).arg(value()));
+            return str;
+        }
+    private:
+        const QString m_name;
+        const QString m_description;
+        T m_default;
+        T m_value;
+        ConfigSection *m_parent;
+    };
+
+    // Base has to be separate from the Config itself - order of initialization
+    class ConfigBase {
+    public:
+        ConfigBase(const QString &configPath);
+
+        void load();
+        void save(const ConfigSection *section = nullptr, const ConfigEntryBase *entry = nullptr);
+        bool hasUnused() const;
+        const QString &path() const;
+    protected:
+        bool m_unusedVariables { false };
+        bool m_unusedSections { false };
+
+        QString m_path {};
+        QMap<QString, ConfigSection*> m_sections;
+        friend class ConfigSection;
+    };
+
+    QTextStream &operator>>(QTextStream &str, QStringList &list);
+    QTextStream &operator<<(QTextStream &str, const QStringList &list);
+    QTextStream &operator>>(QTextStream &str, bool &val);
+    QTextStream &operator<<(QTextStream &str, const bool &val);
+}
+
+
+#endif // CONFIGREADER_H
