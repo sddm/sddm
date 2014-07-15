@@ -6,27 +6,37 @@
 
 ## Master
 ---------
+
+## 0.9.0 - 2014-07-15
+---------------------
+    + Implemented automatic login
+    + Greeter now runs as its own user
     + Added translation support for themes.
     + Added keyboard layout support.
     + Added option to turn on numlock at startup.
     + ~/.xsession-errors support
-    + Works without PAM (needed for slackware)
-    - Fixed incorrect PAM handling causing PulseAudio to fail.
-    - Fixed a crash caused by incorrect handling of PAM
-    - Correctly import PAM environment into the sesion
-    - Fixed missing environment variables
-    + Works better with GNOME and Unity
-    + org.freedesktop.DisplayManager interface
+    + Improved compatibility with GNOME and Unity
+    + Initial Plymouth support
+    + Implemented logging to journald if available
+    + Added org.freedesktop.DisplayManager interface
     + Fast user switching
     + Test mode that can be toggled at runtime
-    - Find empty displays and virtual desktops automatically
-    - Exit gracefully when SIGTERM received
-    + Auto Relogin
+    + Auto Relogging
     + User filtering based on shell
     + User filtering based on name
-    - Fix compilation with Qt 5.0.0
+    + PAM is now optional
+    - No longer stripping comments from sddm.conf on login
+    - Fixed incorrect PAM handling causing PulseAudio to fail.
+    - Fixed a crash caused by incorrect handling of PAM
+    - Fixed compilation with Qt 5.0.0
+    - Correctly import PAM environment into the sesion
+    - Fixed missing environment variables
+    - Find empty displays and virtual desktops automatically
+    - Exit gracefully when SIGTERM is received
+    * Now using Oxygen instead of Geosans Light
+    * Added man pages sddm(1), sddm-greeter(1), sddm.conf(5)
 
-## 0.1.0 - 2013/03/19
+## 0.1.0 - 2013-03-19
 ---------------------
     * Initial release
 
