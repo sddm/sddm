@@ -167,7 +167,6 @@ namespace SDDM {
 
         // load state configuration, it might be changed
         mainConfig.load();
-        stateConfig.load();
 
         // set display server params
         m_displayServer->setDisplay(m_display);
