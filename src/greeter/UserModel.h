@@ -50,7 +50,7 @@ namespace SDDM {
 #endif
 
         const int lastIndex() const;
-        const QString &lastUser() const;
+        QString lastUser() const;
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
