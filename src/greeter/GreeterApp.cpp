@@ -98,10 +98,6 @@ namespace SDDM {
 
         m_view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
 
-        // load configuration, that might be changed
-        mainConfig.load();
-        stateConfig.load();
-
         // read theme metadata
         m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(themePath));
 
