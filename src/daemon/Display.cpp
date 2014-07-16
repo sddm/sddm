@@ -165,9 +165,6 @@ namespace SDDM {
                 qWarning() << "Failed to change owner of the auth file.";
         }
 
-        // load state configuration, it might be changed
-        mainConfig.load();
-
         // set display server params
         m_displayServer->setDisplay(m_display);
         m_displayServer->setAuthPath(m_authPath);
