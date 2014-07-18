@@ -117,4 +117,21 @@ void ConfigurationTest::LineChanges() {
     QVERIFY(confFile.size() == confCopy.size());
 }
 
+void ConfigurationTest::CustomEnum() {
+    QFile confFile(CONF_FILE);
+    confFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    confFile.write("Custom=bar\n");
+    confFile.close();
+    QVERIFY(config->Custom.get() == TestConfig::FOO);
+    config->load();
+    QVERIFY(config->Custom.get() == TestConfig::BAR);
+    config->Custom.set(TestConfig::BAZ);
+    config->save();
+    QVERIFY(confFile.open(QIODevice::ReadOnly));
+    QByteArray contents = confFile.readAll();
+    QVERIFY(contents.contains("baz"));
+    QVERIFY(!contents.contains("bar"));
+    QVERIFY(!contents.contains("foo"));
+}
+
 #include "ConfigurationTest.moc"
