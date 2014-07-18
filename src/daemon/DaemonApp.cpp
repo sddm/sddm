@@ -123,9 +123,16 @@ int main(int argc, char **argv) {
     if (arguments.contains(QLatin1String("--help")) || arguments.contains(QLatin1String("-h"))) {
         std::cout << "Usage: sddm [options]\n"
                   << "Options: \n"
-                  << "  --test-mode         Start daemon in test mode" << std::endl;
+                  << "  --test-mode         Start daemon in test mode" << std::endl
+                  << "  --example-config    Print the complete current configuration to stdout" << std::endl;
 
         return EXIT_FAILURE;
+    }
+
+    // spit a complete config file on stdout and quit on demand
+    if (arguments.contains("--example-config")) {
+        QTextStream(stdout) << SDDM::mainConfig.toConfigFull();
+        return EXIT_SUCCESS;
     }
 
     // create application
