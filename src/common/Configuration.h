@@ -92,9 +92,9 @@ namespace SDDM {
 
     inline QTextStream& operator>>(QTextStream &str, MainConfig::NumState &state) {
         QString text = str.readLine().trimmed();
-        if (text.compare("on", Qt::CaseInsensitive))
+        if (text.compare("on", Qt::CaseInsensitive) == 0)
             state = MainConfig::NUM_SET_ON;
-        else if (text.compare("off", Qt::CaseInsensitive))
+        else if (text.compare("off", Qt::CaseInsensitive) == 0)
             state = MainConfig::NUM_SET_OFF;
         else
             state = MainConfig::NUM_NONE;

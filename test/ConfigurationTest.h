@@ -35,10 +35,16 @@
 #define TEST_BOOL_1 true
 
 Config (TestConfig, CONF_FILE,
+    enum CustomType {
+        FOO,
+        BAR,
+        BAZ
+    };
     Entry(    String,         QString,               _S(TEST_STRING_1), _S("Test String Description"));
     Entry(       Int,             int,                      TEST_INT_1, _S("Test Integer Description"));
     Entry(StringList,     QStringList,  QStringList(TEST_STRINGLIST_1), _S("Test StringList Description"));
     Entry(   Boolean,            bool,                     TEST_BOOL_1, _S("Test Boolean Description"));
+    Entry(    Custom,      CustomType,                             FOO, _S("Custom type imitating NumState"));
     Section(Section,
         Entry(    String,         QString,               _S(TEST_STRING_1), _S("Test String Description"));
         Entry(       Int,             int,                      TEST_INT_1, _S("Test Integer Description"));
@@ -46,6 +52,27 @@ Config (TestConfig, CONF_FILE,
         Entry(   Boolean,            bool,                     TEST_BOOL_1, _S("Test Boolean Description"));
     );
 );
+
+inline QTextStream& operator>>(QTextStream &str, TestConfig::CustomType &state) {
+    QString text = str.readLine().trimmed();
+    if (text.compare("foo", Qt::CaseInsensitive) == 0)
+        state = TestConfig::FOO;
+    else if (text.compare("bar", Qt::CaseInsensitive) == 0)
+        state = TestConfig::BAR;
+    else
+        state = TestConfig::BAZ;
+    return str;
+}
+
+inline QTextStream& operator<<(QTextStream &str, const TestConfig::CustomType &state) {
+    if (state == TestConfig::FOO)
+        str << "foo";
+    else if (state == TestConfig::BAR)
+        str << "bar";
+    else
+        str << "baz";
+    return str;
+}
 
 class ConfigurationTest : public QObject
 {
@@ -61,6 +88,7 @@ private slots:
     void Sections();
     void Unused();
     void LineChanges();
+    void CustomEnum();
 
 private:
     TestConfig *config;
