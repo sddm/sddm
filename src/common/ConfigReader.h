@@ -40,11 +40,27 @@
 #endif
 
 // config wrapper
-#define Config(name, file, ...) class name : public SDDM::ConfigBase, public SDDM::ConfigSection { public: name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, IMPLICIT_SECTION) { } void save() { SDDM::ConfigBase::save(nullptr, nullptr); } void save(SDDM::ConfigEntryBase *) const = delete; __VA_ARGS__ }
+#define Config(name, file, ...) \
+    class name : public SDDM::ConfigBase, public SDDM::ConfigSection { \
+    public: \
+        name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, IMPLICIT_SECTION) { } \
+        void save() { SDDM::ConfigBase::save(nullptr, nullptr); } \
+        void save(SDDM::ConfigEntryBase *) const = delete; \
+        QString toConfigFull() const { \
+            return SDDM::ConfigBase::toConfigFull(); \
+        } \
+        __VA_ARGS__ \
+    }
 // entry wrapper
-#define Entry(name, type, default, description) SDDM::ConfigEntry<type> name { this, #name, (default), (description) }
+#define Entry(name, type, default, description) \
+    SDDM::ConfigEntry<type> name { this, #name, (default), (description) }
 // section wrapper
-#define Section(name, ...) class name : public SDDM::ConfigSection { public: name (SDDM::ConfigBase *_parent, const QString &_name) : SDDM::ConfigSection(_parent, _name) { } __VA_ARGS__ } name { this, #name };
+#define Section(name, ...) \
+    class name : public SDDM::ConfigSection { \
+    public: \
+        name (SDDM::ConfigBase *_parent, const QString &_name) : SDDM::ConfigSection(_parent, _name) { } \
+        __VA_ARGS__ \
+    } name { this, #name };
 
 namespace SDDM {
     template<class> class ConfigEntry;
@@ -160,6 +176,7 @@ namespace SDDM {
         void save(const ConfigSection *section = nullptr, const ConfigEntryBase *entry = nullptr);
         bool hasUnused() const;
         const QString &path() const;
+        QString toConfigFull() const;
     protected:
         bool m_unusedVariables { false };
         bool m_unusedSections { false };
