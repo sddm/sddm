@@ -91,6 +91,15 @@ namespace SDDM {
         return m_unusedSections || m_unusedVariables;
     }
 
+    QString ConfigBase::toConfigFull() const {
+        QString ret;
+        for (ConfigSection *s : m_sections) {
+            ret.append(s->toConfigFull());
+            ret.append('\n');
+        }
+        return ret;
+    }
+
     void ConfigBase::load() {
         // first check if there's at least anything to read, otherwise stick to default values
         if (!QFile::exists(m_path))
