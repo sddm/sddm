@@ -164,7 +164,7 @@ namespace SDDM {
         };
 
         // a short function to assign the current junk and current line to the right section, eventually create a new one
-        auto writeSectionData = [currentSection, &junk, &sectionOrder, &sectionData](const QString &data) {
+        auto writeSectionData = [&currentSection, &junk, &sectionOrder, &sectionData](const QString &data) {
             if (currentSection && !sectionOrder.contains(currentSection)) {
                 sectionOrder.append(currentSection);
                 sectionData[currentSection] = QByteArray();
