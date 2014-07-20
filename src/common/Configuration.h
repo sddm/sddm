@@ -56,9 +56,9 @@ namespace SDDM {
             Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("X server path"));
             Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Xauth path"));
             Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Session description directory"));
-            Entry(SessionCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsession"),   _S("XSession script path\n"
+            Entry(SessionCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsession"),   _S("Xsession script path\n"
                                                                                                    "A script to execute when starting the desktop session"));
-            Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/XSetup"),     _S("XSetup script path\n"
+            Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Xsetup script path\n"
                                                                                                    "A script to execute when starting the display server"));
             Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("Minimum VT\n"
                                                                                                    "The lowest virtual terminal number that will be used."));
