@@ -29,6 +29,7 @@
 
 QTextStream &operator>>(QTextStream &str, QStringList &list)  {
     QStringList tempList = str.readLine().split(",");
+    list.clear();
     foreach(const QString &s, tempList)
         if (!s.trimmed().isEmpty())
             list.append(s.trimmed());
