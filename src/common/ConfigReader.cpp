@@ -27,6 +27,34 @@
 #include <QtCore/QMap>
 #include <QtCore/QBuffer>
 
+QTextStream &operator>>(QTextStream &str, QStringList &list)  {
+    QStringList tempList = str.readLine().split(",");
+    foreach(const QString &s, tempList)
+        if (!s.trimmed().isEmpty())
+            list.append(s.trimmed());
+    return str;
+}
+
+QTextStream &operator<<(QTextStream &str, const QStringList &list) {
+    str << list.join(",");
+    return str;
+}
+
+QTextStream &operator>>(QTextStream &str, bool &val) {
+    if (0 == str.readLine().trimmed().compare("true", Qt::CaseInsensitive))
+        val = true;
+    else
+        val = false;
+    return str;
+}
+
+QTextStream &operator<<(QTextStream &str, const bool &val) {
+    if (val)
+        str << "true";
+    else
+        str << "false";
+    return str;
+}
 
 namespace SDDM {
     // has to be specialised because QTextStream reads only words into a QString
@@ -262,35 +290,5 @@ namespace SDDM {
                 file.write("\n");
             }
         }
-    }
-
-
-    QTextStream &operator>>(QTextStream &str, QStringList &list)  {
-        QStringList tempList = str.readLine().split(",");
-        foreach(const QString &s, tempList)
-            if (!s.trimmed().isEmpty())
-                list.append(s.trimmed());
-        return str;
-    }
-
-    QTextStream &operator<<(QTextStream &str, const QStringList &list) {
-        str << list.join(",");
-        return str;
-    }
-
-    QTextStream &operator>>(QTextStream &str, bool &val) {
-        if (0 == str.readLine().trimmed().compare("true", Qt::CaseInsensitive))
-            val = true;
-        else
-            val = false;
-        return str;
-    }
-
-    QTextStream &operator<<(QTextStream &str, const bool &val) {
-        if (val)
-            str << "true";
-        else
-            str << "false";
-        return str;
     }
 }
