@@ -43,7 +43,9 @@
 #define Config(name, file, ...) \
     class name : public SDDM::ConfigBase, public SDDM::ConfigSection { \
     public: \
-        name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, IMPLICIT_SECTION) { } \
+        name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, IMPLICIT_SECTION) { \
+            load(); \
+        } \
         void save() { SDDM::ConfigBase::save(nullptr, nullptr); } \
         void save(SDDM::ConfigEntryBase *) const = delete; \
         QString toConfigFull() const { \
