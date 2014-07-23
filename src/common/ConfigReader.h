@@ -64,6 +64,11 @@
         __VA_ARGS__ \
     } name { this, #name };
 
+QTextStream &operator>>(QTextStream &str, QStringList &list);
+QTextStream &operator<<(QTextStream &str, const QStringList &list);
+QTextStream &operator>>(QTextStream &str, bool &val);
+QTextStream &operator<<(QTextStream &str, const bool &val);
+
 namespace SDDM {
     template<class> class ConfigEntry;
     class ConfigSection;
@@ -187,11 +192,6 @@ namespace SDDM {
         QMap<QString, ConfigSection*> m_sections;
         friend class ConfigSection;
     };
-
-    QTextStream &operator>>(QTextStream &str, QStringList &list);
-    QTextStream &operator<<(QTextStream &str, const QStringList &list);
-    QTextStream &operator>>(QTextStream &str, bool &val);
-    QTextStream &operator<<(QTextStream &str, const bool &val);
 }
 
 
