@@ -40,8 +40,11 @@ bool UserSession::start() {
 
     if (env.value("XDG_SESSION_CLASS") == "greeter")
         QProcess::start(m_path);
-    else
-        QProcess::start(SESSION_COMMAND, {m_path});
+    else {
+        QStringList args;
+        args << m_path;
+        QProcess::start(SESSION_COMMAND, {args});
+    }
 
     return waitForStarted();
 }

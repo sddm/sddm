@@ -62,7 +62,9 @@ namespace SDDM {
         qDebug() << "Display server starting...";
 
         if (daemonApp->testing()) {
-            process->start("/usr/bin/Xephyr", { m_display, "-ac", "-br", "-noreset", "-screen",  "800x600"});
+            QStringList args;
+            args << m_display << "-ac" << "-br" << "-noreset" << "-screen" << "800x600";
+            process->start("/usr/bin/Xephyr", args);
         } else {
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
