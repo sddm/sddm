@@ -134,4 +134,22 @@ void ConfigurationTest::CustomEnum() {
     QVERIFY(!contents.contains("foo"));
 }
 
+void ConfigurationTest::RightOnInit() {
+    delete config;
+    QFile confFile(CONF_FILE);
+    confFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    confFile.write("String=a\n");
+    confFile.write("Int=99999\n");
+    confFile.write("StringList=a,b,c,qwertzuiop\n");
+    confFile.write("Boolean=false\n");
+    confFile.write("Custom=null\n");
+    confFile.close();
+    config = new TestConfig;
+    QVERIFY(config->String.get() == "a");
+    QVERIFY(config->Int.get() == 99999);
+    QVERIFY(config->StringList.get() == QStringList({"a", "b", "c", "qwertzuiop"}));
+    QVERIFY(config->Boolean.get() == false);
+    QVERIFY(config->Custom.get() == TestConfig::BAZ);
+}
+
 #include "ConfigurationTest.moc"
