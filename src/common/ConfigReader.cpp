@@ -79,8 +79,6 @@ namespace SDDM {
 
 
     ConfigBase::ConfigBase(const QString &configPath) : m_path(configPath) {
-        // so far it's safe to assume we want to load everything on Initialization
-        load();
     }
 
     const QString &ConfigBase::path() const {
