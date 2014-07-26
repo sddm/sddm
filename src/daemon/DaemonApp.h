@@ -41,7 +41,7 @@ namespace SDDM {
 
         // TODO: move these two away
         bool testing() const;
-        bool first { false };
+        bool first { true };
 
         QString hostName() const;
         DisplayManager *displayManager() const;
