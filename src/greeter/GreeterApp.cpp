@@ -63,7 +63,7 @@ namespace SDDM {
 
     GreeterApp *GreeterApp::self = nullptr;
 
-    GreeterApp::GreeterApp(int argc, char **argv) :
+    GreeterApp::GreeterApp(int &argc, char **argv) :
 #ifdef USE_QT5
     QGuiApplication(argc, argv)
 #else
