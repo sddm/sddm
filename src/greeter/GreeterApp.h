@@ -52,7 +52,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(GreeterApp)
     public:
-        explicit GreeterApp(int argc, char **argv);
+        explicit GreeterApp(int &argc, char **argv);
 
         static GreeterApp *instance() { return self; }
 
