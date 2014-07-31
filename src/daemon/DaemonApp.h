@@ -35,7 +35,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(DaemonApp)
     public:
-        explicit DaemonApp(int argc, char **argv);
+        explicit DaemonApp(int &argc, char **argv);
 
         static DaemonApp *instance() { return self; }
 
