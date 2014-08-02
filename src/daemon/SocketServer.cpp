@@ -50,10 +50,8 @@ namespace SDDM {
         // create server
         m_server = new QLocalServer(this);
 
-#ifdef USE_QT5
         // set server options
         m_server->setSocketOptions(QLocalServer::UserAccessOption);
-#endif
 
         // start listening
         if (!m_server->listen(socketName)) {

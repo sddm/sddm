@@ -21,13 +21,8 @@
 
 #include <memory>
 
-#ifdef USE_QT5
 #include <QGuiApplication>
 #include <QScreen>
-#else
-#include <QApplication>
-#include <QDesktopWidget>
-#endif
 
 namespace SDDM {
     class Screen {
@@ -46,12 +41,7 @@ namespace SDDM {
     };
 
     ScreenModel::ScreenModel(QObject *parent) : QAbstractListModel(parent), d(new ScreenModelPrivate()) {
-#ifdef USE_QT5
         connect(QGuiApplication::instance(), SIGNAL(screenAdded(QScreen*)), this, SLOT(onScreenAdded(QScreen*)));
-#else
-        connect(QApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(onScreenChanged()));
-        connect(QApplication::desktop(), SIGNAL(resized(int)), this, SLOT(onScreenChanged()));
-#endif
         initScreens(true);
     }
 
@@ -59,7 +49,6 @@ namespace SDDM {
         delete d;
     }
 
-#ifdef USE_QT5
     QHash<int, QByteArray> ScreenModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
@@ -67,7 +56,6 @@ namespace SDDM {
         roleNames[GeometryRole] = "geometry";
         return roleNames;
     }
-#endif
 
     int ScreenModel::primary() const {
         return d->primary;
@@ -84,13 +72,11 @@ namespace SDDM {
         return d->screens.at(index)->geometry;
     }
 
-#ifdef USE_QT5
     void ScreenModel::onScreenAdded(QScreen *scrn) {
         // Recive screen updates
         connect(scrn, SIGNAL(geometryChanged(const QRect &)), this, SLOT(onScreenChanged()));
         onScreenChanged();
     }
-#endif
 
     void ScreenModel::onScreenChanged() {
         initScreens(false);
@@ -124,15 +110,6 @@ namespace SDDM {
         d->primary = 0;
         d->screens.clear();
 
-#ifndef USE_QT5
-        // set role names
-        QHash<int, QByteArray> roleNames;
-        roleNames[NameRole] = "name";
-        roleNames[GeometryRole] = "geometry";
-        // set role names
-        setRoleNames(roleNames);
-#endif
-
 #if 0
         // fake model for testing
         d->geometry = QRect(0, 0, 1920, 1080);
@@ -143,7 +120,6 @@ namespace SDDM {
         return;
 #endif
 
-#ifdef USE_QT5
         QList<QScreen *> screens = QGuiApplication::screens();
         for (int i = 0; i < screens.size(); ++i) {
             QScreen *screen = screens.at(i);
@@ -160,20 +136,6 @@ namespace SDDM {
                 connect(screen, SIGNAL(geometryChanged(const QRect &)), this, SLOT(onScreenChanged()));
             }
         }
-#else
-        // set primary screen
-        d->primary = QApplication::desktop()->primaryScreen();
-        // get screen count
-        int screenCount = QApplication::desktop()->screenCount();
-
-        for (int i = 0; i < screenCount; ++i) {
-            QRect geometry = QApplication::desktop()->screenGeometry(i);
-            // add to the screens list
-            d->screens << ScreenPtr { new Screen { QString("Screen %1").arg(i + 1), geometry } };
-            // extend available geometry
-            d->geometry = d->geometry.united(geometry);
-        }
-#endif
         endResetModel();
 
         emit primaryChanged();

@@ -3,17 +3,11 @@ language: cpp
 compiler:
   - gcc
 
-env:
-  matrix:
-    - QT5=ON
-    - QT5=OFF
-
 before_install:
   - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
 
-  - if [ "$QT5" == "ON" ]; then sudo apt-add-repository -y ppa:ubuntu-sdk-team/ppa; fi
-
+  - sudo apt-add-repository -y ppa:ubuntu-sdk-team/ppa
   - sudo add-apt-repository ppa:czchen/travis-ci -y
   - sudo apt-get update -y
 install:
@@ -24,8 +18,7 @@ install:
   - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
   - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
 
-  - if [ "$QT5" == "OFF" ]; then sudo apt-get install -qq qt4-dev-tools; fi
-  - if [ "$QT5" == "ON" ]; then sudo apt-get install qtdeclarative5-dev qttools5-dev qttools5-dev-tools; fi
+  - sudo apt-get install qtdeclarative5-dev qttools5-dev qttools5-dev-tools
   - sudo apt-get install -qq libpam0g-dev libX11-dev libx11-xcb-dev
   - sudo apt-get install cmake -y
 
@@ -41,7 +34,7 @@ install:
 before_script:
   - mkdir build
   - cd build
-  - cmake -DUSE_QT5=$QT5 ..
+  - cmake ..
 
 script: make
 

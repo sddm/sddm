@@ -22,9 +22,7 @@
 
 #include <QAbstractListModel>
 
-#ifdef USE_QT5
 #include <QHash>
-#endif
 
 namespace SDDM {
     class UserModelPrivate;
@@ -45,9 +43,7 @@ namespace SDDM {
         UserModel(QObject *parent = 0);
         ~UserModel();
 
-#ifdef USE_QT5
         QHash<int, QByteArray> roleNames() const override;
-#endif
 
         const int lastIndex() const;
         QString lastUser() const;

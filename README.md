@@ -40,7 +40,7 @@ https://groups.google.com/group/sddm-devel
 
 ## INSTALLATION
 
-The repository builds against both Qt4 and Qt5. For Qt5 pass -DUSE_QT5 to cmake.
+Qt >= 5.0.0 is required to use SDDM, although Qt >= 5.3.0 is reccomended.
 
 SDDM runs the greeter as a system user named "sddm" whose home directory need
 to be set to ```/var/lib/sddm```.

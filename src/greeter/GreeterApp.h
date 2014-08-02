@@ -20,13 +20,8 @@
 #ifndef GREETERAPP_H
 #define GREETERAPP_H
 
-#ifdef USE_QT5
 #include <QGuiApplication>
 #include <QQuickView>
-#else
-#include <QApplication>
-#include <QDeclarativeView>
-#endif
 
 class QTranslator;
 
@@ -42,12 +37,7 @@ namespace SDDM {
     class KeyboardModel;
 
 
-    class GreeterApp : public
-#ifdef USE_QT5
-    QGuiApplication
-#else
-    QApplication
-#endif
+    class GreeterApp : public QGuiApplication
     {
         Q_OBJECT
         Q_DISABLE_COPY(GreeterApp)
@@ -62,11 +52,7 @@ namespace SDDM {
     private:
         static GreeterApp *self;
 
-#ifdef USE_QT5
         QQuickView *m_view { nullptr };
-#else
-        QDeclarativeView *m_view { nullptr };
-#endif
         QTranslator *m_theme_translator { nullptr },
                     *m_components_tranlator { nullptr };
 

@@ -116,7 +116,6 @@ namespace SDDM {
         delete d;
     }
 
-#ifdef USE_QT5
     QHash<int, QByteArray> UserModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
@@ -127,7 +126,6 @@ namespace SDDM {
 
         return roleNames;
     }
-#endif
 
     const int UserModel::lastIndex() const {
         return d->lastIndex;
