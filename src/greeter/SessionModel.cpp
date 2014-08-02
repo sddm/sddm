@@ -56,8 +56,6 @@ namespace SDDM {
         // set role names
         setRoleNames(roleNames);
 #endif
-        // add failsafe session
-        d->sessions << SessionPtr { new Session {"failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
         // read session files
         QDir dir(mainConfig.XDisplay.SessionDir.get());
         dir.setNameFilters(QStringList() << "*.desktop");
@@ -83,6 +81,8 @@ namespace SDDM {
             // close file
             inputFile.close();
         }
+        // add failsafe session
+        d->sessions << SessionPtr { new Session {"failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
             if (d->sessions.at(i)->file == stateConfig.Last.Session.get())
