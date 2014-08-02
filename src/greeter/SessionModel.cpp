@@ -85,8 +85,10 @@ namespace SDDM {
         d->sessions << SessionPtr { new Session {"failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
-            if (d->sessions.at(i)->file == stateConfig.Last.Session.get())
+            if (d->sessions.at(i)->file == stateConfig.Last.Session.get()) {
                 d->lastIndex = i;
+                break;
+            }
         }
     }
 
