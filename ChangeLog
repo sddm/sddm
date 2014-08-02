@@ -7,7 +7,7 @@
 ## Master
 ---------
 
-## 0.9.0 - 2014-07-15
+## 0.9.0 - 2014-08-02
 ---------------------
     + Implemented automatic login
     + Greeter now runs as its own user
@@ -33,8 +33,11 @@
     - Fixed missing environment variables
     - Find empty displays and virtual desktops automatically
     - Exit gracefully when SIGTERM is received
+    - Fix running SDDM under a Plasma 5.0 desktop.
     * Now using Oxygen instead of Geosans Light
     * Added man pages sddm(1), sddm-greeter(1), sddm.conf(5)
+    * Removed custom session
+    * Failsafe is no longer the default session
 
 ## 0.1.0 - 2013-03-19
 ---------------------
