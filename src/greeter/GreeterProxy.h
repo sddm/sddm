@@ -50,8 +50,8 @@ namespace SDDM {
         bool canSuspend() const;
         bool canHibernate() const;
         bool canHybridSleep() const;
-	
-        bool isConnected() const; 
+
+        bool isConnected() const;
 
         void setSessionModel(SessionModel *model);
 
