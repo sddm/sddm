@@ -7,6 +7,8 @@
 ## Master
 ---------
 
+    * Separate display server specific code.
+
 ## 0.9.0 - 2014-08-02
 ---------------------
     + Implemented automatic login
