@@ -4,8 +4,10 @@
     - Bug fixes
     * Others
 
-## Master
----------
+## 0.9.1 - ???
+--------------
+
+    * Separate display server specific code.
 
 ## 0.9.0 - 2014-08-02
 ---------------------
