@@ -70,31 +70,17 @@ find_package(XCB REQUIRED)
 # XKB
 find_package(XKB REQUIRED)
 
-# Qt
-if(USE_QT5)
-  find_package(Qt5Core REQUIRED)
-  find_package(Qt5DBus REQUIRED)
-  find_package(Qt5LinguistTools REQUIRED)
+# Qt 5
+find_package(Qt5Core REQUIRED)
+find_package(Qt5DBus REQUIRED)
+find_package(Qt5LinguistTools REQUIRED)
 
-  # find qt5 imports dir
-  get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
-  exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
+# find qt5 imports dir
+get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
+exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 
-  add_definitions(-DUSE_QT5)
-  set(CMAKE_AUTOMOC_MOC_OPTIONS -DUSE_QT5)
-
-  set(COMPONENTS_VERSION 2.0)
-else()
-  find_package(Qt4 REQUIRED)
-
-  # find qt4 imports dir, required if no QML plugins are already installed
-  # for example, see: https://bugs.launchpad.net/ubuntu/+source/cmake/+bug/894805
-  # and many other bug reports
-  _qt4_query_qmake(QT_INSTALL_IMPORTS QT_IMPORTS_DIR)
-  set(QT_IMPORTS_DIR "${QT_IMPORTS_DIR}")
-
-  set(COMPONENTS_VERSION 1.1)
-endif()
+# Set components version
+set(COMPONENTS_VERSION 2.0)
 
 # Uninstall target
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"

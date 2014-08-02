@@ -14,11 +14,7 @@ set(TRANSLATION_FILES
     zh_CN.ts
 )
 
-if(USE_QT5)
-    qt5_add_translation(QM_FILES ${TRANSLATION_FILES})
-else()
-    qt4_add_translation(QM_FILES ${TRANSLATION_FILES})
-endif()
+qt5_add_translation(QM_FILES ${TRANSLATION_FILES})
 
 install(FILES ${QM_FILES} DESTINATION "${COMPONENTS_TRANSLATION_DIR}")
 

@@ -26,9 +26,7 @@
 #include "SeatManager.h"
 #include "SignalHandler.h"
 
-#ifdef USE_QT5
 #include "MessageHandler.h"
-#endif
 
 #include <QDebug>
 #include <QHostInfo>
@@ -43,9 +41,7 @@ namespace SDDM {
         // point instance to this
         self = this;
 
-#ifdef USE_QT5
         qInstallMessageHandler(SDDM::DaemonMessageHandler);
-#endif
 
         // log message
         qDebug() << "Initializing...";

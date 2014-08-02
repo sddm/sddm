@@ -22,9 +22,7 @@
 
 #include <QAbstractListModel>
 
-#ifdef USE_QT5
 #include <QHash>
-#endif
 
 #include <QRect>
 
@@ -46,9 +44,7 @@ namespace SDDM {
         ScreenModel(QObject *parent = 0);
         ~ScreenModel();
 
-#ifdef USE_QT5
         QHash<int, QByteArray> roleNames() const override;
-#endif
         int primary() const;
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -58,9 +54,7 @@ namespace SDDM {
         const QRect geometry(int index = -1) const;
 
     private slots:
-#ifdef USE_QT5
         void onScreenAdded(QScreen *scrn);
-#endif
         void onScreenChanged();
 
     signals:
