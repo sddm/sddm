@@ -28,19 +28,12 @@
 #include "UserModel.h"
 #include "KeyboardModel.h"
 
-#ifdef USE_QT5
 #include "MessageHandler.h"
 
 #include <QGuiApplication>
 #include <QQuickView>
 #include <QQmlContext>
 #include <QQmlEngine>
-#else
-#include <QApplication>
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
-#endif
 #include <QDebug>
 #include <QTranslator>
 
@@ -63,13 +56,7 @@ namespace SDDM {
 
     GreeterApp *GreeterApp::self = nullptr;
 
-    GreeterApp::GreeterApp(int &argc, char **argv) :
-#ifdef USE_QT5
-    QGuiApplication(argc, argv)
-#else
-    QApplication(argc, argv)
-#endif
-    {
+    GreeterApp::GreeterApp(int &argc, char **argv) : QGuiApplication(argc, argv) {
         // point instance to this
         self = this;
 
@@ -85,16 +72,9 @@ namespace SDDM {
         // get theme path
         QString themePath = parameter(arguments(), "--theme", "");
 
-        // Initialize
-    #ifdef USE_QT5
         // create view
         m_view = new QQuickView();
         m_view->setResizeMode(QQuickView::SizeRootObjectToView);
-    #else
-        // create view
-        m_view = new QDeclarativeView();
-        m_view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    #endif
 
         m_view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
 
@@ -163,25 +143,19 @@ namespace SDDM {
         connect(m_screenModel, SIGNAL(primaryChanged()), this, SLOT(show()));
 
         show();
-#ifndef USE_QT5
-        m_view->show();
-#endif
     }
 
     void GreeterApp::show() {
         m_view->setGeometry(m_screenModel->geometry());
-#ifdef USE_QT5
         m_view->show();
-#endif
     }
 
 }
 
 int main(int argc, char **argv) {
-#ifdef USE_QT5
     // install message handler
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
-#endif
+
     QStringList arguments;
 
     for (int i = 0; i < argc; i++)
