@@ -1,0 +1,44 @@
+============
+ state.conf
+============
+
+----------------------------------
+sddm display manager configuration
+----------------------------------
+
+:Date: August 2014
+:Version: sddm @SDDM_VERSION_STRING@
+:Manual section: 5
+:Manual group: sddm
+
+SYNOPSIS
+========
+
+  ~sddm/state.conf
+
+DESCRIPTION
+===========
+
+This file carries state configuration for the sddm display manager **sddm**\(1\).
+
+OPTIONS
+=======
+
+All options are configured in the [Last] section:
+
+`Session=`
+	Name of the session file of the last session selected.
+	This session will be preselected when the login screen shows up.
+	Default value is empty.
+
+`User=`
+	Name of last logged-in user. This username will be
+	preselected/shown when the login screen shows up.
+	Default value is empty.
+
+SEE ALSO
+========
+
+**sddm**\(1\)
+
+The full documentation for sddm is avaialble at https://github.com/sddm/sddm

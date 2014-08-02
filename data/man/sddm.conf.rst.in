@@ -6,7 +6,7 @@
 sddm display manager configuration
 ----------------------------------
 
-:Date: May 2014
+:Date: August 2014
 :Version: sddm @SDDM_VERSION_STRING@
 :Manual section: 5
 :Manual group: sddm
@@ -24,27 +24,7 @@ This file configures various parameters of the sddm display manager **sddm**\(1\
 OPTIONS
 =======
 
-All options are configured in the [General] section:
-
-`DefaultPath=`
-	Default path to set after successfully logging in.
-	Default value is "/bin:/usr/bin:/usr/local/bin".
-
-`CursorTheme=`
-	Name of the cursor theme to be set before starting
-	the display server.
-
-`ServerPath=`
-	Path of the X server.
-	Default value is "/usr/bin/X".
-
-`XauthPath=`
-	Path of the Xauth.
-	Default value is "/usr/bin/xauth".
-
-`StateDir=`
-	Path of the directory where sddm state is kept.
-	Default value is "@STATE_DIR@".
+[General] section:
 
 `HaltCommand=`
 	Halt command.
@@ -54,19 +34,44 @@ All options are configured in the [General] section:
 	Reboot command.
 	Default value is "@REBOOT_COMMAND@".
 
-`SessionsDir=`
+`Numlock=`
+	Change numlock state when **sddm-greeter** starts.
+	Valid values are `on`, `off` or `none`.
+	If property is set to `none`, numlock won't be changed.
+	Default value is "none".
+
+[Theme] section:
+
+`ThemeDir=`
+	Path of the directory containing theme files.
+	Default value is "@DATA_INSTALL_DIR@/themes".
+
+`Current=`
+	Name of the current theme.
+	Default value is "maui".
+
+`FacesDir=`
+	Path of the directory containing face files,
+	face files should be in username.face.icon format.
+	Default value is "@DATA_INSTALL_DIR@/faces".
+
+`CursorTheme=`
+	Name of the cursor theme to be set before starting
+	the display server.
+
+[XDisplay] section:
+
+`ServerPath=`
+	Path of the X server.
+	Default value is "/usr/bin/X".
+
+`XauthPath=`
+	Path of the Xauth.
+	Default value is "/usr/bin/xauth".
+
+`SessionDir=`
 	Path of the directory containing session files.
 	Default value is "/usr/share/xsessions".
-
-`LastSession=`
-	Name of the session file of the last session selected.
-	This session will be preselected when the login screen shows up.
-
-`RememberLastSession=`
-	If this flag is true, LastSession value will updated
-	on every successfull login, if false last session value
-	wont be updated.
-	Default value is true.
 
 `SessionCommand=`
 	Path of script to execute when starting the desktop session.
@@ -76,18 +81,17 @@ All options are configured in the [General] section:
 	Path of script to execute when starting the display server.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
 
-`FacesDir=`
-	Path of the directory containing face files,
-	face files should be in username.face.icon format.
-	Default value is "@DATA_INSTALL_DIR@/faces".
+`MinimumVT=`
+	Minimum virtual terminal number that will be used
+	by the first display. Virtual terminal number will
+	increase as new displays added.
+	Default value is @MINIMUM_VT@.
 
-`ThemesDir=`
-	Path of the directory containing theme files.
-	Default value is "@DATA_INSTALL_DIR@/themes".
+[Users] section:
 
-`CurrentTheme=`
-	Name of the current theme.
-	Default value is "maui".
+`DefaultPath=`
+	Default path to set after successfully logging in.
+	Default value is "/bin:/usr/bin:/usr/local/bin".
 
 `MinimumUid=`
 	Minimum user id of the users to be listed in the
@@ -107,39 +111,35 @@ All options are configured in the [General] section:
 	Shells of users that shouldn't show up in the user list.
 	Default value is empty.
 
-`LastUser=`
-	Name of last logged-in user. This username will be
-	preselected/shown when the login screen shows up.
-	Default value is empty.
-
 `RememberLastUser=`
 	If this flag is true, LastUser value will updated
 	on every successfull login, if false last user value
 	wont be updated.
 	Default value is true.
 
-`AutoUser=`
+`RememberLastSession=`
+	If this flag is true, LastSession value will updated
+	on every successfull login, if false last session value
+	wont be updated.
+	Default value is true.
+
+[Autologin] section:
+
+`User=`
 	Name of the user to automatically log in when the
 	system starts first time.
 	Default value is empty.
 
-`AutoRelogin=`
-	If true and AutoUser is set automatic login will
-	kick in again, if false automotic login will work
+`Session=`
+	Name of the session to automatically log in when the
+	system starts first time.
+	Default value is empty.
+
+`Relogin=`
+	If true and User and Session are set automatic login will
+	kick in again on session exit, otherwise it will work
 	only the first time.
 	Default value is false.
-
-`MinimumVT=`
-	Minimum virtual terminal number that will be used
-	by the first display. Virtual terminal number will
-	increase as new displays added.
-	Default value is @MINIMUM_VT@.
-
-`Numlock=`
-	Change numlock state when **sddm-greeter** starts.
-	Valid values are `on`, `off` or `none`.
-	If property is set to `none`, numlock won't be changed.
-	Default value is "none".
 
 SEE ALSO
 ========
