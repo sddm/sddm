@@ -47,7 +47,7 @@ class Request;
  *    hidden = true, type = LOGIN_PASSWORD, message = whatever the stack provides
  *
  * It's up to you to fill the \ref AuthPrompt::response property.
- * When all the fields are filled to your satisfaction, just trigger the \ref done 
+ * When all the fields are filled to your satisfaction, just trigger the \ref done
  * slot and the response will go back to the authenticator.
  *
  * \todo Decide if it's sane to use the info messages from PAM or to somehow parse them
