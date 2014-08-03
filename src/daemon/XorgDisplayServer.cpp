@@ -44,7 +44,7 @@ namespace SDDM {
 
         // use "." as authdir in test mode
         if (daemonApp->testing())
-            authDir = QLatin1String(".");
+            authDir = QStringLiteral(".");
 
         // create auth dir if not existing
         QDir().mkpath(authDir);
@@ -83,7 +83,7 @@ namespace SDDM {
     }
 
     QString XorgDisplayServer::sessionType() const {
-        return QLatin1String("x11");
+        return QStringLiteral("x11");
     }
 
     const QString &XorgDisplayServer::cookie() const {
