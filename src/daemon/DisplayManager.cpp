@@ -26,10 +26,10 @@
 #include "seatadaptor.h"
 #include "sessionadaptor.h"
 
-#define DISPLAYMANAGER_SERVICE      QLatin1String("org.freedesktop.DisplayManager")
-#define DISPLAYMANAGER_PATH         QLatin1String("/org/freedesktop/DisplayManager")
-#define DISPLAYMANAGER_SEAT_PATH    QLatin1String("/org/freedesktop/DisplayManager/Seat")
-#define DISPLAYMANAGER_SESSION_PATH QLatin1String("/org/freedesktop/DisplayManager/Session")
+#define DISPLAYMANAGER_SERVICE      QStringLiteral("org.freedesktop.DisplayManager")
+#define DISPLAYMANAGER_PATH         QStringLiteral("/org/freedesktop/DisplayManager")
+#define DISPLAYMANAGER_SEAT_PATH    QStringLiteral("/org/freedesktop/DisplayManager/Seat")
+#define DISPLAYMANAGER_SESSION_PATH QStringLiteral("/org/freedesktop/DisplayManager/Session")
 
 namespace SDDM {
     DisplayManager::DisplayManager(QObject *parent) : QObject(parent) {

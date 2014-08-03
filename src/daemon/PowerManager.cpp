@@ -53,9 +53,9 @@ namespace SDDM {
     /* UPOWER BACKEND                             */
     /**********************************************/
 
-#define UPOWER_SERVICE  QLatin1String("org.freedesktop.UPower")
-#define UPOWER_PATH     QLatin1String("/org/freedesktop/UPower")
-#define UPOWER_OBJECT   QLatin1String("org.freedesktop.UPower")
+#define UPOWER_SERVICE  QStringLiteral("org.freedesktop.UPower")
+#define UPOWER_PATH     QStringLiteral("/org/freedesktop/UPower")
+#define UPOWER_OBJECT   QStringLiteral("org.freedesktop.UPower")
 
     class UPowerBackend : public PowerManagerBackend {
     public:
@@ -113,9 +113,9 @@ namespace SDDM {
     /* LOGIN1 BACKEND                             */
     /**********************************************/
 
-#define LOGIN1_SERVICE  QLatin1String("org.freedesktop.login1")
-#define LOGIN1_PATH     QLatin1String("/org/freedesktop/login1")
-#define LOGIN1_OBJECT   QLatin1String("org.freedesktop.login1.Manager")
+#define LOGIN1_SERVICE  QStringLiteral("org.freedesktop.login1")
+#define LOGIN1_PATH     QStringLiteral("/org/freedesktop/login1")
+#define LOGIN1_OBJECT   QStringLiteral("org.freedesktop.login1.Manager")
 
     class Login1Backend : public PowerManagerBackend {
     public:
