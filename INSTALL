@@ -7,8 +7,12 @@ SDDM uses CMake to configure and build the project.
   3. To build, run `make`.
   4. To install, run `make install`.
 
-CMake accepts a number of standard and extra arguments. For example, to build
-with Qt 5, append the argument `-DUSE_QT5=true`.
+CMake accepts a number of standard and extra arguments:
+
+  - BUILD_MAN_PAGES, pass -DBUILD_MAN_PAGES=ON to build man pages
+  - ENABLE_JOURNALD, pass -DENABLE_JOURNALD=OFF
+    to disable logging to the journal
+
 By default, a debug build is created. To build for production, use
 `cmake -DCMAKE_BUILD_TYPE=Release`.
 
