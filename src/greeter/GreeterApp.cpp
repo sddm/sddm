@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
     for (int i = 0; i < argc; i++)
         arguments << argv[i];
 
-    if (arguments.contains(QLatin1String("--help")) || arguments.contains(QLatin1String("-h"))) {
+    if (arguments.contains(QStringLiteral("--help")) || arguments.contains(QStringLiteral("-h"))) {
         std::cout << "Usage: " << argv[0] << " [options] [arguments]\n"
                      "Options: \n"
                      "  --theme <theme path>       Set greeter theme\n"
