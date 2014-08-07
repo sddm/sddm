@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -19,143 +20,17 @@
 
 #include "DisplayServer.h"
 
-#include "Configuration.h"
-#include "DaemonApp.h"
 #include "Display.h"
-#include "SignalHandler.h"
-
-#include <QDebug>
-#include <QProcess>
-
-#include <xcb/xcb.h>
-
-#include <unistd.h>
 
 namespace SDDM {
     DisplayServer::DisplayServer(Display *parent) : QObject(parent), m_displayPtr(parent) {
     }
 
-    DisplayServer::~DisplayServer() {
-        stop();
+    Display *DisplayServer::displayPtr() const {
+        return m_displayPtr;
     }
 
-    void DisplayServer::setDisplay(const QString &display) {
-        m_display = display;
-    }
-
-    void DisplayServer::setAuthPath(const QString &authPath) {
-        m_authPath = authPath;
-    }
-
-    bool DisplayServer::start() {
-        // check flag
-        if (m_started)
-            return false;
-
-        // create process
-        process = new QProcess(this);
-
-        // delete process on finish
-        connect(process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
-
-        // log message
-        qDebug() << "Display server starting...";
-
-        if (daemonApp->testing()) {
-            QStringList args;
-            args << m_display << "-ac" << "-br" << "-noreset" << "-screen" << "800x600";
-            process->start("/usr/bin/Xephyr", args);
-        } else {
-            // set process environment
-            QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-            env.insert("DISPLAY", m_display);
-            env.insert("XAUTHORITY", m_authPath);
-            env.insert("XCURSOR_THEME", mainConfig.Theme.CursorTheme.get());
-            process->setProcessEnvironment(env);
-
-            // tell the display server to notify us when we can connect
-            SignalHandler::ignoreSigusr1();
-
-            // start display server
-            QStringList args;
-            args << m_display
-                 << "-auth" << m_authPath
-                 << "-nolisten" << "tcp"
-                 << "-background" << "none"
-                 << "-noreset"
-                 << QString("vt%1").arg(m_displayPtr->terminalId());
-            process->start(mainConfig.XDisplay.ServerPath.get(), args);
-            SignalHandler::initializeSigusr1();
-        }
-
-        // wait for display server to start
-        if (!process->waitForStarted()) {
-            // log message
-            qCritical() << "Failed to start display server process.";
-
-            // return fail
-            return false;
-        }
-
-        // set flag
-        m_started = true;
-
-        // return success
-        return true;
-    }
-
-    void DisplayServer::stop() {
-        // check flag
-        if (!m_started)
-            return;
-
-        // log message
-        qDebug() << "Display server stopping...";
-
-        // terminate process
-        process->terminate();
-
-        // wait for finished
-        if (!process->waitForFinished(5000))
-            process->kill();
-    }
-
-    void DisplayServer::finished() {
-        // check flag
-        if (!m_started)
-            return;
-
-        // reset flag
-        m_started = false;
-
-        // log message
-        qDebug() << "Display server stopped.";
-
-        // clean up
-        process->deleteLater();
-        process = nullptr;
-
-        // emit signal
-        emit stopped();
-    }
-
-    void DisplayServer::setupDisplay() {
-        QString displayCommand = mainConfig.XDisplay.DisplayCommand.get();
-
-        // create display setup script process
-        QProcess *displayScript = new QProcess();
-
-        // set process environment
-        QProcessEnvironment env;
-        env.insert("DISPLAY", m_display);
-        env.insert("HOME", "/");
-        env.insert("PATH", mainConfig.Users.DefaultPath.get());
-        env.insert("XAUTHORITY", m_authPath);
-        env.insert("SHELL", "/bin/sh");
-        displayScript->setProcessEnvironment(env);
-
-        // start display setup script
-        qDebug() << "Running display setup script " << displayCommand;
-        displayScript->start(displayCommand);
+    const QString &DisplayServer::display() const {
+        return m_display;
     }
 }

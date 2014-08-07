@@ -94,6 +94,7 @@ namespace SDDM {
         // log message
         if (file.isOpen()) {
             file.write(logMessage.toLocal8Bit());
+            file.flush();
         } else {
             printf("%s", qPrintable(logMessage));
             fflush(stdout);

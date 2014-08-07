@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -32,31 +33,30 @@ namespace SDDM {
         Q_DISABLE_COPY(DisplayServer)
     public:
         explicit DisplayServer(Display *parent);
-        ~DisplayServer();
 
         Display *displayPtr() const;
 
-        void setDisplay(const QString &display);
-        void setAuthPath(const QString &authPath);
+        const QString &display() const;
+
+        virtual QString sessionType() const = 0;
 
     public slots:
-        bool start();
-        void stop();
-        void finished();
-        void setupDisplay();
+        virtual bool start() = 0;
+        virtual void stop() = 0;
+        virtual void finished() = 0;
+        virtual void setupDisplay() = 0;
 
     signals:
         void started();
         void stopped();
 
-    private:
+    protected:
         bool m_started { false };
 
         QString m_display { "" };
-        QString m_authPath { "" };
 
+    private:
         Display *m_displayPtr { nullptr };
-        QProcess *process { nullptr };
     };
 }
 

@@ -134,7 +134,7 @@ namespace SDDM {
             env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
             env.insert("XDG_VTNR", QString::number(m_display->terminalId()));
             env.insert("XDG_SESSION_CLASS", "greeter");
-            env.insert("XDG_SESSION_TYPE", "x11");
+            env.insert("XDG_SESSION_TYPE", m_display->sessionType());
             m_auth->insertEnvironment(env);
 
             // log message

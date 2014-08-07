@@ -20,9 +20,9 @@
 
 #include "PamBackend.h"
 #include "PamHandle.h"
-#include "helper/HelperApp.h"
-#include "helper/UserSession.h"
-#include "auth/Auth.h"
+#include "HelperApp.h"
+#include "UserSession.h"
+#include "Auth.h"
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>
@@ -247,12 +247,13 @@ bool PamBackend::openSession() {
         m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
         return false;
     }
-    QString display = m_app->session()->processEnvironment().value("DISPLAY");
+    QProcessEnvironment sessionEnv = m_app->session()->processEnvironment();
+    QString display = sessionEnv.value("DISPLAY");
     if (!display.isEmpty()) {
         m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
         m_pam->setItem(PAM_TTY, qPrintable(display));
     }
-    if (!m_pam->putEnv(m_app->session()->processEnvironment())) {
+    if (!m_pam->putEnv(sessionEnv)) {
         m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
         return false;
     }
@@ -260,9 +261,8 @@ bool PamBackend::openSession() {
         m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
         return false;
     }
-    QProcessEnvironment env = m_pam->getEnv();
-    env.insert(m_app->session()->processEnvironment());
-    m_app->session()->setProcessEnvironment(env);
+    sessionEnv.insert(m_pam->getEnv());
+    m_app->session()->setProcessEnvironment(sessionEnv);
     return Backend::openSession();
 }
 
