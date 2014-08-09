@@ -190,18 +190,26 @@ namespace SDDM {
     }
 
     void Display::startAuth(const QString &user, const QString &password, const QString &session) {
+        QString sessionFileName = session;
         QString sessionName;
         QString xdgSessionName;
         QString command;
 
         m_passPhrase = password;
 
-        if (session.endsWith(".desktop")) {
-            // session directory
-            QDir dir(mainConfig.XDisplay.SessionDir.get());
+        // session directory
+        QDir dir(mainConfig.XDisplay.SessionDir.get());
 
+        if (!sessionFileName.endsWith(".desktop")) {
+            // prefer a .desktop file if it exists
+            if (QFile::exists(dir.absoluteFilePath(sessionFileName + QStringLiteral(".desktop")))) {
+                sessionFileName += QStringLiteral(".desktop");
+            }
+        }
+
+        if (sessionFileName.endsWith(".desktop")) {
             // session file
-            QFile file(dir.absoluteFilePath(session));
+            QFile file(dir.absoluteFilePath(sessionFileName));
 
             // open file
             if (file.open(QIODevice::ReadOnly)) {
@@ -226,20 +234,20 @@ namespace SDDM {
             }
 
             // remove extension
-            sessionName = session.left(session.lastIndexOf("."));
+            sessionName = sessionFileName.left(sessionFileName.lastIndexOf("."));
         } else {
-            command = session;
-            sessionName = session;
+            command = sessionFileName;
+            sessionName = sessionFileName;
         }
 
         if (command.isEmpty()) {
-            qCritical() << "Failed to find command for session:" << session;
+            qCritical() << "Failed to find command for session:" << sessionFileName;
             return;
         }
 
         // save session desktop file name, we'll use it to set the
         // last session later, in slotAuthenticationFinished()
-        m_sessionName = session;
+        m_sessionName = sessionFileName;
 
         QProcessEnvironment env;
         env.insert("PATH", mainConfig.Users.DefaultPath.get());
