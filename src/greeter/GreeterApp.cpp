@@ -99,6 +99,10 @@ namespace SDDM {
         // read theme config
         m_themeConfig = new ThemeConfig(configFile);
 
+        // set default icon theme from greeter theme
+        if (m_themeConfig->contains("iconTheme"))
+            QIcon::setThemeName(m_themeConfig->value("iconTheme").toString());
+
         // create models
 
         m_sessionModel = new SessionModel();
