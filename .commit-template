@@ -1,0 +1,32 @@
+# ==[ Subject: One line only short meaningful description for logs ]===|
+
+
+# ==[ Details: Describe what changed and explain why it changed ]======|
+
+
+# Change log entry (see below for instructions).
+#[ChangeLog][][]
+
+# ==[ Footers: Uncomment and edit where applicable ]===================|
+#
+# One issue per entry. Remember space after colon.
+#Issue: 
+#
+# If this commit closes an issue use this. Remember space after colon.
+#Closes: 
+#
+# ==[ Please wrap at 72 characters ]===================================|
+#
+# Remember to read http://wiki.qt-project.org/Commit_Policy
+#
+# Change log entry: If this commit adds a significant feature, fixes an
+# issue or contains a behavior change that is relevant to others,
+# add a change log entry. It can be multiple lines long and ends with an
+# empty newline. Try to integrate it into the flow of the commit message
+# to avoid redundancy.
+# Use the module name to indicate the area of the change e.g. [Greeter].
+# Optionally specify a class or subtopic [Daemon][Display].
+# Other common tags are: [General] or [Important Behavior Changes].
+#
+# [ChangeLog][module][class/topic] description of the really important
+# change that was just made on several lines.
