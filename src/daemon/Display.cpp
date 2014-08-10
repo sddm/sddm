@@ -149,7 +149,7 @@ namespace SDDM {
         m_greeter->setDisplay(this);
         m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
-        m_greeter->setTheme(QString("%1/%2").arg(mainConfig.Theme.ThemeDir.get()).arg(mainConfig.Theme.Current.get()));
+        m_greeter->setTheme(findGreeterTheme());
 
         // start greeter
         m_greeter->start();
@@ -187,6 +187,22 @@ namespace SDDM {
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {
         m_socket = socket;
         startAuth(user, password, session);
+    }
+
+    QString Display::findGreeterTheme() const {
+        QString themeName = mainConfig.Theme.Current.get();
+        QDir dir(mainConfig.Theme.ThemeDir.get());
+
+        // return the default theme if it exists
+        if (dir.exists(themeName))
+            return dir.absoluteFilePath(themeName);
+
+        // otherwise return the first one in alphabetical orde, but
+        // return the default theme name if none is found
+        QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable, QDir::Name);
+        if (entries.count() == 0)
+            return dir.absoluteFilePath(themeName);
+        return dir.absoluteFilePath(entries.at(0));
     }
 
     void Display::startAuth(const QString &user, const QString &password, const QString &session) {

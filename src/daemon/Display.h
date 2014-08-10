@@ -65,6 +65,7 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
+        QString findGreeterTheme() const;
         void startAuth(const QString &user, const QString &password, const QString &session);
 
         bool m_relogin { true };
