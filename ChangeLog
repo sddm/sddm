@@ -8,6 +8,13 @@
 ---------
 
     * Separate display server specific code.
+    * Add Kazakh translation.
+    * Remove Qt 4 support.
+    - Flush any buffered data to the log file, this writes immediately
+      all the log messages.
+    - Don't override pam environment variables.
+    + Set default icon theme from greeter theme configuration.
+    + Set cursor theme according to greeter theme configuration.
 
 ## 0.9.0 - 2014-08-02
 ---------------------
