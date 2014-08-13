@@ -29,42 +29,43 @@
 
 #include <pwd.h>
 
-Backend::Backend(HelperApp* parent)
-        : QObject(parent)
-        , m_app(parent) {
-}
-
-Backend *Backend::get(HelperApp* parent)
-{
-#ifdef USE_PAM
-    return new PamBackend(parent);
-#else
-    return new PasswdBackend(parent);
-#endif
-}
-
-void Backend::setAutologin(bool on) {
-    m_autologin = on;
-}
-
-bool Backend::openSession() {
-    struct passwd *pw;
-    pw = getpwnam(qPrintable(qobject_cast<HelperApp*>(parent())->user()));
-    if (pw) {
-        QProcessEnvironment env = m_app->session()->processEnvironment();
-        env.insert("HOME", pw->pw_dir);
-        env.insert("PWD", pw->pw_dir);
-        env.insert("SHELL", pw->pw_shell);
-        env.insert("USER", pw->pw_name);
-        env.insert("LOGNAME", pw->pw_name);
-        if (env.contains("DISPLAY") && !env.contains("XAUTHORITY"))
-            env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
-        // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
-        m_app->session()->setProcessEnvironment(env);
-
-        // redirect standard error to a file
-        m_app->session()->setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
+namespace SDDM {
+    Backend::Backend(HelperApp* parent)
+            : QObject(parent)
+            , m_app(parent) {
     }
-    return m_app->session()->start();
-}
 
+    Backend *Backend::get(HelperApp* parent)
+    {
+    #ifdef USE_PAM
+        return new PamBackend(parent);
+    #else
+        return new PasswdBackend(parent);
+    #endif
+    }
+
+    void Backend::setAutologin(bool on) {
+        m_autologin = on;
+    }
+
+    bool Backend::openSession() {
+        struct passwd *pw;
+        pw = getpwnam(qPrintable(qobject_cast<HelperApp*>(parent())->user()));
+        if (pw) {
+            QProcessEnvironment env = m_app->session()->processEnvironment();
+            env.insert("HOME", pw->pw_dir);
+            env.insert("PWD", pw->pw_dir);
+            env.insert("SHELL", pw->pw_shell);
+            env.insert("USER", pw->pw_name);
+            env.insert("LOGNAME", pw->pw_name);
+            if (env.contains("DISPLAY") && !env.contains("XAUTHORITY"))
+                env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
+            // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
+            m_app->session()->setProcessEnvironment(env);
+
+            // redirect standard error to a file
+            m_app->session()->setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
+        }
+        return m_app->session()->start();
+    }
+}

@@ -23,19 +23,21 @@
 
 #include "../Backend.h"
 
-class PasswdBackend : public Backend {
-    Q_OBJECT
-public:
-    PasswdBackend(HelperApp *parent);
+namespace SDDM {
+    class PasswdBackend : public Backend {
+        Q_OBJECT
+    public:
+        PasswdBackend(HelperApp *parent);
 
-public slots:
-    virtual bool start(const QString &user = QString());
-    virtual bool authenticate();
+    public slots:
+        virtual bool start(const QString &user = QString());
+        virtual bool authenticate();
 
-    virtual QString userName();
+        virtual QString userName();
 
-private:
-    QString m_user { };
-};
+    private:
+        QString m_user { };
+    };
+}
 
 #endif // PASSWDBACKEND_H

@@ -23,33 +23,32 @@
 
 #include <QtCore/QObject>
 
-class HelperApp;
-class Backend : public QObject
-{
-    Q_OBJECT
-public:
-    /**
-     * Requests allocation of a new backend instance.
-     * The method chooses the most suitable one for the current system.
-     */
-    static Backend *get(HelperApp *parent);
+namespace SDDM {
+    class HelperApp;
+    class Backend : public QObject
+    {
+        Q_OBJECT
+    public:
+        /**
+        * Requests allocation of a new backend instance.
+        * The method chooses the most suitable one for the current system.
+        */
+        static Backend *get(HelperApp *parent);
 
-    void setAutologin(bool on = true);
+        void setAutologin(bool on = true);
 
-public slots:
-    virtual bool start(const QString &user = QString()) = 0;
-    virtual bool authenticate() = 0;
-    virtual bool openSession();
+    public slots:
+        virtual bool start(const QString &user = QString()) = 0;
+        virtual bool authenticate() = 0;
+        virtual bool openSession();
 
-    virtual QString userName() = 0;
+        virtual QString userName() = 0;
 
-protected:
-    Backend(HelperApp *parent);
-    HelperApp *m_app;
-    bool m_autologin { false };
-
-private:
-
-};
+    protected:
+        Backend(HelperApp *parent);
+        HelperApp *m_app;
+        bool m_autologin { false };
+    };
+}
 
 #endif // BACKEND_H
