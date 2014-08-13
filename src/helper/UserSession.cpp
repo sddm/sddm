@@ -18,7 +18,7 @@
  *
  */
 
-#include "Constants.h"
+#include "Configuration.h"
 #include "UserSession.h"
 #include "HelperApp.h"
 
@@ -43,7 +43,7 @@ bool UserSession::start() {
     else {
         QStringList args;
         args << m_path;
-        QProcess::start(SESSION_COMMAND, {args});
+        QProcess::start(SDDM::mainConfig.XDisplay.SessionCommand.get() , {args});
     }
 
     return waitForStarted();
