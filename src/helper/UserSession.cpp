@@ -27,49 +27,50 @@
 #include <pwd.h>
 #include <grp.h>
 
-UserSession::UserSession(HelperApp *parent)
-        : QProcess(parent) {
-}
-
-UserSession::~UserSession() {
-
-}
-
-bool UserSession::start() {
-    QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
-
-    if (env.value("XDG_SESSION_CLASS") == "greeter")
-        QProcess::start(m_path);
-    else {
-        QStringList args;
-        args << m_path;
-        QProcess::start(SDDM::mainConfig.XDisplay.SessionCommand.get() , {args});
+namespace SDDM {
+    UserSession::UserSession(HelperApp *parent)
+            : QProcess(parent) {
     }
 
-    return waitForStarted();
-}
+    UserSession::~UserSession() {
 
-void UserSession::setPath(const QString& path) {
-    m_path = path;
-}
+    }
 
-QString UserSession::path() const {
-    return m_path;
-}
+    bool UserSession::start() {
+        QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
-void UserSession::bail(int status) {
-    emit finished(status, QProcess::NormalExit);
-    exit(status);
-}
+        if (env.value("XDG_SESSION_CLASS") == "greeter")
+            QProcess::start(m_path);
+        else {
+            QStringList args;
+            args << m_path;
+            QProcess::start(mainConfig.XDisplay.SessionCommand.get() , {args});
+        }
 
-void UserSession::setupChildProcess() {
-    struct passwd *pw = getpwnam(qobject_cast<HelperApp*>(parent())->user().toLocal8Bit());
-    if (setgid(pw->pw_gid) != 0)
-        bail(2);
-    if (initgroups(pw->pw_name, pw->pw_gid) != 0)
-        bail(2);
-    if (setuid(pw->pw_uid) != 0)
-        bail(2);
-    chdir(pw->pw_dir);
-}
+        return waitForStarted();
+    }
 
+    void UserSession::setPath(const QString& path) {
+        m_path = path;
+    }
+
+    QString UserSession::path() const {
+        return m_path;
+    }
+
+    void UserSession::bail(int status) {
+        emit finished(status, QProcess::NormalExit);
+        exit(status);
+    }
+
+    void UserSession::setupChildProcess() {
+        struct passwd *pw = getpwnam(qobject_cast<HelperApp*>(parent())->user().toLocal8Bit());
+        if (setgid(pw->pw_gid) != 0)
+            bail(2);
+        if (initgroups(pw->pw_name, pw->pw_gid) != 0)
+            bail(2);
+        if (setuid(pw->pw_uid) != 0)
+            bail(2);
+        chdir(pw->pw_dir);
+    }
+}
