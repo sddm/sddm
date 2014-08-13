@@ -216,6 +216,6 @@ namespace SDDM {
 }
 
 int main(int argc, char** argv) {
-    HelperApp app(argc, argv);
+    SDDM::HelperApp app(argc, argv);
     return app.exec();
 }
