@@ -44,7 +44,7 @@ namespace SDDM {
         Q_PROPERTY(Type type READ type CONSTANT)
         Q_PROPERTY(QString message READ message CONSTANT)
         Q_PROPERTY(bool hidden READ hidden CONSTANT)
-        Q_PROPERTY(QByteArray response WRITE setResponse NOTIFY responseChanged)
+        Q_PROPERTY(QByteArray response READ responseFake WRITE setResponse NOTIFY responseChanged)
     public:
         virtual ~AuthPrompt();
         /**
@@ -72,6 +72,14 @@ namespace SDDM {
         * @return true if user's input should not be shown in readable form
         */
         bool hidden() const;
+        /**
+         * Public getter for the response data.
+         * The property is write-only though, so it returns garbage.
+         * Contained only to keep the MOC parser happy.
+         * @warning do not use, doesn't return valid data
+         * @return empty byte array
+         */
+        QByteArray responseFake();
         /**
         * Setter for the response data
         * @param r data entered by the user
