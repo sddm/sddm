@@ -40,9 +40,9 @@ https://groups.google.com/group/sddm-devel
 
 ## INSTALLATION
 
-Qt >= 5.0.0 is required to use SDDM, although Qt >= 5.3.0 is reccomended.
+Qt >= 5.0.0 is required to use SDDM, although Qt >= 5.3.0 is recommended.
 
-SDDM runs the greeter as a system user named "sddm" whose home directory need
+SDDM runs the greeter as a system user named "sddm" whose home directory needs
 to be set to ```/var/lib/sddm```.
 
 If pam and systemd are available, the greeter will go through logind
