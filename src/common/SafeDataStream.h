@@ -23,16 +23,18 @@
 
 #include <QtCore/QDataStream>
 
-class SafeDataStream : public QDataStream {
-public:
-    SafeDataStream(QIODevice* device);
-    void send();
-    void receive();
-    void reset();
+namespace SDDM {
+    class SafeDataStream : public QDataStream {
+    public:
+        SafeDataStream(QIODevice* device);
+        void send();
+        void receive();
+        void reset();
 
-private:
-    QByteArray m_data { };
-    QIODevice *m_device { nullptr };
-};
+    private:
+        QByteArray m_data { };
+        QIODevice *m_device { nullptr };
+    };
+}
 
 #endif // SAFEDATASTREAM_H

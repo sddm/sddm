@@ -29,49 +29,50 @@
 
 #include <security/pam_appl.h>
 
-class PamHandle;
-class PamBackend;
+namespace SDDM {
+    class PamHandle;
+    class PamBackend;
+    class PamData {
+    public:
+        PamData();
 
-class PamData {
-public:
-    PamData();
+        bool insertPrompt(const struct pam_message *msg, bool predict = true);
+        Auth::Info handleInfo(const struct pam_message *msg, bool predict);
 
-    bool insertPrompt(const struct pam_message *msg, bool predict = true);
-    Auth::Info handleInfo(const struct pam_message *msg, bool predict);
+        const Request& getRequest() const;
+        void completeRequest(const Request& request);
 
-    const Request& getRequest() const;
-    void completeRequest(const Request& request);
+        QByteArray getResponse(const struct pam_message *msg);
 
-    QByteArray getResponse(const struct pam_message *msg);
+    private:
+        AuthPrompt::Type detectPrompt(const struct pam_message *msg) const;
 
-private:
-    AuthPrompt::Type detectPrompt(const struct pam_message *msg) const;
+        const Prompt& findPrompt(const struct pam_message *msg) const;
+        Prompt& findPrompt(const struct pam_message *msg);
 
-    const Prompt& findPrompt(const struct pam_message *msg) const;
-    Prompt& findPrompt(const struct pam_message *msg);
+        bool m_sent { false };
+        Request m_currentRequest { };
+    };
 
-    bool m_sent { false };
-    Request m_currentRequest { };
-};
+    class PamBackend : public Backend
+    {
+        Q_OBJECT
+    public:
+        explicit PamBackend(HelperApp *parent);
+        virtual ~PamBackend();
+        int converse(int n, const struct pam_message **msg, struct pam_response **resp);
 
-class PamBackend : public Backend
-{
-    Q_OBJECT
-public:
-    explicit PamBackend(HelperApp *parent);
-    virtual ~PamBackend();
-    int converse(int n, const struct pam_message **msg, struct pam_response **resp);
+    public slots:
+        virtual bool start(const QString &user = QString());
+        virtual bool authenticate();
+        virtual bool openSession();
 
-public slots:
-    virtual bool start(const QString &user = QString());
-    virtual bool authenticate();
-    virtual bool openSession();
+        virtual QString userName();
 
-    virtual QString userName();
-
-private:
-    PamData *m_data { nullptr };
-    PamHandle *m_pam { nullptr };
-};
+    private:
+        PamData *m_data { nullptr };
+        PamHandle *m_pam { nullptr };
+    };
+}
 
 #endif // PAMBACKEND_H

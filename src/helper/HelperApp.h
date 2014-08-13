@@ -26,38 +26,41 @@
 
 #include "AuthMessages.h"
 
-class Backend;
-class UserSession;
 class QLocalSocket;
-class HelperApp : public QCoreApplication
-{
-    Q_OBJECT
-public:
-    HelperApp(int& argc, char** argv);
-    virtual ~HelperApp();
 
-    UserSession *session();
-    const QString &user() const;
+namespace SDDM {
+    class Backend;
+    class UserSession;
+    class HelperApp : public QCoreApplication
+    {
+        Q_OBJECT
+    public:
+        HelperApp(int& argc, char** argv);
+        virtual ~HelperApp();
 
-public slots:
-    Request request(const Request &request);
-    void info(const QString &message, Auth::Info type);
-    void error(const QString &message, Auth::Error type);
-    QProcessEnvironment authenticated(const QString &user);
-    void sessionOpened(bool success);
+        UserSession *session();
+        const QString &user() const;
 
-private slots:
-    void setUp();
-    void doAuth();
+    public slots:
+        Request request(const Request &request);
+        void info(const QString &message, Auth::Info type);
+        void error(const QString &message, Auth::Error type);
+        QProcessEnvironment authenticated(const QString &user);
+        void sessionOpened(bool success);
 
-    void sessionFinished(int status);
+    private slots:
+        void setUp();
+        void doAuth();
 
-private:
-    qint64 m_id { -1 };
-    Backend *m_backend { nullptr };
-    UserSession *m_session { nullptr };
-    QLocalSocket *m_socket { nullptr };
-    QString m_user { };
-};
+        void sessionFinished(int status);
+
+    private:
+        qint64 m_id { -1 };
+        Backend *m_backend { nullptr };
+        UserSession *m_session { nullptr };
+        QLocalSocket *m_socket { nullptr };
+        QString m_user { };
+    };
+}
 
 #endif // Auth_H

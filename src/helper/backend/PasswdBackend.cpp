@@ -30,64 +30,65 @@
 #include <shadow.h>
 #include <crypt.h>
 
-PasswdBackend::PasswdBackend(HelperApp *parent)
-        : Backend(parent) { }
+namespace SDDM {
+    PasswdBackend::PasswdBackend(HelperApp *parent)
+            : Backend(parent) { }
 
-bool PasswdBackend::authenticate() {
-    if (m_autologin)
-        return true;
+    bool PasswdBackend::authenticate() {
+        if (m_autologin)
+            return true;
 
-    Request r;
-    QString password;
+        Request r;
+        QString password;
 
-    if (m_user.isEmpty())
-        r.prompts << Prompt(AuthPrompt::LOGIN_USER, "Login", false);
-    r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, "Password", true);
+        if (m_user.isEmpty())
+            r.prompts << Prompt(AuthPrompt::LOGIN_USER, "Login", false);
+        r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, "Password", true);
 
-    Request response = m_app->request(r);
-    Q_FOREACH(const Prompt &p, response.prompts) {
-        switch (p.type) {
-            case AuthPrompt::LOGIN_USER:
-                m_user = p.response;
-                break;
-            case AuthPrompt::LOGIN_PASSWORD:
-                password = p.response;
-                break;
-            default:
-                break;
+        Request response = m_app->request(r);
+        Q_FOREACH(const Prompt &p, response.prompts) {
+            switch (p.type) {
+                case AuthPrompt::LOGIN_USER:
+                    m_user = p.response;
+                    break;
+                case AuthPrompt::LOGIN_PASSWORD:
+                    password = p.response;
+                    break;
+                default:
+                    break;
+            }
         }
-    }
 
-    struct passwd *pw = getpwnam(qPrintable(m_user));
-    if (!pw) {
+        struct passwd *pw = getpwnam(qPrintable(m_user));
+        if (!pw) {
+            m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
+            return false;
+        }
+
+        struct spwd *spw = getspnam(pw->pw_name);
+        if (!spw) {
+            qWarning() << "[Passwd] Could get passwd but not shadow";
+            return false;
+        }
+
+        if(!spw->sp_pwdp || !spw->sp_pwdp[0])
+            return true;
+
+        char *crypted = crypt(qPrintable(password), spw->sp_pwdp);
+        if (0 == strcmp(crypted, spw->sp_pwdp)) {
+            return true;
+        }
+
         m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
         return false;
     }
 
-    struct spwd *spw = getspnam(pw->pw_name);
-    if (!spw) {
-        qWarning() << "[Passwd] Could get passwd but not shadow";
-        return false;
-    }
-
-    if(!spw->sp_pwdp || !spw->sp_pwdp[0])
-        return true;
-
-    char *crypted = crypt(qPrintable(password), spw->sp_pwdp);
-    if (0 == strcmp(crypted, spw->sp_pwdp)) {
+    bool PasswdBackend::start(const QString& user) {
+        m_user = user;
         return true;
     }
 
-    m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
-    return false;
+    QString PasswdBackend::userName() {
+        return m_user;
+    }
 }
-
-bool PasswdBackend::start(const QString& user) {
-    m_user = user;
-    return true;
-}
-
-QString PasswdBackend::userName() {
-    return m_user;
-}
-

@@ -25,25 +25,27 @@
 #include <QtCore/QString>
 #include <QtCore/QProcess>
 
-class HelperApp;
-class UserSession : public QProcess
-{
-    Q_OBJECT
-public:
-    explicit UserSession(HelperApp *parent);
-    virtual ~UserSession();
+namespace SDDM {
+    class HelperApp;
+    class UserSession : public QProcess
+    {
+        Q_OBJECT
+    public:
+        explicit UserSession(HelperApp *parent);
+        virtual ~UserSession();
 
-    bool start();
+        bool start();
 
-    void setPath(const QString &path);
-    QString path() const;
+        void setPath(const QString &path);
+        QString path() const;
 
-protected:
-    void bail(int status);
-    void setupChildProcess();
+    protected:
+        void bail(int status);
+        void setupChildProcess();
 
-private:
-    QString m_path { };
-};
+    private:
+        QString m_path { };
+    };
+}
 
 #endif // SDDM_AUTH_SESSION_H
