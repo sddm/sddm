@@ -55,6 +55,10 @@ namespace SDDM {
         return d->response;
     }
 
+    QByteArray AuthPrompt::responseFake() {
+        return QByteArray();
+    }
+
     void AuthPrompt::setResponse(const QByteArray &r) {
         if (r != d->response) {
             d->response = r;
