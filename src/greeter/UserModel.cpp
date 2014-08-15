@@ -50,16 +50,6 @@ namespace SDDM {
     };
 
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        // set role names
-        QHash<int, QByteArray> roleNames;
-        roleNames[NameRole] = "name";
-        roleNames[RealNameRole] = "realName";
-        roleNames[HomeDirRole] = "homeDir";
-        roleNames[IconRole] = "icon";
-        // set role names
-        setRoleNames(roleNames);
-#endif
         struct passwd *current_pw;
         while ((current_pw = getpwent()) != nullptr) {
 

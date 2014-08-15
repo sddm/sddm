@@ -27,11 +27,7 @@
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
 
-#if QT_VERSION >= 0x050000
-# include <QtQml/QtQml>
-#else
-# include <QtDeclarative/QtDeclarative>
-#endif
+#include <QtQml/QtQml>
 
 #include <unistd.h>
 

@@ -46,16 +46,6 @@ namespace SDDM {
     };
 
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        // set role names
-        QHash<int, QByteArray> roleNames;
-        roleNames[FileRole] = "file";
-        roleNames[NameRole] = "name";
-        roleNames[ExecRole] = "exec";
-        roleNames[CommentRole] = "comment";
-        // set role names
-        setRoleNames(roleNames);
-#endif
         // read session files
         QDir dir(mainConfig.XDisplay.SessionDir.get());
         dir.setNameFilters(QStringList() << "*.desktop");
