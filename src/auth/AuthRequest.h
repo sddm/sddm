@@ -23,12 +23,7 @@
 
 #include <QtCore/QObject>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-# include <QtQml/QQmlListProperty>
-#else
-# include <QtDeclarative/QDeclarativeListProperty>
-# define QQmlListProperty QDeclarativeListProperty
-#endif
+#include <QtQml/QQmlListProperty>
 
 namespace SDDM {
     class Auth;
