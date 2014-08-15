@@ -33,11 +33,7 @@
 
 ///// convenience macros
 // efficient qstring initializer
-#if QT_VERSION >= 0x050000
-#   define _S(x) QStringLiteral(x)
-#else
-#   define _S(x) (x)
-#endif
+#define _S(x) QStringLiteral(x)
 
 // config wrapper
 #define Config(name, file, ...) \
