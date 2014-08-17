@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -70,16 +71,10 @@ namespace SDDM {
         QString socket = parameter(arguments(), "--socket", "");
 
         // get theme path
-        QString themePath = parameter(arguments(), "--theme", "");
-
-        // create view
-        m_view = new QQuickView();
-        m_view->setResizeMode(QQuickView::SizeRootObjectToView);
-
-        m_view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
+        m_themePath = parameter(arguments(), "--theme", "");
 
         // read theme metadata
-        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(themePath));
+        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(m_themePath));
 
         // Translations
         // Components translation
@@ -90,11 +85,11 @@ namespace SDDM {
         // Theme specific translation
         m_theme_translator = new QTranslator();
         if (m_theme_translator->load(QLocale::system(), "", "",
-                           QString("%1/%2/").arg(themePath, m_metadata->translationsDirectory())))
+                           QString("%1/%2/").arg(m_themePath, m_metadata->translationsDirectory())))
             installTranslator(m_theme_translator);
 
         // get theme config file
-        QString configFile = QString("%1/%2").arg(themePath).arg(m_metadata->configFile());
+        QString configFile = QString("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
 
         // read theme config
         m_themeConfig = new ThemeConfig(configFile);
@@ -134,35 +129,74 @@ namespace SDDM {
 
         m_proxy->setSessionModel(m_sessionModel);
 
+        // create views
+        Q_FOREACH (QScreen *screen, screens())
+            addViewForScreen(screen);
+
+        // handle screens
+        connect(this, &GreeterApp::screenAdded, this, &GreeterApp::addViewForScreen);
+    }
+
+    void GreeterApp::addViewForScreen(QScreen *screen) {
+        // heuristic to detect clone mode, in that case only add a view for the primary screen
+        if (screen->virtualGeometry() == primaryScreen()->geometry() && screen != primaryScreen())
+            return;
+
+        // create view
+        QQuickView *view = new QQuickView();
+        view->setScreen(screen);
+        view->setResizeMode(QQuickView::SizeRootObjectToView);
+        view->setGeometry(QRect(QPoint(0, 0), screen->availableGeometry().size()));
+
+        // remove the view when the screen is removed, but we
+        // need to be careful here since Qt will move the view to
+        // another screen before this signal is emitted so we
+        // pass a pointer to the view to our slot
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        connect(this, &GreeterApp::screenRemoved, this, [view, this](QScreen *) {
+            removeViewForScreen(view);
+        });
+#else
+        connect(view, &QQuickView::screenChanged, this, [view, this](QScreen *screen) {
+            if (screen == Q_NULLPTR)
+                removeViewForScreen(view);
+        });
+#endif
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+        // always resize when the screen geometry changes
+        connect(screen, &QScreen::availableGeometryChanged, this, [view](const QRect &r) {
+            view->setGeometry(QRect(QPoint(0, 0), r.size()));
+        });
+#endif
+
+        view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
+
         // connect proxy signals
-        QObject::connect(m_proxy, SIGNAL(loginSucceeded()), m_view, SLOT(close()));
+        connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
 
         // set context properties
-        m_view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
-        m_view->rootContext()->setContextProperty("screenModel", m_screenModel);
-        m_view->rootContext()->setContextProperty("userModel", m_userModel);
-        m_view->rootContext()->setContextProperty("config", *m_themeConfig);
-        m_view->rootContext()->setContextProperty("sddm", m_proxy);
-        m_view->rootContext()->setContextProperty("keyboard", m_keyboard);
+        view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
+        view->rootContext()->setContextProperty("screenModel", m_screenModel);
+        view->rootContext()->setContextProperty("userModel", m_userModel);
+        view->rootContext()->setContextProperty("config", *m_themeConfig);
+        view->rootContext()->setContextProperty("sddm", m_proxy);
+        view->rootContext()->setContextProperty("keyboard", m_keyboard);
 
         // get theme main script
-        QString mainScript = QString("%1/%2").arg(themePath).arg(m_metadata->mainScript());
+        QString mainScript = QString("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
 
         // set main script as source
-        m_view->setSource(QUrl::fromLocalFile(mainScript));
+        view->setSource(QUrl::fromLocalFile(mainScript));
 
-        // connect screen update signals
-        connect(m_screenModel, SIGNAL(primaryChanged()), this, SLOT(show()));
-
-        show();
+        // show
+        view->show();
     }
 
-    void GreeterApp::show() {
-        m_view->setGeometry(m_screenModel->geometry());
-        m_view->show();
-        m_view->requestActivate();
+    void GreeterApp::removeViewForScreen(QQuickView *view) {
+        m_views.removeOne(view);
+        view->deleteLater();
     }
-
 }
 
 int main(int argc, char **argv) {
