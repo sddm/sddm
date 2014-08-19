@@ -223,6 +223,8 @@ namespace SDDM {
         }
 
         if (sessionFileName.endsWith(".desktop")) {
+            qDebug() << "Reading from" << sessionFileName;
+
             // session file
             QFile file(dir.absoluteFilePath(sessionFileName));
 
