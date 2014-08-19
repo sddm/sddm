@@ -42,9 +42,10 @@ namespace SDDM {
         if (env.value("XDG_SESSION_CLASS") == "greeter")
             QProcess::start(m_path);
         else {
-            QStringList args;
-            args << m_path;
-            QProcess::start(mainConfig.XDisplay.SessionCommand.get() , {args});
+            qDebug() << "Starting:" << mainConfig.XDisplay.SessionCommand.get()
+                     << m_path;
+            QProcess::start(mainConfig.XDisplay.SessionCommand.get(),
+                            QStringList() << m_path);
         }
 
         return waitForStarted();
