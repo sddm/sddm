@@ -183,13 +183,13 @@ namespace SDDM {
     }
 
     void XcbKeyboardBackend::connectToDisplay() {
-        // Connect and initialize xkb extention
+        // Connect and initialize xkb extension
         xcb_xkb_use_extension_cookie_t cookie;
         xcb_generic_error_t *error = nullptr;
 
         m_conn = xcb_connect(nullptr, nullptr);
         if (m_conn == nullptr) {
-            qCritical() << "xcb_connect failed, keyboard extention disabled";
+            qCritical() << "xcb_connect failed, keyboard extension disabled";
             d->enabled = false;
             return;
         }
@@ -199,7 +199,7 @@ namespace SDDM {
         xcb_xkb_use_extension_reply(m_conn, cookie, &error);
 
         if (error != nullptr) {
-            qCritical() << "xcb_xkb_use_extension failed, extention disabled, error code"
+            qCritical() << "xcb_xkb_use_extension failed, extension disabled, error code"
                         << error->error_code;
             d->enabled = false;
             return;
