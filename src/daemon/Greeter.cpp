@@ -118,8 +118,6 @@ namespace SDDM {
             // greeter command
             QStringList args;
             args << QString("%1/sddm-greeter").arg(BIN_INSTALL_DIR);
-            if (daemonApp->testing())
-                args << "--test-mode";
             args << "--socket" << m_socket
                  << "--theme" << m_theme;
 
