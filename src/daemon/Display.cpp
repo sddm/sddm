@@ -58,10 +58,8 @@ namespace SDDM {
         connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(slotAuthError(QString,Auth::Error)));
 
         // restart display after display server ended
+        connect(m_displayServer, SIGNAL(started()), this, SLOT(displayServerStarted()));
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
-
-        // notify the display after display server started
-        connect(DaemonApp::instance()->signalHandler(), SIGNAL(sigusr1Received()), this, SLOT(displayServerStarted()));
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
