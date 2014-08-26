@@ -172,6 +172,8 @@ namespace SDDM {
             // return fail
             return false;
         }
+        if (daemonApp->testing())
+            emit started();
 
         // set flag
         m_started = true;
