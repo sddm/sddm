@@ -21,6 +21,7 @@
 #if !defined(PASSWDBACKEND_H) && !defined(USE_PAM)
 #define PASSWDBACKEND_H
 
+#include "AuthMessages.h"
 #include "../Backend.h"
 
 namespace SDDM {
