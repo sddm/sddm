@@ -63,6 +63,7 @@ namespace SDDM {
         QLocalSocket *socket { nullptr };
         QString sessionPath { };
         QString user { };
+        QString cookie { };
         bool autologin { false };
         bool greeter { false };
         QProcessEnvironment environment { };
@@ -159,7 +160,7 @@ namespace SDDM {
                     auth->setUser(user);
                     Q_EMIT auth->authentication(user, true);
                     str.reset();
-                    str << AUTHENTICATED << environment;
+                    str << AUTHENTICATED << environment << cookie;
                     str.send();
                 }
                 else {
@@ -243,6 +244,10 @@ namespace SDDM {
         return d->greeter;
     }
 
+    const QString& Auth::cookie() const {
+        return d->cookie;
+    }
+
     const QString &Auth::session() const {
         return d->sessionPath;
     }
@@ -265,6 +270,13 @@ namespace SDDM {
 
     void Auth::insertEnvironment(const QString &key, const QString &value) {
         d->environment.insert(key, value);
+    }
+
+    void Auth::setCookie(const QString& cookie) {
+        if (cookie != d->cookie) {
+            d->cookie = cookie;
+            Q_EMIT cookieChanged();
+        }
     }
 
     void Auth::setUser(const QString &user) {

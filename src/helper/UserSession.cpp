@@ -73,5 +73,33 @@ namespace SDDM {
         if (setuid(pw->pw_uid) != 0)
             bail(2);
         chdir(pw->pw_dir);
+        // redirect standard error to a file
+        setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
+
+        QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
+        if (!cookie.isEmpty()) {
+            QString file = processEnvironment().value("XAUTHORITY");
+            QString display = processEnvironment().value("DISPLAY");
+            qDebug() << "Adding cookie to" << file;
+
+            QFile file_handler(file);
+            file_handler.open(QIODevice::WriteOnly);
+            file_handler.close();
+
+            QString cmd = QString("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
+
+            // execute xauth
+            FILE *fp = popen(qPrintable(cmd), "w");
+
+            // check file
+            if (!fp)
+                return;
+            fprintf(fp, "remove %s\n", qPrintable(display));
+            fprintf(fp, "add %s . %s\n", qPrintable(display), qPrintable(cookie));
+            fprintf(fp, "exit\n");
+
+            // close pipe
+            pclose(fp);
+        }
     }
 }
