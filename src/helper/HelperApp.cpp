@@ -179,19 +179,20 @@ namespace SDDM {
 
     QProcessEnvironment HelperApp::authenticated(const QString &user) {
         Msg m = Msg::MSG_UNKNOWN;
-        QProcessEnvironment response;
+        QProcessEnvironment env;
         SafeDataStream str(m_socket);
         str << Msg::AUTHENTICATED << user;
         str.send();
         if (user.isEmpty())
-            return response;
+            return env;
         str.receive();
-        str >> m >> response;
+        str >> m >> env >> m_cookie;
         if (m != AUTHENTICATED) {
-            response = QProcessEnvironment();
+            env = QProcessEnvironment();
+            m_cookie = QString();
             qCritical() << "Received a wrong opcode instead of AUTHENTICATED:" << m;
         }
-        return response;
+        return env;
     }
 
     void HelperApp::sessionOpened(bool success) {
@@ -212,6 +213,10 @@ namespace SDDM {
 
     const QString& HelperApp::user() const {
         return m_user;
+    }
+
+    const QString& HelperApp::cookie() const {
+        return m_cookie;
     }
 
     HelperApp::~HelperApp() {
