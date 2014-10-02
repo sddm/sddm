@@ -52,6 +52,7 @@ namespace SDDM {
         Q_OBJECT
         // not setting NOTIFY for the properties - they should be set only once before calling start
         Q_PROPERTY(bool autologin READ autologin WRITE setAutologin NOTIFY autologinChanged)
+        Q_PROPERTY(bool greeter READ isGreeter WRITE setGreeter NOTIFY greeterChanged)
         Q_PROPERTY(bool verbose READ verbose WRITE setVerbose NOTIFY verboseChanged)
         Q_PROPERTY(QString user READ user WRITE setUser NOTIFY userChanged)
         Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
@@ -86,6 +87,7 @@ namespace SDDM {
         static void registerTypes();
 
         bool autologin() const;
+        bool isGreeter() const;
         bool verbose() const;
         const QString &user() const;
         const QString &session() const;
@@ -114,6 +116,12 @@ namespace SDDM {
         void setAutologin(bool on = true);
 
         /**
+         * Set mode to greeter
+         * This will bypass authentication checks
+         */
+        void setGreeter(bool on = true);
+
+        /**
         * Forwards the output of the underlying authenticator to the current process
         * @param on true if should forward the output
         */
@@ -139,6 +147,7 @@ namespace SDDM {
 
     Q_SIGNALS:
         void autologinChanged();
+        void greeterChanged();
         void verboseChanged();
         void userChanged();
         void sessionChanged();
