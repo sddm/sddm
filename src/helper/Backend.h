@@ -36,6 +36,7 @@ namespace SDDM {
         static Backend *get(HelperApp *parent);
 
         void setAutologin(bool on = true);
+        void setGreeter(bool on = true);
 
     public slots:
         virtual bool start(const QString &user = QString()) = 0;
@@ -48,6 +49,7 @@ namespace SDDM {
         Backend(HelperApp *parent);
         HelperApp *m_app;
         bool m_autologin { false };
+        bool m_greeter { false };
     };
 }
 

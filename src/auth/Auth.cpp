@@ -64,6 +64,7 @@ namespace SDDM {
         QString sessionPath { };
         QString user { };
         bool autologin { false };
+        bool greeter { false };
         QProcessEnvironment environment { };
         qint64 id { 0 };
         static qint64 lastId;
@@ -237,6 +238,11 @@ namespace SDDM {
         return d->autologin;
     }
 
+    bool Auth::isGreeter() const
+    {
+        return d->greeter;
+    }
+
     const QString &Auth::session() const {
         return d->sessionPath;
     }
@@ -275,6 +281,14 @@ namespace SDDM {
         }
     }
 
+    void Auth::setGreeter(bool on)
+    {
+        if (on != d->greeter) {
+            d->greeter = on;
+            Q_EMIT greeterChanged();
+        }
+    }
+
     void Auth::setSession(const QString& path) {
         if (path != d->sessionPath) {
             d->sessionPath = path;
@@ -302,6 +316,8 @@ namespace SDDM {
             args << "--user" << d->user;
         if (d->autologin)
             args << "--autologin";
+        if (d->greeter)
+            args << "--greeter";
         d->child->start(QString("%1/sddm-helper").arg(LIBEXEC_INSTALL_DIR), args);
     }
 }

@@ -48,6 +48,10 @@ namespace SDDM {
         m_autologin = on;
     }
 
+    void Backend::setGreeter(bool on) {
+        m_greeter = on;
+    }
+
     bool Backend::openSession() {
         struct passwd *pw;
         pw = getpwnam(qPrintable(qobject_cast<HelperApp*>(parent())->user()));

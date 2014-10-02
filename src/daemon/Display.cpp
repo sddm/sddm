@@ -184,6 +184,13 @@ namespace SDDM {
 
     void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {
         m_socket = socket;
+
+        //the SDDM user has special priveledges that skip password checking so that we can load the greeter
+        //block ever trying to log in as the SDDM user
+        if (user == "sddm") {
+            return;
+        }
+
         startAuth(user, password, session);
     }
 
