@@ -140,6 +140,7 @@ namespace SDDM {
 
             // start greeter
             m_auth->setUser("sddm");
+            m_auth->setGreeter(true);
             m_auth->setSession(args.join(" "));
             m_auth->start();
         }
