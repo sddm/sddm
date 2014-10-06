@@ -66,9 +66,6 @@ namespace SDDM {
                 env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
             // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
             m_app->session()->setProcessEnvironment(env);
-
-            // redirect standard error to a file
-            m_app->session()->setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
         }
         return m_app->session()->start();
     }
