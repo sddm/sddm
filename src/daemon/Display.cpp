@@ -294,11 +294,7 @@ namespace SDDM {
         if (success) {
             qDebug() << "Authenticated successfully";
 
-            struct passwd *pw = getpwnam(qPrintable(user));
-            if (pw) {
-                qobject_cast<XorgDisplayServer *>(m_displayServer)->addCookie(QString("%1/.Xauthority").arg(pw->pw_dir));
-                chown(qPrintable(QString("%1/.Xauthority").arg(pw->pw_dir)), pw->pw_uid, pw->pw_gid);
-            }
+            m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
 
             // save last user and last session
             stateConfig.Last.User.set(m_auth->user());
