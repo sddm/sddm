@@ -20,8 +20,8 @@
 
 #include "PasswdBackend.h"
 
-#include "auth/AuthMessages.h"
-#include "helper/HelperApp.h"
+#include "AuthMessages.h"
+#include "HelperApp.h"
 
 #include <QtCore/QDebug>
 
