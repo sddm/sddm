@@ -217,7 +217,7 @@ namespace SDDM {
 
         QString service = "sddm";
 
-        if (m_greeter)
+        if (user == "sddm" && m_greeter)
             service = "sddm-greeter";
         else if (m_app->session()->path().isEmpty())
             service = "sddm-check";
