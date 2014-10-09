@@ -38,6 +38,13 @@ namespace SDDM {
         if (m_autologin)
             return true;
 
+        if (m_user == "sddm") {
+            if (m_greeter)
+                return true;
+            else
+                return false;
+        }
+
         Request r;
         QString password;
 
