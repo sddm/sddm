@@ -156,6 +156,7 @@ namespace SDDM {
     void GreeterApp::show() {
         m_view->setGeometry(m_screenModel->geometry());
         m_view->show();
+        m_view->requestActivate();
     }
 
 }
