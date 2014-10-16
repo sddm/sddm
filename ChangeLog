@@ -7,14 +7,22 @@
 ## Master
 ---------
 
-    * Separate display server specific code.
-    * Add Kazakh translation.
-    * Remove Qt 4 support.
-    - Flush any buffered data to the log file, this writes immediately
-      all the log messages.
-    - Don't override pam environment variables.
+## 0.10.0 - 2014-10-16
+----------------------
+
     + Set default icon theme from greeter theme configuration.
     + Set cursor theme according to greeter theme configuration.
+    - Never permit a login as the sddm user (CVE-2014-7271)
+    - Fix race condition in XAUTHORITY code (CVE-2014-7272)
+    - XAUTHORITY is no longer owned by root
+    - Flush any buffered data to the log file, this writes immediately
+      all the log messages.
+    - Fixed password field initial focus state
+    - Don't override pam environment variables.
+    * Remove Qt 4 support.
+    * Prioritize sessions with a .desktop prefix
+    * Add Kazakh translation.
+    * Separate display server specific code.
 
 ## 0.9.0 - 2014-08-02
 ---------------------
