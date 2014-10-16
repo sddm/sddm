@@ -90,7 +90,7 @@ namespace SDDM {
             m_backend->setAutologin(true);
         }
 
-        if ((pos == args.indexOf("--greeter")) >= 0) {
+        if ((pos = args.indexOf("--greeter")) >= 0) {
             m_backend->setGreeter(true);
         }
 
