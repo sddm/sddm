@@ -152,4 +152,30 @@ void ConfigurationTest::RightOnInit() {
     QVERIFY(config->Custom.get() == TestConfig::BAZ);
 }
 
+void ConfigurationTest::FileChanged()
+{
+    QVERIFY(config->String.get() == "Test Variable Initial String");
+
+    //test from no file to a file
+    QFile confFile(CONF_FILE);
+    confFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    confFile.write("String=a\n");
+    confFile.close();
+
+    config->load();
+    QVERIFY(config->String.get() == "a");
+
+    //test file changed
+    //wait 2 seconds so timestamp is definitely 1 second apart
+    QTest::qWait(2000);
+
+    confFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    confFile.write("String=b\n");
+    confFile.close();
+
+    config->load();
+    QVERIFY(config->String.get() == "b");
+}
+
+
 #include "ConfigurationTest.moc"
