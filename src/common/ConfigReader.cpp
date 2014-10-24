@@ -26,6 +26,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QMap>
 #include <QtCore/QBuffer>
+#include <QtCore/QFileInfo>
 
 QTextStream &operator>>(QTextStream &str, QStringList &list)  {
     QStringList tempList = str.readLine().split(",");
@@ -135,6 +136,12 @@ namespace SDDM {
         QString currentSection = IMPLICIT_SECTION;
 
         QFile in(m_path);
+        QDateTime modificationTime = QFileInfo(in).lastModified();
+        if (modificationTime <= m_fileModificationTime) {
+            return;
+        }
+        m_fileModificationTime = modificationTime;
+
         in.open(QIODevice::ReadOnly);
         while (!in.atEnd()) {
             QString line = in.readLine().trimmed();

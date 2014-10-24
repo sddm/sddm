@@ -52,6 +52,9 @@ namespace SDDM {
     }
 
     void Seat::createDisplay(int displayId, int terminalId) {
+        //reload config if needed
+        mainConfig.load();
+        
         if (displayId == -1) {
             // find unused display
             displayId = findUnused(0, [&](const int number) {
