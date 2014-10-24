@@ -159,9 +159,11 @@ namespace SDDM {
             qDebug() << "Running:"
                      << qPrintable(mainConfig.XDisplay.ServerPath.get())
                      << qPrintable(args.join(" "));
-            process->start(mainConfig.XDisplay.ServerPath.get(), args);
+
             SignalHandler::initializeSigusr1();
             connect(DaemonApp::instance()->signalHandler(), SIGNAL(sigusr1Received()), this, SIGNAL(started()));
+
+            process->start(mainConfig.XDisplay.ServerPath.get(), args);
         }
 
         // wait for display server to start
