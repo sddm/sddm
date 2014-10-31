@@ -26,6 +26,8 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 namespace SDDM {
     UserSession::UserSession(HelperApp *parent)
@@ -73,8 +75,29 @@ namespace SDDM {
         if (setuid(pw->pw_uid) != 0)
             bail(2);
         chdir(pw->pw_dir);
-        // redirect standard error to a file
-        setStandardErrorFile(QString("%1/.xsession-errors").arg(pw->pw_dir));
+
+        //we cannot use setStandardError file as this code is run in the child process
+        //we want to redirect after we setuid so that .xsession-errors is owned by the user
+
+        //swap the stderr pipe of this subprcess into a file .xsession-errors
+        int fd = ::open(".xsession-errors", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        if (fd >= 0)
+        {
+            dup2 (fd, STDERR_FILENO);
+            ::close(fd);
+        } else {
+            qWarning() << "Could not open stderr to .xsession-errors file";
+        }
+
+        //redirect any stdout to /dev/null
+        fd = ::open("/dev/null", O_WRONLY);
+        if (fd >= 0)
+        {
+            dup2 (fd, STDOUT_FILENO);
+            ::close(fd);
+        } else {
+            qWarning() << "Could not redirect stdout";
+        }
 
         QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
         if (!cookie.isEmpty()) {
