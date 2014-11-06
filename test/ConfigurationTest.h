@@ -90,6 +90,7 @@ private slots:
     void LineChanges();
     void CustomEnum();
     void RightOnInit();
+    void FileChanged();
 
 private:
     TestConfig *config;

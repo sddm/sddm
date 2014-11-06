@@ -26,6 +26,7 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
+#include <QtCore/QDateTime>
 
 #define IMPLICIT_SECTION "General"
 #define UNUSED_VARIABLE_COMMENT "# Unused variable"
@@ -187,6 +188,8 @@ namespace SDDM {
         QString m_path {};
         QMap<QString, ConfigSection*> m_sections;
         friend class ConfigSection;
+    private:
+        QDateTime m_fileModificationTime;
     };
 }
 
