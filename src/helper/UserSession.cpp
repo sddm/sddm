@@ -74,7 +74,8 @@ namespace SDDM {
             bail(2);
         if (setuid(pw->pw_uid) != 0)
             bail(2);
-        chdir(pw->pw_dir);
+        if (chdir(pw->pw_dir) != 0)
+            bail(2);
 
         //we cannot use setStandardError file as this code is run in the child process
         //we want to redirect after we setuid so that .xsession-errors is owned by the user
