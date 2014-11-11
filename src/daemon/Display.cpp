@@ -23,7 +23,6 @@
 
 #include "Configuration.h"
 #include "DaemonApp.h"
-#include "DisplayManager.h"
 #include "XorgDisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
@@ -289,8 +288,6 @@ namespace SDDM {
         if (session.xdgSessionType() == QLatin1String("x11"))
             env.insert(QStringLiteral("DISPLAY"), name());
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
-        env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(seat()->name()));
-        env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
         env.insert(QStringLiteral("XDG_VTNR"), QString::number(vt));
         env.insert(QStringLiteral("DESKTOP_SESSION"), session.desktopSession());
         env.insert(QStringLiteral("XDG_CURRENT_DESKTOP"), session.desktopNames());

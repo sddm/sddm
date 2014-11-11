@@ -50,13 +50,4 @@ namespace SDDM {
         // emit signal
         emit seatRemoved(name);
     }
-
-    void SeatManager::switchToGreeter(const QString &name) {
-        // check if seat exists
-        if (!m_seats.contains(name))
-            return;
-
-        // switch to greeter
-        m_seats.value(name)->createDisplay();
-    }
 }

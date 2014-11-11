@@ -36,8 +36,6 @@ namespace SDDM {
         void createSeat(const QString &name);
         void removeSeat(const QString &name);
 
-        void switchToGreeter(const QString &seat);
-
     signals:
         void seatCreated(const QString &name);
         void seatRemoved(const QString &name);
