@@ -151,7 +151,6 @@ namespace SDDM {
         } else {
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-            env.insert("DISPLAY", m_display);
             env.insert("XAUTHORITY", m_authPath);
             env.insert("XCURSOR_THEME", mainConfig.Theme.CursorTheme.get());
             process->setProcessEnvironment(env);
