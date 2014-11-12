@@ -33,8 +33,6 @@ namespace SDDM {
         explicit XorgDisplayServer(Display *parent);
         ~XorgDisplayServer();
 
-        static bool displayExists(int number);
-
         const QString &display() const;
         const QString &authPath() const;
 
