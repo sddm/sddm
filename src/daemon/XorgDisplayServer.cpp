@@ -28,6 +28,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QProcess>
+#include <QUuid>
 
 #include <xcb/xcb.h>
 
@@ -36,9 +37,6 @@
 
 namespace SDDM {
     XorgDisplayServer::XorgDisplayServer(Display *parent) : DisplayServer(parent) {
-        // figure out the X11 display
-        m_display = QString(":%1").arg(displayPtr()->displayId());
-
         // get auth directory
         QString authDir = RUNTIME_DIR;
 
@@ -50,7 +48,7 @@ namespace SDDM {
         QDir().mkpath(authDir);
 
         // set auth path
-        m_authPath = QString("%1/%2").arg(authDir).arg(m_display);
+        m_authPath = QString("%1/%2").arg(authDir).arg(QUuid::createUuid().toString());
 
         // generate cookie
         std::random_device rd;
@@ -68,10 +66,6 @@ namespace SDDM {
 
     XorgDisplayServer::~XorgDisplayServer() {
         stop();
-    }
-
-    bool XorgDisplayServer::displayExists(int number) {
-        return QFile(QString("/tmp/.X%1-lock").arg(number)).exists();
     }
 
     const QString &XorgDisplayServer::display() const {
@@ -151,7 +145,6 @@ namespace SDDM {
         } else {
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-            env.insert("XAUTHORITY", m_authPath);
             env.insert("XCURSOR_THEME", mainConfig.Theme.CursorTheme.get());
             process->setProcessEnvironment(env);
 
@@ -164,8 +157,7 @@ namespace SDDM {
 
             // start display server
             QStringList args;
-            args << m_display
-                 << "-auth" << m_authPath
+            args << "-auth" << m_authPath
                  << "-nolisten" << "tcp"
                  << "-background" << "none"
                  << "-noreset"
@@ -195,7 +187,9 @@ namespace SDDM {
                 return false;
             }
             QByteArray displayNumber = readPipe.readLine();
-
+            displayNumber.prepend(QByteArray(":"));
+            displayNumber.remove(displayNumber.size() -1, 1); //trim trailing whitespace
+            m_display= displayNumber;
     
             // close our pipe
             close(pipeFds[0]);

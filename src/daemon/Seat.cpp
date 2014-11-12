@@ -51,36 +51,25 @@ namespace SDDM {
         return m_name;
     }
 
-    void Seat::createDisplay(int displayId, int terminalId) {
+    void Seat::createDisplay(int terminalId) {
         //reload config if needed
         mainConfig.load();
         
-        if (displayId == -1) {
-            // find unused display
-            displayId = findUnused(0, [&](const int number) {
-                bool alreadyExists = m_displayIds.contains(number);
-                if (!alreadyExists)
-                    alreadyExists = XorgDisplayServer::displayExists(number);
-                return alreadyExists;
-            });
-
-            // find unused terminal
+        if (terminalId == -1) {
+                // find unused terminal
             terminalId = findUnused(mainConfig.XDisplay.MinimumVT.get(), [&](const int number) {
                 return m_terminalIds.contains(number);
             });
         }
 
-        // mark display as used
-        m_displayIds << displayId;
-
         // mark terminal as used
         m_terminalIds << terminalId;
 
         // log message
-        qDebug() << "Adding new display" << displayId << "on vt" << terminalId << "...";
+        qDebug() << "Adding new display" << "on vt" << terminalId << "...";
 
         // create a new display
-        Display *display = new Display(displayId, terminalId, this);
+        Display *display = new Display(terminalId, this);
 
         // restart display on stop
         connect(display, SIGNAL(stopped()), this, SLOT(displayStopped()));
@@ -92,26 +81,14 @@ namespace SDDM {
         display->start();
     }
 
-    void Seat::removeDisplay(int displayId) {
-        qDebug() << "Removing display" << displayId << "...";
+    void Seat::removeDisplay(Display* display) {
+        qDebug() << "Removing display" << display->displayId() << "...";
 
-        // display object
-        Display *display = nullptr;
-
-        // find display
-        for (Display *d: m_displays)
-            if (d->displayId() == displayId)
-                display = d;
-
-        // check if found
-        if (display == nullptr)
-            return;
 
         // remove display from list
         m_displays.removeAll(display);
 
         // mark display and terminal ids as unused
-        m_displayIds.removeAll(display->displayId());
         m_terminalIds.removeAll(display->terminalId());
 
         // stop the display
@@ -127,7 +104,7 @@ namespace SDDM {
         Display *display = qobject_cast<Display *>(sender());
 
         // remove display
-        removeDisplay(display->displayId());
+        removeDisplay(display);
 
         // restart otherwise
         if (m_displays.isEmpty())
