@@ -137,6 +137,17 @@ namespace SDDM {
             QStringList args;
             args << m_display << "-ac" << "-br" << "-noreset" << "-screen" << "800x600";
             process->start("/usr/bin/Xephyr", args);
+
+
+            // wait for display server to start
+            if (!process->waitForStarted()) {
+                // log message
+                qCritical() << "Failed to start display server process.";
+
+                // return fail
+                return false;
+            }
+            emit started();
         } else {
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -145,8 +156,12 @@ namespace SDDM {
             env.insert("XCURSOR_THEME", mainConfig.Theme.CursorTheme.get());
             process->setProcessEnvironment(env);
 
-            // tell the display server to notify us when we can connect
-            SignalHandler::ignoreSigusr1();
+            //create pipe for communicating with X server
+            //0 == read from X, 1== write to from X
+            int pipeFds[2];
+            if (pipe(pipeFds) != 0) {
+                qCritical("Could not create pipe to start X server");
+            }
 
             // start display server
             QStringList args;
@@ -155,25 +170,39 @@ namespace SDDM {
                  << "-nolisten" << "tcp"
                  << "-background" << "none"
                  << "-noreset"
+                 << "-displayfd" << QString::number(pipeFds[1])
                  << QString("vt%1").arg(displayPtr()->terminalId());
             qDebug() << "Running:"
                      << qPrintable(mainConfig.XDisplay.ServerPath.get())
                      << qPrintable(args.join(" "));
             process->start(mainConfig.XDisplay.ServerPath.get(), args);
-            SignalHandler::initializeSigusr1();
-            connect(DaemonApp::instance()->signalHandler(), SIGNAL(sigusr1Received()), this, SIGNAL(started()));
-        }
 
-        // wait for display server to start
-        if (!process->waitForStarted()) {
-            // log message
-            qCritical() << "Failed to start display server process.";
+            // wait for display server to start
+            if (!process->waitForStarted()) {
+                // log message
+                qCritical() << "Failed to start display server process.";
 
-            // return fail
-            return false;
-        }
-        if (daemonApp->testing())
+                // return fail
+                close(pipeFds[0]);
+                return false;
+            }
+
+            QFile readPipe;
+
+            if (!readPipe.open(pipeFds[0], QIODevice::ReadOnly)) {
+                qCritical("Failed to open pipe to start X Server ");
+
+                close(pipeFds[0]);
+                return false;
+            }
+            QByteArray displayNumber = readPipe.readLine();
+
+    
+            // close our pipe
+            close(pipeFds[0]);
+
             emit started();
+        }
 
         // set flag
         m_started = true;
