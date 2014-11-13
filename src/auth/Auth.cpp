@@ -24,6 +24,7 @@
 #include "SafeDataStream.h"
 
 #include <QtCore/QProcess>
+#include <QtCore/QUuid>
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
 
@@ -99,8 +100,7 @@ namespace SDDM {
     Auth::SocketServer* Auth::SocketServer::instance() {
         if (!self) {
             self = new SocketServer();
-            // TODO until i'm not too lazy to actually hash something
-            self->listen(QString("Auth%1.%2").arg(getpid()).arg(time(NULL)));
+            self->listen(QString("sddm-auth%1").arg(QUuid::createUuid().toString().replace(QRegExp("[{}]"),"")));
         }
         return self;
     }
