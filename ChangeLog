@@ -4,8 +4,14 @@
     - Bug fixes
     * Others
 
-## Master
----------
+## 0.11.0 - 2014-11-20
+----------------------
+    + Reload the configuration every time we start a new session
+    - Fix stderr redirection in the helper. Solving a memory leak
+    - Set system locale in the greeter
+    - Bail on chdir failure
+    * Use QUuid for unique ID generation
+    * Update lithuanian translations
 
 ## 0.10.0 - 2014-10-16
 ----------------------
