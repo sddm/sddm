@@ -30,6 +30,7 @@
 #include "Greeter.h"
 #include "Utils.h"
 #include "SignalHandler.h"
+#include "PowerManager.h"
 
 #include <QDebug>
 #include <QDir>
@@ -67,6 +68,9 @@ namespace SDDM {
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
+
+        // connect battery status signals
+        connect(daemonApp->powerManager(), SIGNAL(batteryStatusChanged()), m_socketServer, SLOT(batteryStatusChanged()));
     }
 
     Display::~Display() {

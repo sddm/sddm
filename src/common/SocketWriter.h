@@ -32,6 +32,8 @@ namespace SDDM {
 
         SocketWriter &operator << (const quint32 &u);
         SocketWriter &operator << (const QString &s);
+        SocketWriter &operator << (const float &f);
+        SocketWriter &operator << (const bool &b);
 
     private:
         QByteArray data;

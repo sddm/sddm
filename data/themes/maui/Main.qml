@@ -229,6 +229,16 @@ Rectangle {
                 anchors.margins: 5
                 spacing: 5
 
+                Text {
+                    visible: sddm.batteryPresent
+                    height: parent.height
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: sddm.batteryLevel.toLocaleString(Qt.locale(), "f", 0) + "%"
+                    font.pixelSize: 16
+                    verticalAlignment: Text.AlignVCenter
+                }
+
                 ImageButton {
                     id: btnReboot
                     height: parent.height

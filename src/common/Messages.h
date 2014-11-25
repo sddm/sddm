@@ -37,7 +37,8 @@ namespace SDDM {
         HostName,
         Capabilities,
         LoginSucceeded,
-        LoginFailed
+        LoginFailed,
+        BatteryStatus
     };
 
     enum Capability {
@@ -46,7 +47,8 @@ namespace SDDM {
         Reboot = 0x0002,
         Suspend = 0x0004,
         Hibernate = 0x0008,
-        HybridSleep = 0x0010
+        HybridSleep = 0x0010,
+        BatteryStatus = 0x0020
     };
 
     Q_DECLARE_FLAGS(Capabilities, Capability)
