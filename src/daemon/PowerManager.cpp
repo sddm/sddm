@@ -85,7 +85,7 @@ namespace SDDM {
             QDBusReply<QList<QDBusObjectPath>> devices = m_interface->call("EnumerateDevices");
             if (devices.isValid()) {
                 for(const QDBusObjectPath& i: devices.value()) {
-                    QDBusConnection::systemBus().connect(UPOWER_SERVICE, UPOWER_PATH, UPOWER_PROPS, "PropertiesChanged", this, SLOT(deviceChanged(QString,QVariantMap,QStringList)));
+                    QDBusConnection::systemBus().connect(UPOWER_SERVICE, i.path(), UPOWER_PROPS, "PropertiesChanged", this, SLOT(deviceChanged(QString,QVariantMap,QStringList)));
                 }
 
                 updateBatteryStatus();
@@ -220,7 +220,7 @@ namespace SDDM {
             QVariant type = device.property("Type");
 
             if (type == 1 || type == 2) { // line power or battery
-                QDBusConnection::systemBus().connect(UPOWER_SERVICE, UPOWER_PATH, UPOWER_PROPS, "PropertiesChanged", this, SLOT(deviceChanged(QString,QVariantMap,QStringList)));
+                QDBusConnection::systemBus().connect(UPOWER_SERVICE, path.path(), UPOWER_PROPS, "PropertiesChanged", this, SLOT(deviceChanged(QString,QVariantMap,QStringList)));
                 updateBatteryStatus();
             }
         }
