@@ -32,16 +32,12 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(GreeterProxy)
 
-        Q_PROPERTY(QString  hostName         READ hostName         NOTIFY hostNameChanged)
-        Q_PROPERTY(bool     canPowerOff      READ canPowerOff      NOTIFY canPowerOffChanged)
-        Q_PROPERTY(bool     canReboot        READ canReboot        NOTIFY canRebootChanged)
-        Q_PROPERTY(bool     canSuspend       READ canSuspend       NOTIFY canSuspendChanged)
-        Q_PROPERTY(bool     canHibernate     READ canHibernate     NOTIFY canHibernateChanged)
-        Q_PROPERTY(bool     canHybridSleep   READ canHybridSleep   NOTIFY canHybridSleepChanged)
-        Q_PROPERTY(bool     hasBatteryStatus READ hasBatteryStatus NOTIFY hasBatteryStatusChanged)
-        Q_PROPERTY(float    batteryLevel     READ batteryLevel     NOTIFY batteryLevelChanged)
-        Q_PROPERTY(bool     batteryPresent   READ batteryPresent   NOTIFY batteryPresentChanged)
-        Q_PROPERTY(bool     linePowerPresent READ linePowerPresent NOTIFY linePowerPresentChanged)
+        Q_PROPERTY(QString  hostName        READ hostName       NOTIFY hostNameChanged)
+        Q_PROPERTY(bool     canPowerOff     READ canPowerOff    NOTIFY canPowerOffChanged)
+        Q_PROPERTY(bool     canReboot       READ canReboot      NOTIFY canRebootChanged)
+        Q_PROPERTY(bool     canSuspend      READ canSuspend     NOTIFY canSuspendChanged)
+        Q_PROPERTY(bool     canHibernate    READ canHibernate   NOTIFY canHibernateChanged)
+        Q_PROPERTY(bool     canHybridSleep  READ canHybridSleep NOTIFY canHybridSleepChanged)
 
     public:
         explicit GreeterProxy(const QString &socket, QObject *parent = 0);
@@ -54,10 +50,6 @@ namespace SDDM {
         bool canSuspend() const;
         bool canHibernate() const;
         bool canHybridSleep() const;
-        bool hasBatteryStatus() const;
-        float batteryLevel() const;
-        bool batteryPresent() const;
-        bool linePowerPresent() const;
 
         bool isConnected() const;
 
@@ -85,10 +77,6 @@ namespace SDDM {
         void canSuspendChanged(bool canSuspend);
         void canHibernateChanged(bool canHibernate);
         void canHybridSleepChanged(bool canHybridSleep);
-        void hasBatteryStatusChanged(bool hasBatteryLevel);
-        void batteryLevelChanged(float batteryLevel);
-        void batteryPresentChanged(bool batteryPresent);
-        void linePowerPresentChanged(bool linePowerPresent);
 
         void loginFailed();
         void loginSucceeded();

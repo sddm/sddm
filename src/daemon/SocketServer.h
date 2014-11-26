@@ -22,7 +22,6 @@
 
 #include <QObject>
 #include <QString>
-#include <QSet>
 
 class QLocalServer;
 class QLocalSocket;
@@ -42,13 +41,9 @@ namespace SDDM {
     private slots:
         void newConnection();
         void readyRead();
-        void disconnected();
 
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
-
-    public slots:
-        void batteryStatusChanged();
 
     signals:
         void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
@@ -56,7 +51,6 @@ namespace SDDM {
 
     private:
         QLocalServer *m_server { nullptr };
-        QSet<QLocalSocket *> m_connections;
     };
 }
 

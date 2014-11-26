@@ -42,16 +42,4 @@ namespace SDDM {
 
         return *this;
     }
-
-    SocketWriter &SocketWriter::operator << (const float &f) {
-        *output << f;
-
-        return *this;
-    }
-
-    SocketWriter &SocketWriter::operator << (const bool &b) {
-        *output << b;
-
-        return *this;
-    }
 }

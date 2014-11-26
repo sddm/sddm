@@ -42,20 +42,9 @@ namespace SDDM {
         void suspend() const;
         void hibernate() const;
         void hybridSleep() const;
-        float batteryLevel() const;
-        bool batteryPresent() const;
-        bool linePowerPresent() const;
-
-    signals:
-        void batteryStatusChanged();
-
-    private slots:
-        void onBatteryStatusChanged();
-        void nameOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner);
 
     private:
         QList<PowerManagerBackend *> m_backends;
-        void addBackend(PowerManagerBackend *backend);
     };
 }
 

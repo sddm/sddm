@@ -33,6 +33,7 @@ Rectangle {
     property int sessionIndex: session.index
 
     TextConstants { id: textConstants }
+    PowerModel { id: powerModel }
 
     Connections {
         target: sddm
@@ -230,11 +231,11 @@ Rectangle {
                 spacing: 5
 
                 Text {
-                    visible: sddm.batteryPresent
+                    visible: powerModel.batteryPresent
                     height: parent.height
                     anchors.verticalCenter: parent.verticalCenter
 
-                    text: sddm.batteryLevel.toLocaleString(Qt.locale(), "f", 0) + "%"
+                    text: powerModel.batteryLevel.toLocaleString(Qt.locale(), "f", 0) + "%"
                     font.pixelSize: 16
                     verticalAlignment: Text.AlignVCenter
                 }

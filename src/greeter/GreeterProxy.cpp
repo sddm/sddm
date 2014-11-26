@@ -37,10 +37,6 @@ namespace SDDM {
         bool canSuspend { false };
         bool canHibernate { false };
         bool canHybridSleep { false };
-        bool hasBatteryStatus { false };
-        float batteryLevel { 0 };
-        bool batteryPresent { false };
-        bool linePowerPresent { true };
     };
 
     GreeterProxy::GreeterProxy(const QString &socket, QObject *parent) : QObject(parent), d(new GreeterProxyPrivate()) {
@@ -87,10 +83,6 @@ namespace SDDM {
         return d->canHybridSleep;
     }
 
-    bool GreeterProxy::hasBatteryStatus() const {
-        return d->hasBatteryStatus;
-    }
-
     bool GreeterProxy::isConnected() const {
         return d->socket->state() == QLocalSocket::ConnectedState;
     }
@@ -114,19 +106,6 @@ namespace SDDM {
     void GreeterProxy::hybridSleep() {
         SocketWriter(d->socket) << quint32(GreeterMessages::HybridSleep);
     }
-
-    float GreeterProxy::batteryLevel() const {
-        return d->batteryLevel * 100;
-    }
-
-    bool GreeterProxy::batteryPresent() const {
-        return d->batteryPresent;
-    }
-
-    bool GreeterProxy::linePowerPresent() const {
-        return d->linePowerPresent;
-    }
-
 
     void GreeterProxy::login(const QString &user, const QString &password, const int sessionIndex) const {
         if (!d->sessionModel) {
@@ -185,7 +164,6 @@ namespace SDDM {
                     d->canSuspend = capabilities & Capability::Suspend;
                     d->canHibernate = capabilities & Capability::Hibernate;
                     d->canHybridSleep = capabilities & Capability::HybridSleep;
-                    d->hasBatteryStatus = capabilities & Capability::BatteryStatus;
 
                     // emit signals
                     emit canPowerOffChanged(d->canPowerOff);
@@ -193,7 +171,6 @@ namespace SDDM {
                     emit canSuspendChanged(d->canSuspend);
                     emit canHibernateChanged(d->canHibernate);
                     emit canHybridSleepChanged(d->canHybridSleep);
-                    emit hasBatteryStatusChanged(d->hasBatteryStatus);
                 }
                 break;
                 case DaemonMessages::HostName: {
@@ -221,33 +198,6 @@ namespace SDDM {
 
                     // emit signal
                     emit loginFailed();
-                }
-                break;
-                case DaemonMessages::BatteryStatus: {
-                    // log message
-                    qDebug() << "Message received from daemon: BatteryStatus";
-
-                    // read battery level
-                    input >> d->batteryLevel;
-
-                    // read battery status
-                    bool prevBatteryPresent = d->batteryPresent;
-                    input >> d->batteryPresent;
-
-                    // read line power status
-                    bool prevLinePowerPresent = d->linePowerPresent;
-                    input >> d->linePowerPresent;
-
-                    // emit signals
-                    emit batteryLevelChanged(d->batteryLevel);
-
-                    if (prevBatteryPresent != d->batteryPresent)
-                        emit batteryPresentChanged(d->batteryPresent);
-
-                    if (prevLinePowerPresent != d->linePowerPresent)
-                        emit linePowerPresentChanged(d->linePowerPresent);
-
-                    qDebug() << "Battery level: " << d->batteryLevel << ", battery present: " << d->batteryPresent << ", line power present: " << d->linePowerPresent;
                 }
                 break;
                 default: {

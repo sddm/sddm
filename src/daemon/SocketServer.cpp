@@ -95,8 +95,7 @@ namespace SDDM {
 
         // connect signals
         connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-        connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-        m_connections.insert(socket);
+        connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
     }
 
     void SocketServer::readyRead() {
@@ -123,14 +122,6 @@ namespace SDDM {
 
                 // send host name
                 SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
-
-                // send battery status
-                if (daemonApp->powerManager()->capabilities() && Capability::BatteryStatus) {
-                    SocketWriter(socket) << quint32(DaemonMessages::BatteryStatus)
-                        << daemonApp->powerManager()->batteryLevel()
-                        << daemonApp->powerManager()->batteryPresent()
-                        << daemonApp->powerManager()->linePowerPresent();
-                }
 
                 // emit signal
                 emit connected();
@@ -195,34 +186,11 @@ namespace SDDM {
         }
     }
 
-    void SocketServer::disconnected() {
-        QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
-
-        socket->deleteLater();
-        m_connections.remove(socket);
-    }
-
-
     void SocketServer::loginFailed(QLocalSocket *socket) {
         SocketWriter(socket) << quint32(DaemonMessages::LoginFailed);
     }
 
     void SocketServer::loginSucceeded(QLocalSocket *socket) {
         SocketWriter(socket) << quint32(DaemonMessages::LoginSucceeded);
-    }
-
-    void SocketServer::batteryStatusChanged() {
-        for(QLocalSocket *socket: m_connections)
-        {
-            if (socket->state() != QLocalSocket::ConnectedState)
-                continue;
-
-            // send capabilities
-            SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(daemonApp->powerManager()->capabilities());
-
-            // send battery status
-            if (daemonApp->powerManager()->capabilities() && Capability::BatteryStatus)
-                SocketWriter(socket) << quint32(DaemonMessages::BatteryStatus) << daemonApp->powerManager()->batteryLevel() << daemonApp->powerManager()->batteryPresent() << daemonApp->powerManager()->linePowerPresent();
-        }
     }
 }
