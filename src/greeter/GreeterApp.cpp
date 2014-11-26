@@ -143,7 +143,7 @@ namespace SDDM {
         m_view->rootContext()->setContextProperty("sddm", m_proxy);
         m_view->rootContext()->setContextProperty("keyboard", m_keyboard);
 
-        // register instantianle types
+        // register instantiable types
         qmlRegisterType<PowerModel>("SddmComponents", 2, 0, "PowerModel");
 
         // get theme main script
