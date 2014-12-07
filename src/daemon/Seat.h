@@ -34,8 +34,8 @@ namespace SDDM {
         const QString &name() const;
 
     public slots:
-        void createDisplay(int displayId = -1, int terminalId = -1);
-        void removeDisplay(int displayId);
+        void createDisplay(int terminalId = -1);
+        void removeDisplay(SDDM::Display* display);
 
     private slots:
         void displayStopped();
@@ -45,7 +45,6 @@ namespace SDDM {
 
         QList<Display *> m_displays;
         QList<int> m_terminalIds;
-        QList<int> m_displayIds;
     };
 }
 
