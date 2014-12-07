@@ -40,8 +40,8 @@
 #include <unistd.h>
 
 namespace SDDM {
-    Display::Display(const int displayId, const int terminalId, Seat *parent) : QObject(parent),
-        m_displayId(displayId), m_terminalId(terminalId),
+    Display::Display(const int terminalId, Seat *parent) : QObject(parent),
+        m_terminalId(terminalId),
         m_auth(new Auth(this)),
         m_displayServer(new XorgDisplayServer(this)),
         m_seat(parent),
@@ -73,8 +73,8 @@ namespace SDDM {
         stop();
     }
 
-    const int Display::displayId() const {
-        return m_displayId;
+    QString Display::displayId() const {
+        return m_displayServer->display();
     }
 
     const int Display::terminalId() const {
