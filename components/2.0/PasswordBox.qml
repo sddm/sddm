@@ -52,7 +52,7 @@ FocusScope {
 
     TextBox {
         id: txtMain
-        width: parent.width; height: 30
+        width: parent.width; height: parent.height
         font.pixelSize: 14
 
         echoMode: TextInput.Password
