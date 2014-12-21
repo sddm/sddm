@@ -32,6 +32,7 @@ FocusScope {
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
     property color hoverColor: "#5692c4"
+    property alias radius: main.radius
     property alias font: txtMain.font
     property alias textColor: txtMain.color
     property alias echoMode: txtMain.echoMode
