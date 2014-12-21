@@ -32,6 +32,7 @@ FocusScope {
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
     property color hoverColor: "#5692c4"
+    property real  radius: 0.0
     property alias font: txtMain.font
     property alias textColor: txtMain.color
     property alias echoMode: txtMain.echoMode
@@ -45,6 +46,7 @@ FocusScope {
         color: container.color
         border.color: container.borderColor
         border.width: 1
+        radius: container.radius
 
         Behavior on border.color { ColorAnimation { duration: 100 } }
 
