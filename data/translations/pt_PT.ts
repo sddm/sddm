@@ -5,11 +5,11 @@
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>Bem-vindo a %1</translation>
+        <translation>Bem-vindo ao %1</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Atenção, Caps Lock está ligada!</translation>
+        <translation>Atenção, Caps Lock está ativo!</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -17,15 +17,15 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>Sessão</translation>
+        <translation>Autenticação</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>A autenticação falhou</translation>
+        <translation>Falha de autenticação</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>Autentificação com sucesso</translation>
+        <translation>Autenticação efetuada</translation>
     </message>
     <message>
         <source>Password</source>
@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>Escreva o seu nome de utilizador e senha</translation>
+        <translation>Escreva o seu nome de utilizador e a senha</translation>
     </message>
     <message>
         <source>Reboot</source>
