@@ -57,6 +57,7 @@ namespace SDDM {
                 continue;
             SessionPtr si { new Session { session, "", "", "" } };
             QTextStream in(&inputFile);
+            bool execAllowed = true;
             while (!in.atEnd()) {
                 QString line = in.readLine();
                 if (line.startsWith("Name="))
@@ -65,9 +66,15 @@ namespace SDDM {
                     si->exec = line.mid(5);
                 if (line.startsWith("Comment="))
                     si->comment = line.mid(8);
+                if (line.startsWith("TryExec=")) {
+                    QFileInfo fi(line.mid(8));
+                    if (!fi.exists() || !fi.isExecutable())
+                        execAllowed = false;
+                }
             }
             // add to sessions list
-            d->sessions.push_back(si);
+            if (execAllowed)
+                d->sessions.push_back(si);
             // close file
             inputFile.close();
         }
