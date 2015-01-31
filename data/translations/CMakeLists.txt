@@ -1,4 +1,5 @@
 set(TRANSLATION_FILES
+    ar.ts
     cs.ts
     de.ts
     et.ts
