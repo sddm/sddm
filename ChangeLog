@@ -19,7 +19,6 @@
 
 ## 0.10.0 - 2014-10-16
 ----------------------
-
     + Set default icon theme from greeter theme configuration.
     + Set cursor theme according to greeter theme configuration.
     - Never permit a login as the sddm user (CVE-2014-7271)
