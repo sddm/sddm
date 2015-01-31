@@ -251,7 +251,9 @@ namespace SDDM {
         QProcessEnvironment sessionEnv = m_app->session()->processEnvironment();
         QString display = sessionEnv.value("DISPLAY");
         if (!display.isEmpty()) {
+#ifdef PAM_XDISPLAY
             m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
+#endif
             m_pam->setItem(PAM_TTY, qPrintable(display));
         }
         if (!m_pam->putEnv(sessionEnv)) {
