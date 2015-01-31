@@ -30,6 +30,8 @@
 #include <QProcess>
 #include <QUuid>
 
+#include <random>
+
 #include <xcb/xcb.h>
 
 #include <pwd.h>
