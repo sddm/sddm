@@ -109,8 +109,11 @@ if(SYSTEMD_FOUND)
         endif()
     endif()
 
-    execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
-    string(REGEX REPLACE "[ \t\n]+" "" SYSTEMD_SYSTEM_UNIT_DIR ${SYSTEMD_SYSTEM_UNIT_DIR})
+    if (NOT DEFINED SYSTEMD_SYSTEM_UNIT_DIR)
+        execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
+        string(REGEX REPLACE "[ \t\n]+" "" SYSTEMD_SYSTEM_UNIT_DIR ${SYSTEMD_SYSTEM_UNIT_DIR})
+    endif()
+
     set(MINIMUM_VT 1)
     set(HALT_COMMAND "/usr/bin/systemctl poweroff")
     set(REBOOT_COMMAND "/usr/bin/systemctl reboot")
