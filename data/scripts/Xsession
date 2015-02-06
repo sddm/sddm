@@ -20,9 +20,8 @@ case $SHELL in
       . $HOME/.profile
     fi
     ;;
-  */zsh)
+*/zsh)
     [ -z "$ZSH_NAME" ] && exec $SHELL $0 "$@"
-    emulate -R sh
     [ -d /etc/zsh ] && zdir=/etc/zsh || zdir=/etc
     zhome=${ZDOTDIR:-$HOME}
     # zshenv is always sourced automatically.
@@ -30,6 +29,7 @@ case $SHELL in
     [ -f $zhome/.zprofile ] && . $zhome/.zprofile
     [ -f $zdir/zlogin ] && . $zdir/zlogin
     [ -f $zhome/.zlogin ] && . $zhome/.zlogin
+    emulate -R sh
     ;;
   */csh|*/tcsh)
     # [t]cshrc is always sourced automatically.
