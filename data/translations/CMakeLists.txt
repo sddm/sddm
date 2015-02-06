@@ -5,6 +5,7 @@ set(TRANSLATION_FILES
     et.ts
     fi.ts
     fr.ts
+    hu.ts
     it.ts
     ja.ts
     pl.ts
