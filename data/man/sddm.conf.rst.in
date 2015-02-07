@@ -104,11 +104,13 @@ OPTIONS
 	Default value is 65000.
 
 `HideUsers=`
-	Users that shouldn't show up in the user list.
+	Comma-separated list of users that shouldn't show up in
+	the user list.
 	Default value is empty.
 
 `HideShells=`
-	Shells of users that shouldn't show up in the user list.
+	Comma-separated list of shells of users that shouldn't
+	show up in the user list.
 	Default value is empty.
 
 `RememberLastUser=`
