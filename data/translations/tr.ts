@@ -5,7 +5,7 @@
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>Hoşgeldiniz (%1)</translation>
+        <translation>Hoş Geldiniz (%1)</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
@@ -29,11 +29,11 @@
     </message>
     <message>
         <source>Password</source>
-        <translation>Şifre</translation>
+        <translation>Parola</translation>
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>Kullanıcı adınızı ve şifrenizi giriniz</translation>
+        <translation>Kullanıcı adınızı ve parolanızı giriniz</translation>
     </message>
     <message>
         <source>Reboot</source>
@@ -53,7 +53,7 @@
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>Kullanıcınızı seçiniz ve şifrenizi giriniz</translation>
+        <translation>Kullanıcınızı seçiniz ve parolanızı giriniz</translation>
     </message>
 </context>
 </TS>
