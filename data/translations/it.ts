@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Accesso fallito</translation>
+        <translation>Accesso non riuscito</translation>
     </message>
     <message>
         <source>Login succeeded</source>
