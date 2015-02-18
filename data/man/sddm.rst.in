@@ -25,9 +25,9 @@ Using QtQuick and QML, designers are given the ability to
 easily create pleasant, modern looking interfaces for sddm.
 
 sddm runs the greeter as a system user named **sddm**
-whose home directory need to be set to **/var/lib/sddm**.
+whose home directory needs to be set to **/var/lib/sddm**.
 
-If pam and systemd are available, the greeter will go through logind
+If pam and systemd are available, the greeter will go through logind,
 which will give it access to drm devices.
 
 Distributions without pam and systemd will need to put the **sddm** user
