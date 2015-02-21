@@ -98,7 +98,12 @@ if(SYSTEMD_FOUND)
     add_definitions(-DHAVE_SYSTEMD)
     set(CMAKE_AUTOMOC_MOC_OPTIONS -DHAVE_SYSTEMD)
 
-    pkg_check_modules(JOURNALD "libsystemd-journal")
+    # libsystemd-journal was merged into libsystemd in 209
+    if(${SYSTEMD_VERSION} VERSION_LESS 209)
+        pkg_check_modules(JOURNALD "libsystemd-journal")
+    else()
+        pkg_check_modules(JOURNALD "libsystemd")
+    endif()
 
     if(ENABLE_JOURNALD)
         if(JOURNALD_FOUND)
