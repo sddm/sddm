@@ -65,6 +65,10 @@ OPTIONS
 	Path of the X server.
 	Default value is "/usr/bin/X".
 
+`XephyrPath=`
+	Path of the Xephyr.
+	Default value is "/usr/bin/Xephyr".
+
 `XauthPath=`
 	Path of the Xauth.
 	Default value is "/usr/bin/xauth".
