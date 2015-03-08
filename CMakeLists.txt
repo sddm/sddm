@@ -77,7 +77,9 @@ find_package(Qt5LinguistTools REQUIRED)
 
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
-exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
+if(NOT QT_IMPORTS_DIR)
+    exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
+endif()
 
 # Set components version
 set(COMPONENTS_VERSION 2.0)

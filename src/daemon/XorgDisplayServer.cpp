@@ -132,7 +132,7 @@ namespace SDDM {
         if (daemonApp->testing()) {
             QStringList args;
             args << m_display << "-ac" << "-br" << "-noreset" << "-screen" << "800x600";
-            process->start("/usr/bin/Xephyr", args);
+            process->start(mainConfig.XDisplay.XephyrPath.get(), args);
 
 
             // wait for display server to start
