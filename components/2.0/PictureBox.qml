@@ -110,5 +110,17 @@ FocusScope {
                 }
             }
         }
+
+        Text {
+            id: pressToLogin
+            height: 30
+            font.pixelSize: 14
+            anchors { left: parent.left; right: parent.right }
+            color: "#666666"
+            elide: Text.ElideRight
+            font { bold: true; capitalization: Font.AllUppercase }
+            horizontalAlignment: Text.AlignHCenter
+            text: qsTr("Press to login")
+        }
     }
 }
