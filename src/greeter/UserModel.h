@@ -37,7 +37,8 @@ namespace SDDM {
             NameRole = Qt::UserRole + 1,
             RealNameRole,
             HomeDirRole,
-            IconRole
+            IconRole,
+            NeedsPasswordRole
         };
 
         UserModel(QObject *parent = 0);
