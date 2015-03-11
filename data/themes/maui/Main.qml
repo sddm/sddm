@@ -72,6 +72,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 name: (model.realName === "") ? model.name : model.realName
                 icon: model.icon
+                showPassword: model.needsPassword
 
                 focus: (listView.currentIndex === index) ? true : false
                 state: (listView.currentIndex === index) ? "active" : ""
