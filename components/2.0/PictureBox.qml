@@ -33,6 +33,7 @@ FocusScope {
     property alias name: name.text
     property alias icon: icon.source
     property alias password: password.text
+    property bool showPassword: true
 
     signal login()
 
