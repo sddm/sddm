@@ -97,10 +97,11 @@ FocusScope {
 
         PasswordBox {
             id: password
-            width: parent.width; height: 30
+            width: parent.width; height: showPassword ? 30 : 0
             font.pixelSize: 14
 
             focus: true
+            visible: showPassword
 
             Keys.onPressed: {
                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
