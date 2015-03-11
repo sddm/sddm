@@ -37,6 +37,7 @@ namespace SDDM {
         QString realName { "" };
         QString homeDir { "" };
         QString icon { "" };
+        bool    needsPassword { false };
         int uid { 0 };
         int gid { 0 };
     };
@@ -75,6 +76,7 @@ namespace SDDM {
             user->homeDir = QString(current_pw->pw_dir);
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
+            user->needsPassword = !(QString(current_pw->pw_passwd).isEmpty());
 
             // search for face icon
             QString userFace = QString("%1/.face.icon").arg(user->homeDir);
@@ -113,6 +115,7 @@ namespace SDDM {
         roleNames[RealNameRole] = "realName";
         roleNames[HomeDirRole] = "homeDir";
         roleNames[IconRole] = "icon";
+        roleNames[NeedsPasswordRole] = "needsPassword";
 
         return roleNames;
     }
@@ -145,6 +148,8 @@ namespace SDDM {
             return user->homeDir;
         else if (role == IconRole)
             return user->icon;
+        else if (role == NeedsPasswordRole)
+            return user->needsPassword;
 
         // return empty value
         return QVariant();
