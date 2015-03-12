@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QFile>
 #include <QList>
+#include <QProcessEnvironment>
 #include <QTextStream>
 
 #include <memory>
@@ -67,9 +68,25 @@ namespace SDDM {
                 if (line.startsWith("Comment="))
                     si->comment = line.mid(8);
                 if (line.startsWith("TryExec=")) {
-                    QFileInfo fi(line.mid(8));
-                    if (!fi.exists() || !fi.isExecutable())
+                    QString tryExecBin = line.mid(8);
+                    QFileInfo fi(tryExecBin);
+                    if (fi.isAbsolute()) {
+                        if (!fi.exists() || !fi.isExecutable())
+                            execAllowed = false;
+                    } else {
                         execAllowed = false;
+                        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+                        QString envPath = env.value("PATH");
+                        QStringList pathList = envPath.split(':');
+                        foreach(const QString &path, pathList) {
+                            QDir pathDir(path);
+                            fi.setFile(pathDir, tryExecBin);
+                            if (fi.exists() && fi.isExecutable()) {
+                                execAllowed = true;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
             // add to sessions list
