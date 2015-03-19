@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ru">
+<TS version="2.1" language="ru">
 <context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>Добро пожаловать в %1</translation>
+        <translation>Добро пожаловать на %1</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Включен Caps Lock!</translation>
+        <translation>Внимание: нажата клавиша Caps Lock</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -17,11 +17,11 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>Вход</translation>
+        <translation>Войти</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Вход не удался</translation>
+        <translation>Не удалось войти в систему</translation>
     </message>
     <message>
         <source>Login succeeded</source>
@@ -37,15 +37,15 @@
     </message>
     <message>
         <source>Reboot</source>
-        <translation>Перезагрузка</translation>
+        <translation>Перезагрузить</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation>Сессия</translation>
+        <translation>Сеанс</translation>
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>Выключение</translation>
+        <translation>Выключить</translation>
     </message>
     <message>
         <source>User name</source>
