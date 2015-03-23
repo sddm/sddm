@@ -25,10 +25,6 @@ option(ENABLE_JOURNALD "Enable logging to journald" ON)
 # Definitions
 add_definitions(-Wall -std=c++11)
 
-if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
-    include_directories("${CMAKE_INSTALL_PREFIX}/include")
-endif()
-
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -70,6 +66,7 @@ endif()
 
 # XCB
 find_package(XCB REQUIRED)
+include_directories("${LIBXCB_INCLUDE_DIR}")
 
 # XKB
 find_package(XKB REQUIRED)
@@ -134,6 +131,10 @@ else()
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
+
+# X components (xauth, xsessions, etc.)
+find_path(X_PREFIX "share/xsessions")
+
 
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
