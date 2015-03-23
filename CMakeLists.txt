@@ -25,6 +25,10 @@ option(ENABLE_JOURNALD "Enable logging to journald" ON)
 # Definitions
 add_definitions(-Wall -std=c++11)
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
+    include_directories("${CMAKE_INSTALL_PREFIX}/include")
+endif()
+
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)

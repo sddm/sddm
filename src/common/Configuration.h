@@ -53,10 +53,10 @@ namespace SDDM {
         );
         // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal
         Section(XDisplay,
-            Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("X server path"));
-            Entry(XephyrPath,          QString,     _S("/usr/bin/Xephyr"),                      _S("Xephyr path"));
-            Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Xauth path"));
-            Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Session description directory"));
+            Entry(ServerPath,          QString,     _S(PREFIX "/bin/X"),                           _S("X server path"));
+            Entry(XephyrPath,          QString,     _S(PREFIX "/bin/Xephyr"),                      _S("Xephyr path"));
+            Entry(XauthPath,           QString,     _S(PREFIX "/bin/xauth"),                       _S("Xauth path"));
+            Entry(SessionDir,          QString,     _S(PREFIX "/share/xsessions"),                 _S("Session description directory"));
             Entry(SessionCommand,      QString,     _S(SESSION_COMMAND),                        _S("Xsession script path\n"
                                                                                                    "A script to execute when starting the desktop session"));
             Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Xsetup script path\n"
