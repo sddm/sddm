@@ -1,0 +1,2 @@
+#!/bin/sh
+# Xstop - run as root after stopping X

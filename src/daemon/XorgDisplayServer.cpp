@@ -233,6 +233,23 @@ namespace SDDM {
         // log message
         qDebug() << "Display server stopped.";
 
+        QString displayStopCommand = mainConfig.XDisplay.DisplayStopCommand.get();
+
+        // create display setup script process
+        QProcess *displayStopScript = new QProcess();
+
+        // set process environment
+        QProcessEnvironment env;
+        env.insert("DISPLAY", m_display);
+        env.insert("HOME", "/");
+        env.insert("PATH", mainConfig.Users.DefaultPath.get());
+        env.insert("SHELL", "/bin/sh");
+        displayStopScript->setProcessEnvironment(env);
+
+        // start display setup script
+        qDebug() << "Running display stop script " << displayStopCommand;
+        displayStopScript->start(displayStopCommand);
+
         // clean up
         process->deleteLater();
         process = nullptr;
