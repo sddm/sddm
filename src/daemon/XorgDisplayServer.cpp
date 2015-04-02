@@ -250,6 +250,14 @@ namespace SDDM {
         qDebug() << "Running display stop script " << displayStopCommand;
         displayStopScript->start(displayStopCommand);
 
+        // wait for finished
+        if (!displayStopScript->waitForFinished(5000))
+            displayStopScript->kill();
+
+        // clean up the script process
+        displayStopScript->deleteLater();
+        displayStopScript = nullptr;
+
         // clean up
         process->deleteLater();
         process = nullptr;
@@ -275,6 +283,9 @@ namespace SDDM {
         env.insert("XAUTHORITY", m_authPath);
         env.insert("SHELL", "/bin/sh");
         displayScript->setProcessEnvironment(env);
+
+        // delete displayScript on finish
+        connect(displayScript, SIGNAL(finished(int,QProcess::ExitStatus)), displayScript, SLOT(deleteLater()));
 
         // start display setup script
         qDebug() << "Running display setup script " << displayCommand;
