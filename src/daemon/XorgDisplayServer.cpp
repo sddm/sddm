@@ -266,6 +266,7 @@ namespace SDDM {
 
     void XorgDisplayServer::changeOwner(const QString &fileName) {
         // change the owner and group of the auth file to the sddm user
+        // TODO: sddm user is supposed to be configurable
         struct passwd *pw = getpwnam("sddm");
         if (!pw)
             qWarning() << "Failed to find the sddm user. Owner of the auth file will not be changed.";
