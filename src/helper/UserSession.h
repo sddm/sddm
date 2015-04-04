@@ -40,7 +40,6 @@ namespace SDDM {
         QString path() const;
 
     protected:
-        void bail(int status);
         void setupChildProcess();
 
     private:
