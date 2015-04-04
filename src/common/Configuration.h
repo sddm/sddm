@@ -81,6 +81,7 @@ namespace SDDM {
         );
     );
 
+                                                 // is this a default value?
     Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? tmp->pw_dir : STATE_DIR;}().append("/state.conf"),
         Section(Last,
             Entry(Session,         QString,     QString(),                                  _S("Name of the session file of the last session selected. This session will be preselected when the login screen shows up."));

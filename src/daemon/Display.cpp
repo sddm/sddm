@@ -134,6 +134,7 @@ namespace SDDM {
 
         if (!daemonApp->testing()) {
             // change the owner and group of the socket to avoid permission denied errors
+            // TODO: sddm user is supposed to be configurable
             struct passwd *pw = getpwnam("sddm");
             if (pw) {
                 if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
