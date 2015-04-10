@@ -85,6 +85,10 @@ OPTIONS
 	Path of script to execute when starting the display server.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
 
+`DisplayStopCommand=`
+	Path of script to execute when stopping the display server.
+	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
+
 `MinimumVT=`
 	Minimum virtual terminal number that will be used
 	by the first display. Virtual terminal number will
