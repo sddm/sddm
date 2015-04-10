@@ -61,6 +61,8 @@ namespace SDDM {
                                                                                                    "A script to execute when starting the desktop session"));
             Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Xsetup script path\n"
                                                                                                    "A script to execute when starting the display server"));
+            Entry(DisplayStopCommand,  QString,     _S(DATA_INSTALL_DIR "/scripts/Xstop"),      _S("Xstop script path\n"
+                                                                                                   "A script to execute when stopping the display server"));
             Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("Minimum VT\n"
                                                                                                    "The lowest virtual terminal number that will be used."));
         );
