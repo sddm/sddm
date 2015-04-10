@@ -3,7 +3,7 @@ install(DIRECTORY   "flags"                             DESTINATION "${DATA_INST
 
 install(FILES "org.freedesktop.DisplayManager.conf"       DESTINATION "${DBUS_CONFIG_DIR}")
 
-install(FILES "scripts/Xsession" "scripts/Xsetup" DESTINATION "${DATA_INSTALL_DIR}/scripts"
+install(FILES "scripts/Xsession" "scripts/Xsetup" "scripts/Xstop" DESTINATION "${DATA_INSTALL_DIR}/scripts"
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
         GROUP_READ GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE)
