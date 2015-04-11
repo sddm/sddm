@@ -29,7 +29,7 @@ QtObject {
     readonly property string layout:            qsTr("Layout")
     readonly property string login:             qsTr("Login")
     readonly property string loginFailed:       qsTr("Login failed")
-    readonly property string loginSucceded:     qsTr("Login succeeded")
+    readonly property string loginSucceeded:    qsTr("Login succeeded")
     readonly property string password:          qsTr("Password")
     readonly property string prompt:            qsTr("Enter your username and password")
     readonly property string promptSelectUser:  qsTr("Select your user and enter password")
