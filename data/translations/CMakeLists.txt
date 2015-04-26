@@ -8,6 +8,7 @@ set(TRANSLATION_FILES
     hu.ts
     it.ts
     ja.ts
+    ko.ts
     pl.ts
     pt_BR.ts
     pt_PT.ts
