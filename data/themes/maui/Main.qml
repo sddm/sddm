@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com
 *
 * Permission is hereby granted, free of charge, to any person
@@ -79,9 +80,10 @@ Rectangle {
 
                 MouseArea {
                     anchors.fill: parent
-                    hoverEnabled: true
-                    onEntered: listView.currentIndex = index
-                    onClicked: listView.focus = true
+                    onClicked: {
+                        listView.currentIndex = index;
+                        listView.focus = true;
+                    }
                 }
             }
         }
