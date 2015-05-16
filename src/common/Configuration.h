@@ -66,6 +66,11 @@ namespace SDDM {
             Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("Minimum VT\n"
                                                                                                    "The lowest virtual terminal number that will be used."));
         );
+        Section(WaylandDisplay,
+            Entry(SessionDir,          QString,     _S("/usr/share/wayland-sessions"),                 _S("Session description directory"));
+            Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                       _S("Wayland session script path\n"
+                                                                                                          "A script to execute when starting the desktop session"));
+        );
         Section(Users,
             Entry(DefaultPath,         QString,     _S("/bin:/usr/bin:/usr/local/bin"),         _S("Default $PATH"));
             Entry(MinimumUid,          int,         1000,                                       _S("Minimum user id for displayed users"));

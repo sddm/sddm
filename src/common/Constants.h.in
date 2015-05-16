@@ -30,6 +30,7 @@
 #define STATE_DIR                   "@STATE_DIR@"
 
 #define SESSION_COMMAND             "@SESSION_COMMAND@"
+#define WAYLAND_SESSION_COMMAND     "@WAYLAND_SESSION_COMMAND@"
 
 #define CONFIG_FILE                 "@CONFIG_FILE@"
 #define LOG_FILE                    "@LOG_FILE@"

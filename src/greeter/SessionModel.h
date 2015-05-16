@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -33,10 +34,16 @@ namespace SDDM {
         Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
     public:
         enum SessionRole {
-            FileRole = Qt::UserRole + 1,
+            DirectoryRole = Qt::UserRole + 1,
+            FileRole,
             NameRole,
             ExecRole,
             CommentRole
+        };
+
+        enum SessionType {
+            X11Session = 0,
+            WaylandSession
         };
 
         SessionModel(QObject *parent = 0);
@@ -51,6 +58,8 @@ namespace SDDM {
 
     private:
         SessionModelPrivate *d { nullptr };
+
+        void populate(SessionType type, const QString &path);
     };
 }
 
