@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -23,6 +24,8 @@
 #include <QDataStream>
 #include <QLocalSocket>
 
+#include "Session.h"
+
 namespace SDDM {
     class SocketWriter {
         Q_DISABLE_COPY(SocketWriter)
@@ -32,6 +35,7 @@ namespace SDDM {
 
         SocketWriter &operator << (const quint32 &u);
         SocketWriter &operator << (const QString &s);
+        SocketWriter &operator << (const Session &s);
 
     private:
         QByteArray data;

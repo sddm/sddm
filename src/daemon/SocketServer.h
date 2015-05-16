@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -23,6 +24,8 @@
 #include <QObject>
 #include <QString>
 
+#include "Session.h"
+
 class QLocalServer;
 class QLocalSocket;
 
@@ -46,7 +49,9 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     signals:
-        void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
+        void login(QLocalSocket *socket,
+                   const QString &user, const QString &password,
+                   const Session &session);
         void connected();
 
     private:

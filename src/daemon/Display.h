@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2014-2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2014 Martin Bříza <mbriza@redhat.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
@@ -23,8 +23,10 @@
 #define SDDM_DISPLAY_H
 
 #include <QObject>
+#include <QDir>
 
 #include "Auth.h"
+#include "Session.h"
 
 class QLocalSocket;
 
@@ -55,7 +57,9 @@ namespace SDDM {
         void start();
         void stop();
 
-        void login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session);
+        void login(QLocalSocket *socket,
+                   const QString &user, const QString &password,
+                   const Session &session);
         void displayServerStarted();
 
     signals:
@@ -66,7 +70,10 @@ namespace SDDM {
 
     private:
         QString findGreeterTheme() const;
-        void startAuth(const QString &user, const QString &password, const QString &session);
+        bool findSessionEntry(const QDir &dir, const QString &name) const;
+
+        void startAuth(const QString &user, const QString &password,
+                       const Session &session);
 
         bool m_relogin { true };
         bool m_started { false };

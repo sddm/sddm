@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -38,6 +39,12 @@ namespace SDDM {
     }
 
     SocketWriter &SocketWriter::operator << (const QString &s) {
+        *output << s;
+
+        return *this;
+    }
+
+    SocketWriter &SocketWriter::operator << (const Session &s) {
         *output << s;
 
         return *this;

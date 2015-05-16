@@ -4,6 +4,7 @@ include_directories("${CMAKE_BINARY_DIR}/src/common")
 set(GREETER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
     ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
     GreeterApp.cpp
     GreeterProxy.cpp

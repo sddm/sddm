@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2014-2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2014 Martin Bříza <mbriza@redhat.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
@@ -32,7 +32,6 @@
 #include "SignalHandler.h"
 
 #include <QDebug>
-#include <QDir>
 #include <QFile>
 #include <QTimer>
 
@@ -62,7 +61,8 @@ namespace SDDM {
         connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
 
         // connect login signal
-        connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,QString)), this, SLOT(login(QLocalSocket*,QString,QString,QString)));
+        connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,Session)),
+                this, SLOT(login(QLocalSocket*,QString,QString,Session)));
 
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
@@ -121,9 +121,22 @@ namespace SDDM {
             // set flags
             m_started = true;
 
+            // determine session type
+            const QString &autologinSession = mainConfig.Autologin.Session.get();
+            Session session;
+            if (findSessionEntry(mainConfig.XDisplay.SessionDir.get(), autologinSession)) {
+                session.setTo(Session::X11Session, autologinSession);
+            } else if (findSessionEntry(mainConfig.WaylandDisplay.SessionDir.get(), autologinSession)) {
+                session.setTo(Session::WaylandSession, autologinSession);
+            } else {
+                qCritical() << "Unable to find autologin session entry" << autologinSession;
+                emit loginFailed(m_socket);
+                return;
+            }
+
             // start session
             m_auth->setAutologin(true);
-            startAuth(mainConfig.Autologin.User.get(), QString(), mainConfig.Autologin.Session.get());
+            startAuth(mainConfig.Autologin.User.get(), QString(), session);
 
             // return
             return;
@@ -182,7 +195,9 @@ namespace SDDM {
         emit stopped();
     }
 
-    void Display::login(QLocalSocket *socket, const QString &user, const QString &password, const QString &session) {
+    void Display::login(QLocalSocket *socket,
+                        const QString &user, const QString &password,
+                        const Session &session) {
         m_socket = socket;
 
         //the SDDM user has special priveledges that skip password checking so that we can load the greeter
@@ -191,6 +206,7 @@ namespace SDDM {
             return;
         }
 
+        // authenticate
         startAuth(user, password, session);
     }
 
@@ -210,66 +226,39 @@ namespace SDDM {
         return dir.absoluteFilePath(entries.at(0));
     }
 
-    void Display::startAuth(const QString &user, const QString &password, const QString &session) {
-        QString sessionFileName = session;
-        QString sessionName;
-        QString xdgSessionName;
-        QString command;
+    bool Display::findSessionEntry(const QDir &dir, const QString &name) const {
+        QString fileName = name;
 
+        // append extension
+        if (!fileName.endsWith(".desktop"))
+            fileName += QStringLiteral(".desktop");
+
+        return dir.exists(fileName);
+    }
+
+    void Display::startAuth(const QString &user, const QString &password, const Session &session) {
         m_passPhrase = password;
 
-        // session directory
-        QDir dir(mainConfig.XDisplay.SessionDir.get());
-
-        if (!sessionFileName.endsWith(".desktop")) {
-            // prefer a .desktop file if it exists
-            if (QFile::exists(dir.absoluteFilePath(sessionFileName + QStringLiteral(".desktop"))))
-                sessionFileName += QStringLiteral(".desktop");
+        // sanity check
+        if (!session.isValid()) {
+            qCritical() << "Invalid session" << session.fileName();
+            return;
         }
-
-        if (sessionFileName.endsWith(".desktop")) {
-            qDebug() << "Reading from" << sessionFileName;
-
-            // session file
-            QFile file(dir.absoluteFilePath(sessionFileName));
-
-            // open file
-            if (file.open(QIODevice::ReadOnly)) {
-                // read line-by-line
-                QTextStream in(&file);
-                while (!in.atEnd()) {
-                    QString line = in.readLine();
-
-                    // line starting with Exec
-                    if (line.startsWith("Exec="))
-                        command = line.mid(5);
-
-                    // Desktop names, change the separator
-                    if (line.startsWith("DesktopNames=")) {
-                        xdgSessionName = line.mid(13);
-                        xdgSessionName.replace(';', ':');
-                    }
-                }
-
-                // close file
-                file.close();
-            }
-
-            // remove extension
-            sessionName = sessionFileName.left(sessionFileName.lastIndexOf("."));
-        } else {
-            command = sessionFileName;
-            sessionName = sessionFileName;
+        if (session.xdgSessionType().isEmpty()) {
+            qCritical() << "Failed to find XDG session type for session" << session.fileName();
+            return;
         }
-
-        if (command.isEmpty()) {
-            qCritical() << "Failed to find command for session:" << sessionFileName;
+        if (session.exec().isEmpty()) {
+            qCritical() << "Failed to find command for session" << session.fileName();
             return;
         }
 
         // save session desktop file name, we'll use it to set the
         // last session later, in slotAuthenticationFinished()
-        m_sessionName = sessionFileName;
+        m_sessionName = session.fileName();
+
+        // some information
+        qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
         QProcessEnvironment env;
         env.insert("PATH", mainConfig.Users.DefaultPath.get());
@@ -278,15 +267,15 @@ namespace SDDM {
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat()->name()));
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
         env.insert("XDG_VTNR", QString::number(terminalId()));
-        env.insert("DESKTOP_SESSION", sessionName);
-        env.insert("XDG_CURRENT_DESKTOP", xdgSessionName);
+        env.insert("DESKTOP_SESSION", session.desktopSession());
+        env.insert("XDG_CURRENT_DESKTOP", session.desktopNames());
         env.insert("XDG_SESSION_CLASS", "user");
-        env.insert("XDG_SESSION_TYPE", m_displayServer->sessionType());
-        env.insert("XDG_SESSION_DESKTOP", xdgSessionName);
+        env.insert("XDG_SESSION_TYPE", session.xdgSessionType());
+        env.insert("XDG_SESSION_DESKTOP", session.desktopNames());
         m_auth->insertEnvironment(env);
 
         m_auth->setUser(user);
-        m_auth->setSession(command);
+        m_auth->setSession(session.exec());
         m_auth->start();
     }
 
