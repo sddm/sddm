@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -120,7 +121,10 @@ namespace SDDM {
         QModelIndex index = d->sessionModel->index(sessionIndex, 0);
 
         // send command to the daemon
-        SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << d->sessionModel->data(index, SessionModel::FileRole).toString();
+        Session::Type type = static_cast<Session::Type>(d->sessionModel->data(index, SessionModel::TypeRole).toInt());
+        QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
+        Session session(type, name);
+        SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
     }
 
     void GreeterProxy::connected() {

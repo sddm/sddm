@@ -21,6 +21,8 @@
 #ifndef SDDM_SESSIONMODEL_H
 #define SDDM_SESSIONMODEL_H
 
+#include "Session.h"
+
 #include <QAbstractListModel>
 
 #include <QHash>
@@ -36,14 +38,10 @@ namespace SDDM {
         enum SessionRole {
             DirectoryRole = Qt::UserRole + 1,
             FileRole,
+            TypeRole,
             NameRole,
             ExecRole,
             CommentRole
-        };
-
-        enum SessionType {
-            X11Session = 0,
-            WaylandSession
         };
 
         SessionModel(QObject *parent = 0);
@@ -59,7 +57,7 @@ namespace SDDM {
     private:
         SessionModelPrivate *d { nullptr };
 
-        void populate(SessionType type, const QString &path);
+        void populate(Session::Type type, const QString &path);
     };
 }
 

@@ -22,36 +22,24 @@
 
 #include "Configuration.h"
 
-#include <QDir>
-#include <QFile>
 #include <QList>
 #include <QProcessEnvironment>
-#include <QTextStream>
-
-#include <memory>
 
 namespace SDDM {
-    class Session {
-    public:
-        SessionModel::SessionType type;
-        QString directory;
-        QString file;
-        QString name;
-        QString exec;
-        QString comment;
-    };
-
-    typedef std::shared_ptr<Session> SessionPtr;
-
     class SessionModelPrivate {
     public:
+        ~SessionModelPrivate() {
+            while (!sessions.isEmpty())
+                delete sessions.takeFirst();
+        }
+
         int lastIndex { 0 };
-        QList<SessionPtr> sessions;
+        QList<Session *> sessions;
     };
 
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
-        populate(SessionModel::X11Session, mainConfig.XDisplay.SessionDir.get());
-        populate(SessionModel::WaylandSession, mainConfig.WaylandDisplay.SessionDir.get());
+        populate(Session::X11Session, mainConfig.XDisplay.SessionDir.get());
+        populate(Session::WaylandSession, mainConfig.WaylandDisplay.SessionDir.get());
     }
 
     SessionModel::~SessionModel() {
@@ -63,6 +51,7 @@ namespace SDDM {
         QHash<int, QByteArray> roleNames;
         roleNames[DirectoryRole] = "directory";
         roleNames[FileRole] = "file";
+        roleNames[TypeRole] = "type";
         roleNames[NameRole] = "name";
         roleNames[ExecRole] = "exec";
         roleNames[CommentRole] = "comment";
@@ -83,83 +72,75 @@ namespace SDDM {
             return QVariant();
 
         // get session
-        SessionPtr session = d->sessions[index.row()];
+        Session *session = d->sessions[index.row()];
 
         // return correct value
-        if (role == DirectoryRole)
-            return session->directory;
-        if (role == FileRole)
-            return session->file;
-        else if (role == NameRole)
-            return session->name;
-        else if (role == ExecRole)
-            return session->exec;
-        else if (role == CommentRole)
-            return session->comment;
+        switch (role) {
+        case DirectoryRole:
+            return session->directory().absolutePath();
+        case FileRole:
+            return session->fileName();
+        case TypeRole:
+            return session->type();
+        case NameRole:
+            return session->displayName();
+        case ExecRole:
+            return session->exec();
+        case CommentRole:
+            return session->comment();
+        default:
+            break;
+        }
 
         // return empty value
         return QVariant();
     }
 
-    void SessionModel::populate(SessionModel::SessionType type, const QString &path) {
+    void SessionModel::populate(Session::Type type, const QString &path) {
         // read session files
         QDir dir(path);
         dir.setNameFilters(QStringList() << "*.desktop");
         dir.setFilter(QDir::Files);
         // read session
         foreach(const QString &session, dir.entryList()) {
-            QFile inputFile(dir.absoluteFilePath(session));
-            if (!inputFile.open(QIODevice::ReadOnly))
+            if (!dir.exists(session))
                 continue;
-            SessionPtr si { new Session { type, path, session, "", "", "" } };
-            QTextStream in(&inputFile);
+
+            Session *si = new Session(type, session);
             bool execAllowed = true;
-            while (!in.atEnd()) {
-                QString line = in.readLine();
-                if (line.startsWith("Name=")) {
-                    if (type == WaylandSession)
-                        si->name = tr("%1 (Wayland)").arg(line.mid(5));
-                    else
-                        si->name = line.mid(5);
-                }
-                if (line.startsWith("Exec="))
-                    si->exec = line.mid(5);
-                if (line.startsWith("Comment="))
-                    si->comment = line.mid(8);
-                if (line.startsWith("TryExec=")) {
-                    QString tryExecBin = line.mid(8);
-                    QFileInfo fi(tryExecBin);
-                    if (fi.isAbsolute()) {
-                        if (!fi.exists() || !fi.isExecutable())
-                            execAllowed = false;
-                    } else {
-                        execAllowed = false;
-                        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-                        QString envPath = env.value("PATH");
-                        QStringList pathList = envPath.split(':');
-                        foreach(const QString &path, pathList) {
-                            QDir pathDir(path);
-                            fi.setFile(pathDir, tryExecBin);
-                            if (fi.exists() && fi.isExecutable()) {
-                                execAllowed = true;
-                                break;
-                            }
-                        }
+            QFileInfo fi(si->tryExec());
+            if (fi.isAbsolute()) {
+                if (!fi.exists() || !fi.isExecutable())
+                    execAllowed = false;
+            } else {
+                execAllowed = false;
+                QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+                QString envPath = env.value("PATH");
+                QStringList pathList = envPath.split(':');
+                foreach(const QString &path, pathList) {
+                    QDir pathDir(path);
+                    fi.setFile(pathDir, si->tryExec());
+                    if (fi.exists() && fi.isExecutable()) {
+                        execAllowed = true;
+                        break;
                     }
                 }
             }
             // add to sessions list
             if (execAllowed)
                 d->sessions.push_back(si);
-            // close file
-            inputFile.close();
         }
         // add failsafe session
-        if (type == X11Session)
-            d->sessions << SessionPtr { new Session {type, path, "failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
+        if (type == Session::X11Session) {
+            Session *si = new Session(type, "failsafe");
+            si->m_displayName = QStringLiteral("Failsafe");
+            si->m_comment = QStringLiteral("Failsafe Session");
+            si->m_exec = QStringLiteral("failsafe");
+            d->sessions << si;
+        }
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
-            if (d->sessions.at(i)->file == stateConfig.Last.Session.get()) {
+            if (d->sessions.at(i)->fileName() == stateConfig.Last.Session.get()) {
                 d->lastIndex = i;
                 break;
             }

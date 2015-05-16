@@ -1,0 +1,162 @@
+/***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the
+* Free Software Foundation, Inc.,
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+***************************************************************************/
+
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+
+#include "Configuration.h"
+#include "Session.h"
+
+const QString s_entryExtention = QStringLiteral(".desktop");
+
+namespace SDDM {
+    Session::Session()
+        : m_valid(false)
+        , m_type(UnknownSession)
+    {
+    }
+
+    Session::Session(Type type, const QString &fileName)
+    {
+        setTo(type, fileName);
+    }
+
+    bool Session::isValid() const
+    {
+        return m_valid;
+    }
+
+    Session::Type Session::type() const
+    {
+        return m_type;
+    }
+
+    QString Session::xdgSessionType() const
+    {
+        return m_xdgSessionType;
+    }
+
+    QDir Session::directory() const
+    {
+        return m_dir;
+    }
+
+    QString Session::fileName() const
+    {
+        return m_fileName;
+    }
+
+    QString Session::displayName() const
+    {
+        return m_displayName;
+    }
+
+    QString Session::comment() const
+    {
+        return m_comment;
+    }
+
+    QString Session::exec() const
+    {
+        return m_exec;
+    }
+
+    QString Session::tryExec() const
+    {
+        return m_tryExec;
+    }
+
+    QString Session::desktopSession() const
+    {
+        return fileName().replace(s_entryExtention, QStringLiteral(""));
+    }
+
+    QString Session::desktopNames() const
+    {
+        return m_desktopNames;
+    }
+
+    void Session::setTo(Type type, const QString &_fileName)
+    {
+        QString fileName(_fileName);
+        if (!fileName.endsWith(s_entryExtention))
+            fileName += s_entryExtention;
+
+        QFileInfo info(fileName);
+
+        m_type = UnknownSession;
+        m_valid = false;
+        m_desktopNames = QStringLiteral("");
+
+        switch (type) {
+        case X11Session:
+            m_dir = QDir(mainConfig.XDisplay.SessionDir.get());
+            m_xdgSessionType = QStringLiteral("x11");
+            break;
+        case WaylandSession:
+            m_dir = QDir(mainConfig.WaylandDisplay.SessionDir.get());
+            m_xdgSessionType = QStringLiteral("wayland");
+            break;
+        default:
+            m_xdgSessionType = QStringLiteral("");
+            break;
+        }
+
+        m_fileName = m_dir.absoluteFilePath(fileName);
+
+        qDebug() << "Reading from" << m_fileName;
+
+        QFile file(m_fileName);
+        if (!file.open(QIODevice::ReadOnly))
+            return;
+
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+
+            if (line.startsWith("Name=")) {
+                if (type == WaylandSession)
+                    m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
+                else
+                    m_displayName = line.mid(5);
+            }
+            if (line.startsWith("Comment="))
+                m_comment = line.mid(8);
+            if (line.startsWith("Exec="))
+                m_exec = line.mid(5);
+            if (line.startsWith("TryExec="))
+                m_tryExec = line.mid(8);
+            if (line.startsWith("DesktopNames="))
+                m_desktopNames = line.mid(13).replace(';', ':');
+        }
+
+        file.close();
+
+        m_type = type;
+        m_valid = true;
+    }
+
+    Session &Session::operator=(const Session &other)
+    {
+        setTo(other.type(), other.fileName());
+        return *this;
+    }
+}
