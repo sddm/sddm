@@ -96,6 +96,16 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
+[WaylandDisplay] section:
+
+`SessionDir=`
+	Path of the directory containing session files.
+	Default value is "/usr/share/wayland-sessions".
+
+`SessionCommand=`
+	Path of script to execute when starting the desktop session.
+	Default value is "@WAYLAND_SESSION_COMMAND@".
+
 [Users] section:
 
 `DefaultPath=`

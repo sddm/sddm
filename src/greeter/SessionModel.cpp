@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -32,6 +33,8 @@
 namespace SDDM {
     class Session {
     public:
+        SessionModel::SessionType type;
+        QString directory;
         QString file;
         QString name;
         QString exec;
@@ -47,8 +50,60 @@ namespace SDDM {
     };
 
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
+        populate(SessionModel::X11Session, mainConfig.XDisplay.SessionDir.get());
+        populate(SessionModel::WaylandSession, mainConfig.WaylandDisplay.SessionDir.get());
+    }
+
+    SessionModel::~SessionModel() {
+        delete d;
+    }
+
+    QHash<int, QByteArray> SessionModel::roleNames() const {
+        // set role names
+        QHash<int, QByteArray> roleNames;
+        roleNames[DirectoryRole] = "directory";
+        roleNames[FileRole] = "file";
+        roleNames[NameRole] = "name";
+        roleNames[ExecRole] = "exec";
+        roleNames[CommentRole] = "comment";
+
+        return roleNames;
+    }
+
+    const int SessionModel::lastIndex() const {
+        return d->lastIndex;
+    }
+
+    int SessionModel::rowCount(const QModelIndex &parent) const {
+        return d->sessions.length();
+    }
+
+    QVariant SessionModel::data(const QModelIndex &index, int role) const {
+        if (index.row() < 0 || index.row() >= d->sessions.count())
+            return QVariant();
+
+        // get session
+        SessionPtr session = d->sessions[index.row()];
+
+        // return correct value
+        if (role == DirectoryRole)
+            return session->directory;
+        if (role == FileRole)
+            return session->file;
+        else if (role == NameRole)
+            return session->name;
+        else if (role == ExecRole)
+            return session->exec;
+        else if (role == CommentRole)
+            return session->comment;
+
+        // return empty value
+        return QVariant();
+    }
+
+    void SessionModel::populate(SessionModel::SessionType type, const QString &path) {
         // read session files
-        QDir dir(mainConfig.XDisplay.SessionDir.get());
+        QDir dir(path);
         dir.setNameFilters(QStringList() << "*.desktop");
         dir.setFilter(QDir::Files);
         // read session
@@ -56,13 +111,17 @@ namespace SDDM {
             QFile inputFile(dir.absoluteFilePath(session));
             if (!inputFile.open(QIODevice::ReadOnly))
                 continue;
-            SessionPtr si { new Session { session, "", "", "" } };
+            SessionPtr si { new Session { type, path, session, "", "", "" } };
             QTextStream in(&inputFile);
             bool execAllowed = true;
             while (!in.atEnd()) {
                 QString line = in.readLine();
-                if (line.startsWith("Name="))
-                    si->name = line.mid(5);
+                if (line.startsWith("Name=")) {
+                    if (type == WaylandSession)
+                        si->name = tr("%1 (Wayland)").arg(line.mid(5));
+                    else
+                        si->name = line.mid(5);
+                }
                 if (line.startsWith("Exec="))
                     si->exec = line.mid(5);
                 if (line.startsWith("Comment="))
@@ -96,7 +155,8 @@ namespace SDDM {
             inputFile.close();
         }
         // add failsafe session
-        d->sessions << SessionPtr { new Session {"failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
+        if (type == X11Session)
+            d->sessions << SessionPtr { new Session {type, path, "failsafe", "Failsafe", "failsafe", "Failsafe Session"} };
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
             if (d->sessions.at(i)->file == stateConfig.Last.Session.get()) {
@@ -104,49 +164,5 @@ namespace SDDM {
                 break;
             }
         }
-    }
-
-    SessionModel::~SessionModel() {
-        delete d;
-    }
-
-    QHash<int, QByteArray> SessionModel::roleNames() const {
-        // set role names
-        QHash<int, QByteArray> roleNames;
-        roleNames[FileRole] = "file";
-        roleNames[NameRole] = "name";
-        roleNames[ExecRole] = "exec";
-        roleNames[CommentRole] = "comment";
-
-        return roleNames;
-    }
-
-    const int SessionModel::lastIndex() const {
-        return d->lastIndex;
-    }
-
-    int SessionModel::rowCount(const QModelIndex &parent) const {
-        return d->sessions.length();
-    }
-
-    QVariant SessionModel::data(const QModelIndex &index, int role) const {
-        if (index.row() < 0 || index.row() >= d->sessions.count())
-            return QVariant();
-
-        // get session
-        SessionPtr session = d->sessions[index.row()];
-
-        // return correct value
-        if (role == FileRole)
-            return session->file;
-        else if (role == NameRole)
-            return session->name;
-        else if (role == ExecRole)
-            return session->exec;
-        else if (role == CommentRole)
-            return session->comment;
-
-        // return empty value
-        return QVariant();
     }
 }
