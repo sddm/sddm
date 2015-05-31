@@ -25,7 +25,7 @@
 import QtQuick 2.0
 
 FocusScope {
-    id: containter
+    id: container
 
     property alias source: image.source
     property alias fillMode: image.fillMode
@@ -43,6 +43,6 @@ FocusScope {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: containter.focus = true
+        onClicked: container.focus = true
     }
 }
