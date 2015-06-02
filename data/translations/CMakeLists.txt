@@ -3,6 +3,7 @@ set(TRANSLATION_FILES
     cs.ts
     de.ts
     et.ts
+    es.ts
     fi.ts
     fr.ts
     hu.ts
