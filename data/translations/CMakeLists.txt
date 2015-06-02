@@ -2,14 +2,15 @@ set(TRANSLATION_FILES
     ar.ts
     cs.ts
     de.ts
-    et.ts
     es.ts
+    et.ts
     fi.ts
     fr.ts
     hu.ts
     it.ts
     ja.ts
     ko.ts
+    lt.ts
     pl.ts
     pt_BR.ts
     pt_PT.ts
@@ -17,7 +18,6 @@ set(TRANSLATION_FILES
     ru.ts
     tr.ts
     zh_CN.ts
-    lt.ts
 )
 
 qt5_add_translation(QM_FILES ${TRANSLATION_FILES})
