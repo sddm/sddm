@@ -30,6 +30,7 @@
 #include "Greeter.h"
 #include "Utils.h"
 #include "SignalHandler.h"
+#include "VirtualTerminal.h"
 
 #include <QDebug>
 #include <QFile>
@@ -260,6 +261,13 @@ namespace SDDM {
         // some information
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
+        // create new VT for Wayland sessions otherwise use greeter vt
+        int vt = terminalId();
+        if (session.xdgSessionType() == QStringLiteral("wayland")) {
+            vt = VirtualTerminal::setUpNewVt();
+            VirtualTerminal::jumpToVt(vt);
+        }
+
         QProcessEnvironment env;
         env.insert("PATH", mainConfig.Users.DefaultPath.get());
         if (session.xdgSessionType() == QStringLiteral("x11"))
@@ -267,7 +275,7 @@ namespace SDDM {
         env.insert("XDG_SEAT", seat()->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat()->name()));
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
-        env.insert("XDG_VTNR", QString::number(terminalId()));
+        env.insert("XDG_VTNR", QString::number(vt));
         env.insert("DESKTOP_SESSION", session.desktopSession());
         env.insert("XDG_CURRENT_DESKTOP", session.desktopNames());
         env.insert("XDG_SESSION_CLASS", "user");

@@ -24,6 +24,7 @@ set(DAEMON_SOURCES
     SeatManager.cpp
     SignalHandler.cpp
     SocketServer.cpp
+    VirtualTerminal.cpp
 )
 
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "DisplayManager.h" SDDM::DisplayManager)
