@@ -248,14 +248,21 @@ namespace SDDM {
             m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
             return false;
         }
+
         QProcessEnvironment sessionEnv = m_app->session()->processEnvironment();
-        QString display = sessionEnv.value("DISPLAY");
-        if (!display.isEmpty()) {
+        if (sessionEnv.value("XDG_SESSION_TYPE") == QStringLiteral("x11")) {
+            QString display = sessionEnv.value("DISPLAY");
+            if (!display.isEmpty()) {
 #ifdef PAM_XDISPLAY
-            m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
+                m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
 #endif
-            m_pam->setItem(PAM_TTY, qPrintable(display));
+                m_pam->setItem(PAM_TTY, qPrintable(display));
+            }
+        } else if (sessionEnv.value("XDG_SESSION_TYPE") == QStringLiteral("wayland")) {
+            QString tty = QString("/dev/tty%1").arg(sessionEnv.value("XDG_VTNR"));
+            m_pam->setItem(PAM_TTY, qPrintable(tty));
         }
+
         if (!m_pam->putEnv(sessionEnv)) {
             m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
             return false;
