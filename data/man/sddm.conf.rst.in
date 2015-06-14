@@ -20,6 +20,7 @@ DESCRIPTION
 ===========
 
 This file configures various parameters of the sddm display manager **sddm**\(1\).
+If this file is not available, default values are used.
 
 OPTIONS
 =======
