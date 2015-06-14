@@ -262,7 +262,8 @@ namespace SDDM {
 
         QProcessEnvironment env;
         env.insert("PATH", mainConfig.Users.DefaultPath.get());
-        env.insert("DISPLAY", name());
+        if (session.xdgSessionType() == QStringLiteral("x11"))
+            env.insert("DISPLAY", name());
         env.insert("XDG_SEAT", seat()->name());
         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat()->name()));
         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
