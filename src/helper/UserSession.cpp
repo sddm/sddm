@@ -93,16 +93,20 @@ namespace SDDM {
         QString sessionType = processEnvironment().value("XDG_SESSION_TYPE");
 
         //we cannot use setStandardError file as this code is run in the child process
-        //we want to redirect after we setuid so that .xsession-errors is owned by the user
+        //we want to redirect after we setuid so that the log file is owned by the user
 
-        //swap the stderr pipe of this subprcess into a file .xsession-errors
-        int fd = ::open(".xsession-errors", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        // determine stderr log file based on session type
+        QString fileName = sessionType == QStringLiteral("x11")
+            ? QStringLiteral(".xsession-errors") : QStringLiteral(".wayland-errors");
+
+        //swap the stderr pipe of this subprcess into a file
+        int fd = ::open(qPrintable(fileName), O_WRONLY | O_CREAT | O_TRUNC, 0600);
         if (fd >= 0)
         {
             dup2 (fd, STDERR_FILENO);
             ::close(fd);
         } else {
-            qWarning() << "Could not open stderr to .xsession-errors file";
+            qWarning() << "Could not open stderr to" << fileName;
         }
 
         //redirect any stdout to /dev/null
