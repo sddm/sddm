@@ -89,6 +89,9 @@ namespace SDDM {
             exit(Auth::HELPER_OTHER_ERROR);
         }
 
+        // Session type
+        QString sessionType = processEnvironment().value("XDG_SESSION_TYPE");
+
         //we cannot use setStandardError file as this code is run in the child process
         //we want to redirect after we setuid so that .xsession-errors is owned by the user
 
@@ -112,6 +115,9 @@ namespace SDDM {
             qWarning() << "Could not redirect stdout";
         }
 
+        // set X authority for X11 sessions only
+        if (sessionType != QStringLiteral("x11"))
+            return;
         QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
         if (!cookie.isEmpty()) {
             QString file = processEnvironment().value("XAUTHORITY");
