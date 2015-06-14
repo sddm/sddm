@@ -1,5 +1,6 @@
 /*
  * Session process wrapper
+ * Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  * Copyright (C) 2014 Martin Bříza <mbriza@redhat.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,6 +24,7 @@
 #include "HelperApp.h"
 
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
@@ -69,6 +71,45 @@ namespace SDDM {
     }
 
     void UserSession::setupChildProcess() {
+        // Session type
+        QString sessionType = processEnvironment().value("XDG_SESSION_TYPE");
+
+        // For Wayland sessions we leak the VT into the session as stdin so
+        // that it stays open without races
+        if (sessionType == QStringLiteral("wayland")) {
+            // open VT and get the fd
+            QString ttyString = QString("/dev/tty%1").arg(processEnvironment().value("XDG_VTNR"));
+            int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
+
+            // when this is true we'll take control of the tty
+            bool takeControl = false;
+
+            if (vtFd > 0) {
+                dup2(vtFd, STDIN_FILENO);
+                ::close(vtFd);
+                takeControl = true;
+            } else {
+                int stdinFd = ::open("/dev/null", O_RDWR);
+                dup2(stdinFd, STDIN_FILENO);
+                ::close(stdinFd);
+            }
+
+            // set this process as session leader
+            if (setsid() < 0) {
+                qCritical("Failed to set pid %lld as leader of the new session and process group: %s",
+                          QCoreApplication::applicationPid(), strerror(errno));
+                exit(Auth::HELPER_OTHER_ERROR);
+            }
+
+            // take control of the tty
+            if (takeControl) {
+                if (ioctl(STDIN_FILENO, TIOCSCTTY) < 0) {
+                    qCritical("Failed to take control of the tty: %s", strerror(errno));
+                    exit(Auth::HELPER_OTHER_ERROR);
+                }
+            }
+        }
+
         const char  *username = qobject_cast<HelperApp*>(parent())->user().toLocal8Bit();
         struct passwd *pw = getpwnam(username);
         if (setgid(pw->pw_gid) != 0) {
@@ -88,9 +129,6 @@ namespace SDDM {
             qCritical() << "verify directory exist and has sufficient permissions";
             exit(Auth::HELPER_OTHER_ERROR);
         }
-
-        // Session type
-        QString sessionType = processEnvironment().value("XDG_SESSION_TYPE");
 
         //we cannot use setStandardError file as this code is run in the child process
         //we want to redirect after we setuid so that the log file is owned by the user

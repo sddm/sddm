@@ -1,5 +1,6 @@
 /*
  * Session process wrapper
+ * Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  * Copyright (C) 2014 Martin Bříza <mbriza@redhat.com>
  *
  * This program is free software; you can redistribute it and/or modify
