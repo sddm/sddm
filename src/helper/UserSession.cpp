@@ -41,13 +41,20 @@ namespace SDDM {
     bool UserSession::start() {
         QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
-        if (env.value("XDG_SESSION_CLASS") == "greeter")
+        if (env.value("XDG_SESSION_CLASS") == QStringLiteral("greeter")) {
             QProcess::start(m_path);
-        else {
+        } else if (env.value("XDG_SESSION_TYPE") == QStringLiteral("x11")) {
             qDebug() << "Starting:" << mainConfig.XDisplay.SessionCommand.get()
                      << m_path;
             QProcess::start(mainConfig.XDisplay.SessionCommand.get(),
                             QStringList() << m_path);
+        } else if (env.value("XDG_SESSION_TYPE") == QStringLiteral("wayland")) {
+            qDebug() << "Starting:" << mainConfig.WaylandDisplay.SessionCommand.get()
+                     << m_path;
+            QProcess::start(mainConfig.WaylandDisplay.SessionCommand.get(),
+                            QStringList() << m_path);
+        } else {
+            qCritical() << "Unable to run user session: unknown session type";
         }
 
         return waitForStarted();

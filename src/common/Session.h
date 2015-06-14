@@ -77,8 +77,7 @@ namespace SDDM {
     };
 
     inline QDataStream &operator<<(QDataStream &stream, const Session &session) {
-        const quint32 type = static_cast<quint32>(session.type());
-        stream << type << session.fileName();
+        stream << quint32(session.type()) << session.fileName();
         return stream;
     }
 
