@@ -125,6 +125,7 @@ namespace SDDM {
             QProcessEnvironment env;
             QProcessEnvironment sysenv = QProcessEnvironment::systemEnvironment();
             env.insert("LANG", sysenv.value("LANG"));
+            env.insert("LC_TIME", sysenv.value("LC_TIME"));
             env.insert("PATH", mainConfig.Users.DefaultPath.get());
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
