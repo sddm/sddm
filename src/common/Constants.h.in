@@ -20,6 +20,8 @@
 #ifndef SDDM_CONSTANTS_H
 #define SDDM_CONSTANTS_H
 
+#define X_PREFIX                    "@X_PREFIX@"
+
 #define BIN_INSTALL_DIR             "@CMAKE_INSTALL_FULL_BINDIR@"
 #define LIBEXEC_INSTALL_DIR         "@CMAKE_INSTALL_FULL_LIBEXECDIR@"
 #define DATA_INSTALL_DIR            "@DATA_INSTALL_DIR@"

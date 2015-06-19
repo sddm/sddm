@@ -66,6 +66,7 @@ endif()
 
 # XCB
 find_package(XCB REQUIRED)
+include_directories("${LIBXCB_INCLUDE_DIR}")
 
 # XKB
 find_package(XKB REQUIRED)
@@ -130,6 +131,10 @@ else()
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
+
+# X components (xauth, xsessions, etc.)
+find_path(X_PREFIX "share/xsessions")
+
 
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
