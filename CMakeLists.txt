@@ -145,6 +145,14 @@ set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.lo
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
 
+if(NOT DEFINED UID_MIN)
+    set(UID_MIN 1000 CACHE STRING "UID_MIN from login.defs (MinimumUid)")
+endif()
+
+if(NOT DEFINED UID_MAX)
+    set(UID_MAX 65000 CACHE STRING "UID_MAX from login.defs (MaximumUid)")
+endif()
+
 # Add subdirectories
 add_subdirectory(components)
 add_subdirectory(data)
