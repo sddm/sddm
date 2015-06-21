@@ -145,12 +145,26 @@ set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.lo
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
 
+
+# Autodetect UID_MIN and UID_MAX from /etc/login.defs
+if(NOT DEFINED LOGIN_DEFS_PATH)
+    set(LOGIN_DEFS_PATH "/etc/login.defs" CACHE PATH "Path to login.defs")
+endif()
+
+if(NOT EXISTS "${LOGIN_DEFS_PATH}" AND NOT DEFINED UID_MIN AND NOT DEFINED UID_MAX)
+    message(FATAL_ERROR "Could not find login.defs at ${LOGIN_DEFS_PATH}. Try -DLOGIN_DEFS_PATH.")
+endif()
+
 if(NOT DEFINED UID_MIN)
-    set(UID_MIN 1000 CACHE STRING "UID_MIN from login.defs (MinimumUid)")
+    file(STRINGS "${LOGIN_DEFS_PATH}" UID_MIN LIMIT_COUNT 1 REGEX "^UID_MIN")
+    STRING(REGEX REPLACE "^UID_MIN[\t ]+([0-9]+)" "\\1" UID_MIN "${UID_MIN}")
+    message(STATUS "Autodetected UID_MIN=${UID_MIN} from ${LOGIN_DEFS_PATH}")
 endif()
 
 if(NOT DEFINED UID_MAX)
-    set(UID_MAX 65000 CACHE STRING "UID_MAX from login.defs (MaximumUid)")
+    file(STRINGS "${LOGIN_DEFS_PATH}" UID_MAX LIMIT_COUNT 1 REGEX "^UID_MAX")
+    STRING(REGEX REPLACE "^UID_MAX[\t ]+([0-9]+)" "\\1" UID_MAX "${UID_MAX}")
+    message(STATUS "Autodetected UID_MAX=${UID_MAX} from ${LOGIN_DEFS_PATH}")
 endif()
 
 # Add subdirectories
