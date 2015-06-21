@@ -36,6 +36,9 @@
 #define LOG_FILE                    "@LOG_FILE@"
 #define MINIMUM_VT                  @MINIMUM_VT@
 
+#define UID_MIN                     @UID_MIN@
+#define UID_MAX                     @UID_MAX@
+
 #define HALT_COMMAND "@HALT_COMMAND@"
 #define REBOOT_COMMAND "@REBOOT_COMMAND@"
 

@@ -73,8 +73,8 @@ namespace SDDM {
         );
         Section(Users,
             Entry(DefaultPath,         QString,     _S("/bin:/usr/bin:/usr/local/bin"),         _S("Default $PATH"));
-            Entry(MinimumUid,          int,         1000,                                       _S("Minimum user id for displayed users"));
-            Entry(MaximumUid,          int,         65000,                                      _S("Maximum user id for displayed users"));
+            Entry(MinimumUid,          int,         UID_MIN,                                    _S("Minimum user id for displayed users"));
+            Entry(MaximumUid,          int,         UID_MAX,                                    _S("Maximum user id for displayed users"));
             Entry(HideUsers,           QStringList, QStringList(),                              _S("Hidden users"));
             Entry(HideShells,          QStringList, QStringList(),                              _S("Hidden shells\n"
                                                                                                    "Users with these shells as their default won't be listed"));
