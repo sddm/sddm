@@ -115,12 +115,12 @@ OPTIONS
 `MinimumUid=`
 	Minimum user id of the users to be listed in the
 	user interface.
-	Default value is 1000.
+	Default value is @UID_MIN@.
 
 `MaximumUid=`
 	Maximum user id of the users to be listed in the
 	user interface.
-	Default value is 65000.
+	Default value is @UID_MAX@
 
 `HideUsers=`
 	Comma-separated list of Users that shouldn't show up in the user list.
