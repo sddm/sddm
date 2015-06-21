@@ -76,6 +76,8 @@ namespace SDDM {
             user->homeDir = QString(current_pw->pw_dir);
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
+            // if shadow is used pw_passwd will be 'x' nevertheless, so this
+            // will always be true
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
             // search for face icon
