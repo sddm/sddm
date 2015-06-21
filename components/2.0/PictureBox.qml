@@ -33,6 +33,7 @@ FocusScope {
     property alias name: name.text
     property alias icon: icon.source
     property alias password: password.text
+    property bool showPassword: true
 
     signal login()
 
@@ -96,10 +97,11 @@ FocusScope {
 
         PasswordBox {
             id: password
-            width: parent.width; height: 30
+            width: parent.width; height: showPassword ? 30 : 0
             font.pixelSize: 14
 
             focus: true
+            visible: showPassword
 
             Keys.onPressed: {
                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
@@ -107,6 +109,18 @@ FocusScope {
                     event.accepted = true
                 }
             }
+        }
+
+        Text {
+            id: pressToLogin
+            height: 30
+            font.pixelSize: 14
+            anchors { left: parent.left; right: parent.right }
+            color: "#666666"
+            elide: Text.ElideRight
+            font { bold: true; capitalization: Font.AllUppercase }
+            horizontalAlignment: Text.AlignHCenter
+            text: qsTr("Press to login")
         }
     }
 }
