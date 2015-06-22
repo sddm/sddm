@@ -107,6 +107,10 @@ namespace SDDM {
         if (m_themeConfig->contains("cursorTheme"))
             qputenv("XCURSOR_THEME", m_themeConfig->value("cursorTheme").toString().toUtf8());
 
+        // set platform theme
+        if (m_themeConfig->contains("platformTheme"))
+            qputenv("QT_QPA_PLATFORMTHEME", m_themeConfig->value("platformTheme").toString().toUtf8());
+
         // create models
 
         m_sessionModel = new SessionModel();
