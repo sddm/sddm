@@ -6,6 +6,8 @@
 
 ## 0.12.0 - XXXX-XX-XX
 ----------------------
+    * Add a new "platformTheme" setting for themes.
+      Themes can now specify a Qt platform theme plugin.
     * Autodetect UID_MIN and UID_MAX from /etc/login.defs
     * Add Arabic translation by Safa Alfulaij.
     * Russian translation improvements by Alexander Potashev.
