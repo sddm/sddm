@@ -116,10 +116,6 @@ namespace SDDM {
         if (m_started)
             return false;
 
-        // generate auth file
-        addCookie(m_authPath);
-        changeOwner(m_authPath);
-
         // create process
         process = new QProcess(this);
 
@@ -198,6 +194,10 @@ namespace SDDM {
 
             emit started();
         }
+
+        // generate auth file
+        addCookie(m_authPath);
+        changeOwner(m_authPath);
 
         // set flag
         m_started = true;
