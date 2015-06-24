@@ -11,6 +11,8 @@
     * Autodetect UID_MIN and UID_MAX from /etc/login.defs
     * Add Arabic translation by Safa Alfulaij.
     * Russian translation improvements by Alexander Potashev.
+    * Wait for display setup script to finish.
+    * Reload configuration after display setup.
 
 ## 0.11.0 - 2014-11-20
 ----------------------
