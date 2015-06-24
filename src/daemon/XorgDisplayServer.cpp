@@ -294,6 +294,9 @@ namespace SDDM {
         // wait for finished
         if (!displayScript->waitForFinished(30000))
             displayScript->kill();
+
+        // reload config if needed
+        mainConfig.load();
     }
 
     void XorgDisplayServer::changeOwner(const QString &fileName) {
