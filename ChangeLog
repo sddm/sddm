@@ -13,6 +13,7 @@
     * Russian translation improvements by Alexander Potashev.
     * Wait for display setup script to finish.
     * Reload configuration after display setup.
+    * Pass locale environment variables to the greeter.
 
 ## 0.11.0 - 2014-11-20
 ----------------------
