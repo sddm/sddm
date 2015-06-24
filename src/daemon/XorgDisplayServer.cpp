@@ -290,6 +290,7 @@ namespace SDDM {
         // start display setup script
         qDebug() << "Running display setup script " << displayCommand;
         displayScript->start(displayCommand);
+        displayScript->waitForFinished(-1);
     }
 
     void XorgDisplayServer::changeOwner(const QString &fileName) {
