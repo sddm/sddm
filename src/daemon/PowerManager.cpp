@@ -59,8 +59,8 @@ namespace SDDM {
 
     class UPowerBackend : public PowerManagerBackend {
     public:
-        UPowerBackend() {
-            m_interface = new QDBusInterface(UPOWER_SERVICE, UPOWER_PATH, UPOWER_OBJECT, QDBusConnection::systemBus());
+        UPowerBackend(const QString & service, const QString & path, const QString & interface) {
+            m_interface = new QDBusInterface(service, path, interface, QDBusConnection::systemBus());
         }
 
         ~UPowerBackend() {
@@ -110,20 +110,24 @@ namespace SDDM {
     };
 
     /**********************************************/
-    /* LOGIN1 BACKEND                             */
+    /* LOGIN1 && ConsoleKit2 BACKEND              */
     /**********************************************/
 
 #define LOGIN1_SERVICE  QStringLiteral("org.freedesktop.login1")
 #define LOGIN1_PATH     QStringLiteral("/org/freedesktop/login1")
 #define LOGIN1_OBJECT   QStringLiteral("org.freedesktop.login1.Manager")
 
-    class Login1Backend : public PowerManagerBackend {
+#define CK2_SERVICE  QStringLiteral("org.freedesktop.ConsoleKit")
+#define CK2_PATH     QStringLiteral("/org/freedesktop/ConsoleKit/Manager")
+#define CK2_OBJECT   QStringLiteral("org.freedesktop.ConsoleKit.Manager")
+
+    class SeatManagerBackend : public PowerManagerBackend {
     public:
-        Login1Backend() {
-            m_interface = new QDBusInterface(LOGIN1_SERVICE, LOGIN1_PATH, LOGIN1_OBJECT, QDBusConnection::systemBus());
+        SeatManagerBackend(const QString & service, const QString & path, const QString & interface) {
+            m_interface = new QDBusInterface(service, path, interface, QDBusConnection::systemBus());
         }
 
-        ~Login1Backend() {
+        ~SeatManagerBackend() {
             delete m_interface;
         }
 
@@ -194,11 +198,15 @@ namespace SDDM {
 
         // check if login1 interface exists
         if (interface->isServiceRegistered(LOGIN1_SERVICE))
-            m_backends << new Login1Backend();
+            m_backends << new SeatManagerBackend(LOGIN1_SERVICE, LOGIN1_PATH, LOGIN1_OBJECT);
+
+        // check if ConsoleKit2 interface exists
+        if (interface->isServiceRegistered(CK2_SERVICE))
+            m_backends << new SeatManagerBackend(CK2_SERVICE, CK2_PATH, CK2_OBJECT);
 
         // check if upower interface exists
         if (interface->isServiceRegistered(UPOWER_SERVICE))
-            m_backends << new UPowerBackend();
+            m_backends << new UPowerBackend(UPOWER_SERVICE, UPOWER_PATH, UPOWER_OBJECT);
     }
 
     PowerManager::~PowerManager() {
