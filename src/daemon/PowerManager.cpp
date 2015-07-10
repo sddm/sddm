@@ -117,9 +117,11 @@ namespace SDDM {
 #define LOGIN1_PATH     QStringLiteral("/org/freedesktop/login1")
 #define LOGIN1_OBJECT   QStringLiteral("org.freedesktop.login1.Manager")
 
+#ifdef HAVE_CONSOLEKIT2
 #define CK2_SERVICE  QStringLiteral("org.freedesktop.ConsoleKit")
 #define CK2_PATH     QStringLiteral("/org/freedesktop/ConsoleKit/Manager")
 #define CK2_OBJECT   QStringLiteral("org.freedesktop.ConsoleKit.Manager")
+#endif // HAVE_CONSOLEKIT2
 
     class SeatManagerBackend : public PowerManagerBackend {
     public:
@@ -200,9 +202,11 @@ namespace SDDM {
         if (interface->isServiceRegistered(LOGIN1_SERVICE))
             m_backends << new SeatManagerBackend(LOGIN1_SERVICE, LOGIN1_PATH, LOGIN1_OBJECT);
 
+#ifdef HAVE_CONSOLEKIT2
         // check if ConsoleKit2 interface exists
         if (interface->isServiceRegistered(CK2_SERVICE))
             m_backends << new SeatManagerBackend(CK2_SERVICE, CK2_PATH, CK2_OBJECT);
+#endif // HAVE_CONSOLEKIT2
 
         // check if upower interface exists
         if (interface->isServiceRegistered(UPOWER_SERVICE))
