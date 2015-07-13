@@ -1,5 +1,6 @@
 /***************************************************************************
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2015 AnthonOS Open Source Community
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -23,6 +24,8 @@
 #include <QAbstractListModel>
 
 #include <QHash>
+
+#include <AccountsManager> /* QtAccountsService */
 
 namespace SDDM {
     class UserModelPrivate;
@@ -54,6 +57,7 @@ namespace SDDM {
 
     private:
         UserModelPrivate *d { nullptr };
+        AccountsService::AccountsManager *am { nullptr };
     };
 }
 

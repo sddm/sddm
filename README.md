@@ -78,3 +78,7 @@ ACLs if your filesystem does support it.
 setfacl -m u:sddm:x /home/username
 setfacl -m u:sddm:r /home/username/.face.icon
 ```
+
+## TODO
+
+- [ ] Use AccountsService Qt binding`s iconFileName

@@ -85,6 +85,9 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5DBus REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
 
+# AccountsService Qt5 binding
+find_package(QtAccountsService REQUIRED)                                                 
+
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
