@@ -90,6 +90,20 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5DBus REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
 
+# AccountsService Qt5 binding
+find_package(QtAccountsService)
+set_package_properties(QtAccountsService PROPERTIES 
+    DESCRIPTION "Qt-style API to use freedesktop.org's AccountsService DBus service"
+    URL "https://github.com/hawaii-desktop/qtaccountsservice"
+    TYPE OPTIONAL
+    PURPOSE "Use AccountsService's iconFileName"
+)
+set(HAVE_QTACCOUNTSSERVICE FALSE)
+if (QtAccountsService_FOUND)
+    add_definitions(-DHAVE_QTACCOUNTSSERVICE)
+    set(HAVE_QTACCOUNTSSERVICE TRUE)
+endif()
+
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
