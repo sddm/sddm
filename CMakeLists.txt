@@ -107,7 +107,6 @@ if (ENABLE_PLYMOUTH)
     set(HAVE_PLYMOUTH TRUE)
 endif()
 
->>>>>>> 10ec79e... Remove useless config sddm header cmake
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
