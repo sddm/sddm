@@ -53,7 +53,9 @@ namespace SDDM {
 
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
         struct passwd *current_pw;
+#if HAVE_QTACCOUNTSSERVICE
         am = new AccountsService::AccountsManager;
+#endif
         while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid
@@ -78,7 +80,9 @@ namespace SDDM {
             user->homeDir = QString::fromLocal8Bit(current_pw->pw_dir);
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
+#if HAVE_QTACCOUNTSSERVICE
 			AccountsService::UserAccount *ua = am->findUserByName(user->name);
+#endif
             // if shadow is used pw_passwd will be 'x' nevertheless, so this
             // will always be true
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
@@ -88,8 +92,10 @@ namespace SDDM {
             QString systemFace = QStringLiteral("%1/%2.face.icon").arg(mainConfig.Theme.FacesDir.get()).arg(user->name);
             if (QFile::exists(userFace))
                 user->icon = userFace;
+#if HAVE_QTACCOUNTSSERVICE
 			else if (ua && QFile::exists(ua->iconFileName()))
 			    user->icon = ua->iconFileName();	// accountservice user face
+#endif
 			else if (QFile::exists(systemFace))
                 user->icon = systemFace;
             else

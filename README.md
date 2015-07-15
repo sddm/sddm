@@ -81,4 +81,5 @@ setfacl -m u:sddm:r /home/username/.face.icon
 
 ## TODO
 
-- [ ] Use AccountsService Qt binding`s iconFileName
+- [x] Use AccountsService Qt binding`s iconFileName
+- [ ] [Smooth transition] (https://wiki.archlinux.org/index.php/Plymouth)

@@ -62,6 +62,9 @@ endif()
 # Standard installation paths
 include(GNUInstallDirs)
 
+# 
+include(FeatureSummary)
+
 # PKG-CONFIG
 find_package(PkgConfig)
 
@@ -86,8 +89,25 @@ find_package(Qt5DBus REQUIRED)
 find_package(Qt5LinguistTools REQUIRED)
 
 # AccountsService Qt5 binding
-find_package(QtAccountsService REQUIRED)                                                 
+find_package(QtAccountsService)
+set_package_properties(QtAccountsService PROPERTIES 
+    DESCRIPTION "Qt-style API to use freedesktop.org's AccountsService DBus service"
+    URL "https://github.com/AOSC-Dev/qtaccountsservice"
+    TYPE OPTIONAL
+    PURPOSE "Use AccountsService`s iconFileName"
+)
+set(HAVE_QTACCOUNTSSERVICE FALSE)
+if (QtAccountsService_FOUND)
+    add_definitions(-DHAVE_QTACCOUNTSSERVICE)
+    set(HAVE_QTACCOUNTSSERVICE TRUE)
+endif()
 
+if (ENABLE_PLYMOUTH)
+    add_definitions(-DHAVE_PLYMOUTH)
+    set(HAVE_PLYMOUTH TRUE)
+endif()
+
+>>>>>>> 10ec79e... Remove useless config sddm header cmake
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
