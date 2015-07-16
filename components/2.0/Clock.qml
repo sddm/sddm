@@ -54,7 +54,7 @@ Column {
 
         color: container.color
 
-        text : Qt.formatDate(container.dateTime, "dddd, MMM dd")
+        text : Qt.formatDate(container.dateTime, Qt.DefaultLocaleLongDate)
 
         font.pointSize: 24
     }
