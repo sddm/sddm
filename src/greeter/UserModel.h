@@ -60,7 +60,7 @@ namespace SDDM {
     private:
         UserModelPrivate *d { nullptr };
 #if HAVE_QTACCOUNTSSERVICE
-        AccountsService::AccountsManager *am { nullptr };
+        QtAccountsService::AccountsManager *am { nullptr };
 #endif
     };
 }

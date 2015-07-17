@@ -1,6 +1,5 @@
 include_directories("${CMAKE_SOURCE_DIR}/src/common")
 include_directories("${CMAKE_BINARY_DIR}/src/common")
-include_directories(${QtAccountsService_INCLUDE_DIRS})
 
 set(GREETER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
@@ -20,10 +19,16 @@ set(GREETER_SOURCES
 )
 
 add_executable(sddm-greeter ${GREETER_SOURCES})
-target_link_libraries(sddm-greeter 
-    ${LIBXCB_LIBRARIES} 
-    ${LIBXKB_LIBRARIES} 
-    ${QtAccountsService_LIBRARIES})
+if(HAVE_QTACCOUNTSSERVICE)
+    target_link_libraries(sddm-greeter
+        ${LIBXCB_LIBRARIES}
+        ${LIBXKB_LIBRARIES}
+        QtAccountsService::QtAccountsService)
+else()
+    target_link_libraries(sddm-greeter
+        ${LIBXCB_LIBRARIES}
+        ${LIBXKB_LIBRARIES})
+endif()
 qt5_use_modules(sddm-greeter Quick)
 
 if(JOURNALD_FOUND)
