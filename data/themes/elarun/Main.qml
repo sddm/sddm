@@ -30,6 +30,9 @@ Rectangle {
     width: 640
     height: 480
 
+    LayoutMirroring.enabled: Qt.locale().textDirection == Qt.RightToLeft
+    LayoutMirroring.childrenInherit: true
+
     TextConstants { id: textConstants }
 
     Connections {
@@ -146,6 +149,7 @@ Rectangle {
                     anchors.margins: 20
 
                     source: "images/login_normal.png"
+                    mirror: LayoutMirroring.enabled
 
                     onClicked: sddm.login(user_entry.text, pw_entry.text, menu_session.index)
 
