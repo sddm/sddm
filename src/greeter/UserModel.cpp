@@ -54,7 +54,7 @@ namespace SDDM {
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
         struct passwd *current_pw;
 #if HAVE_QTACCOUNTSSERVICE
-        am = new QtAccountsService::AccountsManager;
+        accountManager = new QtAccountsService::AccountsManager;
 #endif
         while ((current_pw = getpwent()) != nullptr) {
 
@@ -81,7 +81,7 @@ namespace SDDM {
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
 #if HAVE_QTACCOUNTSSERVICE
-			QtAccountsService::UserAccount *ua = am->findUserByName(user->name);
+			QtAccountsService::UserAccount *userAccount = accountManager->findUserById(user->uid);
 #endif
             // if shadow is used pw_passwd will be 'x' nevertheless, so this
             // will always be true
@@ -120,9 +120,9 @@ namespace SDDM {
         delete d;
 
 #if HAVE_QTACCOUNTSSERVICE
-        if (am) {
-            delete am;
-            am = nullptr;
+        if (accountManager) {
+            delete accountManager;
+            accountManager = nullptr;
         }
 #endif
     }
