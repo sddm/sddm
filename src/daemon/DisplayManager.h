@@ -20,6 +20,8 @@
 #ifndef SDDM_DISPLAYMANAGER_H
 #define SDDM_DISPLAYMANAGER_H
 
+#include "../../config-sddm.h"
+
 #include <QObject>
 
 #include <QDBusObjectPath>
@@ -42,6 +44,7 @@ namespace SDDM {
         Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         DisplayManager(QObject *parent = 0);
+        ~DisplayManager();
 
         QString seatPath(const QString &seatName);
         QString sessionPath(const QString &sessionName);
@@ -64,6 +67,9 @@ namespace SDDM {
     private:
         QList<DisplayManagerSeat *> m_seats;
         QList<DisplayManagerSession *> m_sessions;
+#if HAVE_PLYMOUTH
+        bool m_plymouthIsRunning = false;
+#endif
     };
 
     /***************************************************************************

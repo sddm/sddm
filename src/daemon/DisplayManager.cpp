@@ -26,6 +26,10 @@
 #include "seatadaptor.h"
 #include "sessionadaptor.h"
 
+#if HAVE_PLYMOUTH
+#include "Plymouth.h"
+#endif
+
 const QString DISPLAYMANAGER_SERVICE = QStringLiteral("org.freedesktop.DisplayManager");
 const QString DISPLAYMANAGER_PATH = QStringLiteral("/org/freedesktop/DisplayManager");
 const QString DISPLAYMANAGER_SEAT_PATH = QStringLiteral("/org/freedesktop/DisplayManager/Seat");
@@ -40,6 +44,19 @@ namespace SDDM {
         QDBusConnection connection = (daemonApp->testing()) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(DISPLAYMANAGER_PATH, this);
+#if HAVE_PLYMOUTH 
+        Plymouth plymouth;
+        m_plymouthIsRunning = plymouth.isRunning();
+        if (m_plymouthIsRunning)
+            Plymouth::prepareForTransition();
+#endif
+    }
+
+    DisplayManager::~DisplayManager() 
+    {
+#if HAVE_PLYMOUTH
+        Plymouth::quitWithoutTransition();
+#endif
     }
 
     QString DisplayManager::seatPath(const QString &seatName) {
@@ -78,6 +95,10 @@ namespace SDDM {
 
         // emit signal
         emit SeatAdded(ObjectPath(seat->Path()));
+#if HAVE_PLYMOUTH
+        if (m_plymouthIsRunning)
+            Plymouth::quitWithTransition();
+#endif
     }
 
     void DisplayManager::RemoveSeat(const QString &name) {
