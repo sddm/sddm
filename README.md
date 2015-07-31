@@ -54,7 +54,7 @@ might be experienced.
 
 ## Dependence
 
-* QtAccountsService git@github.com:AOSC-Dev/qtaccountsservice.git
+* QtAccountsService git@github.com:hawaii-desktop/qtaccountsservice.git
 
 ## Build && Install
 
