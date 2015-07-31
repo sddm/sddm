@@ -37,7 +37,7 @@ Plymouth::~Plymouth()
 
 void Plymouth::log(QString str)
 {
-    QFile file(QDir::homePath() + "/sddm.log");
+    QFile file("tmp/sddm-plymouth.log");
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&file);
         out << str << "\n";
