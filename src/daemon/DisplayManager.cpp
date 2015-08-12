@@ -45,18 +45,13 @@ namespace SDDM {
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(DISPLAYMANAGER_PATH, this);
 #if HAVE_PLYMOUTH 
-        Plymouth plymouth;
-        m_plymouthIsRunning = plymouth.isRunning();
-        if (m_plymouthIsRunning)
-            Plymouth::prepareForTransition();
+        if (Plymouth::isRunning())
+            Plymouth::quitWithoutTransition();
 #endif
     }
 
     DisplayManager::~DisplayManager() 
     {
-#if HAVE_PLYMOUTH
-        Plymouth::quitWithoutTransition();
-#endif
     }
 
     QString DisplayManager::seatPath(const QString &seatName) {
@@ -95,10 +90,6 @@ namespace SDDM {
 
         // emit signal
         emit SeatAdded(ObjectPath(seat->Path()));
-#if HAVE_PLYMOUTH
-        if (m_plymouthIsRunning)
-            Plymouth::quitWithTransition();
-#endif
     }
 
     void DisplayManager::RemoveSeat(const QString &name) {

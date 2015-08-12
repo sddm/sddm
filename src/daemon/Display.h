@@ -63,6 +63,7 @@ namespace SDDM {
         void displayServerStarted();
 
     signals:
+        void started();
         void stopped();
 
         void loginFailed(QLocalSocket *socket);

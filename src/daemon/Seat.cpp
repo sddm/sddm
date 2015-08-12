@@ -24,6 +24,9 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "XorgDisplayServer.h"
+#if HAVE_PLYMOUTH
+#include "Plymouth.h"
+#endif
 
 #include <QDebug>
 #include <QFile>
@@ -54,13 +57,22 @@ namespace SDDM {
     void Seat::createDisplay(int terminalId) {
         //reload config if needed
         mainConfig.load();
-        
+
         if (terminalId == -1) {
                 // find unused terminal
             terminalId = findUnused(mainConfig.XDisplay.MinimumVT.get(), [&](const int number) {
                 return m_terminalIds.contains(number);
             });
         }
+
+#if HAVE_PLYMOUTH
+        if (Plymouth::isRunning() && Plymouth::hasActiveVt()) {
+            if (terminalId >= mainConfig.XDisplay.MinimumVT.get())
+                Plymouth::prepareForTransition();
+        }
+        if (Plymouth::isRunning())
+            Plymouth::quitWithoutTransition();
+#endif
 
         // mark terminal as used
         m_terminalIds << terminalId;
@@ -73,6 +85,11 @@ namespace SDDM {
 
         // restart display on stop
         connect(display, SIGNAL(stopped()), this, SLOT(displayStopped()));
+#if HAVE_PLYMOUTH
+        connect(display, &Display::started, [this]() {
+                    Plymouth::quitWithTransition();
+                });
+#endif
 
         // add display to the list
         m_displays << display;
@@ -109,5 +126,10 @@ namespace SDDM {
         // restart otherwise
         if (m_displays.isEmpty())
             createDisplay();
+
+#if HAVE_PLYMOUTH
+        if (Plymouth::isRunning())
+            Plymouth::quitWithoutTransition();
+#endif
     }
 }

@@ -67,9 +67,6 @@ namespace SDDM {
     private:
         QList<DisplayManagerSeat *> m_seats;
         QList<DisplayManagerSession *> m_sessions;
-#if HAVE_PLYMOUTH
-        bool m_plymouthIsRunning = false;
-#endif
     };
 
     /***************************************************************************

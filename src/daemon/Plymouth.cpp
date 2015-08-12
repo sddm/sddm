@@ -37,7 +37,7 @@ Plymouth::~Plymouth()
 
 void Plymouth::log(QString str)
 {
-    QFile file("tmp/sddm-plymouth.log");
+    QFile file("/tmp/sddm-plymouth.log");
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&file);
         out << str << "\n";
@@ -50,12 +50,26 @@ bool Plymouth::isRunning()
     Process p;
     p.setProgram(plymouthBin);
     p.setArguments(QStringList() << QString("--ping"));
-    connect(&p, &Process::finished, [this](int exitCode) {
+    connect(&p, &Process::finished, [=](int exitCode) {
                 log(__PRETTY_FUNCTION__);
                 return WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
             });
     p.start();
-    
+
+    return false;
+}
+
+bool Plymouth::hasActiveVt()
+{
+    Process p;
+    p.setProgram(plymouthBin);
+    p.setArguments(QStringList() << QString("--has-active-vt"));
+    connect(&p, &Process::finished, [=](int exitCode) {
+                log(__PRETTY_FUNCTION__);
+                return WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
+            });
+    p.start();
+
     return false;
 }
 
