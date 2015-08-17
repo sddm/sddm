@@ -41,11 +41,6 @@ namespace SDDM {
             case QtDebugMsg:
                 priority = LOG_DEBUG;
             break;
-// QtInfoMsg was added in Qt 5.5
-#if QT_VERSION >= 0x050500
-            case QtInfoMsg:
-            break;
-#endif
             case QtWarningMsg:
                 priority = LOG_WARNING;
             break;
@@ -87,10 +82,6 @@ namespace SDDM {
 	QString logPriority = QString("(II)");
         switch (type) {
             case QtDebugMsg:
-// QtInfoMsg was added in Qt 5.5
-#if QT_VERSION >= 0x050500
-            case QtInfoMsg:
-#endif
             break;
             case QtWarningMsg:
                 logPriority = QString("(WW)");
