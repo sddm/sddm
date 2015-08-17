@@ -50,6 +50,8 @@ namespace SDDM {
             case QtFatalMsg:
                 priority = LOG_ALERT;
             break;
+            default:
+            break;
         }
 
         char fileBuffer[PATH_MAX + sizeof("CODE_FILE=")];
@@ -76,20 +78,24 @@ namespace SDDM {
         // create timestamp
         QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
 
-        // prepare log message
-        QString logMessage = msg;
+        // set log priority
+	QString logPriority = QString("(II)");
         switch (type) {
             case QtDebugMsg:
-                logMessage = QString("[%1] (II) %2\n").arg(timestamp).arg(msg);
             break;
             case QtWarningMsg:
-                logMessage = QString("[%1] (WW) %2\n").arg(timestamp).arg(msg);
+                logPriority = QString("(WW)");
             break;
             case QtCriticalMsg:
             case QtFatalMsg:
-                logMessage = QString("[%1] (EE) %2\n").arg(timestamp).arg(msg);
+                logPriority = QString("(EE)");
             break;
+	    default:
+	    break;
         }
+
+        // prepare log message
+        QString logMessage = QString("[%1] %2 %3\n").arg(timestamp).arg(logPriority).arg(msg);
 
         // log message
         if (file.isOpen()) {
