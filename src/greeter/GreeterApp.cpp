@@ -166,7 +166,7 @@ namespace SDDM {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         // always resize when the screen geometry changes
         connect(screen, &QScreen::availableGeometryChanged, this, [view](const QRect &r) {
-            view->setGeometry(QRect(QPoint(0, 0), r.size()));
+            view->setGeometry(r);
         });
 #endif
 
