@@ -1,5 +1,8 @@
 ## INTRODUCTION
 
+[![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg "IRC Freenode")](https://webchat.freenode.net/?channels=sddm)
+[![GitHub release](https://img.shields.io/github/release/sddm/sddm.svg)](https://github.com/sddm/sddm)
+[![GitHub issues](https://img.shields.io/github/issues/sddm/sddm.svg)](https://github.com/sddm/sddm/issues)
 [![Build Status](https://travis-ci.org/sddm/sddm.svg?branch=master)](https://travis-ci.org/sddm/sddm)
 
 SDDM is a modern display manager for X11 aiming to be fast, simple and beautiful. It uses modern technologies like QtQuick, which in turn gives the designer the ability to create smooth, animated user interfaces.
