@@ -41,6 +41,11 @@ namespace SDDM {
             case QtDebugMsg:
                 priority = LOG_DEBUG;
             break;
+// QtInfoMsg was added in Qt 5.5
+#if QT_VERSION >= 0x050500
+            case QtInfoMsg:
+            break;
+#endif
             case QtWarningMsg:
                 priority = LOG_WARNING;
             break;
@@ -49,6 +54,8 @@ namespace SDDM {
             break;
             case QtFatalMsg:
                 priority = LOG_ALERT;
+            break;
+            default:
             break;
         }
 
@@ -76,20 +83,28 @@ namespace SDDM {
         // create timestamp
         QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
 
-        // prepare log message
-        QString logMessage = msg;
+        // set log priority
+	QString logPriority = QString("(II)");
         switch (type) {
             case QtDebugMsg:
-                logMessage = QString("[%1] (II) %2\n").arg(timestamp).arg(msg);
+// QtInfoMsg was added in Qt 5.5
+#if QT_VERSION >= 0x050500
+            case QtInfoMsg:
+#endif
             break;
             case QtWarningMsg:
-                logMessage = QString("[%1] (WW) %2\n").arg(timestamp).arg(msg);
+                logPriority = QString("(WW)");
             break;
             case QtCriticalMsg:
             case QtFatalMsg:
-                logMessage = QString("[%1] (EE) %2\n").arg(timestamp).arg(msg);
+                logPriority = QString("(EE)");
             break;
+	    default:
+	    break;
         }
+
+        // prepare log message
+        QString logMessage = QString("[%1] %2 %3\n").arg(timestamp).arg(logPriority).arg(msg);
 
         // log message
         if (file.isOpen()) {
