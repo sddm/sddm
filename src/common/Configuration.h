@@ -54,6 +54,7 @@ namespace SDDM {
         // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal
         Section(XDisplay,
             Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("X server path"));
+            Entry(Xargs,               QString,     _S(""),                                     _S("X server args"));
             Entry(XephyrPath,          QString,     _S("/usr/bin/Xephyr"),                      _S("Xephyr path"));
             Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Xauth path"));
             Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Session description directory"));
