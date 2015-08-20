@@ -149,6 +149,7 @@ Rectangle {
                     anchors.margins: 20
 
                     source: "images/login_normal.png"
+                    mirror: LayoutMirroring.enabled
 
                     onClicked: sddm.login(user_entry.text, pw_entry.text, menu_session.index)
 

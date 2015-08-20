@@ -123,6 +123,7 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.margins: 10
                         source: "angle-left.png"
+                        mirror: LayoutMirroring.enabled
                         onClicked: listView.decrementCurrentIndex()
 
                         KeyNavigation.backtab: btnShutdown; KeyNavigation.tab: listView
@@ -154,6 +155,7 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.margins: 10
                         source: "angle-right.png"
+                        mirror: LayoutMirroring.enabled
                         onClicked: listView.incrementCurrentIndex()
                         KeyNavigation.backtab: listView; KeyNavigation.tab: session
                     }
