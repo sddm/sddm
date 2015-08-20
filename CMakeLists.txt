@@ -31,6 +31,7 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 # Options
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
+option(ENABLE_CONSOLEKIT2 "Enable ConsoleKit2 support" ON)
 
 # Definitions
 add_definitions(-Wall -std=c++11)
@@ -139,6 +140,11 @@ else()
     set(MINIMUM_VT 7)
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
+endif()
+
+if(ENABLE_CONSOLEKIT2)
+    add_definitions(-DHAVE_CONSOLEKIT2)
+    set(CMAKE_AUTOMOC_MOC_OPTIONS -DHAVE_CONSOLEKIT2)
 endif()
 
 # Set constants
