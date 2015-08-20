@@ -46,7 +46,7 @@ FocusScope {
         id: defaultRowDelegate
         Text {
             anchors.fill: parent
-            anchors.margins: 4 + (Qt.application.layoutDirection == Qt.RightToLeft ? arrow.width : 0)
+            anchors.margins: 4 + (LayoutMirroring.enabled ? arrow.width : 0)
             verticalAlignment: Text.AlignVCenter
             font: container.font
 

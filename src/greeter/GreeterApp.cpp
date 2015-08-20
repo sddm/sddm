@@ -199,15 +199,6 @@ namespace SDDM {
     }
 }
 
-static bool detectRTLLanguage()
-{
-    return QGuiApplication::tr("QT_LAYOUT_DIRECTION",
-        "Translate this string to the string 'LTR' in left-to-right "
-        "languages or to 'RTL' in right-to-left languages (such as "
-        "Hebrew and Arabic) to get proper layout direction in SDDM "
-        "themes that supports it") == QStringLiteral("RTL");
-}
-
 int main(int argc, char **argv) {
     // install message handler
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
@@ -228,9 +219,6 @@ int main(int argc, char **argv) {
     }
 
     SDDM::GreeterApp app(argc, argv);
-
-    // layout direction
-    app.setLayoutDirection(detectRTLLanguage() ? Qt::RightToLeft : Qt::LeftToRight);
 
     return app.exec();
 }
