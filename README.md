@@ -64,3 +64,16 @@ which will give it access to drm devices.
 Distributions without pam and systemd will need to put the "sddm" user
 into the "video" group, otherwise errors regarding GL and drm devices
 might be experienced.
+
+## TROUBLESHOOTING
+
+### NVIDIA Prime
+
+Add this at the bottom of the Xsetup script:
+
+```sh
+if [ -e /sbin/prime-offload ]; then
+    echo running NVIDIA Prime setup /sbin/prime-offload, you will need to manually run /sbin/prime-switch to shut down
+    /sbin/prime-offload
+fi
+```
