@@ -31,7 +31,7 @@ Rectangle {
     width: 1024
     height: 768
 
-    LayoutMirroring.enabled: Qt.application.layoutDirection == Qt.RightToLeft
+    LayoutMirroring.enabled: Qt.locale().textDirection == Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
     property int sessionIndex: session.index
