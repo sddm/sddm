@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="kk">
+<TS version="2.1" language="kk">
+<context>
+    <name>QGuiApplication</name>
+    <message>
+        <source>QT_LAYOUT_DIRECTION</source>
+        <comment>Translate this string to the string &apos;LTR&apos; in left-to-right languages or to &apos;RTL&apos; in right-to-left languages (such as Hebrew and Arabic) to get proper layout direction in SDDM themes that supports it</comment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 <context>
     <name>TextConstants</name>
     <message>
