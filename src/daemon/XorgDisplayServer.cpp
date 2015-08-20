@@ -154,9 +154,8 @@ namespace SDDM {
             }
 
             // start display server
-            QStringList args;
-            args << mainConfig.XDisplay.Xargs.get()
-                 << "-auth" << m_authPath
+            QStringList args = mainConfig.XDisplay.Xargs.get().split(" ",QString::SkipEmptyParts);
+            args << "-auth" << m_authPath
                  << "-nolisten" << "tcp"
                  << "-background" << "none"
                  << "-noreset"
