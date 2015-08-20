@@ -39,6 +39,7 @@ Image {
     signal released()
     signal clicked()
 
+    mirror: LayoutMirroring.enabled
     states: [
         State {
             name: "disabled"; when: (container.enabled === false)
