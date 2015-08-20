@@ -30,6 +30,9 @@ Rectangle {
     width: 640
     height: 480
 
+    LayoutMirroring.enabled: Qt.application.layoutDirection == Qt.RightToLeft
+    LayoutMirroring.childrenInherit: true
+
     TextConstants { id: textConstants }
 
     Connections {
