@@ -146,6 +146,12 @@ OPTIONS
 	wont be updated.
 	Default value is true.
 
+`ReadHomeFaces=`
+	If this flag is true, home directories of all users are
+	searched for .face.icon files on startup. This can lead to
+	a slowdown in large NFS environments.
+	Default value is true.
+
 [Autologin] section:
 
 `User=`

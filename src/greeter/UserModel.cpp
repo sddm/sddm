@@ -83,12 +83,13 @@ namespace SDDM {
             // search for face icon
             QString userFace = QString("%1/.face.icon").arg(user->homeDir);
             QString systemFace = QString("%1/%2.face.icon").arg(mainConfig.Theme.FacesDir.get()).arg(user->name);
-            if (QFile::exists(userFace))
+            QString defaultFace = QString("%1/default.face.icon").arg(mainConfig.Theme.FacesDir.get());
+            if (mainConfig.Users.ReadHomeFaces.get() && QFile::exists(userFace))
                 user->icon = userFace;
             else if (QFile::exists(systemFace))
                 user->icon = systemFace;
             else
-                user->icon = QString("%1/default.face.icon").arg(mainConfig.Theme.FacesDir.get());
+                user->icon = defaultFace;
 
             // add user
             d->users << user;

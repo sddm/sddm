@@ -81,6 +81,7 @@ namespace SDDM {
                                                                                                    "Users with these shells as their default won't be listed"));
             Entry(RememberLastUser,    bool,        true,                                       _S("Remember the last successfully logged in user"));
             Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
+            Entry(ReadHomeFaces,       bool,        true,                                       _S("Read .face.icon files from home directories.\nCan slowdown startup in NFS environments."));
         );
         Section(Autologin,
             Entry(User,                QString,     QString(),                                  _S("Autologin user"));
