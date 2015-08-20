@@ -10,10 +10,24 @@
       Themes can now specify a Qt platform theme plugin.
     * Autodetect UID_MIN and UID_MAX from /etc/login.defs
     * Add Arabic translation by Safa Alfulaij.
+    * Add Hungarian translation by mortein79.
     * Russian translation improvements by Alexander Potashev.
     * Wait for display setup script to finish.
     * Reload configuration after display setup.
     * Pass locale environment variables to the greeter.
+    * Support right-to-left languages.
+    * Wayland session support.
+    * Xorg server arguments are configurable.
+    * Honor locale settings in /etc/environment
+    * Allow SYSTEMD_SYSTEM_UNIT_DIR to be overridden at compile time.
+    * No longer hardcode min/max UIDs.
+    * FreeBSD build fixes.
+    * Fixed Qt 5.5 build warnings.
+    * Honor TryExec in Xsession desktop files.
+    * New sddm.conf option XephyrPath.
+    * New sddm.conf option ServerArguments.
+    * Replace non-free background with a CC-BY-SA alternative for
+      the maldives theme.
 
 ## 0.11.0 - 2014-11-20
 ----------------------
