@@ -49,6 +49,58 @@ namespace SDDM {
         virtual void hybridSleep() const = 0;
     };
 
+    /************************************************/
+    /* PM-UTILS Backend (as failsafe only)          */
+    /************************************************/
+
+    class PMUtilsBackend : public PowerManagerBackend {
+    public:
+    PMUtilsBackend() {
+        
+    }
+
+    ~PMUtilsBackend() {
+
+    }
+
+    Capabilities capabilities() const {
+        Capabilities caps = Capability::PowerOff | Capability::Reboot;
+
+        if(QProcess::execute("pm-is-supported --suspend") == 0)
+            caps |= Capability::Suspend;
+
+        if(QProcess::execute("pm-is-supported --hibernate") == 0)
+            caps |= Capability::Hibernate;
+
+        if(QProcess::execute("pm-is-supported --suspend-hybrid") == 0 )
+            caps |= Capability::HybridSleep;
+
+
+        return caps;
+    }
+
+            void powerOff() const {
+            QProcess::execute(mainConfig.HaltCommand.get());
+        }
+
+        void reboot() const {
+            QProcess::execute(mainConfig.RebootCommand.get());
+        }
+        
+        void suspend() const {
+            QProcess::execute("pm-suspend");
+        }
+        
+        void hibernate() const {
+            QProcess::execute("pm-hibernate");
+        }
+        
+        void hybridSleep() const {
+            QProcess::execute("pm-suspend-hybrid");
+        }
+    };
+
+
     /**********************************************/
     /* UPOWER BACKEND                             */
     /**********************************************/
@@ -199,6 +251,12 @@ namespace SDDM {
         // check if upower interface exists
         if (interface->isServiceRegistered(UPOWER_SERVICE))
             m_backends << new UPowerBackend();
+        
+        // check if pm-utils is installed and only add pm-utils if no other option exists
+        if (QProcess::execute("pm-is-supported") != -2 && m_backends.empty())
+        {
+            m_backends << new PMUtilsBackend();
+        }
     }
 
     PowerManager::~PowerManager() {
