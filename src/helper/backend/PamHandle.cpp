@@ -142,7 +142,7 @@ namespace SDDM {
         if (user.isEmpty())
             m_result = pam_start(qPrintable(service), NULL, &m_conv, &m_handle);
         else
-            m_result = pam_start(qPrintable(service), qUtf8Printable(user), &m_conv, &m_handle);
+            m_result = pam_start(qPrintable(service), qPrintable(user), &m_conv, &m_handle);
         if (m_result != PAM_SUCCESS) {
             qWarning() << "[PAM] start" << pam_strerror(m_handle, m_result);
             return false;

@@ -54,7 +54,7 @@ namespace SDDM {
 
     bool Backend::openSession() {
         struct passwd *pw;
-        pw = getpwnam(qUtf8Printable(qobject_cast<HelperApp*>(parent())->user()));
+        pw = getpwnam(qPrintable(qobject_cast<HelperApp*>(parent())->user()));
         if (pw) {
             QProcessEnvironment env = m_app->session()->processEnvironment();
             env.insert("HOME", pw->pw_dir);

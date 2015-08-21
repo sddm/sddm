@@ -66,7 +66,7 @@ namespace SDDM {
             }
         }
 
-        struct passwd *pw = getpwnam(qUtf8Printable(m_user));
+        struct passwd *pw = getpwnam(qPrintable(m_user));
         if (!pw) {
             m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
             return false;
