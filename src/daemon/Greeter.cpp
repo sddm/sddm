@@ -124,20 +124,12 @@ namespace SDDM {
             // greeter environment
             QProcessEnvironment env;
             QProcessEnvironment sysenv = QProcessEnvironment::systemEnvironment();
-            env.insert("LANG", sysenv.value("LANG"));
-            env.insert("LANGUAGE", sysenv.value("LANGUAGE"));
-            env.insert("LC_CTYPE", sysenv.value("LC_CTYPE"));
-            env.insert("LC_NUMERIC", sysenv.value("LC_NUMERIC"));
-            env.insert("LC_TIME", sysenv.value("LC_TIME"));
-            env.insert("LC_COLLATE", sysenv.value("LC_COLLATE"));
-            env.insert("LC_MONETARY", sysenv.value("LC_MONETARY"));
-            env.insert("LC_MESSAGES", sysenv.value("LC_MESSAGES"));
-            env.insert("LC_PAPER", sysenv.value("LC_PAPER"));
-            env.insert("LC_NAME", sysenv.value("LC_NAME"));
-            env.insert("LC_ADDRESS", sysenv.value("LC_ADDRESS"));
-            env.insert("LC_TELEPHONE", sysenv.value("LC_TELEPHONE"));
-            env.insert("LC_MEASUREMENT", sysenv.value("LC_MEASUREMENT"));
-            env.insert("LC_IDENTIFICATION", sysenv.value("LC_IDENTIFICATION"));
+
+            insertEnvironmentList({"LANG", "LANGUAGE",
+                                   "LC_CTYPE", "LC_NUMERIC", "LC_TIME", "LC_COLLATE", "LC_MONETARY", "LC_MESSAGES",
+                                   "LC_PAPER", "LC_NAME", "LC_ADDRESS", "LC_TELEPHONE", "LC_MEASUREMENT", "LC_IDENTIFICATION"
+            }, sysenv, env);
+
             env.insert("PATH", mainConfig.Users.DefaultPath.get());
             env.insert("DISPLAY", m_display->name());
             env.insert("XAUTHORITY", m_authPath);
@@ -162,6 +154,12 @@ namespace SDDM {
 
         // return success
         return true;
+    }
+
+    void Greeter::insertEnvironmentList(QStringList names, QProcessEnvironment sourceEnv, QProcessEnvironment &targetEnv) {
+        for (QStringList::const_iterator it = names.constBegin(); it != names.constEnd(); ++it)
+            if (sourceEnv.contains(*it))
+                targetEnv.insert(*it, sourceEnv.value(*it));
     }
 
     void Greeter::stop() {
