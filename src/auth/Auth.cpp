@@ -113,7 +113,22 @@ namespace SDDM {
             , id(lastId++) {
         SocketServer::instance()->helpers[id] = this;
         QProcessEnvironment env = child->processEnvironment();
-        env.insert("LANG", "C");
+        bool langEmpty = true;
+        QFile localeFile("/etc/locale.conf");
+        if (localeFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&localeFile);
+            while (!in.atEnd()) {
+                QStringList parts = in.readLine().split('=');
+                if (parts.size() >= 2) {
+                    env.insert(parts[0], parts[1]);
+                    if (parts[0] == QStringLiteral("LANG"))
+                        langEmpty = false;
+                }
+            }
+            localeFile.close();
+        }
+        if (langEmpty)
+            env.insert("LANG", "C");
         child->setProcessEnvironment(env);
         connect(child, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(childExited(int,QProcess::ExitStatus)));
         connect(child, SIGNAL(error(QProcess::ProcessError)), this, SLOT(childError(QProcess::ProcessError)));
