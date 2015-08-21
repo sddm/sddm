@@ -71,9 +71,9 @@ namespace SDDM {
 
             // create user
             UserPtr user { new User() };
-            user->name = QString(current_pw->pw_name);
-            user->realName = QString::fromUtf8(current_pw->pw_gecos).split(",").first();
-            user->homeDir = QString(current_pw->pw_dir);
+            user->name = QString::fromLocal8Bit(current_pw->pw_name);
+            user->realName = QString::fromLocal8Bit(current_pw->pw_gecos).split(",").first();
+            user->homeDir = QString::fromLocal8Bit(current_pw->pw_dir);
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
             // if shadow is used pw_passwd will be 'x' nevertheless, so this
