@@ -110,7 +110,7 @@ namespace SDDM {
             }
         }
 
-        const char *username = qUtf8Printable(qobject_cast<HelperApp*>(parent())->user());
+        const char  *username = qobject_cast<HelperApp*>(parent())->user().toLocal8Bit();
         struct passwd *pw = getpwnam(username);
         if (setgid(pw->pw_gid) != 0) {
             qCritical() << "setgid(" << pw->pw_gid << ") failed for user: " << username;
