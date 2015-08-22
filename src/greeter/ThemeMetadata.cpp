@@ -24,17 +24,17 @@
 namespace SDDM {
     class ThemeMetadataPrivate {
     public:
-        QString mainScript { "Main.qml" };
-        QString configFile { "" };
-        QString translationsDirectory { "." };
+        QString mainScript { QStringLiteral("Main.qml") };
+        QString configFile;
+        QString translationsDirectory { QStringLiteral(".") };
     };
 
     ThemeMetadata::ThemeMetadata(const QString &path, QObject *parent) : QObject(parent), d(new ThemeMetadataPrivate()) {
         QSettings settings(path, QSettings::IniFormat);
         // read values
-        d->mainScript = settings.value("SddmGreeterTheme/MainScript", d->mainScript).toString();
-        d->configFile = settings.value("SddmGreeterTheme/ConfigFile", d->configFile).toString();
-        d->translationsDirectory = settings.value("SddmGreeterTheme/TranslationsDirectory", d->translationsDirectory).toString();
+        d->mainScript = settings.value(QStringLiteral("SddmGreeterTheme/MainScript"), d->mainScript).toString();
+        d->configFile = settings.value(QStringLiteral("SddmGreeterTheme/ConfigFile"), d->configFile).toString();
+        d->translationsDirectory = settings.value(QStringLiteral("SddmGreeterTheme/TranslationsDirectory"), d->translationsDirectory).toString();
     }
 
     ThemeMetadata::~ThemeMetadata() {

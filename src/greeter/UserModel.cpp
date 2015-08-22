@@ -33,10 +33,10 @@
 namespace SDDM {
     class User {
     public:
-        QString name { "" };
-        QString realName { "" };
-        QString homeDir { "" };
-        QString icon { "" };
+        QString name;
+        QString realName;
+        QString homeDir;
+        QString icon;
         bool needsPassword { false };
         int uid { 0 };
         int gid { 0 };
@@ -62,17 +62,17 @@ namespace SDDM {
             if ( int(current_pw->pw_uid) > mainConfig.Users.MaximumUid.get())
                 continue;
             // skip entries with user names in the hide users list
-            if (mainConfig.Users.HideUsers.get().contains(current_pw->pw_name))
+            if (mainConfig.Users.HideUsers.get().contains(QString::fromLocal8Bit(current_pw->pw_name)))
                 continue;
 
             // skip entries with shells in the hide shells list
-            if (mainConfig.Users.HideShells.get().contains(current_pw->pw_shell))
+            if (mainConfig.Users.HideShells.get().contains(QString::fromLocal8Bit(current_pw->pw_shell)))
                 continue;
 
             // create user
             UserPtr user { new User() };
             user->name = QString::fromLocal8Bit(current_pw->pw_name);
-            user->realName = QString::fromLocal8Bit(current_pw->pw_gecos).split(",").first();
+            user->realName = QString::fromLocal8Bit(current_pw->pw_gecos).split(QLatin1Char(',')).first();
             user->homeDir = QString::fromLocal8Bit(current_pw->pw_dir);
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
@@ -81,14 +81,14 @@ namespace SDDM {
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
             // search for face icon
-            QString userFace = QString("%1/.face.icon").arg(user->homeDir);
-            QString systemFace = QString("%1/%2.face.icon").arg(mainConfig.Theme.FacesDir.get()).arg(user->name);
+            QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
+            QString systemFace = QStringLiteral("%1/%2.face.icon").arg(mainConfig.Theme.FacesDir.get()).arg(user->name);
             if (QFile::exists(userFace))
                 user->icon = userFace;
             else if (QFile::exists(systemFace))
                 user->icon = systemFace;
             else
-                user->icon = QString("%1/default.face.icon").arg(mainConfig.Theme.FacesDir.get());
+                user->icon = QStringLiteral("%1/default.face.icon").arg(mainConfig.Theme.FacesDir.get());
 
             // add user
             d->users << user;

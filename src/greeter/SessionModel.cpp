@@ -99,7 +99,7 @@ namespace SDDM {
     void SessionModel::populate(Session::Type type, const QString &path) {
         // read session files
         QDir dir(path);
-        dir.setNameFilters(QStringList() << "*.desktop");
+        dir.setNameFilters(QStringList() << QStringLiteral("*.desktop"));
         dir.setFilter(QDir::Files);
         // read session
         foreach(const QString &session, dir.entryList()) {
@@ -115,8 +115,8 @@ namespace SDDM {
             } else {
                 execAllowed = false;
                 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-                QString envPath = env.value("PATH");
-                QStringList pathList = envPath.split(':');
+                QString envPath = env.value(QStringLiteral("PATH"));
+                QStringList pathList = envPath.split(QLatin1Char(':'));
                 foreach(const QString &path, pathList) {
                     QDir pathDir(path);
                     fi.setFile(pathDir, si->tryExec());
@@ -132,7 +132,7 @@ namespace SDDM {
         }
         // add failsafe session
         if (type == Session::X11Session) {
-            Session *si = new Session(type, "failsafe");
+            Session *si = new Session(type, QStringLiteral("failsafe"));
             si->m_displayName = QStringLiteral("Failsafe");
             si->m_comment = QStringLiteral("Failsafe Session");
             si->m_exec = QStringLiteral("failsafe");

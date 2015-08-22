@@ -31,21 +31,21 @@
 
 namespace SDDM {
     static Request loginRequest {
-        {   { AuthPrompt::LOGIN_USER, "login:", false },
-            { AuthPrompt::LOGIN_PASSWORD, "Password: ", true }
+        {   { AuthPrompt::LOGIN_USER, QStringLiteral("login:"), false },
+            { AuthPrompt::LOGIN_PASSWORD, QStringLiteral("Password: "), true }
         }
     };
 
     static Request changePassRequest {
-        {   { AuthPrompt::CHANGE_CURRENT, "(current) UNIX password: ", true },
-            { AuthPrompt::CHANGE_NEW, "New password: ", true },
-            { AuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
+        {   { AuthPrompt::CHANGE_CURRENT, QStringLiteral("(current) UNIX password: "), true },
+            { AuthPrompt::CHANGE_NEW, QStringLiteral("New password: "), true },
+            { AuthPrompt::CHANGE_REPEAT, QStringLiteral("Retype new password: "), true }
         }
     };
 
     static Request changePassNoOldRequest {
-        {   { AuthPrompt::CHANGE_NEW, "New password: ", true },
-            { AuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
+        {   { AuthPrompt::CHANGE_NEW, QStringLiteral("New password: "), true },
+            { AuthPrompt::CHANGE_REPEAT, QStringLiteral("Retype new password: "), true }
         }
     };
 
@@ -57,15 +57,15 @@ namespace SDDM {
 
     AuthPrompt::Type PamData::detectPrompt(const struct pam_message* msg) const {
         if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
-            QString message(msg->msg);
-            if (message.indexOf(QRegExp("\\bpassword\\b", Qt::CaseInsensitive)) >= 0) {
-                if (message.indexOf(QRegExp("\\b(re-?(enter|type)|again|confirm|repeat)\\b", Qt::CaseInsensitive)) >= 0) {
+            QString message = QString::fromLocal8Bit(msg->msg);
+            if (message.indexOf(QRegExp(QStringLiteral("\\bpassword\\b"), Qt::CaseInsensitive)) >= 0) {
+                if (message.indexOf(QRegExp(QStringLiteral("\\b(re-?(enter|type)|again|confirm|repeat)\\b"), Qt::CaseInsensitive)) >= 0) {
                     return AuthPrompt::CHANGE_REPEAT;
                 }
-                else if (message.indexOf(QRegExp("\\bnew\\b", Qt::CaseInsensitive)) >= 0) {
+                else if (message.indexOf(QRegExp(QStringLiteral("\\bnew\\b"), Qt::CaseInsensitive)) >= 0) {
                     return AuthPrompt::CHANGE_NEW;
                 }
-                else if (message.indexOf(QRegExp("\\b(old|current)\\b", Qt::CaseInsensitive)) >= 0) {
+                else if (message.indexOf(QRegExp(QStringLiteral("\\b(old|current)\\b"), Qt::CaseInsensitive)) >= 0) {
                     return AuthPrompt::CHANGE_CURRENT;
                 }
                 else {
@@ -84,7 +84,7 @@ namespace SDDM {
         AuthPrompt::Type type = detectPrompt(msg);
 
         for (const Prompt &p : m_currentRequest.prompts) {
-            if (type == p.type && p.message == msg->msg)
+            if (type == p.type && p.message == QString::fromLocal8Bit(msg->msg))
                 return p;
         }
 
@@ -95,7 +95,7 @@ namespace SDDM {
         AuthPrompt::Type type = detectPrompt(msg);
 
         for (Prompt &p : m_currentRequest.prompts) {
-            if (type == AuthPrompt::UNKNOWN && msg->msg == p.message)
+            if (type == AuthPrompt::UNKNOWN && QString::fromLocal8Bit(msg->msg) == p.message)
                 return p;
             if (type == p.type)
                 return p;
@@ -116,7 +116,7 @@ namespace SDDM {
             if (m_sent)
                 return false;
             // we don't have a response yet - replace the message and prepare to send it
-            p.message = msg->msg;
+            p.message = QString::fromLocal8Bit(msg->msg);
             return true;
         }
         // this prompt is not stored but we have some prompts
@@ -147,13 +147,13 @@ namespace SDDM {
         }
 
         // or just add whatever comes exactly as it comes
-        m_currentRequest.prompts.append(Prompt(detectPrompt(msg), msg->msg, msg->msg_style == PAM_PROMPT_ECHO_OFF));
+        m_currentRequest.prompts.append(Prompt(detectPrompt(msg), QString::fromLocal8Bit(msg->msg), msg->msg_style == PAM_PROMPT_ECHO_OFF));
 
         return true;
     }
 
     Auth::Info PamData::handleInfo(const struct pam_message* msg, bool predict) {
-        if (QString(msg->msg).indexOf(QRegExp("^Changing password for [^ ]+$"))) {
+        if (QString::fromLocal8Bit(msg->msg).indexOf(QRegExp(QStringLiteral("^Changing password for [^ ]+$")))) {
             if (predict)
                 m_currentRequest = Request(changePassRequest);
             return Auth::INFO_PASS_CHANGE_REQUIRED;
@@ -215,14 +215,14 @@ namespace SDDM {
     bool PamBackend::start(const QString &user) {
         bool result;
 
-        QString service = "sddm";
+        QString service = QStringLiteral("sddm");
 
-        if (user == "sddm" && m_greeter)
-            service = "sddm-greeter";
+        if (user == QStringLiteral("sddm") && m_greeter)
+            service = QStringLiteral("sddm-greeter");
         else if (m_app->session()->path().isEmpty())
-            service = "sddm-check";
+            service = QStringLiteral("sddm-check");
         else if (m_autologin)
-            service = "sddm-autologin";
+            service = QStringLiteral("sddm-autologin");
         result = m_pam->start(service, user);
 
         if (!result)
@@ -250,16 +250,16 @@ namespace SDDM {
         }
 
         QProcessEnvironment sessionEnv = m_app->session()->processEnvironment();
-        if (sessionEnv.value("XDG_SESSION_TYPE") == QStringLiteral("x11")) {
-            QString display = sessionEnv.value("DISPLAY");
+        if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
+            QString display = sessionEnv.value(QStringLiteral("DISPLAY"));
             if (!display.isEmpty()) {
 #ifdef PAM_XDISPLAY
                 m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
 #endif
                 m_pam->setItem(PAM_TTY, qPrintable(display));
             }
-        } else if (sessionEnv.value("XDG_SESSION_TYPE") == QStringLiteral("wayland")) {
-            QString tty = QString("/dev/tty%1").arg(sessionEnv.value("XDG_VTNR"));
+        } else if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
+            QString tty = QStringLiteral("/dev/tty%1").arg(sessionEnv.value(QStringLiteral("XDG_VTNR")));
             m_pam->setItem(PAM_TTY, qPrintable(tty));
         }
 
@@ -277,7 +277,7 @@ namespace SDDM {
     }
 
     QString PamBackend::userName() {
-        return (const char*) m_pam->getItem(PAM_USER);
+        return QString::fromLocal8Bit((const char*) m_pam->getItem(PAM_USER));
     }
 
     int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {
@@ -295,11 +295,11 @@ namespace SDDM {
                     newRequest = m_data->insertPrompt(msg[i], n == 1);
                     break;
                 case PAM_ERROR_MSG:
-                    m_app->error(msg[i]->msg, Auth::ERROR_AUTHENTICATION);
+                    m_app->error(QString::fromLocal8Bit(msg[i]->msg), Auth::ERROR_AUTHENTICATION);
                     break;
                 case PAM_TEXT_INFO:
                     // if there's only the info message, let's predict the prompts too
-                    m_app->info(msg[i]->msg, m_data->handleInfo(msg[i], n == 1));
+                    m_app->info(QString::fromLocal8Bit(msg[i]->msg), m_data->handleInfo(msg[i], n == 1));
                     break;
                 default:
                     break;

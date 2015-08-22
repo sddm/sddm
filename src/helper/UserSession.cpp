@@ -43,14 +43,14 @@ namespace SDDM {
     bool UserSession::start() {
         QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
-        if (env.value("XDG_SESSION_CLASS") == QStringLiteral("greeter")) {
+        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QStringLiteral("greeter")) {
             QProcess::start(m_path);
-        } else if (env.value("XDG_SESSION_TYPE") == QStringLiteral("x11")) {
+        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
             qDebug() << "Starting:" << mainConfig.XDisplay.SessionCommand.get()
                      << m_path;
             QProcess::start(mainConfig.XDisplay.SessionCommand.get(),
                             QStringList() << m_path);
-        } else if (env.value("XDG_SESSION_TYPE") == QStringLiteral("wayland")) {
+        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
             qDebug() << "Starting:" << mainConfig.WaylandDisplay.SessionCommand.get()
                      << m_path;
             QProcess::start(mainConfig.WaylandDisplay.SessionCommand.get(),
@@ -72,13 +72,13 @@ namespace SDDM {
 
     void UserSession::setupChildProcess() {
         // Session type
-        QString sessionType = processEnvironment().value("XDG_SESSION_TYPE");
+        QString sessionType = processEnvironment().value(QStringLiteral("XDG_SESSION_TYPE"));
 
         // For Wayland sessions we leak the VT into the session as stdin so
         // that it stays open without races
         if (sessionType == QStringLiteral("wayland")) {
             // open VT and get the fd
-            QString ttyString = QString("/dev/tty%1").arg(processEnvironment().value("XDG_VTNR"));
+            QString ttyString = QStringLiteral("/dev/tty%1").arg(processEnvironment().value(QStringLiteral("XDG_VTNR")));
             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
 
             // when this is true we'll take control of the tty
@@ -162,15 +162,15 @@ namespace SDDM {
             return;
         QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
         if (!cookie.isEmpty()) {
-            QString file = processEnvironment().value("XAUTHORITY");
-            QString display = processEnvironment().value("DISPLAY");
+            QString file = processEnvironment().value(QStringLiteral("XAUTHORITY"));
+            QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
             qDebug() << "Adding cookie to" << file;
 
             QFile file_handler(file);
             file_handler.open(QIODevice::WriteOnly);
             file_handler.close();
 
-            QString cmd = QString("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
+            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
 
             // execute xauth
             FILE *fp = popen(qPrintable(cmd), "w");

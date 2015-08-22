@@ -67,7 +67,7 @@ namespace SDDM {
 #endif
 
     static void standardLogger(QtMsgType type, const QString &msg) {
-        static QFile file(LOG_FILE);
+        static QFile file(QStringLiteral(LOG_FILE));
 
         // try to open file only if it's not already open
         if (!file.isOpen()) {
@@ -76,26 +76,26 @@ namespace SDDM {
         }
 
         // create timestamp
-        QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
+        QString timestamp = QDateTime::currentDateTime().toString(QStringLiteral("hh:mm:ss.zzz"));
 
         // set log priority
-	QString logPriority = QString("(II)");
+	QString logPriority = QStringLiteral("(II)");
         switch (type) {
             case QtDebugMsg:
             break;
             case QtWarningMsg:
-                logPriority = QString("(WW)");
+                logPriority = QStringLiteral("(WW)");
             break;
             case QtCriticalMsg:
             case QtFatalMsg:
-                logPriority = QString("(EE)");
+                logPriority = QStringLiteral("(EE)");
             break;
 	    default:
 	    break;
         }
 
         // prepare log message
-        QString logMessage = QString("[%1] %2 %3\n").arg(timestamp).arg(logPriority).arg(msg);
+        QString logMessage = QStringLiteral("[%1] %2 %3\n").arg(timestamp).arg(logPriority).arg(msg);
 
         // log message
         if (file.isOpen()) {
@@ -135,15 +135,15 @@ namespace SDDM {
     }
 
     void DaemonMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
-        messageHandler(type, context, "DAEMON: ", msg);
+        messageHandler(type, context, QStringLiteral("DAEMON: "), msg);
     }
 
     void HelperMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
-        messageHandler(type, context, "HELPER: ", msg);
+        messageHandler(type, context, QStringLiteral("HELPER: "), msg);
     }
 
     void GreeterMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
-        messageHandler(type, context, "GREETER: ", msg);
+        messageHandler(type, context, QStringLiteral("GREETER: "), msg);
     }
 }
 

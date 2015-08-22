@@ -34,7 +34,7 @@
 
 namespace SDDM {
     //     Name        File         Sections and/or Entries (but anything else too, it's a class) - Entries in a Config are assumed to be in the General section
-    Config(MainConfig, CONFIG_FILE,
+    Config(MainConfig, QStringLiteral(CONFIG_FILE),
         enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
 
         //    Name                 Type         Default value                               Description
@@ -89,7 +89,7 @@ namespace SDDM {
         );
     );
 
-    Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? tmp->pw_dir : STATE_DIR;}().append("/state.conf"),
+    Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? QString::fromLocal8Bit(tmp->pw_dir) : QStringLiteral(STATE_DIR);}().append(QStringLiteral("/state.conf")),
         Section(Last,
             Entry(Session,         QString,     QString(),                                  _S("Name of the session file of the last session selected. This session will be preselected when the login screen shows up."));
             Entry(User,            QString,     QString(),                                  _S("Name of the last logged-in user. This username will be preselected/shown when the login screen shows up"));
@@ -101,9 +101,9 @@ namespace SDDM {
 
     inline QTextStream& operator>>(QTextStream &str, MainConfig::NumState &state) {
         QString text = str.readLine().trimmed();
-        if (text.compare("on", Qt::CaseInsensitive) == 0)
+        if (text.compare(QLatin1String("on"), Qt::CaseInsensitive) == 0)
             state = MainConfig::NUM_SET_ON;
-        else if (text.compare("off", Qt::CaseInsensitive) == 0)
+        else if (text.compare(QLatin1String("off"), Qt::CaseInsensitive) == 0)
             state = MainConfig::NUM_SET_OFF;
         else
             state = MainConfig::NUM_NONE;

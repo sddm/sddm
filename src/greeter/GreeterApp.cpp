@@ -49,7 +49,7 @@ namespace SDDM {
 
         QString value = arguments.at(index + 1);
 
-        if (value.startsWith("-") || value.startsWith("--"))
+        if (value.startsWith(QLatin1Char('-')))
             return defaultValue;
 
         return value;
@@ -64,47 +64,47 @@ namespace SDDM {
         // Parse arguments
         bool testing = false;
 
-        if (arguments().contains("--test-mode"))
+        if (arguments().contains(QStringLiteral("--test-mode")))
             testing = true;
 
         // get socket name
-        QString socket = parameter(arguments(), "--socket", "");
+        QString socket = parameter(arguments(), QStringLiteral("--socket"), QString());
 
         // get theme path
-        m_themePath = parameter(arguments(), "--theme", "");
+        m_themePath = parameter(arguments(), QStringLiteral("--theme"), QString());
 
         // read theme metadata
-        m_metadata = new ThemeMetadata(QString("%1/metadata.desktop").arg(m_themePath));
+        m_metadata = new ThemeMetadata(QStringLiteral("%1/metadata.desktop").arg(m_themePath));
 
         // Translations
         // Components translation
         m_components_tranlator = new QTranslator();
-        if (m_components_tranlator->load(QLocale::system(), "", "", COMPONENTS_TRANSLATION_DIR))
+        if (m_components_tranlator->load(QLocale::system(), QString(), QString(), QStringLiteral(COMPONENTS_TRANSLATION_DIR)))
             installTranslator(m_components_tranlator);
 
         // Theme specific translation
         m_theme_translator = new QTranslator();
-        if (m_theme_translator->load(QLocale::system(), "", "",
-                           QString("%1/%2/").arg(m_themePath, m_metadata->translationsDirectory())))
+        if (m_theme_translator->load(QLocale::system(), QString(), QString(),
+                           QStringLiteral("%1/%2/").arg(m_themePath, m_metadata->translationsDirectory())))
             installTranslator(m_theme_translator);
 
         // get theme config file
-        QString configFile = QString("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
+        QString configFile = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
 
         // read theme config
         m_themeConfig = new ThemeConfig(configFile);
 
         // set default icon theme from greeter theme
-        if (m_themeConfig->contains("iconTheme"))
-            QIcon::setThemeName(m_themeConfig->value("iconTheme").toString());
+        if (m_themeConfig->contains(QStringLiteral("iconTheme")))
+            QIcon::setThemeName(m_themeConfig->value(QStringLiteral("iconTheme")).toString());
 
         // set cursor theme according to greeter theme
-        if (m_themeConfig->contains("cursorTheme"))
-            qputenv("XCURSOR_THEME", m_themeConfig->value("cursorTheme").toString().toUtf8());
+        if (m_themeConfig->contains(QStringLiteral("cursorTheme")))
+            qputenv("XCURSOR_THEME", m_themeConfig->value(QStringLiteral("cursorTheme")).toString().toUtf8());
 
         // set platform theme
-        if (m_themeConfig->contains("platformTheme"))
-            qputenv("QT_QPA_PLATFORMTHEME", m_themeConfig->value("platformTheme").toString().toUtf8());
+        if (m_themeConfig->contains(QStringLiteral("platformTheme")))
+            qputenv("QT_QPA_PLATFORMTHEME", m_themeConfig->value(QStringLiteral("platformTheme")).toString().toUtf8());
 
         // create models
 
@@ -170,21 +170,21 @@ namespace SDDM {
         });
 #endif
 
-        view->engine()->addImportPath(IMPORTS_INSTALL_DIR);
+        view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
         connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
 
         // set context properties
-        view->rootContext()->setContextProperty("sessionModel", m_sessionModel);
-        view->rootContext()->setContextProperty("screenModel", m_screenModel);
-        view->rootContext()->setContextProperty("userModel", m_userModel);
-        view->rootContext()->setContextProperty("config", *m_themeConfig);
-        view->rootContext()->setContextProperty("sddm", m_proxy);
-        view->rootContext()->setContextProperty("keyboard", m_keyboard);
+        view->rootContext()->setContextProperty(QStringLiteral("sessionModel"), m_sessionModel);
+        view->rootContext()->setContextProperty(QStringLiteral("screenModel"), m_screenModel);
+        view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
+        view->rootContext()->setContextProperty(QStringLiteral("config"), *m_themeConfig);
+        view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
+        view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
 
         // get theme main script
-        QString mainScript = QString("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
+        QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
 
         // set main script as source
         view->setSource(QUrl::fromLocalFile(mainScript));
@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
     QStringList arguments;
 
     for (int i = 0; i < argc; i++)
-        arguments << argv[i];
+        arguments << QString::fromLocal8Bit(argv[i]);
 
     if (arguments.contains(QStringLiteral("--help")) || arguments.contains(QStringLiteral("-h"))) {
         std::cout << "Usage: " << argv[0] << " [options] [arguments]\n"

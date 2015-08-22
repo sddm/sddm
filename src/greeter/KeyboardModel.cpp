@@ -242,9 +242,9 @@ namespace SDDM {
         for (int i = 0; i < ind_cnt; i++) {
             QString name = atomName(cookies[i]);
 
-            if (name == "Num Lock") {
+            if (name == QStringLiteral("Num Lock")) {
                 d->numlock.mask = getIndicatorMask(i);
-            } else if (name == "Caps Lock") {
+            } else if (name == QStringLiteral("Caps Lock")) {
                 d->capslock.mask = getIndicatorMask(i);
             }
         }
@@ -334,11 +334,12 @@ namespace SDDM {
         // Get atom name
         reply = xcb_get_atom_name_reply(m_conn, cookie, &error);
 
-        QString res = "";
+        QString res;
 
         if (reply) {
-            res = QByteArray(xcb_get_atom_name_name(reply),
-                             xcb_get_atom_name_name_length(reply));
+            QByteArray replyText(xcb_get_atom_name_name(reply),
+                                 xcb_get_atom_name_name_length(reply));
+            res = QString::fromLocal8Bit(replyText);
             free(reply);
         } else {
             // Log error
@@ -375,12 +376,12 @@ namespace SDDM {
     }
 
     QList<QString> XcbKeyboardBackend::parseShortNames(QString text) {
-        QRegExp re(R"(\+([a-z]+))");
+        QRegExp re(QStringLiteral(R"(\+([a-z]+))"));
         re.setCaseSensitivity(Qt::CaseInsensitive);
 
         QList<QString> res;
         QSet<QString> blackList; // blacklist wrong tokens
-        blackList << "inet" << "group";
+        blackList << QStringLiteral("inet") << QStringLiteral("group");
 
         // Loop through matched substrings
         int pos = 0;

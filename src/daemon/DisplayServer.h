@@ -53,7 +53,7 @@ namespace SDDM {
     protected:
         bool m_started { false };
 
-        QString m_display { "" };
+        QString m_display;
 
     private:
         Display *m_displayPtr { nullptr };

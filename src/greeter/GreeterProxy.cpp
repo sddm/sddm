@@ -32,7 +32,7 @@ namespace SDDM {
     public:
         SessionModel *sessionModel { nullptr };
         QLocalSocket *socket { nullptr };
-        QString hostName { "" };
+        QString hostName;
         bool canPowerOff { false };
         bool canReboot { false };
         bool canSuspend { false };

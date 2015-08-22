@@ -29,7 +29,7 @@
 #include <QtCore/QFileInfo>
 
 QTextStream &operator>>(QTextStream &str, QStringList &list)  {
-    QStringList tempList = str.readLine().split(",");
+    QStringList tempList = str.readLine().split(QLatin1Char(','));
     list.clear();
     foreach(const QString &s, tempList)
         if (!s.trimmed().isEmpty())
@@ -38,12 +38,12 @@ QTextStream &operator>>(QTextStream &str, QStringList &list)  {
 }
 
 QTextStream &operator<<(QTextStream &str, const QStringList &list) {
-    str << list.join(",");
+    str << list.join(QLatin1Char(','));
     return str;
 }
 
 QTextStream &operator>>(QTextStream &str, bool &val) {
-    if (0 == str.readLine().trimmed().compare("true", Qt::CaseInsensitive))
+    if (0 == str.readLine().trimmed().compare(QLatin1String("true"), Qt::CaseInsensitive))
         val = true;
     else
         val = false;
@@ -96,14 +96,14 @@ namespace SDDM {
     }
 
     QString ConfigSection::toConfigFull() const {
-        QString final = QString("[%1]\n").arg(m_name);
+        QString final = QStringLiteral("[%1]\n").arg(m_name);
         for (const ConfigEntryBase *entry : m_entries)
             final.append(entry->toConfigFull());
         return final;
     }
 
     QString ConfigSection::toConfigShort() const {
-        return QString("[%1]").arg(name());
+        return QStringLiteral("[%1]").arg(name());
     }
 
 
@@ -123,7 +123,7 @@ namespace SDDM {
         QString ret;
         for (ConfigSection *s : m_sections) {
             ret.append(s->toConfigFull());
-            ret.append('\n');
+            ret.append(QLatin1Char('\n'));
         }
         return ret;
     }
@@ -133,7 +133,7 @@ namespace SDDM {
         if (!QFile::exists(m_path))
             return;
 
-        QString currentSection = IMPLICIT_SECTION;
+        QString currentSection = QStringLiteral(IMPLICIT_SECTION);
 
         QFile in(m_path);
         QDateTime modificationTime = QFileInfo(in).lastModified();
@@ -144,12 +144,12 @@ namespace SDDM {
 
         in.open(QIODevice::ReadOnly);
         while (!in.atEnd()) {
-            QString line = in.readLine().trimmed();
+            QString line = QString::fromUtf8(in.readLine().trimmed());
             // get rid of comments first
-            line = line.left(line.indexOf('#')).trimmed();
+            line = line.left(line.indexOf(QLatin1Char('#'))).trimmed();
 
             // value assignment
-            int separatorPosition = line.indexOf('=');
+            int separatorPosition = line.indexOf(QLatin1Char('='));
             if (separatorPosition >= 0) {
                 QString name = line.left(separatorPosition).trimmed();
                 QString value = line.mid(separatorPosition + 1).trimmed();
@@ -161,7 +161,7 @@ namespace SDDM {
                     m_unusedVariables = true;
             }
             // section start
-            else if (line.startsWith('[') && line.endsWith(']'))
+            else if (line.startsWith(QLatin1Char('[')) && line.endsWith(QLatin1Char(']')))
                 currentSection = line.mid(1, line.length() - 2);
         }
     }
@@ -197,7 +197,7 @@ namespace SDDM {
         }
 
         // initialize the current section - General, usually
-        const ConfigSection *currentSection = m_sections[IMPLICIT_SECTION];
+        const ConfigSection *currentSection = m_sections[QStringLiteral(IMPLICIT_SECTION)];
 
         // stuff to store the pre-section stuff (comments) to the start of the right section, not the end of the previous one
         QByteArray junk;
@@ -221,15 +221,15 @@ namespace SDDM {
         QFile file(m_path);
         file.open(QIODevice::ReadOnly); // first just for reading
         while (!file.atEnd()) {
-            QString line = file.readLine();
+            QString line = QString::fromUtf8(file.readLine());
             // get rid of comments first
-            QString trimmedLine = line.left(line.indexOf('#')).trimmed();
+            QString trimmedLine = line.left(line.indexOf(QLatin1Char('#'))).trimmed();
             QString comment;
-            if (line.indexOf('#') >= 0)
-                comment = line.mid(line.indexOf('#')).trimmed();
+            if (line.indexOf(QLatin1Char('#')) >= 0)
+                comment = line.mid(line.indexOf(QLatin1Char('#'))).trimmed();
 
             // value assignment
-            int separatorPosition = trimmedLine.indexOf('=');
+            int separatorPosition = trimmedLine.indexOf(QLatin1Char('='));
             if (separatorPosition >= 0) {
                 QString name = trimmedLine.left(separatorPosition).trimmed();
                 QString value = trimmedLine.mid(separatorPosition + 1).trimmed();
@@ -240,7 +240,7 @@ namespace SDDM {
                         (!entry && section && section->name() == currentSection->name()) ||
                         value != currentSection->entry(name)->value()) {
                         changed = true;
-                        writeSectionData(QString("%1=%2 %3\n").arg(name).arg(currentSection->entry(name)->value()).arg(comment));
+                        writeSectionData(QStringLiteral("%1=%2 %3\n").arg(name).arg(currentSection->entry(name)->value()).arg(comment));
                     }
                     else
                         writeSectionData(line);
@@ -249,12 +249,12 @@ namespace SDDM {
                 else {
                     if (currentSection)
                         m_unusedVariables = true;
-                    writeSectionData(QString("%1 %2\n").arg(trimmedLine).arg(UNUSED_VARIABLE_COMMENT));
+                    writeSectionData(QStringLiteral("%1 %2\n").arg(trimmedLine).arg(QStringLiteral(UNUSED_VARIABLE_COMMENT)));
                 }
             }
 
             // section start
-            else if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
+            else if (trimmedLine.startsWith(QLatin1Char('[')) && trimmedLine.endsWith(QLatin1Char(']'))) {
                 QString name = trimmedLine.mid(1, trimmedLine.length() - 2);
                 if (m_sections.contains(name)) {
                     currentSection = m_sections[name];
@@ -270,7 +270,7 @@ namespace SDDM {
 
             // other stuff, like comments and whatnot
             else {
-                if (line != UNUSED_SECTION_COMMENT)
+                if (line != QStringLiteral(UNUSED_SECTION_COMMENT))
                     collectJunk(line);
             }
         }
@@ -281,7 +281,7 @@ namespace SDDM {
             currentSection = it.key();
             if (!sectionOrder.contains(currentSection))
                 writeSectionData(currentSection->toConfigShort());
-            writeSectionData("\n");
+            writeSectionData(QStringLiteral("\n"));
             writeSectionData(it.value()->toConfigFull());
         }
 

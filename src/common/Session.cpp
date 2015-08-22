@@ -86,7 +86,7 @@ namespace SDDM {
 
     QString Session::desktopSession() const
     {
-        return fileName().replace(s_entryExtention, QStringLiteral(""));
+        return fileName().replace(s_entryExtention, QString());
     }
 
     QString Session::desktopNames() const
@@ -132,20 +132,20 @@ namespace SDDM {
         while (!in.atEnd()) {
             QString line = in.readLine();
 
-            if (line.startsWith("Name=")) {
+            if (line.startsWith(QStringLiteral("Name="))) {
                 if (type == WaylandSession)
                     m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
                 else
                     m_displayName = line.mid(5);
             }
-            if (line.startsWith("Comment="))
+            if (line.startsWith(QStringLiteral("Comment=")))
                 m_comment = line.mid(8);
-            if (line.startsWith("Exec="))
+            if (line.startsWith(QStringLiteral("Exec=")))
                 m_exec = line.mid(5);
-            if (line.startsWith("TryExec="))
+            if (line.startsWith(QStringLiteral("TryExec=")))
                 m_tryExec = line.mid(8);
-            if (line.startsWith("DesktopNames="))
-                m_desktopNames = line.mid(13).replace(';', ':');
+            if (line.startsWith(QStringLiteral("DesktopNames=")))
+                m_desktopNames = line.mid(13).replace(QLatin1Char(';'), QLatin1Char(':'));
         }
 
         file.close();

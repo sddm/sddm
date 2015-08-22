@@ -40,7 +40,7 @@
 #define Config(name, file, ...) \
     class name : public SDDM::ConfigBase, public SDDM::ConfigSection { \
     public: \
-        name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, IMPLICIT_SECTION) { \
+        name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, QStringLiteral(IMPLICIT_SECTION)) { \
             load(); \
         } \
         void save() { SDDM::ConfigBase::save(nullptr, nullptr); } \
@@ -52,14 +52,14 @@
     }
 // entry wrapper
 #define Entry(name, type, default, description) \
-    SDDM::ConfigEntry<type> name { this, #name, (default), (description) }
+    SDDM::ConfigEntry<type> name { this, QStringLiteral(#name), (default), (description) }
 // section wrapper
 #define Section(name, ...) \
     class name : public SDDM::ConfigSection { \
     public: \
         name (SDDM::ConfigBase *_parent, const QString &_name) : SDDM::ConfigSection(_parent, _name) { } \
         __VA_ARGS__ \
-    } name { this, #name };
+    } name { this, QStringLiteral(#name) };
 
 QTextStream &operator>>(QTextStream &str, QStringList &list);
 QTextStream &operator<<(QTextStream &str, const QStringList &list);
@@ -153,14 +153,14 @@ namespace SDDM {
         }
 
         QString toConfigShort() const {
-            return QString("%1=%2").arg(m_name).arg(value());
+            return QStringLiteral("%1=%2").arg(m_name).arg(value());
         }
 
         QString toConfigFull() const {
             QString str;
-            for (const QString &line : m_description.split('\n'))
-                str.append(QString("# %1\n").arg(line));
-            str.append(QString("%1=%2\n\n").arg(m_name).arg(value()));
+            for (const QString &line : m_description.split(QLatin1Char('\n')))
+                str.append(QStringLiteral("# %1\n").arg(line));
+            str.append(QStringLiteral("%1=%2\n\n").arg(m_name).arg(value()));
             return str;
         }
     private:

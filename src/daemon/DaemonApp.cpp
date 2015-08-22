@@ -47,7 +47,7 @@ namespace SDDM {
         qDebug() << "Initializing...";
 
         // set testing parameter
-        m_testing = (arguments().indexOf("--test-mode") != -1);
+        m_testing = (arguments().indexOf(QStringLiteral("--test-mode")) != -1);
 
         // create display manager
         m_displayManager = new DisplayManager(this);
@@ -77,7 +77,7 @@ namespace SDDM {
         qDebug() << "Starting...";
 
         // add a seat
-        m_seatManager->createSeat("seat0");
+        m_seatManager->createSeat(QStringLiteral("seat0"));
     }
 
     bool DaemonApp::testing() const {
@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     QStringList arguments;
 
     for (int i = 0; i < argc; i++)
-        arguments << argv[i];
+        arguments << QString::fromLocal8Bit(argv[i]);
 
     if (arguments.contains(QStringLiteral("--help")) || arguments.contains(QStringLiteral("-h"))) {
         std::cout << "Usage: sddm [options]\n"
@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
     }
 
     // spit a complete config file on stdout and quit on demand
-    if (arguments.contains("--example-config")) {
+    if (arguments.contains(QStringLiteral("--example-config"))) {
         QTextStream(stdout) << SDDM::mainConfig.toConfigFull();
         return EXIT_SUCCESS;
     }
