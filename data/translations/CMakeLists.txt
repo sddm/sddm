@@ -11,6 +11,7 @@ set(TRANSLATION_FILES
     ja.ts
     ko.ts
     lt.ts
+    lv.ts
     pl.ts
     pt_BR.ts
     pt_PT.ts
