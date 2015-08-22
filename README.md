@@ -77,3 +77,16 @@ if [ -e /sbin/prime-offload ]; then
     /sbin/prime-offload
 fi
 ```
+
+### No User Icon
+
+SDDM reads user icon from either ~/.face.icon or FacesDir/username.face.icon
+
+You need to make sure that SDDM user have permissions to read those files.
+In case you don't want to allow other users to access your $HOME you can use
+ACLs if your filesystem does support it.
+
+```sh
+setfacl -m u:sddm:x /home/username
+setfacl -m u:sddm:r /home/username/.face.icon
+```
