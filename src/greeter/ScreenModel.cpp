@@ -128,7 +128,7 @@ namespace SDDM {
             if (screen->virtualGeometry() == primaryScreen->geometry() && screen != primaryScreen)
                 continue;
             // add to the screens list
-            d->screens << ScreenPtr { new Screen { QString("Screen %1").arg(i + 1), screen->geometry() } };
+            d->screens << ScreenPtr { new Screen { QStringLiteral("Screen %1").arg(i + 1), screen->geometry() } };
             // extend available geometry
             d->geometry = d->geometry.united(screen->geometry());
             // check if primary

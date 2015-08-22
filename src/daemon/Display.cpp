@@ -203,7 +203,7 @@ namespace SDDM {
 
         //the SDDM user has special priveledges that skip password checking so that we can load the greeter
         //block ever trying to log in as the SDDM user
-        if (user == "sddm") {
+        if (user == QStringLiteral("sddm")) {
             return;
         }
 
@@ -231,7 +231,7 @@ namespace SDDM {
         QString fileName = name;
 
         // append extension
-        if (!fileName.endsWith(".desktop"))
+        if (!fileName.endsWith(QStringLiteral(".desktop")))
             fileName += QStringLiteral(".desktop");
 
         return dir.exists(fileName);
@@ -269,18 +269,18 @@ namespace SDDM {
         }
 
         QProcessEnvironment env;
-        env.insert("PATH", mainConfig.Users.DefaultPath.get());
+        env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         if (session.xdgSessionType() == QStringLiteral("x11"))
-            env.insert("DISPLAY", name());
-        env.insert("XDG_SEAT", seat()->name());
-        env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat()->name()));
-        env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(QString("Session%1").arg(daemonApp->newSessionId())));
-        env.insert("XDG_VTNR", QString::number(vt));
-        env.insert("DESKTOP_SESSION", session.desktopSession());
-        env.insert("XDG_CURRENT_DESKTOP", session.desktopNames());
-        env.insert("XDG_SESSION_CLASS", "user");
-        env.insert("XDG_SESSION_TYPE", session.xdgSessionType());
-        env.insert("XDG_SESSION_DESKTOP", session.desktopNames());
+            env.insert(QStringLiteral("DISPLAY"), name());
+        env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
+        env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(seat()->name()));
+        env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
+        env.insert(QStringLiteral("XDG_VTNR"), QString::number(vt));
+        env.insert(QStringLiteral("DESKTOP_SESSION"), session.desktopSession());
+        env.insert(QStringLiteral("XDG_CURRENT_DESKTOP"), session.desktopNames());
+        env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("user"));
+        env.insert(QStringLiteral("XDG_SESSION_TYPE"), session.xdgSessionType());
+        env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
         m_auth->insertEnvironment(env);
 
         m_auth->setUser(user);

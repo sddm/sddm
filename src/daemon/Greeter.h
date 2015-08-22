@@ -59,9 +59,9 @@ namespace SDDM {
         bool m_started { false };
 
         Display *m_display { nullptr };
-        QString m_authPath { "" };
-        QString m_socket { "" };
-        QString m_theme { "" };
+        QString m_authPath;
+        QString m_socket;
+        QString m_theme;
 
         Auth *m_auth { nullptr };
         QProcess *m_process { nullptr };

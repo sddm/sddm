@@ -73,12 +73,12 @@ namespace SDDM {
             QDBusReply<bool> reply;
 
             // suspend
-            reply = m_interface->call("SuspendAllowed");
+            reply = m_interface->call(QStringLiteral("SuspendAllowed"));
             if (reply.isValid() && reply.value())
                 caps |= Capability::Suspend;
 
             // hibernate
-            reply = m_interface->call("HibernateAllowed");
+            reply = m_interface->call(QStringLiteral("HibernateAllowed"));
             if (reply.isValid() && reply.value())
                 caps |= Capability::Hibernate;
 
@@ -95,11 +95,11 @@ namespace SDDM {
         }
 
         void suspend() const {
-            m_interface->call("Suspend");
+            m_interface->call(QStringLiteral("Suspend"));
         }
 
         void hibernate() const {
-            m_interface->call("Hibernate");
+            m_interface->call(QStringLiteral("Hibernate"));
         }
 
         void hybridSleep() const {
@@ -137,28 +137,28 @@ namespace SDDM {
             QDBusReply<QString> reply;
 
             // power off
-            reply = m_interface->call("CanPowerOff");
-            if (reply.isValid() && (reply.value() == "yes"))
+            reply = m_interface->call(QStringLiteral("CanPowerOff"));
+            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
                 caps |= Capability::PowerOff;
 
             // reboot
-            reply = m_interface->call("CanReboot");
-            if (reply.isValid() && (reply.value() == "yes"))
+            reply = m_interface->call(QStringLiteral("CanReboot"));
+            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
                 caps |= Capability::Reboot;
 
             // suspend
-            reply = m_interface->call("CanSuspend");
-            if (reply.isValid() && (reply.value() == "yes"))
+            reply = m_interface->call(QStringLiteral("CanSuspend"));
+            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
                 caps |= Capability::Suspend;
 
             // hibernate
-            reply = m_interface->call("CanHibernate");
-            if (reply.isValid() && (reply.value() == "yes"))
+            reply = m_interface->call(QStringLiteral("CanHibernate"));
+            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
                 caps |= Capability::Hibernate;
 
             // hybrid sleep
-            reply = m_interface->call("CanHybridSleep");
-            if (reply.isValid() && (reply.value() == "yes"))
+            reply = m_interface->call(QStringLiteral("CanHybridSleep"));
+            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
                 caps |= Capability::HybridSleep;
 
             // return capabilities
@@ -166,24 +166,24 @@ namespace SDDM {
         }
 
         void powerOff() const {
-            m_interface->call("PowerOff", true);
+            m_interface->call(QStringLiteral("PowerOff"), true);
         }
 
         void reboot() const {
             if (!daemonApp->testing())
-                m_interface->call("Reboot", true);
+                m_interface->call(QStringLiteral("Reboot"), true);
         }
 
         void suspend() const {
-            m_interface->call("Suspend", true);
+            m_interface->call(QStringLiteral("Suspend"), true);
         }
 
         void hibernate() const {
-            m_interface->call("Hibernate", true);
+            m_interface->call(QStringLiteral("Hibernate"), true);
         }
 
         void hybridSleep() const {
-            m_interface->call("HybridSleep", true);
+            m_interface->call(QStringLiteral("HybridSleep"), true);
         }
 
     private:

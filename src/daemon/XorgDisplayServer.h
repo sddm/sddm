@@ -49,8 +49,8 @@ namespace SDDM {
         void setupDisplay();
 
     private:
-        QString m_authPath { "" };
-        QString m_cookie { "" };
+        QString m_authPath;
+        QString m_cookie;
 
         QProcess *process { nullptr };
 

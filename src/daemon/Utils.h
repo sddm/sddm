@@ -26,7 +26,7 @@
 namespace SDDM {
 
 inline QString generateName(int length) {
-    QString digits = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    QString digits = QStringLiteral("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
     // reserve space for name
     QString name;

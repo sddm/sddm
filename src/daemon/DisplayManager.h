@@ -91,8 +91,8 @@ namespace SDDM {
         ObjectPathList Sessions();
 
     private:
-        QString m_name { "" };
-        QString m_path { "" };
+        QString m_name;
+        QString m_path;
     };
 
     /***************************************************************************
@@ -116,10 +116,10 @@ namespace SDDM {
         ObjectPath SeatPath() const;
 
     private:
-        QString m_name { "" };
-        QString m_path { "" };
-        QString m_seat { "" };
-        QString m_user { "" };
+        QString m_name;
+        QString m_path;
+        QString m_seat;
+        QString m_user;
     };
 }
 

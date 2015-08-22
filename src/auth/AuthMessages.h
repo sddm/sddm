@@ -160,7 +160,7 @@ namespace SDDM {
         QStringList l;
         s >> l;
         for (QString s : l) {
-            int pos = s.indexOf('=');
+            int pos = s.indexOf(QLatin1Char('='));
             m.insert(s.left(pos), s.mid(pos + 1));
         }
         return s;

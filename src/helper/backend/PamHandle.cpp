@@ -45,10 +45,10 @@ namespace SDDM {
 
         // copy it to the env map
         for (int i = 0; envlist[i] != nullptr; ++i) {
-            QString s(envlist[i]);
+            QString s = QString::fromLocal8Bit(envlist[i]);
 
             // find equal sign
-            int index = s.indexOf('=');
+            int index = s.indexOf(QLatin1Char('='));
 
             // add to the hash
             if (index != -1)
@@ -169,7 +169,7 @@ namespace SDDM {
     }
 
     QString PamHandle::errorString() {
-        return pam_strerror(m_handle, m_result);
+        return QString::fromLocal8Bit(pam_strerror(m_handle, m_result));
     }
 
     PamHandle::PamHandle(PamBackend *parent) {

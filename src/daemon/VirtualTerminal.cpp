@@ -142,7 +142,7 @@ out:
 
             int activeVtFd = open("/dev/tty0", O_RDWR | O_NOCTTY);
 
-            QString ttyString = QString("/dev/tty%1").arg(vt);
+            QString ttyString = QStringLiteral("/dev/tty%1").arg(vt);
             int vtFd = open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
             if (vtFd != -1) {
                 fd = vtFd;

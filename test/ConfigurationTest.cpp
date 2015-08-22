@@ -52,10 +52,10 @@ void ConfigurationTest::Basic() {
     QVERIFY(config->Boolean.get() == TEST_BOOL_1);
     config->save();
     QVERIFY(!QFile::exists(CONF_FILE));
-    config->String.set(config->String.get().append(" Appended"));
+    config->String.set(config->String.get().append(QStringLiteral(" Appended")));
     config->save();
     QVERIFY(QFile::exists(CONF_FILE));
-    config->String.set(config->String.get().append(" Appended Again"));
+    config->String.set(config->String.get().append(QStringLiteral(" Appended Again")));
     config->save();
     QVERIFY(QFile::exists(CONF_FILE));
 }
@@ -67,10 +67,10 @@ void ConfigurationTest::Sections() {
     QVERIFY(config->Section.Boolean.get() == TEST_BOOL_1);
     config->save();
     QVERIFY(!QFile::exists(CONF_FILE));
-    config->Section.String.set(config->Section.String.get().append(" Appended"));
+    config->Section.String.set(config->Section.String.get().append(QStringLiteral(" Appended")));
     config->save();
     QVERIFY(QFile::exists(CONF_FILE));
-    config->Section.String.set(config->Section.String.get().append(" Appended Again"));
+    config->Section.String.set(config->Section.String.get().append(QStringLiteral(" Appended Again")));
     config->save();
     QVERIFY(QFile::exists(CONF_FILE));
 }
@@ -85,8 +85,8 @@ void ConfigurationTest::Unused() {
     confFile.write("BadSectionValue=0\n");
     confFile.close();
     config->load();
-    config->String.set("Changed String");
-    config->Section.String.set("Changed String");
+    config->String.set(QStringLiteral("Changed String"));
+    config->Section.String.set(QStringLiteral("Changed String"));
     config->save();
     QFile::copy(CONF_FILE, CONF_FILE_COPY);
     config->load();
@@ -145,16 +145,16 @@ void ConfigurationTest::RightOnInit() {
     confFile.write("Custom=null\n");
     confFile.close();
     config = new TestConfig;
-    QVERIFY(config->String.get() == "a");
+    QVERIFY(config->String.get() == QStringLiteral("a"));
     QVERIFY(config->Int.get() == 99999);
-    QVERIFY(config->StringList.get() == QStringList({"a", "b", "c", "qwertzuiop"}));
+    QVERIFY(config->StringList.get() == QStringList({QStringLiteral("a"), QStringLiteral("b"), QStringLiteral("c"), QStringLiteral("qwertzuiop")}));
     QVERIFY(config->Boolean.get() == false);
     QVERIFY(config->Custom.get() == TestConfig::BAZ);
 }
 
 void ConfigurationTest::FileChanged()
 {
-    QVERIFY(config->String.get() == "Test Variable Initial String");
+    QVERIFY(config->String.get() == QStringLiteral("Test Variable Initial String"));
 
     //test from no file to a file
     QFile confFile(CONF_FILE);
@@ -163,7 +163,7 @@ void ConfigurationTest::FileChanged()
     confFile.close();
 
     config->load();
-    QVERIFY(config->String.get() == "a");
+    QVERIFY(config->String.get() == QStringLiteral("a"));
 
     //test file changed
     //wait 2 seconds so timestamp is definitely 1 second apart
@@ -174,7 +174,7 @@ void ConfigurationTest::FileChanged()
     confFile.close();
 
     config->load();
-    QVERIFY(config->String.get() == "b");
+    QVERIFY(config->String.get() == QStringLiteral("b"));
 }
 
 

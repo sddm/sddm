@@ -26,7 +26,7 @@
 namespace SDDM {
     ThemeConfig::ThemeConfig(const QString &path) {
         QSettings settings(path, QSettings::IniFormat);
-        QSettings userSettings(path + ".user", QSettings::IniFormat);
+        QSettings userSettings(path + QStringLiteral(".user"), QSettings::IniFormat);
 
         // read default keys
         for (const QString &key: settings.allKeys()) {
@@ -41,8 +41,8 @@ namespace SDDM {
 
         //if the main config contains a background, save this to a new config value
         //to themes can use it if the user set config background cannot be loaded
-        if (settings.contains("background")) {
-            insert("defaultBackground", settings.value("background"));
+        if (settings.contains(QStringLiteral("background"))) {
+            insert(QStringLiteral("defaultBackground"), settings.value(QStringLiteral("background")));
         }
     }
 }

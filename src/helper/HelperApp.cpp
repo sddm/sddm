@@ -50,7 +50,7 @@ namespace SDDM {
         QString server;
         int pos;
 
-        if ((pos = args.indexOf("--socket")) >= 0) {
+        if ((pos = args.indexOf(QStringLiteral("--socket"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
                 exit(Auth::HELPER_OTHER_ERROR);
@@ -59,7 +59,7 @@ namespace SDDM {
             server = args[pos + 1];
         }
 
-        if ((pos = args.indexOf("--id")) >= 0) {
+        if ((pos = args.indexOf(QStringLiteral("--id"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
                 exit(Auth::HELPER_OTHER_ERROR);
@@ -68,7 +68,7 @@ namespace SDDM {
             m_id = QString(args[pos + 1]).toLongLong();
         }
 
-        if ((pos = args.indexOf("--start")) >= 0) {
+        if ((pos = args.indexOf(QStringLiteral("--start"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
                 exit(Auth::HELPER_OTHER_ERROR);
@@ -77,7 +77,7 @@ namespace SDDM {
             m_session->setPath(args[pos + 1]);
         }
 
-        if ((pos = args.indexOf("--user")) >= 0) {
+        if ((pos = args.indexOf(QStringLiteral("--user"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
                 exit(Auth::HELPER_OTHER_ERROR);
@@ -86,11 +86,11 @@ namespace SDDM {
             m_user = args[pos + 1];
         }
 
-        if ((pos = args.indexOf("--autologin")) >= 0) {
+        if ((pos = args.indexOf(QStringLiteral("--autologin"))) >= 0) {
             m_backend->setAutologin(true);
         }
 
-        if ((pos = args.indexOf("--greeter")) >= 0) {
+        if ((pos = args.indexOf(QStringLiteral("--greeter"))) >= 0) {
             m_backend->setGreeter(true);
         }
 
@@ -113,13 +113,13 @@ namespace SDDM {
             qCritical() << "Couldn't write initial message:" << str.status();
 
         if (!m_backend->start(m_user)) {
-            authenticated(QString(""));
+            authenticated(QString());
             exit(Auth::HELPER_AUTH_ERROR);
             return;
         }
 
         if (!m_backend->authenticate()) {
-            authenticated(QString(""));
+            authenticated(QString());
             exit(Auth::HELPER_AUTH_ERROR);
             return;
         }

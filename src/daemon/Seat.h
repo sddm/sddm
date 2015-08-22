@@ -41,7 +41,7 @@ namespace SDDM {
         void displayStopped();
 
     private:
-        QString m_name { "" };
+        QString m_name;
 
         QList<Display *> m_displays;
         QList<int> m_terminalIds;
