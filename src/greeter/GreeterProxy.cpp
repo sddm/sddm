@@ -50,10 +50,15 @@ namespace SDDM {
 
         // connect to server
         d->socket->connectToServer(socket);
+		
+		// Init. external keyboard process variable
+		process_extKeyboard = 0;
     }
 
     GreeterProxy::~GreeterProxy() {
         delete d;
+		
+		kill_process_extKeyboard();
     }
 
     const QString &GreeterProxy::hostName() const {
@@ -211,4 +216,39 @@ namespace SDDM {
             }
         }
     }
+	
+	void GreeterProxy::kill_process_extKeyboard() {
+		if(process_extKeyboard) {
+			disconnect(process_extKeyboard, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(extKeyboard_finished(int, QProcess::ExitStatus)));
+			// send terminate signal firstly
+			process_extKeyboard->terminate();
+			if(!process_extKeyboard->waitForFinished()) {
+				// cannot terminate the process, kill it...
+				process_extKeyboard->kill();
+			}
+			delete process_extKeyboard;
+			process_extKeyboard = 0;
+		}
+	}
+	
+	void GreeterProxy::extKeyboard_finished(int exitCode, QProcess::ExitStatus existStatus) {
+	    delete process_extKeyboard;
+		process_extKeyboard = 0;
+	}
+	
+	void GreeterProxy::showExtKeyboard() {
+	    kill_process_extKeyboard();
+		
+		QString prog = mainConfig.Theme.ExtKeyboard.get();
+		if(!prog.isNull() && !prog.isEmpty()) {
+			process_extKeyboard = new QProcess;
+			connect(process_extKeyboard, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(extKeyboard_finished(int, QProcess::ExitStatus)));
+			// extract command and arguments
+			QStringList arg_list = prog.split(" ");
+			QString cmd = arg_list.at(0);
+			arg_list.removeFirst();
+			qDebug() << "ExtKeyboard command: " << cmd << " arg: " << arg_list;
+			process_extKeyboard->start(cmd, arg_list);
+		}		
+	}
 }

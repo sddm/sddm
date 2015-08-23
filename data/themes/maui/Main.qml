@@ -256,7 +256,19 @@ Rectangle {
 
                     onClicked: sddm.powerOff()
 
-                    KeyNavigation.backtab: btnReboot; KeyNavigation.tab: prevUser
+                    KeyNavigation.backtab: btnReboot; KeyNavigation.tab: btnOSK
+                }
+				
+				Button {
+                    id: btnOSK
+                    height: parent.height
+                    text: "OSK"
+
+                    visible: true
+
+                    onClicked: sddm.showExtKeyboard()
+
+                    KeyNavigation.backtab: btnShutdown; KeyNavigation.tab: prevUser
                 }
             }
         }
