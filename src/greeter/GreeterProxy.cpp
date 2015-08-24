@@ -244,7 +244,7 @@ namespace SDDM {
 			process_extKeyboard = new QProcess;
 			connect(process_extKeyboard, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(extKeyboard_finished(int, QProcess::ExitStatus)));
 			// extract command and arguments
-			QStringList arg_list = prog.split(" ");
+			QStringList arg_list = prog.split(QChar::Space);
 			QString cmd = arg_list.at(0);
 			arg_list.removeFirst();
 			qDebug() << "ExtKeyboard command: " << cmd << " arg: " << arg_list;

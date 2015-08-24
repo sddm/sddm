@@ -21,6 +21,7 @@
 #define SDDM_GREETERPROXY_H
 
 #include <QObject>
+#include <QProcess>
 
 class QLocalSocket;
 
