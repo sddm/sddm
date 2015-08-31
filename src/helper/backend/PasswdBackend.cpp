@@ -74,7 +74,7 @@ namespace SDDM {
 
         struct spwd *spw = getspnam(pw->pw_name);
         if (!spw) {
-            qWarning() << "[Passwd] Could get passwd but not shadow";
+            qWarning() << QStringLiteral("[Passwd] Could get passwd but not shadow");
             return false;
         }
 
