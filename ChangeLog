@@ -4,7 +4,7 @@
     - Bug fixes
     * Others
 
-## 0.12.0 - XXXX-XX-XX
+## 0.12.0 - 2015-09-05
 ----------------------
     * Add a new "platformTheme" setting for themes.
       Themes can now specify a Qt platform theme plugin.
@@ -26,8 +26,11 @@
     * Honor TryExec in Xsession desktop files.
     * New sddm.conf option XephyrPath.
     * New sddm.conf option ServerArguments.
+    * New sddm.conf option DisplayStopCommand.
+    * Enable QT_NO_CAST_FROM_ASCII.
     * Replace non-free background with a CC-BY-SA alternative for
       the maldives theme.
+    * Many untracked bug fixes.
 
 ## 0.11.0 - 2014-11-20
 ----------------------
