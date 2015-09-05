@@ -92,7 +92,7 @@ OPTIONS
 
 `DisplayStopCommand=`
 	Path of script to execute when stopping the display server.
-	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
+	Default value is "@DATA_INSTALL_DIR@/scripts/Xstop".
 
 `MinimumVT=`
 	Minimum virtual terminal number that will be used
