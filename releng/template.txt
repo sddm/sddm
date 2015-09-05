@@ -1,0 +1,41 @@
+The SDDM team is proud to announce the release ${next} of SDDM,
+the Simple Desktop Display Manager.
+
+SDDM is made possible thanks to the collaborative work of the [Hawaii](http://hawaiios.org),
+[KDE](https://www.kde.org) and [LXDE](http://lxqt.org) projects, as well as the help and contributions from dozens
+of other developers.
+
+[INSERT HIGHLIGHTS HERE]
+
+Release notes:
+ * [LABEL: ITEM1]
+ * [LABEL: ITEM1]
+
+[Legend of previously used labels:
+- BACKWARDS-INCOMPATIBLE: means a change that breaks a previous behavior
+- LICENSING: licensing changes
+- WAYLAND: Wayland support
+- CONFIG: Changes to the configuration file
+- THEMES: Changes or improvements to themes
+- BUILD: Build issue fixes
+- I18N: Internationalization
+]
+
+The list of changes is also available in our CHANGELOG file:
+  https://github.com/sddm/sddm/blob/v${next}/ChangeLog
+
+The SDDM team is working very hard towards SDDM 1.0.0.
+Want to help us? Want to join us? Found any bugs?
+Please file bug reports and pull requests on our Github tracker:
+  https://github.com/sddm/sddm/issues
+
+The ${next} sources are hosted on GitHub, release tag is [here](https://github.com/sddm/sddm/releases/tag/v${next}).
+Please see the "INSTALL" file for build instructions.
+
+We would like to thank the following developers for their contributions to this release:
+
+${contributors}
+
+Commits list:
+
+${logs}
