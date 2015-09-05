@@ -38,7 +38,7 @@ namespace SDDM {
         if (m_autologin)
             return true;
 
-        if (m_user == "sddm") {
+        if (m_user == QLatin1String("sddm")) {
             if (m_greeter)
                 return true;
             else
@@ -49,17 +49,17 @@ namespace SDDM {
         QString password;
 
         if (m_user.isEmpty())
-            r.prompts << Prompt(AuthPrompt::LOGIN_USER, "Login", false);
-        r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, "Password", true);
+            r.prompts << Prompt(AuthPrompt::LOGIN_USER, QStringLiteral("Login"), false);
+        r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, QStringLiteral("Password"), true);
 
         Request response = m_app->request(r);
         Q_FOREACH(const Prompt &p, response.prompts) {
             switch (p.type) {
                 case AuthPrompt::LOGIN_USER:
-                    m_user = p.response;
+                    m_user = QString::fromUtf8(p.response);
                     break;
                 case AuthPrompt::LOGIN_PASSWORD:
-                    password = p.response;
+                    password = QString::fromUtf8(p.response);
                     break;
                 default:
                     break;
@@ -68,7 +68,7 @@ namespace SDDM {
 
         struct passwd *pw = getpwnam(qPrintable(m_user));
         if (!pw) {
-            m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
+            m_app->error(QStringLiteral("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
             return false;
         }
 
@@ -86,7 +86,7 @@ namespace SDDM {
             return true;
         }
 
-        m_app->error(QString("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
+        m_app->error(QStringLiteral("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
         return false;
     }
 
