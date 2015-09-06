@@ -17,7 +17,6 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-
 #ifndef KEYBOARDMODEL_H
 #define KEYBOARDMODEL_H
 
@@ -25,9 +24,7 @@
 #include <QObject>
 #include <QString>
 
-
 namespace SDDM {
-
     class KeyboardModelPrivate;
     class KeyboardBackend;
 
