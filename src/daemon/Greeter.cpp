@@ -128,7 +128,11 @@ namespace SDDM {
             insertEnvironmentList({QStringLiteral("LANG"), QStringLiteral("LANGUAGE"),
                                    QStringLiteral("LC_CTYPE"), QStringLiteral("LC_NUMERIC"), QStringLiteral("LC_TIME"), QStringLiteral("LC_COLLATE"),
                                    QStringLiteral("LC_MONETARY"), QStringLiteral("LC_MESSAGES"), QStringLiteral("LC_PAPER"), QStringLiteral("LC_NAME"),
-                                   QStringLiteral("LC_ADDRESS"), QStringLiteral("LC_TELEPHONE"), QStringLiteral("LC_MEASUREMENT"), QStringLiteral("LC_IDENTIFICATION")
+                                   QStringLiteral("LC_ADDRESS"), QStringLiteral("LC_TELEPHONE"), QStringLiteral("LC_MEASUREMENT"), QStringLiteral("LC_IDENTIFICATION"),
+                                   QStringLiteral("LD_LIBRARY_PATH"),
+                                   QStringLiteral("QML2_IMPORT_PATH"),
+                                   QStringLiteral("QT_PLUGIN_PATH"),
+                                   QStringLiteral("XDG_DATA_DIRS")
             }, sysenv, env);
 
             env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
