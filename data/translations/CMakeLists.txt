@@ -19,6 +19,7 @@ set(TRANSLATION_FILES
     ru.ts
     tr.ts
     zh_CN.ts
+    zh_TW.ts
 )
 
 qt5_add_translation(QM_FILES ${TRANSLATION_FILES})
