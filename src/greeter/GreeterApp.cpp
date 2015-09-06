@@ -28,6 +28,7 @@
 #include "ThemeMetadata.h"
 #include "UserModel.h"
 #include "KeyboardModel.h"
+#include "PowerModel.h"
 
 #include "MessageHandler.h"
 
@@ -37,6 +38,7 @@
 #include <QQmlEngine>
 #include <QDebug>
 #include <QTranslator>
+#include <QtQml>
 
 #include <iostream>
 
@@ -182,6 +184,9 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("config"), *m_themeConfig);
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
+
+        // register instantiable types
+        qmlRegisterType<PowerModel>("SddmComponents", 2, 0, "PowerModel");
 
         // get theme main script
         QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());

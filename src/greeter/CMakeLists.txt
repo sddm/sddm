@@ -14,11 +14,12 @@ set(GREETER_SOURCES
     ThemeConfig.cpp
     ThemeMetadata.cpp
     UserModel.cpp
+    PowerModel.cpp
 )
 
 add_executable(sddm-greeter ${GREETER_SOURCES})
 target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
-qt5_use_modules(sddm-greeter Quick)
+qt5_use_modules(sddm-greeter Quick DBus)
 
 if(JOURNALD_FOUND)
     target_link_libraries(sddm-greeter ${JOURNALD_LIBRARIES})
