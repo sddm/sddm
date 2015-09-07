@@ -1,11 +1,12 @@
 language: cpp
 
 compiler:
+  - clang
   - gcc
 
 before_install:
   - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-  - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
+  #- if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/gcc-upper; sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
   - sudo add-apt-repository -y ppa:beineri/opt-qt541
   - sudo apt-get update -y
 
@@ -16,8 +17,8 @@ install:
   - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" == "g++" ]; then export CXX="g++-4.8"; fi
   # clang
-  - if [ "$CXX" == "clang++" ]; then sudo apt-get install --allow-unauthenticated -qq clang-3.4; fi
-  - if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.4"; fi
+  #- if [ "$CXX" == "clang++" ]; then sudo apt-get install -qq clang-3.6; fi
+  #- if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.6"; fi
   # qt
   - sudo apt-get update
   - sudo apt-get -y install qt54declarative qt54tools
