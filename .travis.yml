@@ -6,7 +6,6 @@ compiler:
 before_install:
   - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
-  - sudo add-apt-repository ppa:czchen/travis-ci -y
   - sudo add-apt-repository -y ppa:beineri/opt-qt541
   - sudo apt-get update -y
 
