@@ -16,6 +16,10 @@ set(TRANSLATION_FILES
     pt_BR.ts
     pt_PT.ts
     ro.ts
+    sr.ts
+    sr@ijekavian.ts
+    sr@ijekavianlatin.ts
+    sr@latin.ts
     ru.ts
     tr.ts
     zh_CN.ts
