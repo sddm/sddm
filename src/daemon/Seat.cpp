@@ -66,12 +66,12 @@ namespace SDDM {
         }
 
 #if HAVE_PLYMOUTH
-        if (Plymouth::isRunning() && Plymouth::hasActiveVt()) {
-            if (terminalId >= mainConfig.XDisplay.MinimumVT.get())
-                Plymouth::prepareForTransition();
+        terminalId = 2;
+        if (terminalId >= mainConfig.XDisplay.MinimumVT.get()) {
+            Plymouth::prepareForTransition();
+        } else {
+            Plymouth::log(QString::fromUtf8("Plymouth is already running on tty2!"));
         }
-        if (Plymouth::isRunning())
-            Plymouth::quitWithoutTransition();
 #endif
 
         // mark terminal as used
@@ -87,7 +87,7 @@ namespace SDDM {
         connect(display, SIGNAL(stopped()), this, SLOT(displayStopped()));
 #if HAVE_PLYMOUTH
         connect(display, &Display::started, [this]() {
-                    Plymouth::quitWithTransition();
+                    Plymouth::quitWithoutTransition();
                 });
 #endif
 
@@ -128,8 +128,7 @@ namespace SDDM {
             createDisplay();
 
 #if HAVE_PLYMOUTH
-        if (Plymouth::isRunning())
-            Plymouth::quitWithoutTransition();
+        Plymouth::quitWithTransition();
 #endif
     }
 }

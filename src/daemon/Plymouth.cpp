@@ -23,8 +23,14 @@
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
+#include <QDate>
 
-static const QString plymouthBin = "/bin/plymouth";
+static bool m_havePinged = false;
+static bool m_haveCheckedActiveVt = false;
+static bool m_isRunning = false;
+static bool m_isActive = false;
+static bool m_hasActiveVt = false;
+static const QString plymouthBin = QString::fromUtf8("plymouth");
 
 Plymouth::Plymouth(QObject *parent)
   : QObject(parent) 
@@ -37,44 +43,58 @@ Plymouth::~Plymouth()
 
 void Plymouth::log(QString str)
 {
-    QFile file("/tmp/sddm-plymouth.log");
+    QFile file(QString::fromUtf8("/var/log/sddm-plymouth.log"));
     if (file.open(QIODevice::Append | QIODevice::Text)) {
         QTextStream out(&file);
-        out << str << "\n";
+        out << QDateTime::currentDateTime().toString(Qt::ISODate) + 
+            QString::fromUtf8(" ") + str << "\n";
         file.close();
     }
 }
 
 bool Plymouth::isRunning() 
 {
-    Process p;
-    p.setProgram(plymouthBin);
-    p.setArguments(QStringList() << QString("--ping"));
-    connect(&p, &Process::finished, [=](int exitCode) {
+    if (!m_havePinged) {
+        m_havePinged = true;
+        Process p;
+        p.setProgram(plymouthBin);
+        p.setArguments(QStringList() << QString::fromUtf8("--ping"));
+        connect(&p, &Process::finished, [=](int exitCode) {
                 log(__PRETTY_FUNCTION__);
-                return WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
+				m_isRunning = WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
+                m_isActive = m_isRunning;
             });
-    p.start();
+        p.start();
+    }
 
-    return false;
+    return m_isRunning;
+}
+
+bool Plymouth::isActive() 
+{
+    return isRunning() && m_isActive;
 }
 
 bool Plymouth::hasActiveVt()
 {
-    Process p;
-    p.setProgram(plymouthBin);
-    p.setArguments(QStringList() << QString("--has-active-vt"));
-    connect(&p, &Process::finished, [=](int exitCode) {
+    if (!m_haveCheckedActiveVt) {
+        m_haveCheckedActiveVt = true;
+        Process p;
+        p.setProgram(plymouthBin);
+        p.setArguments(QStringList() << QString::fromUtf8("--has-active-vt"));
+        connect(&p, &Process::finished, [=](int exitCode) {
                 log(__PRETTY_FUNCTION__);
-                return WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
+				m_hasActiveVt = WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
             });
-    p.start();
+        p.start();
+    }
 
-    return false;
+    return m_hasActiveVt;
 }
 
 void Plymouth::prepareForTransition() 
 {
+    log(QString::fromUtf8(__PRETTY_FUNCTION__));
     Process p;
     p.setProgram(plymouthBin);
     p.setArguments(QStringList() << QString("deactivate"));
@@ -83,6 +103,7 @@ void Plymouth::prepareForTransition()
 
 void Plymouth::quitWithoutTransition() 
 {
+    log(QString::fromUtf8(__PRETTY_FUNCTION__));
     Process p;
     p.setProgram(plymouthBin);
     p.setArguments(QStringList() << QString("quit"));
@@ -91,6 +112,7 @@ void Plymouth::quitWithoutTransition()
 
 void Plymouth::quitWithTransition() 
 {
+    log(QString::fromUtf8(__PRETTY_FUNCTION__));
     Process p;
     p.setProgram(plymouthBin);
     p.setArguments(QStringList() << QString("quit") << QString("--retain-splash"));

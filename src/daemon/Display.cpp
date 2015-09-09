@@ -101,6 +101,8 @@ namespace SDDM {
 
         // start display server
         m_displayServer->start();
+
+        emit started();
     }
 
     void Display::displayServerStarted() {

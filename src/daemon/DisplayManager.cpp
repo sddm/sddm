@@ -45,8 +45,7 @@ namespace SDDM {
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(DISPLAYMANAGER_PATH, this);
 #if HAVE_PLYMOUTH 
-        if (Plymouth::isRunning())
-            Plymouth::quitWithoutTransition();
+        Plymouth::quitWithTransition();
 #endif
     }
 

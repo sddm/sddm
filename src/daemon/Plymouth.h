@@ -30,6 +30,7 @@ public:
     explicit Plymouth(QObject *parent = nullptr);
     ~Plymouth();
 
+    static bool isActive();
     static bool isRunning();
     static bool hasActiveVt();
     static void prepareForTransition();
