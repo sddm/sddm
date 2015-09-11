@@ -152,9 +152,7 @@ namespace SDDM {
             if (pipe(pipeFds) != 0) {
                 qCritical("Could not create pipe to start X server");
             }
-#if HAVE_PLYMOUTH
-            system("pkill -9 plymouthd");
-#endif
+
             // start display server
             QStringList args = mainConfig.XDisplay.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts);
             args << QStringLiteral("-auth") << m_authPath

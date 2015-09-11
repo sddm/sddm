@@ -77,11 +77,7 @@ namespace SDDM {
         qDebug() << "Starting...";
 
         // add a seat
-#if HAVE_PLYMOUTH
-        m_seatManager->createSeat(QStringLiteral("seat1"));
-#else
         m_seatManager->createSeat(QStringLiteral("seat0"));
-#endif
     }
 
     bool DaemonApp::testing() const {

@@ -52,26 +52,37 @@ Distributions without pam and systemd will need to put the "sddm" user
 into the "video" group, otherwise errors regarding GL and drm devices
 might be experienced.
 
-## Dependence
+The cmake variables `ENABLE_PLYMOUTH` and `ENABLE_PAM` can be used to control
+our newly-added features. We tested the plymouth smooth transition on Ubuntu
+15.04, but you should backup your old pam sddm config: `cp /etc/pam.d/sddm .`
 
-* QtAccountsService git@github.com:hawaii-desktop/qtaccountsservice.git
+## LICENSE
 
-## Build && Install
+Source code of SDDM is licensed under GNU GPL version 2 or later (at your choosing).
+QML files are MIT licensed and images are CC BY 3.0.
 
+## TROUBLESHOOTING
+
+### NVIDIA Prime
+
+Add this at the bottom of the Xsetup script:
+
+```sh
+if [ -e /sbin/prime-offload ]; then
+    echo running NVIDIA Prime setup /sbin/prime-offload, you will need to manually run /sbin/prime-switch to shut down
+    /sbin/prime-offload
+fi
 ```
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr    \
-    -DCMAKE_INSTALL_LIBEXECDIR=/usr/lib/sddm    \
-    -DENABLE_PLYMOUTH=ON
-make
-sudo make install
 
-sudo systemctl disable lightdm.service
-sudo systemctl enable sddm.service
+### No User Icon
+
+SDDM reads user icon from either ~/.face.icon or FacesDir/username.face.icon
+
+You need to make sure that SDDM user have permissions to read those files.
+In case you don't want to allow other users to access your $HOME you can use
+ACLs if your filesystem does support it.
+
+```sh
+setfacl -m u:sddm:x /home/username
+setfacl -m u:sddm:r /home/username/.face.icon
 ```
-
-## TODO
-
-- [x] Use AccountsService Qt binding`s iconFileName
-- [ ] [Smooth transition] (https://wiki.archlinux.org/index.php/Plymouth)

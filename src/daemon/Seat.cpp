@@ -67,11 +67,8 @@ namespace SDDM {
 
 #if HAVE_PLYMOUTH
         terminalId = 2;
-        if (terminalId >= mainConfig.XDisplay.MinimumVT.get()) {
+        if (terminalId >= mainConfig.XDisplay.MinimumVT.get())
             Plymouth::prepareForTransition();
-        } else {
-            Plymouth::log(QString::fromUtf8("Plymouth is already running on tty2!"));
-        }
 #endif
 
         // mark terminal as used
