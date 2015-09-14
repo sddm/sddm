@@ -5,7 +5,7 @@
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>Willkommen zu %1</translation>
+        <translation>Willkommen auf %1</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
