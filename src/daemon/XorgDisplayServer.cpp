@@ -175,6 +175,10 @@ namespace SDDM {
                 return false;
             }
 
+            // close the other side of pipe in our process, otherwise reading
+            // from it may stuck even X server exit.
+            close(pipeFds[1]);
+
             QFile readPipe;
 
             if (!readPipe.open(pipeFds[0], QIODevice::ReadOnly)) {
