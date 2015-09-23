@@ -110,8 +110,8 @@ namespace SDDM {
             }
         }
 
-        const char  *username = qobject_cast<HelperApp*>(parent())->user().toLocal8Bit();
-        struct passwd *pw = getpwnam(username);
+        const QByteArray username = qobject_cast<HelperApp*>(parent())->user().toLocal8Bit();
+        struct passwd *pw = getpwnam(username.constData());
         if (setgid(pw->pw_gid) != 0) {
             qCritical() << "setgid(" << pw->pw_gid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
