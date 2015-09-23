@@ -33,7 +33,7 @@ option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 
 # Definitions
-add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII)
+add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
 
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
