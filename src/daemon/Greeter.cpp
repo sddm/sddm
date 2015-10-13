@@ -145,6 +145,10 @@ namespace SDDM {
             env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
             env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("greeter"));
             env.insert(QStringLiteral("XDG_SESSION_TYPE"), m_display->sessionType());
+
+            //some themes may use KDE components and that will automatically load KDE's crash handler which we don't want
+            //counterintuitively setting this env disables that handler
+            env.insert(QStringLiteral("KDE_DEBUG"), QStringLiteral("1"));
             m_auth->insertEnvironment(env);
 
             // log message
