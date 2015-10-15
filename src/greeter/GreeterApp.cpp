@@ -130,7 +130,8 @@ namespace SDDM {
         m_proxy->setSessionModel(m_sessionModel);
 
         // create views
-        Q_FOREACH (QScreen *screen, screens())
+        QList<QScreen *> screens = primaryScreen()->virtualSiblings();
+        Q_FOREACH (QScreen *screen, screens)
             addViewForScreen(screen);
 
         // handle screens
@@ -138,15 +139,12 @@ namespace SDDM {
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
-        // heuristic to detect clone mode, in that case only add a view for the primary screen
-        if (screen->virtualGeometry() == primaryScreen()->geometry() && screen != primaryScreen())
-            return;
-
         // create view
         QQuickView *view = new QQuickView();
         view->setScreen(screen);
         view->setResizeMode(QQuickView::SizeRootObjectToView);
-        view->setGeometry(QRect(QPoint(0, 0), screen->availableGeometry().size()));
+        //view->setGeometry(QRect(QPoint(0, 0), screen->geometry().size()));
+        view->setGeometry(screen->geometry());
 
         // remove the view when the screen is removed, but we
         // need to be careful here since Qt will move the view to
@@ -165,7 +163,7 @@ namespace SDDM {
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         // always resize when the screen geometry changes
-        connect(screen, &QScreen::availableGeometryChanged, this, [view](const QRect &r) {
+        connect(screen, &QScreen::geometryChanged, this, [view](const QRect &r) {
             view->setGeometry(r);
         });
 #endif
@@ -190,6 +188,7 @@ namespace SDDM {
         view->setSource(QUrl::fromLocalFile(mainScript));
 
         // show
+        qDebug() << "Adding view for" << screen->name() << screen->geometry();
         view->show();
     }
 
