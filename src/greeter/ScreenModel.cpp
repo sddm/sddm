@@ -120,13 +120,9 @@ namespace SDDM {
         return;
 #endif
 
-        QScreen *primaryScreen = QGuiApplication::primaryScreen();
         QList<QScreen *> screens = QGuiApplication::screens();
         for (int i = 0; i < screens.size(); ++i) {
             QScreen *screen = screens.at(i);
-            // heuristic to detect clone mode, in that case only consider the primary screen
-            if (screen->virtualGeometry() == primaryScreen->geometry() && screen != primaryScreen)
-                continue;
             // add to the screens list
             d->screens << ScreenPtr { new Screen { QStringLiteral("Screen %1").arg(i + 1), screen->geometry() } };
             // extend available geometry
