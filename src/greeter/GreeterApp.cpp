@@ -109,7 +109,6 @@ namespace SDDM {
         // create models
 
         m_sessionModel = new SessionModel();
-        m_screenModel = new ScreenModel();
         m_userModel = new UserModel();
         m_proxy = new GreeterProxy(socket);
         m_keyboard = new KeyboardModel();
@@ -173,9 +172,20 @@ namespace SDDM {
         // connect proxy signals
         connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
 
+        // we used to have only one window as big as the virtual desktop,
+        // QML took care of creating an item for each screen by iterating on
+        // the screen model. However we now have a better approach: we create
+        // a view for each screen that compose the virtual desktop and thus
+        // the QML code for each screen is responsible for drawing only its
+        // screen. By doing so we actually make the screen model useless, but
+        // we want to keep it for compatibility reasons, we do however create
+        // one for each view and expose only the screen that the view belongs to
+        // in order to avoid creating items with different sizes.
+        ScreenModel *screenModel = new ScreenModel(screen, view);
+
         // set context properties
         view->rootContext()->setContextProperty(QStringLiteral("sessionModel"), m_sessionModel);
-        view->rootContext()->setContextProperty(QStringLiteral("screenModel"), m_screenModel);
+        view->rootContext()->setContextProperty(QStringLiteral("screenModel"), screenModel);
         view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
         view->rootContext()->setContextProperty(QStringLiteral("config"), *m_themeConfig);
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
