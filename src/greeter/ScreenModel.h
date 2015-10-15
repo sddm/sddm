@@ -41,7 +41,7 @@ namespace SDDM {
             GeometryRole
         };
 
-        ScreenModel(QObject *parent = 0);
+        ScreenModel(QScreen *screen, QObject *parent = 0);
         ~ScreenModel();
 
         QHash<int, QByteArray> roleNames() const override;
@@ -53,16 +53,10 @@ namespace SDDM {
     public slots:
         const QRect geometry(int index = -1) const;
 
-    private slots:
-        void onScreenAdded(QScreen *scrn);
-        void onScreenChanged();
-
     signals:
         void primaryChanged();
 
     private:
-        void initScreens(bool first);
-
         ScreenModelPrivate *d { nullptr };
     };
 }

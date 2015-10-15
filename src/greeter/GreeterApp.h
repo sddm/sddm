@@ -33,7 +33,6 @@ namespace SDDM {
     class ThemeConfig;
     class SessionModel;
     class ScreenModel;
-    class ScreenModel;
     class UserModel;
     class GreeterProxy;
     class KeyboardModel;
@@ -63,7 +62,6 @@ namespace SDDM {
         ThemeMetadata *m_metadata { nullptr };
         ThemeConfig *m_themeConfig { nullptr };
         SessionModel *m_sessionModel { nullptr };
-        ScreenModel *m_screenModel { nullptr  };
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
