@@ -57,6 +57,6 @@ namespace SDDM {
             return;
 
         // switch to greeter
-        m_seats[name]->createDisplay();
+        m_seats.value(name)->createDisplay();
     }
 }
