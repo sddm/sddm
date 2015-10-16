@@ -53,9 +53,9 @@ namespace SDDM {
     /* UPOWER BACKEND                             */
     /**********************************************/
 
-#define UPOWER_SERVICE  QStringLiteral("org.freedesktop.UPower")
-#define UPOWER_PATH     QStringLiteral("/org/freedesktop/UPower")
-#define UPOWER_OBJECT   QStringLiteral("org.freedesktop.UPower")
+const QString UPOWER_PATH = QStringLiteral("/org/freedesktop/UPower");
+const QString UPOWER_SERVICE = QStringLiteral("org.freedesktop.UPower");
+const QString UPOWER_OBJECT = QStringLiteral("org.freedesktop.UPower");
 
     class UPowerBackend : public PowerManagerBackend {
     public:
@@ -113,13 +113,13 @@ namespace SDDM {
     /* LOGIN1 && ConsoleKit2 BACKEND              */
     /**********************************************/
 
-#define LOGIN1_SERVICE  QStringLiteral("org.freedesktop.login1")
-#define LOGIN1_PATH     QStringLiteral("/org/freedesktop/login1")
-#define LOGIN1_OBJECT   QStringLiteral("org.freedesktop.login1.Manager")
+const QString LOGIN1_SERVICE = QStringLiteral("org.freedesktop.login1");
+const QString LOGIN1_PATH = QStringLiteral("/org/freedesktop/login1");
+const QString LOGIN1_OBJECT = QStringLiteral("org.freedesktop.login1.Manager");
 
-#define CK2_SERVICE  QStringLiteral("org.freedesktop.ConsoleKit")
-#define CK2_PATH     QStringLiteral("/org/freedesktop/ConsoleKit/Manager")
-#define CK2_OBJECT   QStringLiteral("org.freedesktop.ConsoleKit.Manager")
+const QString CK2_SERVICE = QStringLiteral("org.freedesktop.ConsoleKit");
+const QString CK2_PATH = QStringLiteral("/org/freedesktop/ConsoleKit/Manager");
+const QString CK2_OBJECT = QStringLiteral("org.freedesktop.ConsoleKit.Manager");
 
     class SeatManagerBackend : public PowerManagerBackend {
     public:

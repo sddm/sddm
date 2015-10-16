@@ -76,7 +76,7 @@ namespace SDDM {
 
         // For Wayland sessions we leak the VT into the session as stdin so
         // that it stays open without races
-        if (sessionType == QStringLiteral("wayland")) {
+        if (sessionType == QLatin1String("wayland")) {
             // open VT and get the fd
             QString ttyString = QStringLiteral("/dev/tty%1").arg(processEnvironment().value(QStringLiteral("XDG_VTNR")));
             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
@@ -158,7 +158,7 @@ namespace SDDM {
         }
 
         // set X authority for X11 sessions only
-        if (sessionType != QStringLiteral("x11"))
+        if (sessionType != QLatin1String("x11"))
             return;
         QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
         if (!cookie.isEmpty()) {

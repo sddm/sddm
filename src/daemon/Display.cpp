@@ -203,7 +203,7 @@ namespace SDDM {
 
         //the SDDM user has special priveledges that skip password checking so that we can load the greeter
         //block ever trying to log in as the SDDM user
-        if (user == QStringLiteral("sddm")) {
+        if (user == QLatin1String("sddm")) {
             return;
         }
 
@@ -231,8 +231,9 @@ namespace SDDM {
         QString fileName = name;
 
         // append extension
-        if (!fileName.endsWith(QStringLiteral(".desktop")))
-            fileName += QStringLiteral(".desktop");
+        const QString extension = QStringLiteral(".desktop");
+        if (!fileName.endsWith(extension))
+            fileName += extension;
 
         return dir.exists(fileName);
     }
@@ -263,14 +264,14 @@ namespace SDDM {
 
         // create new VT for Wayland sessions otherwise use greeter vt
         int vt = terminalId();
-        if (session.xdgSessionType() == QStringLiteral("wayland")) {
+        if (session.xdgSessionType() == QLatin1String("wayland")) {
             vt = VirtualTerminal::setUpNewVt();
             VirtualTerminal::jumpToVt(vt);
         }
 
         QProcessEnvironment env;
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
-        if (session.xdgSessionType() == QStringLiteral("x11"))
+        if (session.xdgSessionType() == QLatin1String("x11"))
             env.insert(QStringLiteral("DISPLAY"), name());
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
         env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(seat()->name()));

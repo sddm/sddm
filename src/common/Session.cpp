@@ -104,7 +104,7 @@ namespace SDDM {
 
         m_type = UnknownSession;
         m_valid = false;
-        m_desktopNames = QStringLiteral("");
+        m_desktopNames.clear();
 
         switch (type) {
         case X11Session:
@@ -116,7 +116,7 @@ namespace SDDM {
             m_xdgSessionType = QStringLiteral("wayland");
             break;
         default:
-            m_xdgSessionType = QStringLiteral("");
+            m_xdgSessionType.clear();
             break;
         }
 
@@ -132,19 +132,19 @@ namespace SDDM {
         while (!in.atEnd()) {
             QString line = in.readLine();
 
-            if (line.startsWith(QStringLiteral("Name="))) {
+            if (line.startsWith(QLatin1String("Name="))) {
                 if (type == WaylandSession)
                     m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
                 else
                     m_displayName = line.mid(5);
             }
-            if (line.startsWith(QStringLiteral("Comment=")))
+            if (line.startsWith(QLatin1String("Comment=")))
                 m_comment = line.mid(8);
-            if (line.startsWith(QStringLiteral("Exec=")))
+            if (line.startsWith(QLatin1String("Exec=")))
                 m_exec = line.mid(5);
             if (line.startsWith(QStringLiteral("TryExec=")))
                 m_tryExec = line.mid(8);
-            if (line.startsWith(QStringLiteral("DesktopNames=")))
+            if (line.startsWith(QLatin1String("DesktopNames=")))
                 m_desktopNames = line.mid(13).replace(QLatin1Char(';'), QLatin1Char(':'));
         }
 
