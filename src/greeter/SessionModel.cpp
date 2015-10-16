@@ -22,19 +22,19 @@
 
 #include "Configuration.h"
 
-#include <QList>
+#include <QVector>
 #include <QProcessEnvironment>
 
 namespace SDDM {
     class SessionModelPrivate {
     public:
         ~SessionModelPrivate() {
-            while (!sessions.isEmpty())
-                delete sessions.takeFirst();
+            qDeleteAll(sessions);
+            sessions.clear();
         }
 
         int lastIndex { 0 };
-        QList<Session *> sessions;
+        QVector<Session *> sessions;
     };
 
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
@@ -49,12 +49,12 @@ namespace SDDM {
     QHash<int, QByteArray> SessionModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[DirectoryRole] = "directory";
-        roleNames[FileRole] = "file";
-        roleNames[TypeRole] = "type";
-        roleNames[NameRole] = "name";
-        roleNames[ExecRole] = "exec";
-        roleNames[CommentRole] = "comment";
+        roleNames[DirectoryRole] = QByteArrayLiteral("directory");
+        roleNames[FileRole] = QByteArrayLiteral("file");
+        roleNames[TypeRole] = QByteArrayLiteral("type");
+        roleNames[NameRole] = QByteArrayLiteral("name");
+        roleNames[ExecRole] = QByteArrayLiteral("exec");
+        roleNames[CommentRole] = QByteArrayLiteral("comment");
 
         return roleNames;
     }

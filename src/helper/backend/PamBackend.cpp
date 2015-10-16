@@ -250,7 +250,7 @@ namespace SDDM {
         }
 
         QProcessEnvironment sessionEnv = m_app->session()->processEnvironment();
-        if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
+        if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
             QString display = sessionEnv.value(QStringLiteral("DISPLAY"));
             if (!display.isEmpty()) {
 #ifdef PAM_XDISPLAY
@@ -258,7 +258,7 @@ namespace SDDM {
 #endif
                 m_pam->setItem(PAM_TTY, qPrintable(display));
             }
-        } else if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
+        } else if (sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
             QString tty = QStringLiteral("/dev/tty%1").arg(sessionEnv.value(QStringLiteral("XDG_VTNR")));
             m_pam->setItem(PAM_TTY, qPrintable(tty));
         }

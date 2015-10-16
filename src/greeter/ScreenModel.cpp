@@ -52,8 +52,8 @@ namespace SDDM {
     QHash<int, QByteArray> ScreenModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
-        roleNames[NameRole] = "name";
-        roleNames[GeometryRole] = "geometry";
+        roleNames[NameRole] = QByteArrayLiteral("name");
+        roleNames[GeometryRole] = QByteArrayLiteral("geometry");
         return roleNames;
     }
 
