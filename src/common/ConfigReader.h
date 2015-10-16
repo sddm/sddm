@@ -22,7 +22,6 @@
 #define CONFIGREADER_H
 
 #include <QtCore/QString>
-#include <QtCore/QList>
 #include <QtCore/QTextStream>
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>

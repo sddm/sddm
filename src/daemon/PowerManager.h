@@ -21,6 +21,7 @@
 #define SDDM_POWERMANAGER_H
 
 #include <QObject>
+#include <QVector>
 
 #include "Messages.h"
 
@@ -44,7 +45,7 @@ namespace SDDM {
         void hybridSleep() const;
 
     private:
-        QList<PowerManagerBackend *> m_backends;
+        QVector<PowerManagerBackend *> m_backends;
     };
 }
 
