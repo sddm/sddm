@@ -173,6 +173,11 @@ namespace SDDM {
             QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
             qDebug() << "Adding cookie to" << file;
 
+
+            // create the path
+            QFileInfo finfo(file);
+            QDir().mkpath(finfo.absolutePath());
+
             QFile file_handler(file);
             file_handler.open(QIODevice::WriteOnly);
             file_handler.close();
