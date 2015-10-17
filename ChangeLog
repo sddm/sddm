@@ -6,6 +6,15 @@
 
 ## 0.13.0 - XXXX-XX-XX
 ----------------------
++ Greeter inherits path environment variables from parent so that
+  themes installed in non-standard paths will work.
+- Don't cast QByteArray to (char *).
+- Disable greeters from loading KDE's debug hander
+  (fix CVE-2015-0856).
+- Fix multi-screen support for some setups.
+* Added Serbian translation.
+* Added Traditional Chinese translation.
+* Improved German translation.
 
 ## 0.12.0 - 2015-09-05
 ----------------------
