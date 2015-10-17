@@ -93,6 +93,10 @@ OPTIONS
 	Path of script to execute when starting the desktop session.
 	Default value is "@SESSION_COMMAND@".
 
+`SessionLogFile=`
+        Path to the user session log file, relative to the home directory.
+        Default value is ".cache/xsession-errors".
+
 `DisplayCommand=`
 	Path of script to execute when starting the display server.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
@@ -116,6 +120,10 @@ OPTIONS
 `SessionCommand=`
 	Path of script to execute when starting the desktop session.
 	Default value is "@WAYLAND_SESSION_COMMAND@".
+
+`SessionLogFile=`
+        Path to the user session log file, relative to the home directory.
+        Default value is ".cache/wayland-errors".
 
 [Users] section:
 
