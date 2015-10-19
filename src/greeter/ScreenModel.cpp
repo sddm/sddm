@@ -47,7 +47,9 @@ namespace SDDM {
     }
 
     int ScreenModel::primary() const {
-        return d->screen == QGuiApplication::primaryScreen();
+        // This used to return the index of the primary screen, since this model
+        // always have just one screen it should return 0 if it's primary or -1.
+        return d->screen == QGuiApplication::primaryScreen() ? 0 : -1;
     }
 
     const QRect ScreenModel::geometry(int index) const {
