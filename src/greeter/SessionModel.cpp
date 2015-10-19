@@ -130,14 +130,6 @@ namespace SDDM {
             if (execAllowed)
                 d->sessions.push_back(si);
         }
-        // add failsafe session
-        if (type == Session::X11Session) {
-            Session *si = new Session(type, QStringLiteral("failsafe"));
-            si->m_displayName = QStringLiteral("Failsafe");
-            si->m_comment = QStringLiteral("Failsafe Session");
-            si->m_exec = QStringLiteral("failsafe");
-            d->sessions << si;
-        }
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
             if (d->sessions.at(i)->fileName() == stateConfig.Last.Session.get()) {
