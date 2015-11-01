@@ -20,8 +20,6 @@
 #ifndef SDDM_DISPLAYMANAGER_H
 #define SDDM_DISPLAYMANAGER_H
 
-#include "../../config-sddm.h"
-
 #include <QObject>
 
 #include <QDBusObjectPath>
