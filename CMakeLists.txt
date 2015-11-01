@@ -70,7 +70,7 @@ include(FeatureSummary)
 find_package(PkgConfig)
 
 # PAM
-if(NOT NO_PAM)
+if(USE_PAM)
     message("FIXME: PAM might break login.")
     find_package(PAM)
 
