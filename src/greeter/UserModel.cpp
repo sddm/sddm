@@ -81,7 +81,7 @@ namespace SDDM {
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
 #if HAVE_QTACCOUNTSSERVICE
-			QtAccountsService::UserAccount *userAccount = accountManager->findUserById(user->uid);
+            QtAccountsService::UserAccount *userAccount = accountManager->findUserById(user->uid);
 #endif
             // if shadow is used pw_passwd will be 'x' nevertheless, so this
             // will always be true
@@ -93,10 +93,10 @@ namespace SDDM {
             if (QFile::exists(userFace))
                 user->icon = userFace;
 #if HAVE_QTACCOUNTSSERVICE
-			else if (ua && QFile::exists(ua->iconFileName()))
-			    user->icon = ua->iconFileName();	// accountservice user face
+            else if (ua && QFile::exists(ua->iconFileName()))
+		        user->icon = ua->iconFileName();	// accountservice user face
 #endif
-			else if (QFile::exists(systemFace))
+            else if (QFile::exists(systemFace))
                 user->icon = systemFace;
             else
                 user->icon = QStringLiteral("%1/default.face.icon").arg(mainConfig.Theme.FacesDir.get());
