@@ -1,6 +1,7 @@
 /***************************************************************************
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
-* Copyright (c) 2015 AnthonOS Open Source Community
+* Copyright (c) 2015 Leslie Zhai <xiang.zhai@i-soft.com.cn>
+* Copyright (c) 2015 Mingye Wang (Arthur2e5) <arthur200126@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
