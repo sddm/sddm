@@ -19,6 +19,7 @@
 * Improved German translation.
 * Remove failsafe session entry.
 * Close the pipe fd passed to X server.
+* A few micro-optimizations.
 
 ## 0.12.0 - 2015-09-05
 ----------------------
