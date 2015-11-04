@@ -31,6 +31,7 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 # Options
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
+option(ENABLE_PAM "Enable PAM support" ON)
 
 # Definitions
 add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
@@ -69,13 +70,14 @@ include(FeatureSummary)
 find_package(PkgConfig)
 
 # PAM
-if(USE_PAM)
-    find_package(PAM)
+if(ENABLE_PAM)
+    find_package(PAM REQUIRED)
 
     if(PAM_FOUND)
         add_definitions(-DUSE_PAM)
     endif()
 endif()
+add_feature_info("PAM" PAM_FOUND "PAM support")
 
 # XCB
 find_package(XCB REQUIRED)
