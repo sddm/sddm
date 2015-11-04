@@ -62,6 +62,9 @@ endif()
 # Standard installation paths
 include(GNUInstallDirs)
 
+# Macros
+include(FeatureSummary)
+
 # PKG-CONFIG
 find_package(PkgConfig)
 
@@ -193,3 +196,6 @@ add_subdirectory(data)
 add_subdirectory(services)
 add_subdirectory(src)
 add_subdirectory(test)
+
+# Display feature summary
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
