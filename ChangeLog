@@ -4,22 +4,25 @@
     - Bug fixes
     * Others
 
+## 0.14.0 - XXXX-XX-XX
+----------------------
+
 ## 0.13.0 - 2015-11-04
 ----------------------
-+ Greeter inherits path environment variables from parent so that
-  themes installed in non-standard paths will work.
-+ Add ENABLE_PAM option to toggle PAM support at build time.
-+ Allow overriding textColor in ComboBox.
-- Don't cast QByteArray to (char *).
-- Disable greeters from loading KDE's debug hander
-  (fix CVE-2015-0856).
-- Fix multi-screen support for some setups.
-* Added Serbian translation.
-* Added Traditional Chinese translation.
-* Improved German translation.
-* Remove failsafe session entry.
-* Close the pipe fd passed to X server.
-* A few micro-optimizations.
+    + Greeter inherits path environment variables from parent so that
+      themes installed in non-standard paths will work.
+    + Add ENABLE_PAM option to toggle PAM support at build time.
+    + Allow overriding textColor in ComboBox.
+    - Don't cast QByteArray to (char *).
+    - Disable greeters from loading KDE's debug hander
+      (fix CVE-2015-0856).
+    - Fix multi-screen support for some setups.
+    * Added Serbian translation.
+    * Added Traditional Chinese translation.
+    * Improved German translation.
+    * Remove failsafe session entry.
+    * Close the pipe fd passed to X server.
+    * A few micro-optimizations.
 
 ## 0.12.0 - 2015-09-05
 ----------------------
