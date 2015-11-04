@@ -66,7 +66,7 @@ include(GNUInstallDirs)
 find_package(PkgConfig)
 
 # PAM
-if(NOT NO_PAM)
+if(USE_PAM)
     find_package(PAM)
 
     if(PAM_FOUND)
