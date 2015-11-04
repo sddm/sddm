@@ -50,7 +50,7 @@ before_script:
   - source /opt/qt54/bin/qt54-env.sh
   - mkdir build
   - cd build
-  - if [ "$PAM" == "0" ]; then cmake -DUSE_PAM:BOOL=OFF ..; fi
-  - if [ "$PAM" == "1" ]; then cmake -DUSE_PAM:BOOL=ON ..; fi
+  - if [ "$PAM" == "0" ]; then cmake -DENABLE_PAM:BOOL=OFF ..; fi
+  - if [ "$PAM" == "1" ]; then cmake -DENABLE_PAM:BOOL=ON ..; fi
 
 script: make
