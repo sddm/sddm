@@ -14,7 +14,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 12)
+set(SDDM_VERSION_MINOR 13)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -32,6 +32,7 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PLYMOUTH "Enable plymouth smooth transition" OFF)
+option(ENABLE_PAM "Enable PAM support" ON)
 
 # Definitions
 add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
@@ -63,21 +64,21 @@ endif()
 # Standard installation paths
 include(GNUInstallDirs)
 
-# 
+# Macros
 include(FeatureSummary)
 
 # PKG-CONFIG
 find_package(PkgConfig)
 
 # PAM
-if(USE_PAM)
-    message("FIXME: PAM might break login.")
-    find_package(PAM)
+if(ENABLE_PAM)
+    find_package(PAM REQUIRED)
 
     if(PAM_FOUND)
         add_definitions(-DUSE_PAM)
     endif()
 endif()
+add_feature_info("PAM" PAM_FOUND "PAM support")
 
 # XCB
 find_package(XCB REQUIRED)
@@ -217,3 +218,6 @@ add_subdirectory(data)
 add_subdirectory(services)
 add_subdirectory(src)
 add_subdirectory(test)
+
+# Display feature summary
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

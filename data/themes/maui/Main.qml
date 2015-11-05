@@ -49,24 +49,21 @@ Rectangle {
         }
     }
 
-    Repeater {
-        model: screenModel
-        Background {
-            x: geometry.x; y: geometry.y; width: geometry.width; height:geometry.height
-            source: config.background
-            fillMode: Image.PreserveAspectCrop
-            onStatusChanged: {
-                if (status == Image.Error && source != config.defaultBackground) {
-                    source = config.defaultBackground
-                }
+    Background {
+        anchors.fill: parent
+        source: config.background
+        fillMode: Image.PreserveAspectCrop
+        onStatusChanged: {
+            if (status == Image.Error && source != config.defaultBackground) {
+                source = config.defaultBackground
             }
         }
     }
 
     Rectangle {
-        property variant geometry: screenModel.geometry(screenModel.primary)
-        x: geometry.x; y: geometry.y; width: geometry.width; height: geometry.height
+        anchors.fill: parent
         color: "transparent"
+        //visible: primaryScreen
 
         Component {
             id: userDelegate
@@ -94,6 +91,7 @@ Rectangle {
 
         Row {
             anchors.fill: parent
+            //visible: primaryScreen
 
             Rectangle {
                 width: parent.width / 2; height: parent.height
@@ -177,6 +175,7 @@ Rectangle {
             anchors.top: parent.top;
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width; height: 40
+            //visible: primaryScreen
 
             Row {
                 anchors.left: parent.left

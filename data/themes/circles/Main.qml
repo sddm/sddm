@@ -49,24 +49,21 @@ Rectangle {
         }
     }
 
-    Repeater {
-        model: screenModel
-        Background {
-            x: geometry.x; y: geometry.y; width: geometry.width; height:geometry.height
-            source: config.background
-            fillMode: Image.Tile
-            onStatusChanged: {
-                if (status == Image.Error && source != config.defaultBackground) {
-                    source = config.defaultBackground
-                }
+    Background {
+        anchors.fill: parent
+        source: config.background
+        fillMode: Image.Tile
+        onStatusChanged: {
+            if (status == Image.Error && source != config.defaultBackground) {
+                source = config.defaultBackground
             }
         }
     }
 
     Rectangle {
-        property variant geometry: screenModel.geometry(screenModel.primary)
-        x: geometry.x; y: geometry.y; width: geometry.width; height: geometry.height
+        anchors.fill: parent
         color: "transparent"
+        //visible: primaryScreen
 
         Rectangle {
             anchors.centerIn: parent

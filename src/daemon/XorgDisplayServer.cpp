@@ -24,6 +24,9 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "SignalHandler.h"
+#if HAVE_PLYMOUTH
+#include "Plymouth.h"
+#endif
 
 #include <QDebug>
 #include <QFile>
@@ -152,7 +155,9 @@ namespace SDDM {
             if (pipe(pipeFds) != 0) {
                 qCritical("Could not create pipe to start X server");
             }
-
+#if HAVE_PLYMOUTH
+            Plymouth::quitWithoutTransition();
+#endif
             // start display server
             QStringList args = mainConfig.XDisplay.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts);
             args << QStringLiteral("-auth") << m_authPath
@@ -174,6 +179,10 @@ namespace SDDM {
                 close(pipeFds[0]);
                 return false;
             }
+
+            // close the other side of pipe in our process, otherwise reading
+            // from it may stuck even X server exit.
+            close(pipeFds[1]);
 
             QFile readPipe;
 

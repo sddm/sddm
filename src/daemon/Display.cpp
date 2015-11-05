@@ -101,8 +101,6 @@ namespace SDDM {
 
         // start display server
         m_displayServer->start();
-
-        emit started();
     }
 
     void Display::displayServerStarted() {
@@ -173,8 +171,6 @@ namespace SDDM {
 
         // set flags
         m_started = true;
-
-        emit started();
     }
 
     void Display::stop() {

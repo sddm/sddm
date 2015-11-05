@@ -24,9 +24,6 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "XorgDisplayServer.h"
-#if HAVE_PLYMOUTH
-#include "Plymouth.h"
-#endif
 
 #include <QDebug>
 #include <QFile>
@@ -67,8 +64,6 @@ namespace SDDM {
 
 #if HAVE_PLYMOUTH
         terminalId = 2;
-        if (terminalId >= mainConfig.XDisplay.MinimumVT.get())
-            Plymouth::prepareForTransition();
 #endif
 
         // mark terminal as used
@@ -82,11 +77,6 @@ namespace SDDM {
 
         // restart display on stop
         connect(display, SIGNAL(stopped()), this, SLOT(displayStopped()));
-#if HAVE_PLYMOUTH
-        connect(display, &Display::started, [this]() {
-                    Plymouth::quitWithoutTransition();
-                });
-#endif
 
         // add display to the list
         m_displays << display;
@@ -123,9 +113,5 @@ namespace SDDM {
         // restart otherwise
         if (m_displays.isEmpty())
             createDisplay();
-
-#if HAVE_PLYMOUTH
-        Plymouth::quitWithTransition();
-#endif
     }
 }

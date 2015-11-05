@@ -48,6 +48,7 @@ FocusScope {
             anchors.fill: parent
             anchors.margins: 4 + (LayoutMirroring.enabled ? arrow.width : 0)
             verticalAlignment: Text.AlignVCenter
+            color: container.textColor
             font: container.font
 
             text: parent.modelItem.name

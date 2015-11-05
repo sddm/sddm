@@ -60,8 +60,7 @@ bool Plymouth::isRunning()
         p.setProgram(plymouthBin);
         p.setArguments(QStringList() << QString::fromUtf8("--ping"));
         connect(&p, &Process::finished, [=](int exitCode) {
-                log(__PRETTY_FUNCTION__);
-				m_isRunning = WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
+                m_isRunning = WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
                 m_isActive = m_isRunning;
             });
         p.start();
@@ -83,8 +82,7 @@ bool Plymouth::hasActiveVt()
         p.setProgram(plymouthBin);
         p.setArguments(QStringList() << QString::fromUtf8("--has-active-vt"));
         connect(&p, &Process::finished, [=](int exitCode) {
-                log(__PRETTY_FUNCTION__);
-				m_hasActiveVt = WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
+                m_hasActiveVt = WIFEXITED (exitCode) && WEXITSTATUS (exitCode) == 0;
             });
         p.start();
     }
@@ -94,27 +92,25 @@ bool Plymouth::hasActiveVt()
 
 void Plymouth::prepareForTransition() 
 {
-    log(QString::fromUtf8(__PRETTY_FUNCTION__));
     Process p;
     p.setProgram(plymouthBin);
-    p.setArguments(QStringList() << QString("deactivate"));
+    p.setArguments(QStringList() << QString::fromUtf8("deactivate"));
     p.start();
 }
 
 void Plymouth::quitWithoutTransition() 
 {
-    log(QString::fromUtf8(__PRETTY_FUNCTION__));
     Process p;
     p.setProgram(plymouthBin);
-    p.setArguments(QStringList() << QString("quit"));
+    p.setArguments(QStringList() << QString::fromUtf8("quit"));
     p.start();
 }
 
 void Plymouth::quitWithTransition() 
 {
-    log(QString::fromUtf8(__PRETTY_FUNCTION__));
     Process p;
     p.setProgram(plymouthBin);
-    p.setArguments(QStringList() << QString("quit") << QString("--retain-splash"));
+    p.setArguments(QStringList() << QString::fromUtf8("quit") 
+                                 << QString::fromUtf8("--retain-splash"));
     p.start();
 }

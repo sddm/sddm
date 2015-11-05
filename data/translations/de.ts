@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Achtung, dauerhafte Großschreibung ist aktiviert!</translation>
+        <translation>Achtung, Feststelltaste ist aktiviert!</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -53,7 +53,7 @@
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>Benutzername auswählen und Passwort eingeben</translation>
+        <translation>Benutzer auswählen und Passwort eingeben</translation>
     </message>
 </context>
 </TS>

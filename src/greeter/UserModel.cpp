@@ -94,8 +94,8 @@ namespace SDDM {
             if (QFile::exists(userFace))
                 user->icon = userFace;
 #if HAVE_QTACCOUNTSSERVICE
-            else if (ua && QFile::exists(ua->iconFileName()))
-		        user->icon = ua->iconFileName();	// accountservice user face
+            else if (userAccount && QFile::exists(userAccount->iconFileName()))
+		        user->icon = userAccount->iconFileName();	// accountservice user face
 #endif
             else if (QFile::exists(systemFace))
                 user->icon = systemFace;
