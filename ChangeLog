@@ -6,6 +6,7 @@
 
 ## 0.14.0 - XXXX-XX-XX
 ----------------------
+    + New sddm.conf option EnableAvatars (useful for slow filesystems)
     * More theme-neutral default user and root avatars
 
 ## 0.13.0 - 2015-11-04
