@@ -1,1 +1,2 @@
-This files are directly copied from a KDE installation.
+These are the default avatars.
+They are installed to `.face.icon` and `root.face.icon`. See ../CMakeLists.txt.
