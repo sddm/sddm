@@ -82,7 +82,7 @@ namespace SDDM {
 
             // search for face icon
             QString facesDir = mainConfig.Theme.FacesDir.get();
-            QString defaultFace = QStringLiteral("%1/default.face.icon").arg(facesDir);
+            QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
             bool avatarsEnabled = mainConfig.Theme.EnableAvatars.get();
 
             if (avatarsEnabled) {
