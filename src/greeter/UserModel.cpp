@@ -55,11 +55,11 @@ namespace SDDM {
         while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid
-            if ( int(current_pw->pw_uid) < mainConfig.Users.MinimumUid.get())
+            if (int(current_pw->pw_uid) < mainConfig.Users.MinimumUid.get())
                 continue;
 
             // skip entries with uids greater than maximum uid
-            if ( int(current_pw->pw_uid) > mainConfig.Users.MaximumUid.get())
+            if (int(current_pw->pw_uid) > mainConfig.Users.MaximumUid.get())
                 continue;
             // skip entries with user names in the hide users list
             if (mainConfig.Users.HideUsers.get().contains(QString::fromLocal8Bit(current_pw->pw_name)))

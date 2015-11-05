@@ -74,8 +74,8 @@ OPTIONS
 	Default value is "/usr/bin/X".
 
 `ServerArguments=`
-        Arguments to the X server.
-        Default value is "-nolisten tcp".
+	Arguments to the X server.
+	Default value is "-nolisten tcp".
 
 `XephyrPath=`
 	Path of the Xephyr.
