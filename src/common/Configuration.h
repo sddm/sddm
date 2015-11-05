@@ -50,7 +50,7 @@ namespace SDDM {
             Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Face icon directory\n"
                                                                                                    "The files should be in username.face.icon format"));
             Entry(CursorTheme,         QString,     QString(),                                  _S("Cursor theme"));
-			Entry(ExtKeyboard,         QString,     QString(),                                  _S("External Keyboard path"));
+            Entry(ExtKeyboard,         QString,     QString(),                                  _S("External Keyboard path"));
         );
         // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal
         Section(XDisplay,

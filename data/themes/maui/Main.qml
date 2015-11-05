@@ -258,8 +258,8 @@ Rectangle {
 
                     KeyNavigation.backtab: btnReboot; KeyNavigation.tab: btnOSK
                 }
-				
-				Button {
+                
+                Button {
                     id: btnOSK
                     height: parent.height
                     text: "OSK"

@@ -55,9 +55,9 @@ namespace SDDM {
         bool isConnected() const;
 
         void setSessionModel(SessionModel *model);
-		
-	private:
-		void kill_process_extKeyboard();
+        
+    private:
+        void kill_process_extKeyboard();
 
     public slots:
         void powerOff();
@@ -65,7 +65,7 @@ namespace SDDM {
         void suspend();
         void hibernate();
         void hybridSleep();
-		void showExtKeyboard();
+        void showExtKeyboard();
 
         void login(const QString &user, const QString &password, const int sessionIndex) const;
 
@@ -74,7 +74,7 @@ namespace SDDM {
         void disconnected();
         void readyRead();
         void error();
-		void extKeyboard_finished(int exitCode, QProcess::ExitStatus existStatus);
+        void extKeyboard_finished(int exitCode, QProcess::ExitStatus existStatus);
 
     signals:
         void hostNameChanged(const QString &hostName);
@@ -89,7 +89,7 @@ namespace SDDM {
 
     private:
         GreeterProxyPrivate *d { nullptr };
-		QProcess            *process_extKeyboard;
+        QProcess            *process_extKeyboard;
     };
 }
 
