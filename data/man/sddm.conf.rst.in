@@ -60,6 +60,13 @@ OPTIONS
 	Name of the cursor theme to be set before starting
 	the display server.
 
+`EnableAvatars=`
+	When enabled, home directories are searched for ".face.icon" images to
+	display as their avatars. This can be slow on some file systems.
+	When disabled, all avatars will be default. Themes may choose to hide
+	them altogether.
+	Default value is true.
+
 [XDisplay] section:
 
 `ServerPath=`

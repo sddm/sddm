@@ -81,14 +81,23 @@ namespace SDDM {
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
             // search for face icon
-            QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
-            QString systemFace = QStringLiteral("%1/%2.face.icon").arg(mainConfig.Theme.FacesDir.get()).arg(user->name);
-            if (QFile::exists(userFace))
-                user->icon = userFace;
-            else if (QFile::exists(systemFace))
-                user->icon = systemFace;
-            else
-                user->icon = QStringLiteral("%1/default.face.icon").arg(mainConfig.Theme.FacesDir.get());
+            QString facesDir = mainConfig.Theme.FacesDir.get();
+            QString defaultFace = QStringLiteral("%1/default.face.icon").arg(facesDir);
+            bool avatarsEnabled = mainConfig.Theme.EnableAvatars.get();
+
+            if (avatarsEnabled) {
+                QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
+                QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
+
+                if (QFile::exists(userFace))
+                    user->icon = userFace;
+                else if (QFile::exists(systemFace))
+                    user->icon = systemFace;
+                else
+                    user->icon = defaultFace;
+            } else {
+                user->icon = defaultFace;
+            }
 
             // add user
             d->users << user;
