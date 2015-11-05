@@ -103,6 +103,29 @@ namespace SDDM {
         m_displayServer->start();
     }
 
+    bool Display::attemptAutologin() {
+        Session::Type sessionType = Session::X11Session;
+
+        // determine session type
+        const QString &autologinSession = mainConfig.Autologin.Session.get();
+        if (findSessionEntry(mainConfig.XDisplay.SessionDir.get(), autologinSession)) {
+            sessionType = Session::X11Session;
+        } else if (findSessionEntry(mainConfig.WaylandDisplay.SessionDir.get(), autologinSession)) {
+            sessionType = Session::WaylandSession;
+        } else {
+            qCritical() << "Unable to find autologin session entry" << autologinSession;
+            return false;
+        }
+
+        Session session;
+        session.setTo(sessionType, autologinSession);
+
+        m_auth->setAutologin(true);
+        startAuth(mainConfig.Autologin.User.get(), QString(), session);
+
+        return true;
+    }
+
     void Display::displayServerStarted() {
         // check flag
         if (m_started)
@@ -122,25 +145,10 @@ namespace SDDM {
             // set flags
             m_started = true;
 
-            // determine session type
-            const QString &autologinSession = mainConfig.Autologin.Session.get();
-            Session session;
-            if (findSessionEntry(mainConfig.XDisplay.SessionDir.get(), autologinSession)) {
-                session.setTo(Session::X11Session, autologinSession);
-            } else if (findSessionEntry(mainConfig.WaylandDisplay.SessionDir.get(), autologinSession)) {
-                session.setTo(Session::WaylandSession, autologinSession);
-            } else {
-                qCritical() << "Unable to find autologin session entry" << autologinSession;
-                emit loginFailed(m_socket);
+            bool success = attemptAutologin();
+            if (success) {
                 return;
             }
-
-            // start session
-            m_auth->setAutologin(true);
-            startAuth(mainConfig.Autologin.User.get(), QString(), session);
-
-            // return
-            return;
         }
 
         // start socket server
