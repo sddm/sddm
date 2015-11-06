@@ -48,6 +48,7 @@ namespace SDDM {
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
             qDebug() << "Starting:" << mainConfig.X11.SessionCommand.get()
                      << m_path;
+            env.insert(QStringLiteral("STARTUP"), m_path);
             QProcess::start(mainConfig.X11.SessionCommand.get(),
                             QStringList() << m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
