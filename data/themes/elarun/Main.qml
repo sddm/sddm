@@ -165,14 +165,6 @@ Rectangle {
                         spacing: 8
 
                         ImageButton {
-                            id: session_button
-                            source: "images/session_normal.png"
-                            onClicked: if (menu_session.state === "visible") menu_session.state = ""; else menu_session.state = "visible"
-
-                            KeyNavigation.backtab: login_button; KeyNavigation.tab: system_button
-                        }
-
-                        ImageButton {
                             id: system_button
                             source: "images/system_shutdown.png"
                             onClicked: sddm.powerOff()
