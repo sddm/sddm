@@ -159,6 +159,11 @@ namespace SDDM {
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-noreset")
                  << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
+#if HAVE_JOURNALD
+                 << QStringLiteral("-verbose") << QString::number(3)
+                 << QStringLiteral("-logverbose") << QString::number(3)
+                 << QStringLiteral("-logfile") << QStringLiteral("/dev/null")
+#endif
                  << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
             qDebug() << "Running:"
                      << qPrintable(mainConfig.X11.ServerPath.get())
