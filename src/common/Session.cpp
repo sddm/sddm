@@ -108,11 +108,11 @@ namespace SDDM {
 
         switch (type) {
         case X11Session:
-            m_dir = QDir(mainConfig.XDisplay.SessionDir.get());
+            m_dir = QDir(mainConfig.X11.SessionDir.get());
             m_xdgSessionType = QStringLiteral("x11");
             break;
         case WaylandSession:
-            m_dir = QDir(mainConfig.WaylandDisplay.SessionDir.get());
+            m_dir = QDir(mainConfig.Wayland.SessionDir.get());
             m_xdgSessionType = QStringLiteral("wayland");
             break;
         default:

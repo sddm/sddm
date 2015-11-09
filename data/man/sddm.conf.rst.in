@@ -67,7 +67,7 @@ OPTIONS
 	them altogether.
 	Default value is true.
 
-[XDisplay] section:
+[X11] section:
 
 `ServerPath=`
 	Path of the X server.
@@ -115,7 +115,7 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
-[WaylandDisplay] section:
+[Wayland] section:
 
 `SessionDir=`
 	Path of the directory containing session files.

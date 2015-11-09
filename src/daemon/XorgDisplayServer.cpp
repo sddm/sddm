@@ -95,7 +95,7 @@ namespace SDDM {
         file_handler.open(QIODevice::WriteOnly);
         file_handler.close();
 
-        QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
+        QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
 
         // execute xauth
         FILE *fp = popen(qPrintable(cmd), "w");
@@ -128,7 +128,7 @@ namespace SDDM {
         if (daemonApp->testing()) {
             QStringList args;
             args << m_display << QStringLiteral("-ac") << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
-            process->start(mainConfig.XDisplay.XephyrPath.get(), args);
+            process->start(mainConfig.X11.XephyrPath.get(), args);
 
 
             // wait for display server to start
@@ -154,16 +154,16 @@ namespace SDDM {
             }
 
             // start display server
-            QStringList args = mainConfig.XDisplay.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts);
+            QStringList args = mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts);
             args << QStringLiteral("-auth") << m_authPath
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-noreset")
                  << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
                  << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
             qDebug() << "Running:"
-                     << qPrintable(mainConfig.XDisplay.ServerPath.get())
+                     << qPrintable(mainConfig.X11.ServerPath.get())
                      << qPrintable(args.join(QLatin1Char(' ')));
-            process->start(mainConfig.XDisplay.ServerPath.get(), args);
+            process->start(mainConfig.X11.ServerPath.get(), args);
 
             // wait for display server to start
             if (!process->waitForStarted()) {
@@ -236,7 +236,7 @@ namespace SDDM {
         // log message
         qDebug() << "Display server stopped.";
 
-        QString displayStopCommand = mainConfig.XDisplay.DisplayStopCommand.get();
+        QString displayStopCommand = mainConfig.X11.DisplayStopCommand.get();
 
         // create display setup script process
         QProcess *displayStopScript = new QProcess();
@@ -273,7 +273,7 @@ namespace SDDM {
     }
 
     void XorgDisplayServer::setupDisplay() {
-        QString displayCommand = mainConfig.XDisplay.DisplayCommand.get();
+        QString displayCommand = mainConfig.X11.DisplayCommand.get();
 
         // create display setup script process
         QProcess *displayScript = new QProcess();

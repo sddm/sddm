@@ -108,9 +108,9 @@ namespace SDDM {
 
         // determine session type
         const QString &autologinSession = mainConfig.Autologin.Session.get();
-        if (findSessionEntry(mainConfig.XDisplay.SessionDir.get(), autologinSession)) {
+        if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
             sessionType = Session::X11Session;
-        } else if (findSessionEntry(mainConfig.WaylandDisplay.SessionDir.get(), autologinSession)) {
+        } else if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
             sessionType = Session::WaylandSession;
         } else {
             qCritical() << "Unable to find autologin session entry" << autologinSession;

@@ -46,14 +46,14 @@ namespace SDDM {
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QStringLiteral("greeter")) {
             QProcess::start(m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
-            qDebug() << "Starting:" << mainConfig.XDisplay.SessionCommand.get()
+            qDebug() << "Starting:" << mainConfig.X11.SessionCommand.get()
                      << m_path;
-            QProcess::start(mainConfig.XDisplay.SessionCommand.get(),
+            QProcess::start(mainConfig.X11.SessionCommand.get(),
                             QStringList() << m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
-            qDebug() << "Starting:" << mainConfig.WaylandDisplay.SessionCommand.get()
+            qDebug() << "Starting:" << mainConfig.Wayland.SessionCommand.get()
                      << m_path;
-            QProcess::start(mainConfig.WaylandDisplay.SessionCommand.get(),
+            QProcess::start(mainConfig.Wayland.SessionCommand.get(),
                             QStringList() << m_path);
         } else {
             qCritical() << "Unable to run user session: unknown session type";
@@ -137,8 +137,8 @@ namespace SDDM {
         QString sessionLog = QStringLiteral("%1/%2")
                 .arg(QString::fromLocal8Bit(pw->pw_dir))
                 .arg(sessionType == QStringLiteral("x11")
-                     ? mainConfig.XDisplay.SessionLogFile.get()
-                     : mainConfig.WaylandDisplay.SessionLogFile.get());
+                     ? mainConfig.X11.SessionLogFile.get()
+                     : mainConfig.Wayland.SessionLogFile.get());
 
         // create the path
         QFileInfo finfo(sessionLog);
@@ -182,7 +182,7 @@ namespace SDDM {
             file_handler.open(QIODevice::WriteOnly);
             file_handler.close();
 
-            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
+            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
 
             // execute xauth
             FILE *fp = popen(qPrintable(cmd), "w");

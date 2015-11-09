@@ -57,7 +57,7 @@ namespace SDDM {
         
         if (terminalId == -1) {
                 // find unused terminal
-            terminalId = findUnused(mainConfig.XDisplay.MinimumVT.get(), [&](const int number) {
+            terminalId = findUnused(mainConfig.X11.MinimumVT.get(), [&](const int number) {
                 return m_terminalIds.contains(number);
             });
         }
