@@ -42,7 +42,6 @@ namespace SDDM {
         Q_PROPERTY(QList<QDBusObjectPath> Sessions READ Sessions CONSTANT)
     public:
         DisplayManager(QObject *parent = 0);
-        ~DisplayManager();
 
         QString seatPath(const QString &seatName);
         QString sessionPath(const QString &sessionName);
