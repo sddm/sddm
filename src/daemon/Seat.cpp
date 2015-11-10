@@ -62,10 +62,6 @@ namespace SDDM {
             });
         }
 
-#if HAVE_PLYMOUTH
-        terminalId = 2;
-#endif
-
         // mark terminal as used
         m_terminalIds << terminalId;
 

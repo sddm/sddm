@@ -4,55 +4,28 @@ include_directories(
 )
 include_directories("${CMAKE_BINARY_DIR}/src/common")
 
-if(ENABLE_PLYMOUTH)
-    set(DAEMON_SOURCES
-        ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
-        ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
-        ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
-        ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
-        DaemonApp.cpp
-        Display.cpp
-        DisplayManager.cpp
-        DisplayServer.cpp
-        XorgDisplayServer.cpp
-        Greeter.cpp
-        PowerManager.cpp
-        Seat.cpp
-        SeatManager.cpp
-        SignalHandler.cpp
-        SocketServer.cpp
-        VirtualTerminal.cpp
-        Process.cpp
-        Plymouth.cpp
-    )
-else()
-    set(DAEMON_SOURCES
-        ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
-        ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
-        ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
-        ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
-        ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
-        DaemonApp.cpp
-        Display.cpp
-        DisplayManager.cpp
-        DisplayServer.cpp
-        XorgDisplayServer.cpp
-        Greeter.cpp
-        PowerManager.cpp
-        Seat.cpp
-        SeatManager.cpp
-        SignalHandler.cpp
-        SocketServer.cpp
-        VirtualTerminal.cpp
-    )
-endif()
+set(DAEMON_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
+    ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
+    ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
+    ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
+    DaemonApp.cpp
+    Display.cpp
+    DisplayManager.cpp
+    DisplayServer.cpp
+    XorgDisplayServer.cpp
+    Greeter.cpp
+    PowerManager.cpp
+    Seat.cpp
+    SeatManager.cpp
+    SignalHandler.cpp
+    SocketServer.cpp
+    VirtualTerminal.cpp
+)
 
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "DisplayManager.h" SDDM::DisplayManager)
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml"     "DisplayManager.h" SDDM::DisplayManagerSeat)

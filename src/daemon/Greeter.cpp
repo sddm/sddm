@@ -153,6 +153,9 @@ namespace SDDM {
 
             // log message
             qDebug() << "Greeter starting...";
+#if HAVE_PLYMOUTH
+            system("/bin/plymouth quit --retain-splash");
+#endif
 
             // start greeter
             m_auth->setUser(QStringLiteral("sddm"));
