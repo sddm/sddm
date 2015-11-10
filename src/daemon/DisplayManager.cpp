@@ -45,10 +45,6 @@ namespace SDDM {
 #endif
     }
 
-    DisplayManager::~DisplayManager() 
-    {
-    }
-
     QString DisplayManager::seatPath(const QString &seatName) {
         return DISPLAYMANAGER_SEAT_PATH + seatName.mid(4);
     }
