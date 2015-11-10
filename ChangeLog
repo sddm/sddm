@@ -11,7 +11,11 @@
       to change the default Xauthority file name and path.
     + New sddm.conf option SessionLogFile on XDisplay and WaylandDisplay
       sections to change the default user session log location.
+    + ComboBox now exposes the arrow background color as
+      "arrowColor" property.
     * More theme-neutral default user and root avatars
+    * Update Estonian translation.
+
 
 ## 0.13.0 - 2015-11-04
 ----------------------
