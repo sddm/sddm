@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Reboot</source>
-        <translation>Taaskäivitamine</translation>
+        <translation>Taaskäivita</translation>
     </message>
     <message>
         <source>Session</source>
@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>Seiskamine</translation>
+        <translation>Seiska</translation>
     </message>
     <message>
         <source>User name</source>
