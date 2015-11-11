@@ -33,6 +33,7 @@ namespace SDDM {
         Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
         Q_PROPERTY(int count READ rowCount CONSTANT)
+        Q_PROPERTY(int usersThresholdToDisableAvatars READ usersThresholdToDisableAvatars CONSTANT)
     public:
         enum UserRoles {
             NameRole = Qt::UserRole + 1,
@@ -53,6 +54,7 @@ namespace SDDM {
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
+        int usersThresholdToDisableAvatars() const;
     private:
         UserModelPrivate *d { nullptr };
     };
