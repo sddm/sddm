@@ -186,17 +186,17 @@ namespace SDDM {
          * Initialization of the map of nondefault values to be saved
          */
         if (section) {
-            if (entry && !entry->isDefault())
+            if (entry && !entry->matchesDefault())
                 remainingEntries.insert(section, entry);
             else
                 for (const ConfigEntryBase *b : section->entries().values())
-                    if (!b->isDefault())
+                    if (!b->matchesDefault())
                         remainingEntries.insert(section, b);
         }
         else {
             for (const ConfigSection *s : m_sections)
                 for (const ConfigEntryBase *b : s->entries().values())
-                    if (!b->isDefault())
+                    if (!b->matchesDefault())
                         remainingEntries.insert(s, b);
         }
 
