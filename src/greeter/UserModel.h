@@ -32,6 +32,7 @@ namespace SDDM {
         Q_DISABLE_COPY(UserModel)
         Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
+        Q_PROPERTY(int count READ rowCount CONSTANT)
     public:
         enum UserRoles {
             NameRole = Qt::UserRole + 1,
