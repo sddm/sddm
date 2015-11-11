@@ -50,6 +50,9 @@ namespace SDDM {
                                                                                                    "The files should be named <username>.face.icon"));
             Entry(CursorTheme,         QString,     QString(),                                  _S("Cursor theme used in the greeter"));
             Entry(EnableAvatars,       bool,        true,                                       _S("Enable display of custom user avatars"));
+            Entry(DisableAvatarsThreshold,int,      7,                                          _S("Number of users to use as threshold\n"
+                                                                                                   "above which avatars are disabled\n"
+                                                                                                   "unless explicitly enabled with EnableAvatars"));
         );
 
         // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal
