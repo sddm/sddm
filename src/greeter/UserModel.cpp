@@ -51,6 +51,9 @@ namespace SDDM {
     };
 
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
+        const QString facesDir = mainConfig.Theme.FacesDir.get();
+        const QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
+
         struct passwd *current_pw;
         while ((current_pw = getpwent()) != nullptr) {
 
@@ -81,23 +84,7 @@ namespace SDDM {
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
             // search for face icon
-            QString facesDir = mainConfig.Theme.FacesDir.get();
-            QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
-            bool avatarsEnabled = mainConfig.Theme.EnableAvatars.get();
-
-            if (avatarsEnabled) {
-                QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
-                QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
-
-                if (QFile::exists(userFace))
-                    user->icon = userFace;
-                else if (QFile::exists(systemFace))
-                    user->icon = systemFace;
-                else
-                    user->icon = defaultFace;
-            } else {
-                user->icon = defaultFace;
-            }
+            user->icon = defaultFace;
 
             // add user
             d->users << user;
@@ -108,10 +95,26 @@ namespace SDDM {
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
 
+        bool avatarsEnabled = mainConfig.Theme.EnableAvatars.get();
+        if (avatarsEnabled && mainConfig.Theme.EnableAvatars.isDefault()) {
+            if (d->users.count() > mainConfig.Theme.DisableAvatarsThreshold.get()) avatarsEnabled=false;
+        }
+
         // find out index of the last user
         for (int i = 0; i < d->users.size(); ++i) {
-            if (d->users.at(i)->name == stateConfig.Last.User.get())
+            UserPtr user { d->users.at(i) };
+            if (user->name == stateConfig.Last.User.get())
                 d->lastIndex = i;
+
+            if (avatarsEnabled) {
+                const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
+                const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
+
+                if (QFile::exists(userFace))
+                    user->icon = userFace;
+                else if (QFile::exists(systemFace))
+                    user->icon = systemFace;
+            }
         }
     }
 
@@ -164,5 +167,9 @@ namespace SDDM {
 
         // return empty value
         return QVariant();
+    }
+
+    int UserModel::disableAvatarsThreshold() const {
+        return mainConfig.Theme.DisableAvatarsThreshold.get();
     }
 }
