@@ -27,7 +27,7 @@
     <message>
         <location filename="../../components/common/TextConstants.qml" line="29"/>
         <source>Layout</source>
-        <translation>Oppsett</translation>
+        <translation>Tastatur</translation>
     </message>
     <message>
         <location filename="../../components/common/TextConstants.qml" line="30"/>
