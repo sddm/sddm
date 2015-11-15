@@ -12,6 +12,8 @@ set(TRANSLATION_FILES
     ko.ts
     lt.ts
     lv.ts
+    nb.ts
+    nn.ts
     pl.ts
     pt_BR.ts
     pt_PT.ts
