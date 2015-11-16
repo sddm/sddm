@@ -202,6 +202,15 @@ namespace SDDM {
         // get theme main script
         QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
 
+        // load theme from resources when an error has occurred
+        connect(view, &QQuickView::statusChanged, this, [view](QQuickView::Status status) {
+            if (status != QQuickView::Error)
+                return;
+            Q_FOREACH(const QQmlError &e, view->errors())
+                qWarning() << e;
+            view->setSource(QUrl::fromLocalFile(QStringLiteral("qrc:/theme/Main.qml")));
+        });
+
         // set main script as source
         view->setSource(QUrl::fromLocalFile(mainScript));
 

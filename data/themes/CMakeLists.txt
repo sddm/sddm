@@ -1,4 +1,4 @@
-set(THEMES circles elarun maldives maui)
+set(THEMES circles elarun maldives)
 
 foreach(THEME ${THEMES})
     # We assume that theme-specific translations are stored

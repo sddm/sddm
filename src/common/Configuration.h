@@ -46,7 +46,7 @@ namespace SDDM {
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));
-            Entry(Current,             QString,     _S("maui"),                                 _S("Current theme name"));
+            Entry(Current,             QString,     _S(""),                                     _S("Current theme name"));
             Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Global directory for user avatars\n"
                                                                                                    "The files should be named <username>.face.icon"));
             Entry(CursorTheme,         QString,     QString(),                                  _S("Cursor theme used in the greeter"));

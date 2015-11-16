@@ -18,7 +18,9 @@ set(GREETER_SOURCES
     XcbKeyboardBackend.cpp
 )
 
-add_executable(sddm-greeter ${GREETER_SOURCES})
+qt5_add_resources(RESOURCES theme.qrc)
+
+add_executable(sddm-greeter ${GREETER_SOURCES} ${RESOURCES})
 target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
 qt5_use_modules(sddm-greeter Quick)
 
