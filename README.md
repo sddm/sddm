@@ -19,7 +19,7 @@ They can be used as a starting point for new themes.
 
 ## SCREENSHOTS
 
-![sample screenshot](https://raw.github.com/sddm/sddm/master/data/themes/maui/maui.jpg)
+![sample screenshot](https://raw.github.com/sddm/sddm/master/src/greeter/theme/maui.jpg)
 
 ## VIDEOS
 
