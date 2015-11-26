@@ -23,6 +23,7 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
+#include "Seat.h"
 #include "SignalHandler.h"
 
 #include <QDebug>
@@ -159,7 +160,9 @@ namespace SDDM {
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-noreset")
                  << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
-                 << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+                 << QStringLiteral("-seat") << displayPtr()->seat()->name();
+            if (displayPtr()->seat()->name() == "seat0")
+                 args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
             qDebug() << "Running:"
                      << qPrintable(mainConfig.XDisplay.ServerPath.get())
                      << qPrintable(args.join(QLatin1Char(' ')));
