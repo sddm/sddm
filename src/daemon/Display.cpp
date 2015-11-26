@@ -271,8 +271,8 @@ namespace SDDM {
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
         // create new VT for Wayland sessions otherwise use greeter vt
+        int vt = terminalId();
         if (seat()->name() == QStringLiteral("seat0")) {
-            int vt = terminalId();
             if (session.xdgSessionType() == QLatin1String("wayland")) {
                 vt = VirtualTerminal::setUpNewVt();
                 VirtualTerminal::jumpToVt(vt);
