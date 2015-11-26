@@ -161,7 +161,7 @@ namespace SDDM {
                  << QStringLiteral("-noreset")
                  << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
                  << QStringLiteral("-seat") << displayPtr()->seat()->name();
-            if (displayPtr()->seat()->name() == "seat0")
+            if (displayPtr()->seat()->name() == QStringLiteral("seat0"))
                  args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
             qDebug() << "Running:"
                      << qPrintable(mainConfig.XDisplay.ServerPath.get())

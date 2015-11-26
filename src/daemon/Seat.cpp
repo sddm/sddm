@@ -55,7 +55,7 @@ namespace SDDM {
         //reload config if needed
         mainConfig.load();
 
-        if (m_name == "seat0") {
+        if (m_name == QStringLiteral("seat0")) {
             if (terminalId == -1) {
                 // find unused terminal
                 terminalId = findUnused(mainConfig.XDisplay.MinimumVT.get(), [&](const int number) {
