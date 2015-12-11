@@ -49,10 +49,16 @@ Distributions without pam and systemd will need to put the "sddm" user
 into the "video" group, otherwise errors regarding GL and drm devices
 might be experienced.
 
-The cmake variables `ENABLE_PLYMOUTH` (should be used with `NO_PAM`)
-can be used to control our newly-added features. We tested the plymouth
-smooth transition on Ubuntu 15.04, and you should backup your old pam
-sddm config: `cp /etc/pam.d/sddm .`
+mkdir build                                                                        
+cd build                                                                           
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr    \
+    -DCMAKE_INSTALL_LIBEXECDIR=/usr/lib/sddm    \
+    -DENABLE_PLYMOUTH=ON
+make                                                                               
+sudo make install
+
+We tested the plymouth smooth transition on Ubuntu 15.04, and you should backup 
+your old pam sddm config: `cp /etc/pam.d/sddm .`
 
 
 ## LICENSE
