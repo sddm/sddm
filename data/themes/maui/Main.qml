@@ -58,6 +58,13 @@ Rectangle {
                 source = config.defaultBackground
             }
         }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                listView.focus = true;
+            }
+        }
     }
 
     Rectangle {
@@ -164,9 +171,11 @@ Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: "white"
                     text: textConstants.promptSelectUser
-
+                    wrapMode: Text.WordWrap
+                    width:parent.width - 60
                     font.pixelSize: 20
                 }
+
             }
         }
 
