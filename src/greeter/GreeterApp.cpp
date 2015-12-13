@@ -37,6 +37,7 @@
 #include <QQmlEngine>
 #include <QDebug>
 #include <QTranslator>
+#include <QScreen>
 
 #include <iostream>
 
@@ -133,6 +134,9 @@ namespace SDDM {
         Q_FOREACH (QScreen *screen, screens)
             addViewForScreen(screen);
 
+        // set focus on the primary screen
+        setFocusOnPrimaryScreen();
+
         // handle screens
         connect(this, &GreeterApp::screenAdded, this, &GreeterApp::addViewForScreen);
     }
@@ -198,6 +202,9 @@ namespace SDDM {
         // set main script as source
         view->setSource(QUrl::fromLocalFile(mainScript));
 
+        // the view is "ready", add it to the list
+        m_views.append(view);
+
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
         view->show();
@@ -206,6 +213,28 @@ namespace SDDM {
     void GreeterApp::removeViewForScreen(QQuickView *view) {
         m_views.removeOne(view);
         view->deleteLater();
+        setFocusOnPrimaryScreen();
+    }
+
+    void GreeterApp::setFocusOnPrimaryScreen() {
+
+        QQuickView *mainView = nullptr;
+        QScreen *mainScreen = QGuiApplication::primaryScreen();
+
+        if (mainScreen != nullptr) {
+            Q_FOREACH(QQuickView *view, m_views) {
+                if (view->screen() == mainScreen) {
+                    mainView = view;
+                    break;
+                }
+            }
+        }
+        if (mainView == nullptr && !m_views.isEmpty()) {
+            mainView = m_views.at(0);
+        }
+        if (mainView != nullptr) {
+            mainView->requestActivate();
+        }
     }
 }
 
