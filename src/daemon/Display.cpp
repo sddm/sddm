@@ -304,8 +304,14 @@ namespace SDDM {
             m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
 
             // save last user and last session
-            stateConfig.Last.User.set(m_auth->user());
-            stateConfig.Last.Session.set(m_sessionName);
+            if (mainConfig.Users.RememberLastUser.get())
+                stateConfig.Last.User.set(m_auth->user());
+            else
+                stateConfig.Last.User.setDefault();
+            if (mainConfig.Users.RememberLastSession.get())
+                stateConfig.Last.Session.set(m_sessionName);
+            else
+                stateConfig.Last.Session.setDefault();
             stateConfig.save();
 
             if (m_socket)
