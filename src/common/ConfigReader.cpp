@@ -30,15 +30,15 @@
 
 QTextStream &operator>>(QTextStream &str, QStringList &list)  {
     list.clear();
+
     QString line = str.readLine();
-    while (!line.isNull()) {
-        Q_FOREACH (const QStringRef &s, line.splitRef(QLatin1Char(','))) {
-            QStringRef trimmed = s.trimmed();
-            if (!trimmed.isEmpty())
-                list.append(trimmed.toString());
-        }
-        line = str.readLine();
+
+    Q_FOREACH (const QStringRef &s, line.splitRef(QLatin1Char(','))) {
+        QStringRef trimmed = s.trimmed();
+        if (!trimmed.isEmpty())
+            list.append(trimmed.toString());
     }
+
     return str;
 }
 
