@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2015-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QDebug>
+#include <QTimer>
 #include <QTranslator>
 
 #include <iostream>
@@ -135,6 +136,11 @@ namespace SDDM {
 
         // handle screens
         connect(this, &GreeterApp::screenAdded, this, &GreeterApp::addViewForScreen);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+        connect(this, &GreeterApp::primaryScreenChanged, this, [this](QScreen *) {
+            activatePrimary();
+        });
+#endif
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
@@ -144,6 +150,7 @@ namespace SDDM {
         view->setResizeMode(QQuickView::SizeRootObjectToView);
         //view->setGeometry(QRect(QPoint(0, 0), screen->geometry().size()));
         view->setGeometry(screen->geometry());
+        m_views.append(view);
 
         // remove the view when the screen is removed, but we
         // need to be careful here since Qt will move the view to
@@ -201,11 +208,33 @@ namespace SDDM {
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
         view->show();
+
+        // activate windows for the primary screen to give focus to text fields
+        if (QGuiApplication::primaryScreen() == screen)
+            view->requestActivate();
     }
 
     void GreeterApp::removeViewForScreen(QQuickView *view) {
+        // screen is gone, remove the window
         m_views.removeOne(view);
         view->deleteLater();
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+        // starting from Qt 5.6 we are notified when the primary screen is changed
+        // and we request activation for the view when we get the signal, with
+        // older version we iterate the views and request activation
+        activatePrimary();
+#endif
+    }
+
+    void GreeterApp::activatePrimary() {
+        // activate and give focus to the window assigned to the primary screen
+        Q_FOREACH (QQuickView *view, m_views) {
+            if (view->screen() == QGuiApplication::primaryScreen()) {
+                view->requestActivate();
+                break;
+            }
+        }
     }
 }
 
