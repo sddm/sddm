@@ -177,5 +177,4 @@ void ConfigurationTest::FileChanged()
     QVERIFY(config->String.get() == QStringLiteral("b"));
 }
 
-
-#include "ConfigurationTest.moc"
+#include "moc_ConfigurationTest.cpp"
