@@ -34,7 +34,7 @@ FocusScope {
     property alias hoverColor: txtMain.hoverColor
     property alias radius: txtMain.radius
     property alias font: txtMain.font
-    property alias textColor: txtMain.color
+    property alias textColor: txtMain.textColor
     property alias echoMode: txtMain.echoMode
     property alias text: txtMain.text
 
