@@ -44,7 +44,12 @@ namespace SDDM {
     }
 
     Seat::Seat(const QString &name, QObject *parent) : QObject(parent), m_name(name) {
-        createDisplay();
+        int created = 0;
+
+        while (created < mainConfig.X11.VTCount.get()) {
+          createDisplay();
+          created++;
+        }
     }
 
     const QString &Seat::name() const {

@@ -115,6 +115,10 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
+`VTCount=`
+	Number of instances that should be started.
+	Default value is 1.
+
 [Wayland] section:
 
 `SessionDir=`
