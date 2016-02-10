@@ -22,10 +22,10 @@
 #define GREETERAPP_H
 
 #include <QGuiApplication>
-#include <QScreen>
-#include <QQuickView>
 
 class QTranslator;
+class QQuickView;
+class QScreen;
 
 namespace SDDM {
     class Configuration;
@@ -65,6 +65,8 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+
+        void setFocusOnPrimaryScreen();
     };
 }
 
