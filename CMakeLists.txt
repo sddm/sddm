@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(SDDM)
 
@@ -31,6 +31,7 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PAM "Enable PAM support" ON)
+option(ENABLE_WAYLAND "Enable experimental Wayland greeter" OFF)
 
 # ECM
 find_package(ECM 1.4.0 REQUIRED NO_MODULE)
@@ -95,6 +96,11 @@ find_package(Qt5 5.6.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools)
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
     exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
+endif()
+
+# Wayland compositor support
+if(ENABLE_WAYLAND)
+    find_package(GreenIsland 0.8.1 REQUIRED COMPONENTS Server Compositor)
 endif()
 
 # Set components version
