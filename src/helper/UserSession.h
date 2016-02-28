@@ -1,6 +1,6 @@
 /*
  * Session process wrapper
- * Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+ * Copyright (C) 2015-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
  * Copyright (C) 2014 Martin Bříza <mbriza@redhat.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,10 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QFileSystemWatcher>
+#include <QtCore/QPointer>
 #include <QtCore/QProcess>
+#include <QtCore/QTimer>
 
 namespace SDDM {
     class HelperApp;
@@ -37,14 +40,23 @@ namespace SDDM {
 
         bool start();
 
+        bool isDisplayServer() const;
+        void setDisplayServer(bool value);
+
         void setPath(const QString &path);
         QString path() const;
+
+    signals:
+        void sessionStarted(bool success);
 
     protected:
         void setupChildProcess();
 
     private:
+        bool m_displayServer { false };
         QString m_path { };
+        QTimer m_timer;
+        QPointer<QFileSystemWatcher> m_watcher;
     };
 }
 

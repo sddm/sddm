@@ -110,8 +110,15 @@ namespace SDDM {
 
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-            env.insert(QStringLiteral("DISPLAY"), m_display->name());
-            env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+            if (m_display->sessionType() == QStringLiteral("x11")) {
+                env.insert(QStringLiteral("DISPLAY"), m_display->name());
+                env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+                env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
+            } else if (m_display->sessionType() == QStringLiteral("wayland")) {
+                env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
+                env.insert(QStringLiteral("QT_WAYLAND_DISABLE_WINDOWDECORATION"), QStringLiteral("1"));
+                env.insert(QStringLiteral("WAYLAND_DISPLAY"), QStringLiteral("sddm-wayland"));
+            }
             env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
             env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());
             m_process->setProcessEnvironment(env);
@@ -169,9 +176,16 @@ namespace SDDM {
                                    QStringLiteral("XDG_DATA_DIRS")
             }, sysenv, env);
 
+            if (m_display->sessionType() == QStringLiteral("x11")) {
+                env.insert(QStringLiteral("DISPLAY"), m_display->name());
+                env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+                env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
+            } else if (m_display->sessionType() == QStringLiteral("wayland")) {
+                env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
+                env.insert(QStringLiteral("QT_WAYLAND_DISABLE_WINDOWDECORATION"), QStringLiteral("1"));
+                env.insert(QStringLiteral("WAYLAND_DISPLAY"), QStringLiteral("sddm-wayland"));
+            }
             env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
-            env.insert(QStringLiteral("DISPLAY"), m_display->name());
-            env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
             env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
             env.insert(QStringLiteral("XDG_SEAT"), m_display->seat()->name());
             env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_display->seat()->name()));

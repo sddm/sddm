@@ -24,6 +24,7 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
+#include "WaylandDisplayServer.h"
 #include "XorgDisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
@@ -43,10 +44,17 @@ namespace SDDM {
     Display::Display(const int terminalId, Seat *parent) : QObject(parent),
         m_terminalId(terminalId),
         m_auth(new Auth(this)),
-        m_displayServer(new XorgDisplayServer(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
+
+        // create the display server based on the configuration, but
+        // always fallback to X11
+        const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
+        if (displayServerType == QLatin1String("wayland"))
+            m_displayServer = new WaylandDisplayServer(this);
+        else
+            m_displayServer = new XorgDisplayServer(this);
 
         // respond to authentication requests
         m_auth->setVerbose(true);
@@ -169,7 +177,8 @@ namespace SDDM {
 
         // set greeter params
         m_greeter->setDisplay(this);
-        m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
+        if (m_displayServer->sessionType() == QLatin1String("x11"))
+            m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(findGreeterTheme());
 

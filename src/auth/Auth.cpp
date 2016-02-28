@@ -66,6 +66,7 @@ namespace SDDM {
         QString user { };
         QString cookie { };
         bool autologin { false };
+        bool displayServer { false };
         bool greeter { false };
         QProcessEnvironment environment { };
         qint64 id { 0 };
@@ -254,6 +255,10 @@ namespace SDDM {
         return d->autologin;
     }
 
+    bool Auth::isDisplayServer() const {
+        return d->displayServer;
+    }
+
     bool Auth::isGreeter() const
     {
         return d->greeter;
@@ -308,6 +313,14 @@ namespace SDDM {
         }
     }
 
+    void Auth::setDisplayServer(bool on)
+    {
+        if (on != d->displayServer) {
+            d->displayServer = on;
+            Q_EMIT displayServerChanged();
+        }
+    }
+
     void Auth::setGreeter(bool on)
     {
         if (on != d->greeter) {
@@ -343,6 +356,8 @@ namespace SDDM {
             args << QStringLiteral("--user") << d->user;
         if (d->autologin)
             args << QStringLiteral("--autologin");
+        if (d->displayServer)
+            args << QStringLiteral("--display-server");
         if (d->greeter)
             args << QStringLiteral("--greeter");
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);

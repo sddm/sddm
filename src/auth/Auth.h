@@ -52,6 +52,7 @@ namespace SDDM {
         Q_OBJECT
         // not setting NOTIFY for the properties - they should be set only once before calling start
         Q_PROPERTY(bool autologin READ autologin WRITE setAutologin NOTIFY autologinChanged)
+        Q_PROPERTY(bool displayServer READ isDisplayServer WRITE setDisplayServer NOTIFY displayServerChanged)
         Q_PROPERTY(bool greeter READ isGreeter WRITE setGreeter NOTIFY greeterChanged)
         Q_PROPERTY(bool verbose READ verbose WRITE setVerbose NOTIFY verboseChanged)
         Q_PROPERTY(QString cookie READ cookie WRITE setCookie NOTIFY cookieChanged)
@@ -88,6 +89,7 @@ namespace SDDM {
         static void registerTypes();
 
         bool autologin() const;
+        bool isDisplayServer() const;
         bool isGreeter() const;
         bool verbose() const;
         const QString &cookie() const;
@@ -116,6 +118,14 @@ namespace SDDM {
         * @param on true if should autologin
         */
         void setAutologin(bool on = true);
+
+        /**
+         * Set mode to display server
+         * This will bypass authentication checks and will wait
+         * until the display server is actually started, for example
+         * when the Wayland compositor socket is created
+         */
+        void setDisplayServer(bool on = true);
 
         /**
          * Set mode to greeter
@@ -156,6 +166,7 @@ namespace SDDM {
     Q_SIGNALS:
         void autologinChanged();
         void greeterChanged();
+        void displayServerChanged();
         void verboseChanged();
         void cookieChanged();
         void userChanged();

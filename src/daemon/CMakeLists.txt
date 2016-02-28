@@ -19,6 +19,7 @@ set(DAEMON_SOURCES
     Display.cpp
     DisplayManager.cpp
     DisplayServer.cpp
+    WaylandDisplayServer.cpp
     XorgDisplayServer.cpp
     Greeter.cpp
     PowerManager.cpp

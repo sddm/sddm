@@ -53,6 +53,7 @@ namespace SDDM {
         void setUp();
         void doAuth();
 
+        void sessionStarted(bool success);
         void sessionFinished(int status);
 
     private:
