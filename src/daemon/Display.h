@@ -43,7 +43,8 @@ namespace SDDM {
     public:
         enum DisplayServerType {
             X11DisplayServerType,
-            X11UserDisplayServerType
+            X11UserDisplayServerType,
+            WaylandDisplayServerType
         };
         Q_ENUM(DisplayServerType)
 

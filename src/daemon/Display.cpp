@@ -47,6 +47,7 @@
 #include "Login1Manager.h"
 #include "Login1Session.h"
 #include "VirtualTerminal.h"
+#include "WaylandDisplayServer.h"
 
 namespace SDDM {
     Display::Display(Seat *parent) : QObject(parent),
@@ -64,6 +65,8 @@ namespace SDDM {
             m_displayServerType = X11DisplayServerType;
         else if (displayServerType == QStringLiteral("x11-user"))
             m_displayServerType = X11UserDisplayServerType;
+        else if (displayServerType == QStringLiteral("wayland"))
+            m_displayServerType = WaylandDisplayServerType;
         else {
             qWarning("\"%s\" is an invalid value for General.DisplayServer: fall back to \"x11\"",
                      qPrintable(displayServerType));
@@ -78,6 +81,10 @@ namespace SDDM {
         case X11UserDisplayServerType:
             m_displayServer = new XorgUserDisplayServer(this);
             m_greeter->setDisplayServerCommand(XorgUserDisplayServer::command(this));
+            break;
+        case WaylandDisplayServerType:
+            m_displayServer = new WaylandDisplayServer(this);
+            m_greeter->setDisplayServerCommand(mainConfig.Wayland.CompositorCommand.get());
             break;
         }
 

@@ -75,8 +75,15 @@ namespace SDDM {
                         << QStringLiteral("--fd") << QString::number(m_displayServerPipeFds[1])
                         << QStringLiteral("--server") << m_displayServerCmd
                         << QStringLiteral("--client") << m_path;
-                qInfo() << "Starting X11 greeter session:" << args;
-                QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-x11"), args);
+                if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
+                    qInfo() << "Starting X11 greeter session:" << args;
+                    QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-x11"), args);
+                } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
+                    qInfo() << "Starting Wayland greeter session:" << args;
+                    QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-wayland"), args);
+                } else {
+                    qCritical() << "Unable to run greeter session: unknown session type";
+                }
             }
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
             const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);

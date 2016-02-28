@@ -18,6 +18,8 @@ set(GREETER_SOURCES
     ScreenModel.cpp
     SessionModel.cpp
     UserModel.cpp
+    waylandkeyboardbackend.cpp
+    waylandkeyboardbackend.h
     XcbKeyboardBackend.cpp
 )
 

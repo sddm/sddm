@@ -28,6 +28,7 @@
 #include "ThemeMetadata.h"
 #include "Display.h"
 #include "XorgUserDisplayServer.h"
+#include "WaylandDisplayServer.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -134,13 +135,16 @@ namespace SDDM {
 
                 // start greeter
                 m_process->start(QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR)), args);
-            } else if (m_display->displayServerType() == Display::X11UserDisplayServerType) {
+            } else if (m_display->displayServerType() == Display::X11UserDisplayServerType ||
+                       m_display->displayServerType() == Display::WaylandDisplayServerType) {
                 // Greeter command
                 QStringList greeterCmds = {QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR))};
                 greeterCmds += args;
 
                 // Run the helper
-                const auto helper = QStringLiteral("%1/sddm-helper-x11").arg(QStringLiteral(LIBEXEC_INSTALL_DIR));
+                const auto helper = m_display->displayServerType() == Display::X11UserDisplayServerType
+                        ? QStringLiteral("%1/sddm-helper-x11").arg(QStringLiteral(LIBEXEC_INSTALL_DIR))
+                        : QStringLiteral("%1/sddm-helper-wayland").arg(QStringLiteral(LIBEXEC_INSTALL_DIR));
                 const auto helperArgs = QStringList()
                     << QStringLiteral("--server") << m_displayServerCmd
                     << QStringLiteral("--client") << greeterCmds.join(QLatin1Char(' '));
@@ -208,6 +212,7 @@ namespace SDDM {
             if (m_display->displayServerType() == Display::X11DisplayServerType) {
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
                 env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+                env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
             }
             m_auth->insertEnvironment(env);
 
@@ -288,9 +293,14 @@ namespace SDDM {
     void Greeter::onDisplayServerReady(const QString &displayName)
     {
         auto *displayServer = m_display->displayServer();
+
         auto *xorgUser = qobject_cast<XorgUserDisplayServer *>(displayServer);
         if (xorgUser)
             xorgUser->setDisplayName(displayName);
+
+        auto *wayland = qobject_cast<WaylandDisplayServer *>(displayServer);
+        if (wayland)
+            wayland->setDisplayName(displayName);
     }
 
     void Greeter::onHelperFinished(Auth::HelperExitStatus status) {
