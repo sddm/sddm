@@ -71,7 +71,7 @@ namespace SDDM {
 
     private:
         KeyboardModelPrivate * d { nullptr };
-        KeyboardBackend * m_backend;
+        KeyboardBackend * m_backend { nullptr };
     };
 }
 

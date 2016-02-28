@@ -98,6 +98,11 @@ namespace SDDM {
             m_backend->setAutologin(true);
         }
 
+        if ((pos = args.indexOf(QStringLiteral("--display-server"))) >= 0) {
+            m_backend->setGreeter(true);
+            m_session->setDisplayServer(true);
+        }
+
         if ((pos = args.indexOf(QStringLiteral("--greeter"))) >= 0) {
             m_backend->setGreeter(true);
         }
@@ -110,6 +115,7 @@ namespace SDDM {
 
         connect(m_socket, &QLocalSocket::connected, this, &HelperApp::doAuth);
         connect(m_session, QOverload<int>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
+        connect(m_session, &UserSession::sessionStarted, this, &HelperApp::sessionStarted);
         m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
     }
 
@@ -157,13 +163,26 @@ namespace SDDM {
                 env.insert(QStringLiteral("XDG_VTNR"), QString::number(vtNumber));
             }
             m_session->setProcessEnvironment(env);
+        }
 
-            if (!m_backend->openSession()) {
-                sessionOpened(false);
-                exit(Auth::HELPER_SESSION_ERROR);
-                return;
-            }
+        if (m_session->path().isEmpty()) {
+            exit(Auth::HELPER_SUCCESS);
+            return;
+        }
 
+        env.insert(m_session->processEnvironment());
+        m_session->setProcessEnvironment(env);
+
+        if (!m_backend->openSession()) {
+            sessionOpened(false);
+            exit(Auth::HELPER_SESSION_ERROR);
+            return;
+        }
+    }
+
+    void HelperApp::sessionStarted(bool success) {
+        if (success) {
+            qInfo() << "Session ready";
             sessionOpened(true);
 
             // write successful login to utmp/wtmp
@@ -175,10 +194,11 @@ namespace SDDM {
                 m_session->setCachedProcessId(m_session->processId());
                 utmpLogin(vt, displayId, m_user, m_session->processId(), true);
             }
+        } else {
+            qWarning() << "Session failed to start";
+            sessionOpened(false);
+            exit(Auth::HELPER_SESSION_ERROR);
         }
-        else
-            exit(Auth::HELPER_SUCCESS);
-        return;
     }
 
     void HelperApp::sessionFinished(int status) {

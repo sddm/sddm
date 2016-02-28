@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Nikita Mikhaylov <nslqqq@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -17,6 +18,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
+#include <QtGui/QGuiApplication>
+
 #include "KeyboardModel.h"
 #include "KeyboardModel_p.h"
 #include "XcbKeyboardBackend.h"
@@ -27,13 +30,16 @@ namespace SDDM {
     /**********************************************/
 
     KeyboardModel::KeyboardModel() : d(new KeyboardModelPrivate) {
-        m_backend = new XcbKeyboardBackend(d);
-        m_backend->init();
-        m_backend->connectEventsDispatcher(this);
+        if (QGuiApplication::platformName() == QLatin1String("xcb")) {
+            m_backend = new XcbKeyboardBackend(d);
+            m_backend->init();
+            m_backend->connectEventsDispatcher(this);
+        }
     }
 
     KeyboardModel::~KeyboardModel() {
-        m_backend->disconnect();
+        if (m_backend)
+            m_backend->disconnect();
         delete m_backend;
 
         for (QObject *layout: d->layouts) {
@@ -49,7 +55,8 @@ namespace SDDM {
     void KeyboardModel::setNumLockState(bool state) {
         if (d->numlock.enabled != state) {
             d->numlock.enabled = state;
-            m_backend->sendChanges();
+            if (m_backend)
+                m_backend->sendChanges();
 
             emit numLockStateChanged();
         }
@@ -62,7 +69,8 @@ namespace SDDM {
     void KeyboardModel::setCapsLockState(bool state) {
         if (d->capslock.enabled != state) {
             d->capslock.enabled = state;
-            m_backend->sendChanges();
+            if (m_backend)
+                m_backend->sendChanges();
 
             emit capsLockStateChanged();
         }
@@ -79,7 +87,8 @@ namespace SDDM {
     void KeyboardModel::setCurrentLayout(int id) {
         if (d->layout_id != id) {
             d->layout_id = id;
-            m_backend->sendChanges();
+            if (m_backend)
+                m_backend->sendChanges();
 
             emit currentLayoutChanged();
         }
@@ -96,7 +105,8 @@ namespace SDDM {
         QList<QObject*> layouts_old = d->layouts;
 
         // Process events
-        m_backend->dispatchEvents();
+        if (m_backend)
+            m_backend->dispatchEvents();
 
         // Send updates
         if (caps_old != d->capslock.enabled)
