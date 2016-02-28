@@ -39,7 +39,7 @@ namespace SDDM {
         //  Name                   Type         Default value                                   Description
         // TODO: Change default to x11-user in a future release
         Entry(DisplayServer,       QString,     _S("x11"),                                      _S("Which display server should be used.\n"
-                                                                                                   "Valid values are: x11, x11-user."));
+                                                                                                   "Valid values are: x11, x11-user, wayland."));
         Entry(HaltCommand,         QString,     _S(HALT_COMMAND),                               _S("Halt command"));
         Entry(RebootCommand,       QString,     _S(REBOOT_COMMAND),                             _S("Reboot command"));
         Entry(Numlock,             NumState,    NUM_NONE,                                       _S("Initial NumLock state. Can be on, off or none.\n"
@@ -77,6 +77,7 @@ namespace SDDM {
         );
 
         Section(Wayland,
+            Entry(CompositorCommand,   QString,     _S("weston --shell=fullscreen-shell.so"),   _S("Path of the Wayland compositor to execute when starting the greeter"));
             Entry(SessionDir,          QString,     _S("/usr/share/wayland-sessions"),          _S("Directory containing available Wayland sessions"));
             Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                _S("Path to a script to execute when starting the desktop session"));
 	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/wayland-session.log"),_S("Path to the user session log file"));

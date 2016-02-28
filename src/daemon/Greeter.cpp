@@ -28,6 +28,7 @@
 #include "ThemeMetadata.h"
 #include "Display.h"
 #include "XorgUserDisplayServer.h"
+#include "WaylandDisplayServer.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -124,14 +125,15 @@ namespace SDDM {
 
             args << QStringLiteral("--test-mode");
 
-             // set process environment
-            QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-            env.insert(QStringLiteral("DISPLAY"), m_display->name());
-            env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
-            env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
-            m_process->setProcessEnvironment(env);
-
-            // start greeter
+            if (m_display->displayServerType() == Display::X11DisplayServerType) {
+                // set process environment
+                QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+                env.insert(QStringLiteral("DISPLAY"), m_display->name());
+                env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+                env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
+                m_process->setProcessEnvironment(env);
+            }
+            // Greeter command
             m_process->start(QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR)), args);
 
             //if we fail to start bail immediately, and don't block in waitForStarted
@@ -195,6 +197,11 @@ namespace SDDM {
             if (m_display->displayServerType() == Display::X11DisplayServerType) {
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
                 env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+                env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
+            } else if (m_display->displayServerType() == Display::WaylandDisplayServerType) {
+                env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
+                env.insert(QStringLiteral("QT_WAYLAND_DISABLE_WINDOWDECORATION"), QStringLiteral("1"));
+                env.insert(QStringLiteral("QT_WAYLAND_SHELL_INTEGRATION"), QStringLiteral("fullscreen-shell-v1"));
             }
             m_auth->insertEnvironment(env);
 
@@ -273,9 +280,14 @@ namespace SDDM {
     void Greeter::onDisplayServerReady(const QString &displayName)
     {
         auto *displayServer = m_display->displayServer();
+
         auto *xorgUser = qobject_cast<XorgUserDisplayServer *>(displayServer);
         if (xorgUser)
             xorgUser->setDisplayName(displayName);
+
+        auto *wayland = qobject_cast<WaylandDisplayServer *>(displayServer);
+        if (wayland)
+            wayland->setDisplayName(displayName);
     }
 
     void Greeter::onHelperFinished(Auth::HelperExitStatus status) {

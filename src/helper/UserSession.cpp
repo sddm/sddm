@@ -27,6 +27,7 @@
 #include "VirtualTerminal.h"
 #include "XAuth.h"
 #include "xorguserhelper.h"
+#include "waylandhelper.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -45,7 +46,8 @@ namespace SDDM {
         , m_process(new QProcess(this))
         , m_xorgUser(new XOrgUserHelper(this))
     {
-        connect(m_process, QOverload<int>::of(&QProcess::finished), this, &UserSession::finished);
+        m_process->setProcessChannelMode(QProcess::ForwardedChannels);
+        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &UserSession::finished);
         connect(m_xorgUser, &XOrgUserHelper::displayChanged, this, [this, parent](const QString &display) {
             auto env = processEnvironment();
             env.insert(QStringLiteral("DISPLAY"), m_xorgUser->display());
@@ -57,16 +59,25 @@ namespace SDDM {
     }
 
     bool UserSession::start() {
-        QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
+        auto helper = qobject_cast<HelperApp*>(parent());
+        QProcessEnvironment env = helper->session()->processEnvironment();
 
         setup();
 
         if (!m_displayServerCmd.isEmpty()) {
-            m_xorgUser->setEnvironment(env);
-            if (!m_xorgUser->start(m_displayServerCmd))
-                return false;
+            if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland") && env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
+                m_wayland = new WaylandHelper(this);
+                m_wayland->setEnvironment(env);
+                if (!m_wayland->startCompositor(m_displayServerCmd))
+                    return false;
+            } else {
+                m_xorgUser->setEnvironment(env);
+                if (!m_xorgUser->start(m_displayServerCmd))
+                    return false;
+            }
         }
 
+        bool isWaylandGreeter = false;
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
                 qInfo() << "Starting X11 greeter session:" << m_path;
@@ -79,11 +90,19 @@ namespace SDDM {
                 m_process->start(mainConfig.X11.SessionCommand.get(), QStringList{m_path});
             }
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
-            const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
-            qInfo() << "Starting Wayland user session:" << cmd;
-            m_process->start(mainConfig.Wayland.SessionCommand.get(), QStringList{m_path});
-            m_process->closeWriteChannel();
-            m_process->closeReadChannel(QProcess::StandardOutput);
+            if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
+                isWaylandGreeter = true;
+                auto args = QProcess::splitCommand(m_path);
+                m_process->setProgram(args.takeFirst());
+                m_process->setArguments(args);
+                m_wayland->startGreeter(m_process);
+            } else {
+                const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
+                qInfo() << "Starting Wayland user session:" << cmd;
+                m_process->start(mainConfig.Wayland.SessionCommand.get(), QStringList{m_path});
+                m_process->closeWriteChannel();
+                m_process->closeReadChannel(QProcess::StandardOutput);
+            }
         } else {
             qCritical() << "Unable to run user session: unknown session type";
         }
@@ -91,6 +110,9 @@ namespace SDDM {
         if (m_process->waitForStarted()) {
             int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
             VirtualTerminal::jumpToVt(vtNumber, true);
+            return true;
+        } else if (isWaylandGreeter) {
+            // This is probably fine, we need the compositor to start first
             return true;
         }
 
@@ -103,8 +125,10 @@ namespace SDDM {
         if (!m_process->waitForFinished(5000))
             m_process->kill();
 
-        if (!m_displayServerCmd.isEmpty())
+        if (!m_displayServerCmd.isEmpty()) {
             m_xorgUser->stop();
+            m_wayland->stop();
+        }
     }
 
     QProcessEnvironment UserSession::processEnvironment() const
@@ -226,6 +250,7 @@ namespace SDDM {
             qCritical() << "setgid(" << pw.pw_gid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
+        qputenv("XDG_RUNTIME_DIR", QByteArrayLiteral("/run/user/") + QByteArray::number(pw.pw_uid));
 
 #ifdef USE_PAM
 
