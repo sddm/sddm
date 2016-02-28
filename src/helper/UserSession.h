@@ -28,6 +28,7 @@
 namespace SDDM {
     class HelperApp;
     class XOrgUserHelper;
+    class WaylandHelper;
     class UserSession : public QObject
     {
         Q_OBJECT
@@ -48,15 +49,16 @@ namespace SDDM {
 
         qint64 processId() const;
 
-        void setup();
-
     Q_SIGNALS:
         void finished(int exitCode);
 
     private:
+        void setup();
+
         QString m_path { };
         QProcess *m_process = nullptr;
         XOrgUserHelper *m_xorgUser = nullptr;
+        WaylandHelper *m_wayland = nullptr;
         QString m_displayServerCmd;
     };
 }

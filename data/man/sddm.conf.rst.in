@@ -41,6 +41,7 @@ OPTIONS
 	Valid values are:
 	* `x11`: X server running as root.
 	* `x11-user`: X server running as unprivileged user.
+	* `wayland`: Wayland compositor as unprivileged user.
 	Default value is "x11".
 	For `x11-user` you might need to configure Xorg.wrap(1).
 
@@ -164,6 +165,10 @@ OPTIONS
 	Default value is "false".
 
 [Wayland] section:
+
+`CompositorCommand=`
+        Path of the compositor to execute when starting the greeter.
+        Default value is "weston --shell=fullscreen-shell.so".
 
 `SessionDir=`
 	Path of the directory containing session files.
