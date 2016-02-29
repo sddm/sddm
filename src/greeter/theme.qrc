@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>theme/angle-down.png</file>
+    <file>theme/angle-left.png</file>
+    <file>theme/angle-right.png</file>
+    <file>theme/background.png</file>
+    <file>theme/Main.qml</file>
+    <file>theme/reboot.png</file>
+    <file>theme/shutdown.png</file>
+</qresource>
+</RCC>
