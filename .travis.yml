@@ -1,56 +1,49 @@
+sudo: false
+
 language: cpp
 
 compiler:
-  - clang
   - gcc
+  - clang
 
 env:
   - PAM=0
   - PAM=1
 
-before_install:
-  - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-  #- if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/gcc-upper; sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
-  - sudo add-apt-repository -y ppa:beineri/opt-qt542
-  - sudo apt-get update -y
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
+      - libpam0g-dev
+      - libX11-dev
+      - libx11-xcb-dev
 
-install:
-  # gcc
-  - if [ "$CC" == "gcc" ]; then sudo apt-get install -qq gcc-4.8; fi
-  - if [ "$CC" == "gcc" ]; then export CC="gcc-4.8"; fi
-  - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" == "g++" ]; then export CXX="g++-4.8"; fi
-  # clang
-  #- if [ "$CXX" == "clang++" ]; then sudo apt-get install -qq clang-3.6; fi
-  #- if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.6"; fi
-  # qt
-  - sudo apt-get update
-  - sudo apt-get -y install qt54declarative qt54tools
-  # pam
-  - if [ "$PAM" == "1" ]; then sudo apt-get install -qq libpam0g-dev; fi
-  # x11
-  - sudo apt-get install -qq libpam0g-dev libX11-dev libx11-xcb-dev
-  # xcb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb1_1.10-2ubuntu1_amd64.deb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb-xkb1_1.10-2ubuntu1_amd64.deb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb1-dev_1.10-2ubuntu1_amd64.deb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb-xkb-dev_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb1_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb-xkb1_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb1-dev_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb-xkb-dev_1.10-2ubuntu1_amd64.deb
+cache:
+  directories:
+    - .cmake/3.3
+    - .qt/5.6
+    - .xcb/1.11
 
 before_script:
-  # cmake
-  - wget --no-check-certificate http://www.cmake.org/files/v3.3/cmake-3.3.0-Linux-x86_64.tar.gz -O cmake.tar.gz
-  - tar -xzf cmake.tar.gz -C $HOME
-  - export PATH=$HOME/cmake-3.3.0-Linux-x86_64/bin:$PATH
-  - cmake --version
-  # prepare
-  - source /opt/qt54/bin/qt54-env.sh
+  # Setup compilers
+  - export CC=gcc-4.8
+  - export CXX=g++-4.8
+  # Fetch and install dependencies if cache miss
+  - bash -x .ci/fetch-cmake || exit 127
+  - bash -x .ci/fetch-qt || exit 127
+  - bash -x .ci/fetch-xcb || exit 127
+  - export PATH=`pwd`/.cmake/3.3/bin:`pwd`/.qt/5.6/5.6/gcc_64/bin:`pwd`/.xcb/1.11/bin:$PATH
+  - export LD_LIBRARY_PATH=`pwd`/.qt/5.6/5.6/gcc_64/lib:`pwd`/.xcb/1.11/lib:$LD_LIBRARY_PATH
+  - export CMAKE_PREFIX_PATH=`pwd`/.qt/5.6/5.6/gcc_64/lib/cmake
+  - export PKG_CONFIG_PATH=`pwd`/.xcb/1.11/lib/pkgconfig:$PKG_CONFIG_PATH
+  # Prepare
   - mkdir build
   - cd build
   - if [ "$PAM" == "0" ]; then cmake -DENABLE_PAM:BOOL=OFF ..; fi
   - if [ "$PAM" == "1" ]; then cmake -DENABLE_PAM:BOOL=ON ..; fi
 
-script: make
+script:
+  - make
