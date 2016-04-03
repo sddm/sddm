@@ -41,6 +41,14 @@ OPTIONS
 	If property is set to `none`, numlock won't be changed.
 	Default value is "none".
 
+`InputMethod=`
+        Set the Qt input method for the greeter.
+        Tablet users with Qt Virtual Keyboard installed can set this
+        to "qtvirtualkeyboard" for the on-screen keyboard.
+        Other known values are "ibus" for the Intelligent Input Bus,
+        or "compose" for dead keys support.
+        Leave this empty if unsure.
+
 [Theme] section:
 
 `ThemeDir=`
