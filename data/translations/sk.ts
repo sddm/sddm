@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>Prihláseníe bolo úspešné</translation>
+        <translation>Prihlásenie bolo úspešné</translation>
     </message>
     <message>
         <source>Password</source>
@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>Zadajte svoje uživateľské meno a heslo</translation>
+        <translation>Zadajte svoje užívateľské meno a heslo</translation>
     </message>
     <message>
         <source>Reboot</source>
