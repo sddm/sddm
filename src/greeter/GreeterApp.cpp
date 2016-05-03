@@ -208,7 +208,7 @@ namespace SDDM {
                 return;
             Q_FOREACH(const QQmlError &e, view->errors())
                 qWarning() << e;
-            view->setSource(QUrl::fromLocalFile(QStringLiteral("qrc:/theme/Main.qml")));
+            view->setSource(QUrl(QStringLiteral("qrc:/theme/Main.qml")));
         });
 
         // set main script as source
