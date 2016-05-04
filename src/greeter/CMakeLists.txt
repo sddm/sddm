@@ -18,16 +18,11 @@ set(GREETER_SOURCES
     XcbKeyboardBackend.cpp
 )
 
-add_executable(sddm-greeter ${GREETER_SOURCES})
+add_executable(sddm-greeter ${GREETER_SOURCES} ${RESOURCES})
 if(HAVE_QTACCOUNTSSERVICE)
-    target_link_libraries(sddm-greeter
-        ${LIBXCB_LIBRARIES}
-        ${LIBXKB_LIBRARIES}
-        QtAccountsService::QtAccountsService)
+    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES} QtAccountsService::QtAccountsService)
 else()
-    target_link_libraries(sddm-greeter
-        ${LIBXCB_LIBRARIES}
-        ${LIBXKB_LIBRARIES})
+    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
 endif()
 qt5_use_modules(sddm-greeter Quick)
 

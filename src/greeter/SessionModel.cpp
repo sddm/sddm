@@ -38,8 +38,8 @@ namespace SDDM {
     };
 
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
-        populate(Session::X11Session, mainConfig.XDisplay.SessionDir.get());
-        populate(Session::WaylandSession, mainConfig.WaylandDisplay.SessionDir.get());
+        populate(Session::X11Session, mainConfig.X11.SessionDir.get());
+        populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
     }
 
     SessionModel::~SessionModel() {

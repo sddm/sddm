@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es">
+<TS version="2.0" language="nl">
 <context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>Bienvenido a %1</translation>
+        <translation>Welkom bij %1</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>¡Atención, el bloqueo de mayúsculas está activado!</translation>
+        <translation>Waarschuwing, Hoofdlettermodus ACTIEF!</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -17,43 +17,43 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>Iniciar sesión</translation>
+        <translation>Inloggen</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Inicio de sesión fallido</translation>
+        <translation>Inloggen mislukt</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>Inicio de sesión correcto</translation>
+        <translation>Inloggen gelukt</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Contraseña</translation>
+        <translation>Wachtwoord</translation>
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>Ingrese su usuario y contraseña</translation>
+        <translation>Voer je gebruikersnaam en wachtwoord in</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation>Reiniciar</translation>
+        <translation>Herstart</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation>Sesión</translation>
+        <translation>Sessie</translation>
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>Apagar</translation>
+        <translation>Uitschakelen</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Usuario</translation>
+        <translation>Gebruikersnaam</translation>
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>Seleccione su usuario e ingrese su contraseña</translation>
+        <translation>Kies je gebruikersnaam en voer wachtwoord in</translation>
     </message>
 </context>
 </TS>

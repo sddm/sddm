@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es">
+<TS version="2.1" language="sk">
 <context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>Bienvenido a %1</translation>
+        <translation>Vitajte v %1</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>¡Atención, el bloqueo de mayúsculas está activado!</translation>
+        <translation>Pozor, je aktívny Caps Lock!</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Layout</translation>
+        <translation>Rozloženie klávesnice</translation>
     </message>
     <message>
         <source>Login</source>
-        <translation>Iniciar sesión</translation>
+        <translation>Prihlásiť sa</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Inicio de sesión fallido</translation>
+        <translation>Prihlásenie zlyhalo</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>Inicio de sesión correcto</translation>
+        <translation>Prihlásenie bolo úspešné</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Contraseña</translation>
+        <translation>Heslo</translation>
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>Ingrese su usuario y contraseña</translation>
+        <translation>Zadajte svoje užívateľské meno a heslo</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation>Reiniciar</translation>
+        <translation>Reštartovať</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation>Sesión</translation>
+        <translation>Relácia</translation>
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>Apagar</translation>
+        <translation>Vypnúť</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Usuario</translation>
+        <translation>Užívateľské meno</translation>
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>Seleccione su usuario e ingrese su contraseña</translation>
+        <translation>Vyberte váš užívateľský účet a zadajte heslo</translation>
     </message>
 </context>
 </TS>

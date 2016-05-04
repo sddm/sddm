@@ -36,62 +36,71 @@ namespace SDDM {
     Config(MainConfig, QStringLiteral(CONFIG_FILE),
         enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
 
-        //    Name                 Type         Default value                               Description
-        Entry(HaltCommand,         QString,     _S(HALT_COMMAND),                           _S("Halt command"));
-        Entry(RebootCommand,       QString,     _S(REBOOT_COMMAND),                         _S("Reboot command"));
-        Entry(Numlock,             NumState,    NUM_NONE,                                   _S("Initial NumLock state\n"
-                                                                                               "Valid values: on|off|none\n"
-                                                                                               "If property is set to none, numlock won't be changed"));
-        //      Name   Entries (but it's a regular class again)
+        //  Name                   Type         Default value                                   Description
+        Entry(HaltCommand,         QString,     _S(HALT_COMMAND),                               _S("Halt command"));
+        Entry(RebootCommand,       QString,     _S(REBOOT_COMMAND),                             _S("Reboot command"));
+        Entry(Numlock,             NumState,    NUM_NONE,                                       _S("Initial NumLock state. Can be on, off or none.\n"
+                                                                                                   "If property is set to none, numlock won't be changed\n"
+                                                                                                   "NOTE: Currently ignored if autologin is enabled."));
+        Entry(InputMethod,         QString,     QString(),                                      _S("Input method module"));
+        //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));
-            Entry(Current,             QString,     _S("maui"),                                 _S("Current theme name"));
-            Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Face icon directory\n"
-                                                                                                   "The files should be in username.face.icon format"));
-            Entry(CursorTheme,         QString,     QString(),                                  _S("Cursor theme"));
+            Entry(Current,             QString,     _S(""),                                     _S("Current theme name"));
+            Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Global directory for user avatars\n"
+                                                                                                   "The files should be named <username>.face.icon"));
+            Entry(CursorTheme,         QString,     QString(),                                  _S("Cursor theme used in the greeter"));
+            Entry(EnableAvatars,       bool,        true,                                       _S("Enable display of custom user avatars"));
+            Entry(DisableAvatarsThreshold,int,      7,                                          _S("Number of users to use as threshold\n"
+                                                                                                   "above which avatars are disabled\n"
+                                                                                                   "unless explicitly enabled with EnableAvatars"));
         );
+
         // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal
-        Section(XDisplay,
-            Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("X server path"));
-            Entry(ServerArguments,     QString,     _S("-nolisten tcp"),                        _S("X server arguments"));
-            Entry(XephyrPath,          QString,     _S("/usr/bin/Xephyr"),                      _S("Xephyr path"));
-            Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Xauth path"));
-            Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Session description directory"));
-            Entry(SessionCommand,      QString,     _S(SESSION_COMMAND),                        _S("Xsession script path\n"
-                                                                                                   "A script to execute when starting the desktop session"));
-            Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Xsetup script path\n"
-                                                                                                   "A script to execute when starting the display server"));
-            Entry(DisplayStopCommand,  QString,     _S(DATA_INSTALL_DIR "/scripts/Xstop"),      _S("Xstop script path\n"
-                                                                                                   "A script to execute when stopping the display server"));
-            Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("Minimum VT\n"
-                                                                                                   "The lowest virtual terminal number that will be used."));
+        Section(X11,
+            Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("Path to X server binary"));
+            Entry(ServerArguments,     QString,     _S("-nolisten tcp"),                        _S("Arguments passed to the X server invocation"));
+            Entry(XephyrPath,          QString,     _S("/usr/bin/Xephyr"),                      _S("Path to Xephyr binary"));
+            Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Path to xauth binary"));
+            Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Directory containing available X sessions"));
+            Entry(SessionCommand,      QString,     _S(SESSION_COMMAND),                        _S("Path to a script to execute when starting the desktop session"));
+	    Entry(SessionLogFile,      QString,     _S(".cache/xsession-errors"),               _S("Path to the user session log file"));
+	    Entry(UserAuthFile,        QString,     _S(".Xauthority"),                          _S("Path to the Xauthority file"));
+            Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Path to a script to execute when starting the display server"));
+            Entry(DisplayStopCommand,  QString,     _S(DATA_INSTALL_DIR "/scripts/Xstop"),      _S("Path to a script to execute when stopping the display server"));
+            Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("The lowest virtual terminal number that will be used."));
         );
-        Section(WaylandDisplay,
-            Entry(SessionDir,          QString,     _S("/usr/share/wayland-sessions"),                 _S("Session description directory"));
-            Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                       _S("Wayland session script path\n"
-                                                                                                          "A script to execute when starting the desktop session"));
+
+        Section(Wayland,
+            Entry(SessionDir,          QString,     _S("/usr/share/wayland-sessions"),          _S("Directory containing available Wayland sessions"));
+            Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                _S("Path to a script to execute when starting the desktop session"));
+	    Entry(SessionLogFile,      QString,     _S(".cache/wayland-errors"),                       _S("Path to the user session log file"));
         );
+
         Section(Users,
-            Entry(DefaultPath,         QString,     _S("/bin:/usr/bin:/usr/local/bin"),         _S("Default $PATH"));
+            Entry(DefaultPath,         QString,     _S("/bin:/usr/bin:/usr/local/bin"),         _S("Default $PATH for logged in users"));
             Entry(MinimumUid,          int,         UID_MIN,                                    _S("Minimum user id for displayed users"));
             Entry(MaximumUid,          int,         UID_MAX,                                    _S("Maximum user id for displayed users"));
-            Entry(HideUsers,           QStringList, QStringList(),                              _S("Hidden users"));
-            Entry(HideShells,          QStringList, QStringList(),                              _S("Hidden shells\n"
+            Entry(HideUsers,           QStringList, QStringList(),                              _S("Comma-separated list of users that should not be listed"));
+            Entry(HideShells,          QStringList, QStringList(),                              _S("Comma-separated list of shells.\n"
                                                                                                    "Users with these shells as their default won't be listed"));
             Entry(RememberLastUser,    bool,        true,                                       _S("Remember the last successfully logged in user"));
             Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
         );
+
         Section(Autologin,
-            Entry(User,                QString,     QString(),                                  _S("Autologin user"));
-            Entry(Session,             QString,     QString(),                                  _S("Autologin session"));
-            Entry(Relogin,             bool,        false,                                      _S("Autologin again on session exit"));
+            Entry(User,                QString,     QString(),                                  _S("Username for autologin session"));
+            Entry(Session,             QString,     QString(),                                  _S("Name of session file for autologin session"));
+            Entry(Relogin,             bool,        false,                                      _S("Whether sddm should automatically log back into sessions when they exit"));
         );
     );
 
     Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? QString::fromLocal8Bit(tmp->pw_dir) : QStringLiteral(STATE_DIR);}().append(QStringLiteral("/state.conf")),
         Section(Last,
-            Entry(Session,         QString,     QString(),                                  _S("Name of the session file of the last session selected. This session will be preselected when the login screen shows up."));
-            Entry(User,            QString,     QString(),                                  _S("Name of the last logged-in user. This username will be preselected/shown when the login screen shows up"));
+            Entry(Session,         QString,     QString(),                                      _S("Name of the session for the last logged-in user.\n"
+                                                                                                   "This session will be preselected when the login screen appears."));
+            Entry(User,            QString,     QString(),                                      _S("Name of the last logged-in user.\n"
+                                                                                                   "This user will be preselected when the login screen appears"));
         );
     );
 

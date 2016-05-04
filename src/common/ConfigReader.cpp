@@ -30,12 +30,15 @@
 
 QTextStream &operator>>(QTextStream &str, QStringList &list)  {
     list.clear();
-    foreach(const QStringRef &s, str.readLine().splitRef(QLatin1Char(',')))
-    {
+
+    QString line = str.readLine();
+
+    Q_FOREACH (const QStringRef &s, line.splitRef(QLatin1Char(','))) {
         QStringRef trimmed = s.trimmed();
         if (!trimmed.isEmpty())
             list.append(trimmed.toString());
     }
+
     return str;
 }
 
@@ -186,17 +189,17 @@ namespace SDDM {
          * Initialization of the map of nondefault values to be saved
          */
         if (section) {
-            if (entry && !entry->isDefault())
+            if (entry && !entry->matchesDefault())
                 remainingEntries.insert(section, entry);
             else
                 for (const ConfigEntryBase *b : section->entries().values())
-                    if (!b->isDefault())
+                    if (!b->matchesDefault())
                         remainingEntries.insert(section, b);
         }
         else {
             for (const ConfigSection *s : m_sections)
                 for (const ConfigEntryBase *b : s->entries().values())
-                    if (!b->isDefault())
+                    if (!b->matchesDefault())
                         remainingEntries.insert(s, b);
         }
 

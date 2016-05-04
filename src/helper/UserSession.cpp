@@ -46,14 +46,14 @@ namespace SDDM {
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QStringLiteral("greeter")) {
             QProcess::start(m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
-            qDebug() << "Starting:" << mainConfig.XDisplay.SessionCommand.get()
+            qDebug() << "Starting:" << mainConfig.X11.SessionCommand.get()
                      << m_path;
-            QProcess::start(mainConfig.XDisplay.SessionCommand.get(),
+            QProcess::start(mainConfig.X11.SessionCommand.get(),
                             QStringList() << m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
-            qDebug() << "Starting:" << mainConfig.WaylandDisplay.SessionCommand.get()
+            qDebug() << "Starting:" << mainConfig.Wayland.SessionCommand.get()
                      << m_path;
-            QProcess::start(mainConfig.WaylandDisplay.SessionCommand.get(),
+            QProcess::start(mainConfig.Wayland.SessionCommand.get(),
                             QStringList() << m_path);
         } else {
             qCritical() << "Unable to run user session: unknown session type";
@@ -134,17 +134,24 @@ namespace SDDM {
         //we want to redirect after we setuid so that the log file is owned by the user
 
         // determine stderr log file based on session type
-        QString fileName = sessionType == QStringLiteral("x11")
-            ? QStringLiteral(".xsession-errors") : QStringLiteral(".wayland-errors");
+        QString sessionLog = QStringLiteral("%1/%2")
+                .arg(QString::fromLocal8Bit(pw->pw_dir))
+                .arg(sessionType == QStringLiteral("x11")
+                     ? mainConfig.X11.SessionLogFile.get()
+                     : mainConfig.Wayland.SessionLogFile.get());
+
+        // create the path
+        QFileInfo finfo(sessionLog);
+        QDir().mkpath(finfo.absolutePath());
 
         //swap the stderr pipe of this subprcess into a file
-        int fd = ::open(qPrintable(fileName), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        int fd = ::open(qPrintable(sessionLog), O_WRONLY | O_CREAT | O_TRUNC, 0600);
         if (fd >= 0)
         {
             dup2 (fd, STDERR_FILENO);
             ::close(fd);
         } else {
-            qWarning() << "Could not open stderr to" << fileName;
+            qWarning() << "Could not open stderr to" << sessionLog;
         }
 
         //redirect any stdout to /dev/null
@@ -166,11 +173,16 @@ namespace SDDM {
             QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
             qDebug() << "Adding cookie to" << file;
 
+
+            // create the path
+            QFileInfo finfo(file);
+            QDir().mkpath(finfo.absolutePath());
+
             QFile file_handler(file);
             file_handler.open(QIODevice::WriteOnly);
             file_handler.close();
 
-            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
+            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
 
             // execute xauth
             FILE *fp = popen(qPrintable(cmd), "w");

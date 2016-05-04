@@ -103,6 +103,29 @@ namespace SDDM {
         m_displayServer->start();
     }
 
+    bool Display::attemptAutologin() {
+        Session::Type sessionType = Session::X11Session;
+
+        // determine session type
+        const QString &autologinSession = mainConfig.Autologin.Session.get();
+        if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
+            sessionType = Session::X11Session;
+        } else if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
+            sessionType = Session::WaylandSession;
+        } else {
+            qCritical() << "Unable to find autologin session entry" << autologinSession;
+            return false;
+        }
+
+        Session session;
+        session.setTo(sessionType, autologinSession);
+
+        m_auth->setAutologin(true);
+        startAuth(mainConfig.Autologin.User.get(), QString(), session);
+
+        return true;
+    }
+
     void Display::displayServerStarted() {
         // check flag
         if (m_started)
@@ -116,31 +139,19 @@ namespace SDDM {
 
         if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
             !mainConfig.Autologin.User.get().isEmpty() && !mainConfig.Autologin.Session.get().isEmpty()) {
+#if HAVE_PLYMOUTH
+            system("/bin/plymouth quit");
+#endif
             // reset first flag
             daemonApp->first = false;
 
             // set flags
             m_started = true;
 
-            // determine session type
-            const QString &autologinSession = mainConfig.Autologin.Session.get();
-            Session session;
-            if (findSessionEntry(mainConfig.XDisplay.SessionDir.get(), autologinSession)) {
-                session.setTo(Session::X11Session, autologinSession);
-            } else if (findSessionEntry(mainConfig.WaylandDisplay.SessionDir.get(), autologinSession)) {
-                session.setTo(Session::WaylandSession, autologinSession);
-            } else {
-                qCritical() << "Unable to find autologin session entry" << autologinSession;
-                emit loginFailed(m_socket);
+            bool success = attemptAutologin();
+            if (success) {
                 return;
             }
-
-            // start session
-            m_auth->setAutologin(true);
-            startAuth(mainConfig.Autologin.User.get(), QString(), session);
-
-            // return
-            return;
         }
 
         // start socket server
@@ -296,8 +307,14 @@ namespace SDDM {
             m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
 
             // save last user and last session
-            stateConfig.Last.User.set(m_auth->user());
-            stateConfig.Last.Session.set(m_sessionName);
+            if (mainConfig.Users.RememberLastUser.get())
+                stateConfig.Last.User.set(m_auth->user());
+            else
+                stateConfig.Last.User.setDefault();
+            if (mainConfig.Users.RememberLastSession.get())
+                stateConfig.Last.Session.set(m_sessionName);
+            else
+                stateConfig.Last.Session.setDefault();
             stateConfig.save();
 
             if (m_socket)

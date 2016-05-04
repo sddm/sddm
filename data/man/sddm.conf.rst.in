@@ -41,6 +41,14 @@ OPTIONS
 	If property is set to `none`, numlock won't be changed.
 	Default value is "none".
 
+`InputMethod=`
+        Set the Qt input method for the greeter.
+        Tablet users with Qt Virtual Keyboard installed can set this
+        to "qtvirtualkeyboard" for the on-screen keyboard.
+        Other known values are "ibus" for the Intelligent Input Bus,
+        or "compose" for dead keys support.
+        Leave this empty if unsure.
+
 [Theme] section:
 
 `ThemeDir=`
@@ -60,15 +68,22 @@ OPTIONS
 	Name of the cursor theme to be set before starting
 	the display server.
 
-[XDisplay] section:
+`EnableAvatars=`
+	When enabled, home directories are searched for ".face.icon" images to
+	display as their avatars. This can be slow on some file systems.
+	When disabled, all avatars will be default. Themes may choose to hide
+	them altogether.
+	Default value is true.
+
+[X11] section:
 
 `ServerPath=`
 	Path of the X server.
 	Default value is "/usr/bin/X".
 
 `ServerArguments=`
-        Arguments to the X server.
-        Default value is "-nolisten tcp".
+	Arguments to the X server.
+	Default value is "-nolisten tcp".
 
 `XephyrPath=`
 	Path of the Xephyr.
@@ -86,6 +101,14 @@ OPTIONS
 	Path of script to execute when starting the desktop session.
 	Default value is "@SESSION_COMMAND@".
 
+`SessionLogFile=`
+        Path to the user session log file, relative to the home directory.
+        Default value is ".cache/xsession-errors".
+
+`UserAuthFile=`
+        Path to the Xauthority file, relative to the home directory.
+        Default value is ".Xauthority".
+
 `DisplayCommand=`
 	Path of script to execute when starting the display server.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
@@ -100,7 +123,7 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
-[WaylandDisplay] section:
+[Wayland] section:
 
 `SessionDir=`
 	Path of the directory containing session files.
@@ -109,6 +132,10 @@ OPTIONS
 `SessionCommand=`
 	Path of script to execute when starting the desktop session.
 	Default value is "@WAYLAND_SESSION_COMMAND@".
+
+`SessionLogFile=`
+        Path to the user session log file, relative to the home directory.
+        Default value is ".cache/wayland-errors".
 
 [Users] section:
 

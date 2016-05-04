@@ -76,6 +76,7 @@ namespace SDDM {
             env.insert(QStringLiteral("DISPLAY"), m_display->name());
             env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
             env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+            env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());
             m_process->setProcessEnvironment(env);
 
             // start greeter
@@ -233,6 +234,9 @@ namespace SDDM {
         // clean up
         m_auth->deleteLater();
         m_auth = nullptr;
+#if HAVE_PLYMOUTH
+        system("/bin/plymouth quit");
+#endif
     }
 
     void Greeter::onReadyReadStandardError()

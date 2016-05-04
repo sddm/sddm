@@ -6,6 +6,18 @@
 
 ## 0.14.0 - XXXX-XX-XX
 ----------------------
+    + New sddm.conf option EnableAvatars (useful for slow filesystems)
+    + New sddm.conf option UserAuthFile on the XDisplay section
+      to change the default Xauthority file name and path.
+    + New sddm.conf option SessionLogFile on XDisplay and WaylandDisplay
+      sections to change the default user session log location.
+    + ComboBox now exposes the arrow background color as
+      "arrowColor" property.
+    * More theme-neutral default user and root avatars
+    * REMOVED the "circles" theme. Remember to change it if you had it set!
+    * Update Estonian translation.
+    * Add Dutch translation from Eric Hameleers.
+
 
 ## 0.13.0 - 2015-11-04
 ----------------------

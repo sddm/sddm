@@ -20,7 +20,7 @@ They can be used as a starting point for new themes.
 
 ## SCREENSHOTS
 
-![sample screenshot](https://raw.github.com/sddm/sddm/master/data/themes/maui/maui.jpg)
+![sample screenshot](https://raw.github.com/sddm/sddm/master/src/greeter/theme/maui.jpg)
 
 ## VIDEOS
 
@@ -91,3 +91,19 @@ ACLs if your filesystem does support it.
 setfacl -m u:sddm:x /home/username
 setfacl -m u:sddm:r /home/username/.face.icon
 ```
+
+### Custom DPI
+
+In order to set custom DPI for high resolution screens you should configure
+Xorg yourself.  An easy way is to pass an additional argument to Xorg.
+
+Edit ``/etc/sddm.conf``, go to the ``X11`` section and change ``ServerArguments`` like this:
+
+```
+ServerArguments="-nolisten tcp -dpi 192"
+```
+
+to set DPI to 192.
+
+As an alternative you can edit Xorg configuration ``xorg.conf``, please refer to the
+Xorg documentation.

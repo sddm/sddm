@@ -113,4 +113,4 @@ namespace SDDM {
     }
 }
 
-#include "KeyboardModel.moc"
+#include "moc_KeyboardModel.cpp"

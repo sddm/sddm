@@ -165,6 +165,8 @@ else()
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
+add_feature_info("systemd" SYSTEMD_FOUND "systemd support")
+add_feature_info("journald" JOURNALD_FOUND "journald support")
 
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")

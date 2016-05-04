@@ -77,6 +77,7 @@ namespace SDDM {
         virtual void setValue(const QString &str) = 0;
         virtual QString toConfigShort() const = 0;
         virtual QString toConfigFull() const = 0;
+        virtual bool matchesDefault() const = 0;
         virtual bool isDefault() const = 0;
     };
 
@@ -107,6 +108,7 @@ namespace SDDM {
             m_description(description),
             m_default(value),
             m_value(value),
+            m_isDefault(true),
             m_parent(parent) {
             m_parent->m_entries[name] = this;
         }
@@ -117,13 +119,19 @@ namespace SDDM {
 
         void set(const T val) {
             m_value = val;
+            m_isDefault = false;
         }
 
-        bool isDefault() const {
+        bool matchesDefault() const {
             return m_value == m_default;
         }
 
+        bool isDefault() const {
+            return m_isDefault;
+        }
+
         bool setDefault() {
+            m_isDefault = true;
             if (m_value == m_default)
                 return false;
             m_value = m_default;
@@ -147,6 +155,7 @@ namespace SDDM {
 
         // specialised for QString
         void setValue(const QString &str) {
+            m_isDefault = false;
             QTextStream in(qPrintable(str));
             in >> m_value;
         }
@@ -167,6 +176,7 @@ namespace SDDM {
         const QString m_description;
         T m_default;
         T m_value;
+        bool m_isDefault;
         ConfigSection *m_parent;
     };
 
