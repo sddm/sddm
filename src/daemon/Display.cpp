@@ -100,7 +100,9 @@ namespace SDDM {
             return;
 
         // start display server
-        m_displayServer->start();
+        if (!m_displayServer->start()) {
+            qFatal("Display server failed to start. Exiting");
+        }
     }
 
     bool Display::attemptAutologin() {

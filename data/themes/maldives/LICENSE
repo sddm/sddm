@@ -1,6 +1,6 @@
 Creative Commons Legal Code
 
-Attribution 3.0 Unported
+Attribution-ShareAlike 3.0 Unported
 
     CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE LEGAL
     SERVICES. DISTRIBUTION OF THIS LICENSE DOES NOT CREATE AN ATTORNEY-CLIENT
@@ -41,14 +41,26 @@ IN CONSIDERATION OF YOUR ACCEPTANCE OF SUCH TERMS AND CONDITIONS.
     entirety in unmodified form along with one or more other contributions,
     each constituting separate and independent works in themselves, which
     together are assembled into a collective whole. A work that constitutes a
-    Collection will not be considered an Adaptation (as defined above) for the
+    Collection will not be considered an Adaptation (as defined below) for the
     purposes of this License.
- c. "Distribute" means to make available to the public the original and copies
+ c. "Creative Commons Compatible License" means a license that is listed at
+    http://creativecommons.org/compatiblelicenses that has been approved by
+    Creative Commons as being essentially equivalent to this License,
+    including, at a minimum, because that license: (i) contains terms that have
+    the same purpose, meaning and effect as the License Elements of this
+    License; and, (ii) explicitly permits the relicensing of adaptations of
+    works made available under that license under this License or a Creative
+    Commons jurisdiction license with the same License Elements as this
+    License.
+ d. "Distribute" means to make available to the public the original and copies
     of the Work or Adaptation, as appropriate, through sale or other transfer
     of ownership.
- d. "Licensor" means the individual, individuals, entity or entities that offer
+ e. "License Elements" means the following high-level license attributes as
+    selected by Licensor and indicated in the title of this License:
+    Attribution, ShareAlike.
+ f. "Licensor" means the individual, individuals, entity or entities that offer
     (s) the Work under the terms of this License.
- e. "Original Author" means, in the case of a literary or artistic work, the
+ g. "Original Author" means, in the case of a literary or artistic work, the
     individual, individuals, entity or entities who created the Work or if no
     individual or entity can be identified, the publisher; and in addition (i)
     in the case of a performance the actors, singers, musicians, dancers, and
@@ -58,7 +70,7 @@ IN CONSIDERATION OF YOUR ACCEPTANCE OF SUCH TERMS AND CONDITIONS.
     entity who first fixes the sounds of a performance or other sounds; and,
     (iii) in the case of broadcasts, the organization that transmits the
     broadcast.
- f. "Work" means the literary and/or artistic work offered under the terms of
+ h. "Work" means the literary and/or artistic work offered under the terms of
     this License including without limitation any production in the literary,
     scientific and artistic domain, whatever may be the mode or form of its
     expression including digital form, such as a book, pamphlet and other
@@ -75,11 +87,11 @@ IN CONSIDERATION OF YOUR ACCEPTANCE OF SUCH TERMS AND CONDITIONS.
     it is protected as a copyrightable work; or a work performed by a variety
     or circus performer to the extent it is not otherwise considered a literary
     or artistic work.
- g. "You" means an individual or entity exercising rights under this License
+ i. "You" means an individual or entity exercising rights under this License
     who has not previously violated the terms of this License with respect to
     the Work, or who has received express permission from the Licensor to
     exercise rights under this License despite a previous violation.
- h. "Publicly Perform" means to perform public recitations of the Work and to
+ j. "Publicly Perform" means to perform public recitations of the Work and to
     communicate to the public those public recitations, by any means or
     process, including by wire or wireless means or public digital
     performances; to make available to the public Works in such a way that
@@ -88,7 +100,7 @@ IN CONSIDERATION OF YOUR ACCEPTANCE OF SUCH TERMS AND CONDITIONS.
     or process and the communication to the public of the performances of the
     Work, including by public digital performance; to broadcast and rebroadcast
     the Work by any means including signs, sounds or images.
- i. "Reproduce" means to make copies of the Work by any means including without
+ k. "Reproduce" means to make copies of the Work by any means including without
     limitation by sound or visual recordings and the right of fixation and
     reproducing fixations of the Work, including storage of a protected
     performance or phonogram in digital form or other electronic medium.
@@ -158,10 +170,36 @@ subject to and limited by the following restrictions:
     Collection apart from the Work itself to be made subject to the terms of
     this License. If You create a Collection, upon notice from any Licensor You
     must, to the extent practicable, remove from the Collection any credit as
-    required by Section 4(b), as requested. If You create an Adaptation, upon
+    required by Section 4(c), as requested. If You create an Adaptation, upon
     notice from any Licensor You must, to the extent practicable, remove from
-    the Adaptation any credit as required by Section 4(b), as requested.
- b. If You Distribute, or Publicly Perform the Work or any Adaptations or
+    the Adaptation any credit as required by Section 4(c), as requested.
+ b. You may Distribute or Publicly Perform an Adaptation only under the terms
+    of: (i) this License; (ii) a later version of this License with the same
+    License Elements as this License; (iii) a Creative Commons jurisdiction
+    license (either this or a later license version) that contains the same
+    License Elements as this License (e.g., Attribution-ShareAlike 3.0 US));
+    (iv) a Creative Commons Compatible License. If you license the Adaptation
+    under one of the licenses mentioned in (iv), you must comply with the terms
+    of that license. If you license the Adaptation under the terms of any of
+    the licenses mentioned in (i), (ii) or (iii) (the "Applicable License"),
+    you must comply with the terms of the Applicable License generally and the
+    following provisions: (I) You must include a copy of, or the URI for, the
+    Applicable License with every copy of each Adaptation You Distribute or
+    Publicly Perform; (II) You may not offer or impose any terms on the
+    Adaptation that restrict the terms of the Applicable License or the ability
+    of the recipient of the Adaptation to exercise the rights granted to that
+    recipient under the terms of the Applicable License; (III) You must keep
+    intact all notices that refer to the Applicable License and to the
+    disclaimer of warranties with every copy of the Work as included in the
+    Adaptation You Distribute or Publicly Perform; (IV) when You Distribute or
+    Publicly Perform the Adaptation, You may not impose any effective
+    technological measures on the Adaptation that restrict the ability of a
+    recipient of the Adaptation from You to exercise the rights granted to that
+    recipient under the terms of the Applicable License. This Section 4(b)
+    applies to the Adaptation as incorporated in a Collection, but this does
+    not require the Collection apart from the Adaptation itself to be made
+    subject to the terms of the Applicable License.
+ c. If You Distribute, or Publicly Perform the Work or any Adaptations or
     Collections, You must, unless a request has been made pursuant to Section 4
     (a), keep intact all copyright notices for the Work and provide, reasonable
     to the medium or means You are utilizing: (i) the name of the Original
@@ -173,11 +211,11 @@ subject to and limited by the following restrictions:
     Work if supplied; (iii) to the extent reasonably practicable, the URI, if
     any, that Licensor specifies to be associated with the Work, unless such
     URI does not refer to the copyright notice or licensing information for the
-    Work; and (iv) , consistent with Section 3(b), in the case of an
+    Work; and (iv) , consistent with Ssection 3(b), in the case of an
     Adaptation, a credit identifying the use of the Work in the Adaptation
     (e.g., "French translation of the Work by Original Author," or "Screenplay
     based on original Work by Original Author"). The credit required by this
-    Section 4 (b) may be implemented in any reasonable manner; provided,
+    Section 4(c) may be implemented in any reasonable manner; provided,
     however, that in the case of a Adaptation or Collection, at a minimum such
     credit will appear, if a credit for all contributing authors of the
     Adaptation or Collection appears, then as part of these credits and in a
@@ -190,7 +228,7 @@ subject to and limited by the following restrictions:
     appropriate, of You or Your use of the Work, without the separate, express
     prior written permission of the Original Author, Licensor and/or
     Attribution Parties.
- c. Except as otherwise agreed in writing by the Licensor or as may be
+ d. Except as otherwise agreed in writing by the Licensor or as may be
     otherwise permitted by applicable law, if You Reproduce, Distribute or
     Publicly Perform the Work either by itself or as part of any Adaptations or
     Collections, You must not distort, mutilate, modify or take other
@@ -293,7 +331,7 @@ POSSIBILITY OF SUCH DAMAGES.
     Commons. Any permitted use will be in compliance with Creative Commons'
     then-current trademark usage guidelines, as may be published on its website
     or otherwise made available upon request from time to time. For the
-    avoidance of doubt, this trademark restriction does not form part of this
+    avoidance of doubt, this trademark restriction does not form part of the
     License.
 
-    Creative Commons may be contacted at http://creativecommons.org/.
+    Creative Commons may be contacted at https://creativecommons.org/.
