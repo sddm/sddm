@@ -177,7 +177,7 @@ namespace SDDM {
         // to know if we should overwrite the config or not
         bool changed = false;
         // stores the order of the loaded sections
-        // every one could be there only once - if it occurs more times in the config, the occurences are merged
+        // each one could be there only once - if it occurs more times in the config, the occurrences are merged
         QVector<const ConfigSection*> sectionOrder;
         // the actual bytearray data for every section
         QMap<const ConfigSection*, QByteArray> sectionData;

@@ -163,14 +163,14 @@ OPTIONS
 
 `RememberLastUser=`
 	If this flag is true, LastUser value will updated
-	on every successfull login, if false last user value
-	wont be updated.
+	on every successful login, if false last user value
+	won't be updated.
 	Default value is true.
 
 `RememberLastSession=`
 	If this flag is true, LastSession value will updated
-	on every successfull login, if false last session value
-	wont be updated.
+	on every successful login, if false last session value
+	won't be updated.
 	Default value is true.
 
 [Autologin] section:
