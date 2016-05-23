@@ -129,6 +129,8 @@ namespace SDDM {
             // add to sessions list
             if (execAllowed)
                 d->sessions.push_back(si);
+            else
+                delete si;
         }
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
