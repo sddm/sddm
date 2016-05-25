@@ -98,7 +98,9 @@ OPTIONS
 	Default value is "/usr/share/xsessions".
 
 `SessionCommand=`
-	Path of script to execute when starting the desktop session.
+	Path of script to execute when starting the desktop session. This script
+  receives the value of the "Exec" setting in the ".desktop" file of the selected
+  session as the first argument.
 	Default value is "@SESSION_COMMAND@".
 
 `SessionLogFile=`
