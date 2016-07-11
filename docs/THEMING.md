@@ -15,7 +15,7 @@ We also provide models containing information about the screens, available sessi
 
 ## Proxy Object
 
-We provide a proxy object, called as `sddm` to the themes as a context property. This object holds some useful properties about the host system. It also acts as a proxy between the greeter and the daemon. All of the methods called on this object will be transfered to the daemon through a local socket to be executed there.
+We provide a proxy object, called as `sddm` to the themes as a context property. This object holds some useful properties about the host system. It also acts as a proxy between the greeter and the daemon. All of the methods called on this object will be transferred to the daemon through a local socket to be executed there.
 
 ### Properties
 
@@ -75,7 +75,7 @@ You can test your themes using `sddm-greeter`. Note that in this mode, actions l
 
     sddm-greeter --test --theme /path/to/your/theme
 
-If you have compiled SDDM with Qt4, you can also use it in a nested X session through Xepyhr. To accomplish this use:
+If you have compiled SDDM with Qt4, you can also use it in a nested X session through Xephyr. To accomplish this use:
 
     sddm --test-mode
 

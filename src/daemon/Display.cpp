@@ -214,7 +214,7 @@ namespace SDDM {
                         const Session &session) {
         m_socket = socket;
 
-        //the SDDM user has special priveledges that skip password checking so that we can load the greeter
+        //the SDDM user has special privileges that skip password checking so that we can load the greeter
         //block ever trying to log in as the SDDM user
         if (user == QLatin1String("sddm")) {
             return;
@@ -232,7 +232,7 @@ namespace SDDM {
         if (dir.exists(themeName))
             return dir.absoluteFilePath(themeName);
 
-        // otherwise return the first one in alphabetical orde, but
+        // otherwise return the first one in alphabetical order, but
         // return the default theme name if none is found
         QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable, QDir::Name);
         if (entries.count() == 0)

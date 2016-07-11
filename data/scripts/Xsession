@@ -85,6 +85,10 @@ elif [ -f /etc/X11/Xresources ]; then
 fi
 [ -f $HOME/.Xresources ] && xrdb -merge $HOME/.Xresources
 
+if [ -f "$USERXSESSION" ]; then
+  . "$USERXSESSION"
+fi
+
 case $session in
   "")
     exec xmessage -center -buttons OK:0 -default OK "Sorry, $DESKTOP_SESSION is no valid session."
