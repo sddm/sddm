@@ -22,6 +22,7 @@ set(TRANSLATION_FILES
     sr@ijekavian.ts
     sr@ijekavianlatin.ts
     sr@latin.ts
+    sv.ts
     ru.ts
     tr.ts
     zh_CN.ts
