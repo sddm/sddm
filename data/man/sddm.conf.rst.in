@@ -103,7 +103,7 @@ OPTIONS
 
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
-        Default value is ".cache/xsession-errors".
+        Default value is ".local/share/sddm/xorg-session.log".
 
 `UserAuthFile=`
         Path to the Xauthority file, relative to the home directory.
@@ -135,7 +135,7 @@ OPTIONS
 
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
-        Default value is ".cache/wayland-errors".
+        Default value is ".local/share/sddm/wayland-session.log".
 
 [Users] section:
 

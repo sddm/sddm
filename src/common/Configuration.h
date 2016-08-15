@@ -64,7 +64,7 @@ namespace SDDM {
             Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Path to xauth binary"));
             Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Directory containing available X sessions"));
             Entry(SessionCommand,      QString,     _S(SESSION_COMMAND),                        _S("Path to a script to execute when starting the desktop session"));
-	    Entry(SessionLogFile,      QString,     _S(".cache/xsession-errors"),               _S("Path to the user session log file"));
+	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/xorg-session.log"),   _S("Path to the user session log file"));
 	    Entry(UserAuthFile,        QString,     _S(".Xauthority"),                          _S("Path to the Xauthority file"));
             Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Path to a script to execute when starting the display server"));
             Entry(DisplayStopCommand,  QString,     _S(DATA_INSTALL_DIR "/scripts/Xstop"),      _S("Path to a script to execute when stopping the display server"));
@@ -74,7 +74,7 @@ namespace SDDM {
         Section(Wayland,
             Entry(SessionDir,          QString,     _S("/usr/share/wayland-sessions"),          _S("Directory containing available Wayland sessions"));
             Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                _S("Path to a script to execute when starting the desktop session"));
-	    Entry(SessionLogFile,      QString,     _S(".cache/wayland-errors"),                       _S("Path to the user session log file"));
+	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/wayland-session.log"),_S("Path to the user session log file"));
         );
 
         Section(Users,
