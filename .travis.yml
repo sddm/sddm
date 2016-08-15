@@ -4,53 +4,30 @@ compiler:
   - clang
   - gcc
 
+sudo: required
+
 env:
   - PAM=0
   - PAM=1
 
-before_install:
-  - if [ "$CXX" == "g++" ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
-  #- if [ "$CXX" == "clang++" ]; then sudo add-apt-repository -y ppa:h-rayflood/gcc-upper; sudo add-apt-repository -y ppa:h-rayflood/llvm; fi
-  - sudo add-apt-repository -y ppa:beineri/opt-qt542
-  - sudo apt-get update -y
+arch:
+  packages:
+    - pam
+    - python-docutils
+    - qt5-declarative
+    - qt5-tools
+    - extra-cmake-modules
+    - clang
+    - git
+  script:
+    - if [ "$PAM" == "0" ]; then cmake -DBUILD_MAN_PAGES=ON -DENABLE_PAM:BOOL=OFF .; fi
+    - if [ "$PAM" == "1" ]; then cmake -DBUILD_MAN_PAGES=ON -DENABLE_PAM:BOOL=ON .; fi
+    - make
 
-install:
-  # gcc
-  - if [ "$CC" == "gcc" ]; then sudo apt-get install -qq gcc-4.8; fi
-  - if [ "$CC" == "gcc" ]; then export CC="gcc-4.8"; fi
-  - if [ "$CXX" == "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-  - if [ "$CXX" == "g++" ]; then export CXX="g++-4.8"; fi
-  # clang
-  #- if [ "$CXX" == "clang++" ]; then sudo apt-get install -qq clang-3.6; fi
-  #- if [ "$CXX" == "clang++" ]; then export CXX="clang++-3.6"; fi
-  # qt
-  - sudo apt-get update
-  - sudo apt-get -y install qt54declarative qt54tools
-  # pam
-  - if [ "$PAM" == "1" ]; then sudo apt-get install -qq libpam0g-dev; fi
-  # x11
-  - sudo apt-get install -qq libpam0g-dev libX11-dev libx11-xcb-dev
-  # xcb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb1_1.10-2ubuntu1_amd64.deb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb-xkb1_1.10-2ubuntu1_amd64.deb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb1-dev_1.10-2ubuntu1_amd64.deb
-  - sudo wget http://mirrors.kernel.org/ubuntu/pool/main/libx/libxcb/libxcb-xkb-dev_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb1_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb-xkb1_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb1-dev_1.10-2ubuntu1_amd64.deb
-  - sudo dpkg --force-depends -i libxcb-xkb-dev_1.10-2ubuntu1_amd64.deb
+script:
+  - "curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash"
 
-before_script:
-  # cmake
-  - wget --no-check-certificate http://www.cmake.org/files/v3.3/cmake-3.3.0-Linux-x86_64.tar.gz -O cmake.tar.gz
-  - tar -xzf cmake.tar.gz -C $HOME
-  - export PATH=$HOME/cmake-3.3.0-Linux-x86_64/bin:$PATH
-  - cmake --version
-  # prepare
-  - source /opt/qt54/bin/qt54-env.sh
-  - mkdir build
-  - cd build
-  - if [ "$PAM" == "0" ]; then cmake -DENABLE_PAM:BOOL=OFF ..; fi
-  - if [ "$PAM" == "1" ]; then cmake -DENABLE_PAM:BOOL=ON ..; fi
-
-script: make
+notifications:
+  email: false
+  irc:
+    - "chat.freenode.net#sddm"
