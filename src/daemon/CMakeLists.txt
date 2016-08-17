@@ -32,13 +32,16 @@ qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.fre
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml"  "DisplayManager.h" SDDM::DisplayManagerSession)
 
 add_executable(sddm ${DAEMON_SOURCES})
-target_link_libraries(sddm ${LIBXCB_LIBRARIES})
+target_link_libraries(sddm
+                      Qt5::DBus
+                      Qt5::Network
+                      Qt5::Qml
+                      ${LIBXCB_LIBRARIES})
 if(PAM_FOUND)
     target_link_libraries(sddm ${PAM_LIBRARIES})
 else()
     target_link_libraries(sddm crypt)
 endif()
-qt5_use_modules(sddm DBus Network Qml)
 
 if(JOURNALD_FOUND)
     target_link_libraries(sddm ${JOURNALD_LIBRARIES})

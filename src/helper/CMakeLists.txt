@@ -27,7 +27,7 @@ else()
 endif()
 
 add_executable(sddm-helper ${HELPER_SOURCES})
-qt5_use_modules(sddm-helper Network)
+target_link_libraries(sddm-helper Qt5::Network)
 if(PAM_FOUND)
     target_link_libraries(sddm-helper ${PAM_LIBRARIES})
 else()
