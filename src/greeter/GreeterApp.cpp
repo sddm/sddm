@@ -251,6 +251,9 @@ int main(int argc, char **argv) {
     // install message handler
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
 
+    // HiDPI
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
     QStringList arguments;
 
     for (int i = 0; i < argc; i++)
