@@ -199,18 +199,13 @@ Rectangle {
                         }
                     }
 
-                    Text {
-                        id: time_label
-                        anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-
-                        text: Qt.formatDateTime(new Date(), "dddd, dd MMMM yyyy HH:mm AP")
-
-                        horizontalAlignment: Text.AlignRight
-
-                        color: "#0b678c"
-                        font.bold: true
-                        font.pixelSize: 12
+                    Clock {
+                        id: clock
+                        anchors.centerIn: parent
+                        color: "white"
+                        timeFont.family: "Oxygen"
+                        timeFont.pixelSize: 13
+                        dateFont.pixelSize: 13
                     }
 
                     Menu {
