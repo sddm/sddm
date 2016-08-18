@@ -85,17 +85,17 @@ bool WaylandDisplayServer::start()
 
         // don't block in waitForStarted if we fail to start
         if (m_process->state() == QProcess::NotRunning) {
-            qCritical() << "Compositor failed to launch.";
+            qCritical() << "Compositor failed to launch";
             return false;
         }
 
         // wait for the compositor to start
         if (!m_process->waitForStarted()) {
-            qCritical() << "Failed to start compositor.";
+            qCritical() << "Failed to start compositor";
             return false;
         }
 
-        qDebug() << "Compositor process started.";
+        qDebug() << "Compositor process started";
         m_started = true;
         emit started();
     } else {
@@ -164,7 +164,7 @@ void WaylandDisplayServer::finished()
     m_started = false;
 
     // log message
-    qDebug() << "Compositor stopped.";
+    qDebug() << "Compositor stopped";
 
     // clean up
     m_process->deleteLater();
@@ -201,7 +201,7 @@ void WaylandDisplayServer::onHelperFinished(Auth::HelperExitStatus status) {
     m_started = false;
 
     // log message
-    qDebug() << "Compositor stopped.";
+    qDebug() << "Compositor stopped";
 
     // clean up
     m_auth->deleteLater();

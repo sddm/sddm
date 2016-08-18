@@ -46,6 +46,7 @@
 
 #include "Login1Manager.h"
 #include "Login1Session.h"
+#include "VirtualTerminal.h"
 
 
 namespace SDDM {
@@ -322,6 +323,11 @@ namespace SDDM {
             // Use the greeter VT, for wayland sessions the helper overwrites this
             env.insert(QStringLiteral("XDG_VTNR"), QString::number(terminalId()));
         }
+        // create new VT for Wayland sessions otherwise use greeter vt
+        int vt = terminalId();
+        if (session.xdgSessionType() == QLatin1String("wayland"))
+            vt = VirtualTerminal::setUpNewVt();
+        m_lastSession.setVt(vt);
 
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         if (session.xdgSessionType() == QLatin1String("x11"))
@@ -367,8 +373,13 @@ namespace SDDM {
                 stateConfig.Last.Session.setDefault();
             stateConfig.save();
 
-            if (m_socket)
+            if (m_socket) {
+                // switch to the new VT for Wayland sessions
+                if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
+                    VirtualTerminal::jumpToVt(m_lastSession.vt(), true);
+
                 emit loginSucceeded(m_socket);
+            }
         } else if (m_socket) {
             qDebug() << "Authentication failure";
             emit loginFailed(m_socket);

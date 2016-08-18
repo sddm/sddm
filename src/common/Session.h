@@ -42,6 +42,9 @@ namespace SDDM {
 
         Type type() const;
 
+        int vt() const;
+        void setVt(int vt);
+
         QString xdgSessionType() const;
 
         QDir directory() const;
@@ -66,6 +69,7 @@ namespace SDDM {
     private:
         bool m_valid;
         Type m_type;
+        int m_vt;
         QDir m_dir;
         QString m_name;
         QString m_fileName;
