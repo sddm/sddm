@@ -274,6 +274,9 @@ namespace SDDM {
             return;
         }
 
+        // cache last session
+        m_lastSession = session;
+
         // save session desktop file name, we'll use it to set the
         // last session later, in slotAuthenticationFinished()
         m_sessionName = session.fileName();
@@ -283,10 +286,9 @@ namespace SDDM {
 
         // create new VT for Wayland sessions otherwise use greeter vt
         int vt = terminalId();
-        if (session.xdgSessionType() == QLatin1String("wayland")) {
+        if (session.xdgSessionType() == QLatin1String("wayland"))
             vt = VirtualTerminal::setUpNewVt();
-            VirtualTerminal::jumpToVt(vt);
-        }
+        m_lastSession.setVt(vt);
 
         QProcessEnvironment env;
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
@@ -325,8 +327,13 @@ namespace SDDM {
                 stateConfig.Last.Session.setDefault();
             stateConfig.save();
 
-            if (m_socket)
+            if (m_socket) {
+                // switch to the new VT for Wayland sessions
+                if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
+                    VirtualTerminal::jumpToVt(m_lastSession.vt());
+
                 emit loginSucceeded(m_socket);
+            }
         } else if (m_socket) {
             qDebug() << "Authentication failure";
             emit loginFailed(m_socket);

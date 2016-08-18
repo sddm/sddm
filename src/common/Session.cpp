@@ -49,6 +49,16 @@ namespace SDDM {
         return m_type;
     }
 
+    int Session::vt() const
+    {
+        return m_vt;
+    }
+
+    void Session::setVt(int vt)
+    {
+        m_vt = vt;
+    }
+
     QString Session::xdgSessionType() const
     {
         return m_xdgSessionType;

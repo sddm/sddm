@@ -43,9 +43,6 @@ namespace SDDM {
     bool UserSession::start() {
         QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
-        for (const QString &key: env.keys())
-            qDebug() << key << " = " << env.value(key);
-
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QStringLiteral("greeter")) {
             qDebug() << "Starting greeter session:" << m_path;
             QProcess::start(m_path);
@@ -66,7 +63,6 @@ namespace SDDM {
         // wait until the Wayland socket is ready
         if (env.value(QLatin1String("XDG_SESSION_TYPE")) == QLatin1String("wayland") && m_displayServer) {
             const QString runtimeDir = env.value(QLatin1String("XDG_RUNTIME_DIR"));
-            //const QString socketName = env.value(QLatin1String("WAYLAND_DISPLAY"));
             const QString socketName = QLatin1String("sddm-wayland");
 
             // if the socket name is not specified we are not sure how it is called,
@@ -75,15 +71,6 @@ namespace SDDM {
             // wrong name we'd have to rely on the timeout and delay the session startup
             if (socketName.isEmpty()) {
                 // just return without even warning
-                if (!waitForStarted())
-                    return false;
-                emit sessionStarted(true);
-                return true;
-            }
-
-            // if we don't know the runtime directory just wait for the process to start
-            if (runtimeDir.isEmpty()) {
-                qWarning() << "XDG_RUNTIME_DIR is empty, do not wait for Wayland socket";
                 if (!waitForStarted())
                     return false;
                 emit sessionStarted(true);
@@ -107,7 +94,7 @@ namespace SDDM {
 
             connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
                     [this, socketFileName](const QString &path) {
-                qDebug() << "Directory" << path << "changed, checking for" << socketFileName;
+                qDebug() << "Directory" << path << "has changed, checking for" << socketFileName;
 
                 if (QFile::exists(socketFileName)) {
                     // kill the timer
