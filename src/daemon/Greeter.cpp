@@ -82,6 +82,9 @@ namespace SDDM {
         QString platformTheme;
         if (m_themeConfig->contains(QLatin1String("platformTheme")))
             platformTheme = m_themeConfig->value(QLatin1String("platformTheme")).toString();
+        QString style;
+        if (m_themeConfig->contains(QLatin1String("style")))
+            style = m_themeConfig->value(QLatin1String("style")).toString();
 
         // greeter command
         QStringList args;
@@ -89,6 +92,8 @@ namespace SDDM {
              << QLatin1String("--theme") << m_themePath;
         if (!platformTheme.isEmpty())
             args << QLatin1String("-platformtheme") << platformTheme;
+        if (!style.isEmpty())
+            args << QLatin1String("-style") << style;
 
         if (daemonApp->testing()) {
             // create process
