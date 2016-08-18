@@ -81,6 +81,8 @@ namespace SDDM {
 
         int m_terminalId { 7 };
 
+        Session m_lastSession;
+
         QString m_passPhrase;
         QString m_sessionName;
 

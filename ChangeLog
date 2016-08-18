@@ -17,6 +17,8 @@
     + Require Qt 5.6 or better.
     + Enable HiDPI support.
     - Actually change Qt platform theme.
+    - Switch to Wayland session vt only when authentication
+      succeeds.
     * More theme-neutral default user and root avatars
     * REMOVED the "circles" theme. Remember to change it if you had it set!
     * Update Estonian translation.
