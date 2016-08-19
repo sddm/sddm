@@ -30,6 +30,7 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 # Options
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
+option(ENABLE_PLYMOUTH "Enable plymouth smooth transition" OFF)
 option(ENABLE_PAM "Enable PAM support" ON)
 
 # ECM
@@ -90,6 +91,25 @@ find_package(XKB REQUIRED)
 
 # Qt 5
 find_package(Qt5 5.6.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools)
+
+# AccountsService Qt5 binding
+find_package(QtAccountsService)
+set_package_properties(QtAccountsService PROPERTIES 
+    DESCRIPTION "Qt-style API to use freedesktop.org's AccountsService DBus service"
+    URL "https://github.com/AOSC-Dev/qtaccountsservice"
+    TYPE OPTIONAL
+    PURPOSE "Use AccountsService`s iconFileName"
+)
+set(HAVE_QTACCOUNTSSERVICE FALSE)
+if (QtAccountsService_FOUND)
+    add_definitions(-DHAVE_QTACCOUNTSSERVICE)
+    set(HAVE_QTACCOUNTSSERVICE TRUE)
+endif()
+
+if (ENABLE_PLYMOUTH)
+    add_definitions(-DHAVE_PLYMOUTH)
+    set(HAVE_PLYMOUTH TRUE)
+endif()
 
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)

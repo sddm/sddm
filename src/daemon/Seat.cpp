@@ -54,7 +54,7 @@ namespace SDDM {
     void Seat::createDisplay(int terminalId) {
         //reload config if needed
         mainConfig.load();
-        
+
         if (terminalId == -1) {
                 // find unused terminal
             terminalId = findUnused(mainConfig.X11.MinimumVT.get(), [&](const int number) {

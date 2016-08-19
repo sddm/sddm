@@ -1,0 +1,20 @@
+[Unit]
+Description=Simple Desktop Display Manager
+Documentation=man:sddm(1) man:sddm.conf(5)
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+
+Conflicts=plymouth-quit.service
+After=plymouth-quit.service
+
+After=rc-local.service plymouth-start.service systemd-user-sessions.service
+
+OnFailure=plymouth-quit.service
+
+[Service]
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sddm
+Restart=always
+
+[Install]
+Alias=display-manager.service
+

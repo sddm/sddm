@@ -141,6 +141,9 @@ namespace SDDM {
 
         if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
             !mainConfig.Autologin.User.get().isEmpty() && !mainConfig.Autologin.Session.get().isEmpty()) {
+#if HAVE_PLYMOUTH
+            system("/bin/plymouth quit");
+#endif
             // reset first flag
             daemonApp->first = false;
 

@@ -24,7 +24,11 @@ configure_file("theme.qrc"                       "theme.qrc")
 qt5_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
 
 add_executable(sddm-greeter ${GREETER_SOURCES} ${RESOURCES})
-target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
+if(HAVE_QTACCOUNTSSERVICE)
+    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES} QtAccountsService::QtAccountsService)
+else()
+    target_link_libraries(sddm-greeter ${LIBXCB_LIBRARIES} ${LIBXKB_LIBRARIES})
+endif()
 qt5_use_modules(sddm-greeter Quick)
 
 if(JOURNALD_FOUND)

@@ -40,6 +40,9 @@ namespace SDDM {
         QDBusConnection connection = (daemonApp->testing()) ? QDBusConnection::sessionBus() : QDBusConnection::systemBus();
         connection.registerService(DISPLAYMANAGER_SERVICE);
         connection.registerObject(DISPLAYMANAGER_PATH, this);
+#if HAVE_PLYMOUTH
+        system("/bin/plymouth deactivate");
+#endif
     }
 
     QString DisplayManager::seatPath(const QString &seatName) {

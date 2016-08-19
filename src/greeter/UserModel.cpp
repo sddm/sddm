@@ -1,5 +1,7 @@
 /***************************************************************************
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2015 Leslie Zhai <xiang.zhai@i-soft.com.cn>
+* Copyright (c) 2015 Mingye Wang (Arthur2e5) <arthur200126@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -55,6 +57,9 @@ namespace SDDM {
         const QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
 
         struct passwd *current_pw;
+#if HAVE_QTACCOUNTSSERVICE
+        accountManager = new QtAccountsService::AccountsManager;
+#endif
         while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid
@@ -79,12 +84,19 @@ namespace SDDM {
             user->homeDir = QString::fromLocal8Bit(current_pw->pw_dir);
             user->uid = int(current_pw->pw_uid);
             user->gid = int(current_pw->pw_gid);
+#if HAVE_QTACCOUNTSSERVICE
+            QtAccountsService::UserAccount *userAccount = accountManager->findUserById(user->uid);
+#endif
             // if shadow is used pw_passwd will be 'x' nevertheless, so this
             // will always be true
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
             // search for face icon
             user->icon = defaultFace;
+#if HAVE_QTACCOUNTSSERVICE
+            if (userAccount && QFile::exists(userAccount->iconFileName()))
+		        user->icon = userAccount->iconFileName();	// accountservice user face
+#endif
 
             // add user
             d->users << user;
@@ -120,6 +132,13 @@ namespace SDDM {
 
     UserModel::~UserModel() {
         delete d;
+
+#if HAVE_QTACCOUNTSSERVICE
+        if (accountManager) {
+            delete accountManager;
+            accountManager = nullptr;
+        }
+#endif
     }
 
     QHash<int, QByteArray> UserModel::roleNames() const {
