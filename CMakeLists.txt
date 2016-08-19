@@ -91,6 +91,20 @@ find_package(XKB REQUIRED)
 # Qt 5
 find_package(Qt5 5.6.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools)
 
+# AccountsService Qt5 binding
+find_package(QtAccountsService)
+set_package_properties(QtAccountsService PROPERTIES 
+    DESCRIPTION "Qt-style API to use freedesktop.org's AccountsService DBus service"
+    URL "https://github.com/hawaii-desktop/qtaccountsservice"
+    TYPE OPTIONAL
+    PURPOSE "Use AccountsService's iconFileName"
+)
+set(HAVE_QTACCOUNTSSERVICE FALSE)
+if (QtAccountsService_FOUND)
+    add_definitions(-DHAVE_QTACCOUNTSSERVICE)
+    set(HAVE_QTACCOUNTSSERVICE TRUE)
+endif()
+
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
