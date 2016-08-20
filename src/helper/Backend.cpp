@@ -75,4 +75,8 @@ namespace SDDM {
         }
         return m_app->session()->start();
     }
+
+    bool Backend::closeSession() {
+        return true;
+    }
 }

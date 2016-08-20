@@ -145,6 +145,7 @@ namespace SDDM {
     }
 
     void HelperApp::sessionFinished(int status) {
+        m_backend->closeSession();
         exit(status);
     }
 

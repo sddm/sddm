@@ -54,6 +54,12 @@ namespace SDDM {
         virtual ~PamHandle();
 
         /**
+         * Returns whether the session is open.
+         * \sa openSession
+         */
+        bool isOpen() const;
+
+        /**
         * pam_set_item - set and update PAM informations
         *
         * \param item_type PAM item type
@@ -187,6 +193,7 @@ namespace SDDM {
         struct pam_conv m_conv; ///< the current conversation
         pam_handle_t *m_handle { nullptr }; ///< the actual PAM handle
         int m_result { 0 }; ///< PAM result
+        bool m_open { false }; ///< whether the session is open
     };
 }
 

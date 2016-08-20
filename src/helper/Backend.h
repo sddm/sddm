@@ -42,6 +42,7 @@ namespace SDDM {
         virtual bool start(const QString &user = QString()) = 0;
         virtual bool authenticate() = 0;
         virtual bool openSession();
+        virtual bool closeSession();
 
         virtual QString userName() = 0;
 

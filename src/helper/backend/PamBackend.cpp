@@ -276,6 +276,12 @@ namespace SDDM {
         return Backend::openSession();
     }
 
+    bool PamBackend::closeSession() {
+        if (m_pam->isOpen())
+            return m_pam->closeSession();
+        return Backend::closeSession();
+    }
+
     QString PamBackend::userName() {
         return QString::fromLocal8Bit((const char*) m_pam->getItem(PAM_USER));
     }

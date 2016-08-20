@@ -104,7 +104,8 @@ namespace SDDM {
         if (m_result != PAM_SUCCESS) {
             qWarning() << "[PAM] openSession:" << pam_strerror(m_handle, m_result);
         }
-        return m_result == PAM_SUCCESS;
+        m_open = m_result == PAM_SUCCESS;
+        return m_open;
     }
 
     bool PamHandle::closeSession() {
@@ -113,6 +114,10 @@ namespace SDDM {
             qWarning() << "[PAM] closeSession:" << pam_strerror(m_handle, m_result);
         }
         return m_result == PAM_SUCCESS;
+    }
+
+    bool PamHandle::isOpen() const {
+        return m_open;
     }
 
     bool PamHandle::setItem(int item_type, const void* item) {
