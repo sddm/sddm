@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2015-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 
 #include <QVector>
 #include <QProcessEnvironment>
+#include <QFileSystemWatcher>
 
 namespace SDDM {
     class SessionModelPrivate {
@@ -38,8 +39,23 @@ namespace SDDM {
     };
 
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
+        // initial population
+        beginResetModel();
         populate(Session::X11Session, mainConfig.X11.SessionDir.get());
         populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+        endResetModel();
+
+        // refresh everytime a file is changed, added or removed
+        QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
+        connect(watcher, &QFileSystemWatcher::directoryChanged, [this](const QString &path) {
+            beginResetModel();
+            d->sessions.clear();
+            populate(Session::X11Session, mainConfig.X11.SessionDir.get());
+            populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+            endResetModel();
+        });
+        watcher->addPath(mainConfig.X11.SessionDir.get());
+        watcher->addPath(mainConfig.Wayland.SessionDir.get());
     }
 
     SessionModel::~SessionModel() {

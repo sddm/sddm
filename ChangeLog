@@ -16,6 +16,7 @@
     + New "style" theme configuration for QtQuick Controls 2.0.
     + Require Qt 5.6 or better.
     + Enable HiDPI support.
+    + Refresh sessions list.
     - Actually change Qt platform theme.
     - Switch to Wayland session vt only when authentication
       succeeds.
