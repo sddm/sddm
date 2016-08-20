@@ -98,9 +98,9 @@ OPTIONS
 	Default value is "/usr/share/xsessions".
 
 `SessionCommand=`
-	Path of script to execute when starting the desktop session. This script
-  receives the value of the "Exec" setting in the ".desktop" file of the selected
-  session as the first argument.
+	Path of script to execute when starting the user session. This script
+	receives the value of the "Exec" setting in the ".desktop" file of the selected
+	session and runs it.
 	Default value is "@SESSION_COMMAND@".
 
 `SessionLogFile=`
@@ -132,7 +132,9 @@ OPTIONS
 	Default value is "/usr/share/wayland-sessions".
 
 `SessionCommand=`
-	Path of script to execute when starting the desktop session.
+	Path of script to execute when starting the user session. This script
+	receives the value of the "Exec" setting in the ".desktop" file of the selected
+	session and run it.
 	Default value is "@WAYLAND_SESSION_COMMAND@".
 
 `SessionLogFile=`
