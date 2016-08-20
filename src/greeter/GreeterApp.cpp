@@ -128,11 +128,9 @@ namespace SDDM {
 
         // handle screens
         connect(this, &GreeterApp::screenAdded, this, &GreeterApp::addViewForScreen);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
         connect(this, &GreeterApp::primaryScreenChanged, this, [this](QScreen *) {
             activatePrimary();
         });
-#endif
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
@@ -148,23 +146,14 @@ namespace SDDM {
         // need to be careful here since Qt will move the view to
         // another screen before this signal is emitted so we
         // pass a pointer to the view to our slot
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         connect(this, &GreeterApp::screenRemoved, this, [view, this](QScreen *) {
             removeViewForScreen(view);
         });
-#else
-        connect(view, &QQuickView::screenChanged, this, [view, this](QScreen *screen) {
-            if (screen == Q_NULLPTR)
-                removeViewForScreen(view);
-        });
-#endif
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
         // always resize when the screen geometry changes
         connect(screen, &QScreen::geometryChanged, this, [view](const QRect &r) {
             view->setGeometry(r);
         });
-#endif
 
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
@@ -219,13 +208,6 @@ namespace SDDM {
         // screen is gone, remove the window
         m_views.removeOne(view);
         view->deleteLater();
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
-        // starting from Qt 5.6 we are notified when the primary screen is changed
-        // and we request activation for the view when we get the signal, with
-        // older version we iterate the views and request activation
-        activatePrimary();
-#endif
     }
 
     void GreeterApp::activatePrimary() {
