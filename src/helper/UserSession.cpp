@@ -46,15 +46,13 @@ namespace SDDM {
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QStringLiteral("greeter")) {
             QProcess::start(m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("x11")) {
-            qDebug() << "Starting:" << mainConfig.X11.SessionCommand.get()
-                     << m_path;
-            QProcess::start(mainConfig.X11.SessionCommand.get(),
-                            QStringList() << m_path);
+            const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
+            qInfo() << "Starting:" << cmd;
+            QProcess::start(cmd);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QStringLiteral("wayland")) {
-            qDebug() << "Starting:" << mainConfig.Wayland.SessionCommand.get()
-                     << m_path;
-            QProcess::start(mainConfig.Wayland.SessionCommand.get(),
-                            QStringList() << m_path);
+            const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
+            qInfo() << "Starting:" << cmd;
+            QProcess::start(cmd);
         } else {
             qCritical() << "Unable to run user session: unknown session type";
         }
