@@ -13,11 +13,18 @@
       sections to change the default user session log location.
     + ComboBox now exposes the arrow background color as
       "arrowColor" property.
+    + New "style" theme configuration for QtQuick Controls 2.0.
+    + Require Qt 5.6 or better.
+    + Enable HiDPI support.
+    - Actually change Qt platform theme.
     * More theme-neutral default user and root avatars
     * REMOVED the "circles" theme. Remember to change it if you had it set!
     * Update Estonian translation.
+    * Add Catalan translation from Robert Antoni Buj Gelonch.
     * Add Dutch translation from Eric Hameleers.
-
+    * Add Slovak translation from Martin Minka.
+    * Add Swedish translation from Kristoffer Grundström.
+    * Add Ukrainian translation from Cherevan Andriy.
 
 ## 0.13.0 - 2015-11-04
 ----------------------
