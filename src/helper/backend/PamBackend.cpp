@@ -277,8 +277,11 @@ namespace SDDM {
     }
 
     bool PamBackend::closeSession() {
-        if (m_pam->isOpen())
+        if (m_pam->isOpen()) {
+            qDebug() << "[PAM] Closing session";
             return m_pam->closeSession();
+        }
+        qWarning() << "[PAM] Asked to close the session but it wasn't previously open";
         return Backend::closeSession();
     }
 
