@@ -28,6 +28,8 @@ class QProcess;
 
 namespace SDDM {
     class Display;
+    class ThemeMetadata;
+    class ThemeConfig;
 
     class Greeter : public QObject {
         Q_OBJECT
@@ -61,7 +63,9 @@ namespace SDDM {
         Display *m_display { nullptr };
         QString m_authPath;
         QString m_socket;
-        QString m_theme;
+        QString m_themePath;
+        ThemeMetadata *m_metadata { nullptr };
+        ThemeConfig *m_themeConfig { nullptr };
 
         Auth *m_auth { nullptr };
         QProcess *m_process { nullptr };

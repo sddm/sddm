@@ -8,6 +8,8 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
     ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/ThemeConfig.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/ThemeMetadata.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp

@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -30,11 +31,7 @@ namespace SDDM {
     };
 
     ThemeMetadata::ThemeMetadata(const QString &path, QObject *parent) : QObject(parent), d(new ThemeMetadataPrivate()) {
-        QSettings settings(path, QSettings::IniFormat);
-        // read values
-        d->mainScript = settings.value(QStringLiteral("SddmGreeterTheme/MainScript"), d->mainScript).toString();
-        d->configFile = settings.value(QStringLiteral("SddmGreeterTheme/ConfigFile"), d->configFile).toString();
-        d->translationsDirectory = settings.value(QStringLiteral("SddmGreeterTheme/TranslationsDirectory"), d->translationsDirectory).toString();
+       setTo(path);
     }
 
     ThemeMetadata::~ThemeMetadata() {
@@ -51,5 +48,13 @@ namespace SDDM {
 
     const QString &ThemeMetadata::translationsDirectory() const {
         return d->translationsDirectory;
+    }
+
+    void ThemeMetadata::setTo(const QString &path) {
+        QSettings settings(path, QSettings::IniFormat);
+        // read values
+        d->mainScript = settings.value(QStringLiteral("SddmGreeterTheme/MainScript"), d->mainScript).toString();
+        d->configFile = settings.value(QStringLiteral("SddmGreeterTheme/ConfigFile"), d->configFile).toString();
+        d->translationsDirectory = settings.value(QStringLiteral("SddmGreeterTheme/TranslationsDirectory"), d->translationsDirectory).toString();
     }
 }

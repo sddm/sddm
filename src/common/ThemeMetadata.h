@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -17,16 +18,30 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_THEMECONFIG_H
-#define SDDM_THEMECONFIG_H
+#ifndef SDDM_THEMEMETADATA_H
+#define SDDM_THEMEMETADATA_H
 
-#include <QVariantMap>
+#include <QObject>
 
 namespace SDDM {
-    class ThemeConfig : public QVariantMap {
+    class ThemeMetadataPrivate;
+
+    class ThemeMetadata : public QObject {
+        Q_OBJECT
+        Q_DISABLE_COPY(ThemeMetadata)
     public:
-        explicit ThemeConfig(const QString &path);
+        explicit ThemeMetadata(const QString &path, QObject *parent = 0);
+        ~ThemeMetadata();
+
+        const QString &mainScript() const;
+        const QString &configFile() const;
+        const QString &translationsDirectory() const;
+
+        void setTo(const QString &path);
+
+    private:
+        ThemeMetadataPrivate *d { nullptr };
     };
 }
 
-#endif // SDDM_THEMECONFIG_H
+#endif // SDDM_THEMEMETADATA_H

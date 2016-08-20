@@ -1,6 +1,7 @@
 /***************************************************************************
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2014 David Edmundson <davidedmundson@kde.org>
+* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -25,6 +26,12 @@
 
 namespace SDDM {
     ThemeConfig::ThemeConfig(const QString &path) {
+        setTo(path);
+    }
+
+    void ThemeConfig::setTo(const QString &path) {
+        clear();
+
         QSettings settings(path, QSettings::IniFormat);
         QSettings userSettings(path + QStringLiteral(".user"), QSettings::IniFormat);
 

@@ -6,14 +6,14 @@ set(GREETER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/ThemeConfig.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/ThemeMetadata.cpp
     GreeterApp.cpp
     GreeterProxy.cpp
     KeyboardLayout.cpp
     KeyboardModel.cpp
     ScreenModel.cpp
     SessionModel.cpp
-    ThemeConfig.cpp
-    ThemeMetadata.cpp
     UserModel.cpp
     XcbKeyboardBackend.cpp
 )

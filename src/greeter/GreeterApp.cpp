@@ -99,14 +99,6 @@ namespace SDDM {
         if (m_themeConfig->contains(QStringLiteral("iconTheme")))
             QIcon::setThemeName(m_themeConfig->value(QStringLiteral("iconTheme")).toString());
 
-        // set cursor theme according to greeter theme
-        if (m_themeConfig->contains(QStringLiteral("cursorTheme")))
-            qputenv("XCURSOR_THEME", m_themeConfig->value(QStringLiteral("cursorTheme")).toString().toUtf8());
-
-        // set platform theme
-        if (m_themeConfig->contains(QStringLiteral("platformTheme")))
-            qputenv("QT_QPA_PLATFORMTHEME", m_themeConfig->value(QStringLiteral("platformTheme")).toString().toUtf8());
-
         // create models
 
         m_sessionModel = new SessionModel();
