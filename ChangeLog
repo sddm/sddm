@@ -21,6 +21,7 @@
     - Switch to Wayland session vt only when authentication
       succeeds.
     - Close PAM session.
+    - Delete PAM credentials after closing the session.
     * More theme-neutral default user and root avatars
     * REMOVED the "circles" theme. Remember to change it if you had it set!
     * Update Estonian translation.
