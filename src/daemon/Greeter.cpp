@@ -60,8 +60,8 @@ namespace SDDM {
         m_themePath = theme;
 
         if (theme.isEmpty()) {
-            m_metadata = new ThemeMetadata(QString());
-            m_themeConfig = new ThemeConfig(QString());
+            m_metadata->setTo(QString());
+            m_themeConfig->setTo(QString());
         } else {
             const QString path = QStringLiteral("%1/metadata.desktop").arg(m_themePath);
             m_metadata->setTo(path);
