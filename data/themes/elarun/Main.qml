@@ -40,6 +40,7 @@ Rectangle {
         onLoginSucceeded: {
         }
         onLoginFailed: {
+            pw_entry.text = ""
         }
     }
 

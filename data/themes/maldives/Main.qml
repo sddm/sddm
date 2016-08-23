@@ -44,6 +44,7 @@ Rectangle {
         }
 
         onLoginFailed: {
+            password.text = ""
             errorMessage.color = "red"
             errorMessage.text = textConstants.loginFailed
         }
