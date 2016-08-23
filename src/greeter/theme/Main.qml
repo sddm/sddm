@@ -51,7 +51,7 @@ Rectangle {
 
     Background {
         anchors.fill: parent
-        source: config.background
+        source: "qrc:/theme/background.png"
         fillMode: Image.PreserveAspectCrop
         onStatusChanged: {
             if (status == Image.Error && source != config.defaultBackground) {
@@ -176,6 +176,18 @@ Rectangle {
                     font.pixelSize: 20
                 }
 
+                Text {
+                    id: errMessage
+                    anchors.top: txtMessage.bottom
+                    anchors.margins: 20
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: "red"
+                    text: "The current theme cannot be loaded due to the errors below, please select another theme.\n" + __sddm_errors
+                    wrapMode: Text.WordWrap
+                    width: parent.width - 60
+                    font.pixelSize: 20
+                    visible: __sddm_errors !== ""
+                }
             }
         }
 

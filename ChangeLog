@@ -17,6 +17,7 @@
     + Require Qt 5.6 or better.
     + Enable HiDPI support.
     + Refresh sessions list.
+    + Always fallback to an embedded theme if no suitable theme is found.
     - Actually change Qt platform theme.
     - Switch to Wayland session vt only when authentication
       succeeds.

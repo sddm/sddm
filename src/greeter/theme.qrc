@@ -7,5 +7,7 @@
     <file alias="Main.qml">${CMAKE_CURRENT_BINARY_DIR}/theme/Main.qml</file>
     <file alias="reboot.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/reboot.png</file>
     <file alias="shutdown.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/shutdown.png</file>
+    <file alias="metadata.desktop">${CMAKE_CURRENT_SOURCE_DIR}/theme/metadata.desktop</file>
+    <file alias="theme.conf">${CMAKE_CURRENT_SOURCE_DIR}/theme/theme.conf</file>
 </qresource>
 </RCC>

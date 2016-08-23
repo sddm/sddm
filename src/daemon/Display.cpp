@@ -223,6 +223,12 @@ namespace SDDM {
 
     QString Display::findGreeterTheme() const {
         QString themeName = mainConfig.Theme.Current.get();
+
+        // an unconfigured theme means the user wants to load the
+        // default theme from the resources
+        if (themeName.isEmpty())
+            return QString();
+
         QDir dir(mainConfig.Theme.ThemeDir.get());
 
         // return the default theme if it exists
@@ -231,10 +237,18 @@ namespace SDDM {
 
         // otherwise return the first one in alphabetical order, but
         // return the default theme name if none is found
+        QString newThemePath;
         QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable, QDir::Name);
-        if (entries.count() == 0)
-            return dir.absoluteFilePath(themeName);
-        return dir.absoluteFilePath(entries.at(0));
+        if (entries.count() == 0) {
+            newThemePath = QString();
+            qWarning() << "The configured theme" << themeName << "doesn't exist, using the embedded theme instead";
+        } else {
+            QString newThemeName = entries.at(0);
+            newThemePath = dir.absoluteFilePath(newThemeName);
+            qWarning() << "The configured theme" << themeName << "doesn't exist, pick up"
+                       << newThemeName << "which is the first one in alphabetical order";
+        }
+        return newThemePath;
     }
 
     bool Display::findSessionEntry(const QDir &dir, const QString &name) const {

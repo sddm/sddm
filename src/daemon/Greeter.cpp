@@ -33,6 +33,8 @@
 
 namespace SDDM {
     Greeter::Greeter(QObject *parent) : QObject(parent) {
+        m_metadata = new ThemeMetadata(QString());
+        m_themeConfig = new ThemeConfig(QString());
     }
 
     Greeter::~Greeter() {
@@ -57,17 +59,16 @@ namespace SDDM {
     void Greeter::setTheme(const QString &theme) {
         m_themePath = theme;
 
-        const QString path = QStringLiteral("%1/metadata.desktop").arg(m_themePath);
-        if (m_metadata)
+        if (theme.isEmpty()) {
+            m_metadata = new ThemeMetadata(QString());
+            m_themeConfig = new ThemeConfig(QString());
+        } else {
+            const QString path = QStringLiteral("%1/metadata.desktop").arg(m_themePath);
             m_metadata->setTo(path);
-        else
-            m_metadata = new ThemeMetadata(path);
 
-        QString configFile = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
-        if (m_themeConfig)
+            QString configFile = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
             m_themeConfig->setTo(configFile);
-        else
-            m_themeConfig = new ThemeConfig(configFile);
+        }
     }
 
     bool Greeter::start() {

@@ -71,8 +71,10 @@ namespace SDDM {
         // get socket name
         QString socket = parameter(arguments(), QStringLiteral("--socket"), QString());
 
-        // get theme path
+        // get theme path (fallback to internal theme)
         m_themePath = parameter(arguments(), QStringLiteral("--theme"), QString());
+        if (m_themePath.isEmpty())
+            m_themePath = QLatin1String("qrc:/theme");
 
         // read theme metadata
         m_metadata = new ThemeMetadata(QStringLiteral("%1/metadata.desktop").arg(m_themePath));
@@ -179,21 +181,35 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
         view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
+        view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), QString());
 
         // get theme main script
         QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
+        QUrl mainScriptUrl;
+        if (m_themePath.startsWith(QLatin1String("qrc:/")))
+            mainScriptUrl = QUrl(mainScript);
+        else
+            mainScriptUrl = QUrl::fromLocalFile(mainScript);
 
         // load theme from resources when an error has occurred
         connect(view, &QQuickView::statusChanged, this, [view](QQuickView::Status status) {
             if (status != QQuickView::Error)
                 return;
-            Q_FOREACH(const QQmlError &e, view->errors())
+
+            QString errors;
+            Q_FOREACH(const QQmlError &e, view->errors()) {
                 qWarning() << e;
+                errors += QLatin1String("\n") + e.toString();
+            }
+
+            qWarning() << "Fallback to embedded theme";
+            view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), errors);
             view->setSource(QUrl(QStringLiteral("qrc:/theme/Main.qml")));
         });
 
         // set main script as source
-        view->setSource(QUrl::fromLocalFile(mainScript));
+        qInfo("Loading %s...", qPrintable(mainScriptUrl.toString()));
+        view->setSource(mainScriptUrl);
 
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
