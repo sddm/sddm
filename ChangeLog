@@ -25,6 +25,9 @@
     - Delete PAM credentials after closing the session.
     * More theme-neutral default user and root avatars
     * REMOVED the "circles" theme. Remember to change it if you had it set!
+    * REMOVED the "maui" theme as a standalone theme as it is now
+      embedded in the greeter. Remember to change the theme to empty
+      if you had it set to "maui".
     * Update Estonian translation.
     * Add Catalan translation from Robert Antoni Buj Gelonch.
     * Add Dutch translation from Eric Hameleers.
