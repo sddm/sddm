@@ -235,20 +235,9 @@ namespace SDDM {
         if (dir.exists(themeName))
             return dir.absoluteFilePath(themeName);
 
-        // otherwise return the first one in alphabetical order, but
-        // return the default theme name if none is found
-        QString newThemePath;
-        QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Readable, QDir::Name);
-        if (entries.count() == 0) {
-            newThemePath = QString();
-            qWarning() << "The configured theme" << themeName << "doesn't exist, using the embedded theme instead";
-        } else {
-            QString newThemeName = entries.at(0);
-            newThemePath = dir.absoluteFilePath(newThemeName);
-            qWarning() << "The configured theme" << themeName << "doesn't exist, pick up"
-                       << newThemeName << "which is the first one in alphabetical order";
-        }
-        return newThemePath;
+        // otherwise use the embedded theme
+        qWarning() << "The configured theme" << themeName << "doesn't exist, using the embedded theme instead";
+        return QString();
     }
 
     bool Display::findSessionEntry(const QDir &dir, const QString &name) const {
