@@ -4,7 +4,7 @@
     - Bug fixes
     * Others
 
-## 0.14.0 - XXXX-XX-XX
+## 0.14.0 - 2016-08-28
 ----------------------
     + New sddm.conf option EnableAvatars (useful for slow filesystems)
     + New sddm.conf option UserAuthFile on the XDisplay section
@@ -31,6 +31,7 @@
     * Add Slovak translation from Martin Minka.
     * Add Swedish translation from Kristoffer Grundström.
     * Add Ukrainian translation from Cherevan Andriy.
+    * Add Indian flag from Sanjeev Premi.
 
 ## 0.13.0 - 2015-11-04
 ----------------------
