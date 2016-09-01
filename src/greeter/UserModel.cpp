@@ -107,13 +107,13 @@ namespace SDDM {
                 d->lastIndex = i;
 
             if (avatarsEnabled) {
-                const QString userFace = QStringLiteral("file://%1/.face.icon").arg(user->homeDir);
-                const QString systemFace = QStringLiteral("file://%1/%2.face.icon").arg(facesDir).arg(user->name);
+                const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
+                const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
 
                 if (QFile::exists(userFace))
-                    user->icon = userFace;
+                    user->icon = QStringLiteral("file://%1").arg(userFace);
                 else if (QFile::exists(systemFace))
-                    user->icon = systemFace;
+                    user->icon = QStringLiteral("file://%1").arg(systemFace);
             }
         }
     }
