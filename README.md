@@ -87,7 +87,7 @@ Xorg yourself.  An easy way is to pass an additional argument to Xorg.
 Edit ``/etc/sddm.conf``, go to the ``X11`` section and change ``ServerArguments`` like this:
 
 ```
-ServerArguments="-nolisten tcp -dpi 192"
+ServerArguments=-nolisten tcp -dpi 192
 ```
 
 to set DPI to 192.
