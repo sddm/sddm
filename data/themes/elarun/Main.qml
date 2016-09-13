@@ -200,18 +200,24 @@ Rectangle {
                         }
                     }
 
-                    Text {
-                        id: time_label
+                    Rectangle {
+                        id: container
+                        property date dateTime: new Date()
+                        property color color: "#0b678c"
                         anchors.right: parent.right
-                        anchors.bottom: parent.bottom
 
-                        text: Qt.formatDateTime(new Date(), "dddd, dd MMMM yyyy HH:mm AP")
-
-                        horizontalAlignment: Text.AlignRight
-
-                        color: "#0b678c"
-                        font.bold: true
-                        font.pixelSize: 12
+                        Timer {
+                            interval: 100; running: true; repeat: true;
+                            onTriggered: container.dateTime = new Date()
+                        }
+                        
+                        Text {
+                            id: time
+                            color: container.color
+                            anchors.right: parent.right
+                            text: Qt.formatDateTime(container.dateTime, "dddd, dd MMMM yyyy HH:mm AP")
+                            font.pointSize: 10
+                        }
                     }
 
                     Menu {
