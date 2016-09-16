@@ -206,8 +206,7 @@ Rectangle {
                         running: true
                         repeat: true
                         
-                        onTriggered:
-                        {
+                        onTriggered: {
                             dateTime.text = Qt.formatDateTime(new Date(), "dddd, dd MMMM yyyy HH:mm AP")
                         }
                     }
