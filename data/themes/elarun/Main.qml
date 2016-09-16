@@ -200,15 +200,23 @@ Rectangle {
                         }
                     }
 
+                    Timer {
+                        id: time
+                        interval: 100
+                        running: true
+                        repeat: true
+                        
+                        onTriggered: {
+                            dateTime.text = Qt.formatDateTime(new Date(), "dddd, dd MMMM yyyy HH:mm AP")
+                        }
+                    }
+                    
                     Text {
-                        id: time_label
+                        id: dateTime
                         anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-
-                        text: Qt.formatDateTime(new Date(), "dddd, dd MMMM yyyy HH:mm AP")
-
+                        anchors.bottom: parent.bottom                        
                         horizontalAlignment: Text.AlignRight
-
+                        
                         color: "#0b678c"
                         font.bold: true
                         font.pixelSize: 12
