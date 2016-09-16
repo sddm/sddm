@@ -242,7 +242,12 @@ int main(int argc, char **argv) {
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
 
     // HiDPI
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    if (SDDM::mainConfig.EnableHiDPI.get()) {
+        qDebug() << "High-DPI autoscaling Enabled";
+        QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    } else {
+        qDebug() << "High-DPI autoscaling Not Enabled";
+    }
 
     QStringList arguments;
 
