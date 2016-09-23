@@ -48,6 +48,10 @@ Rectangle {
 
   TextConstants { id: textConstants }
 
+  Connections {
+    target: sddm
+  }
+
   FontLoader {
     id: opensans_cond_light
     source: "fonts/OpenSans_CondLight.ttf"
