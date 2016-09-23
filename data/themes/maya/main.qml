@@ -24,6 +24,11 @@ Rectangle {
 
   TextConstants { id: textConstants }
 
+  FontLoader {
+    id: opensans_cond_light
+    source: "fonts/OpenSans_CondLight.ttf"
+  }
+
   Repeater {
     model: screenModel
 
