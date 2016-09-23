@@ -32,6 +32,7 @@
 #include "MessageHandler.h"
 
 #include <QGuiApplication>
+#include <QQuickItem>
 #include <QQuickView>
 #include <QQmlContext>
 #include <QQmlEngine>
@@ -210,6 +211,10 @@ namespace SDDM {
         // set main script as source
         qInfo("Loading %s...", qPrintable(mainScriptUrl.toString()));
         view->setSource(mainScriptUrl);
+
+        // set default cursor
+        QCursor cursor(Qt::ArrowCursor);
+        view->rootObject()->setCursor(cursor);
 
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
