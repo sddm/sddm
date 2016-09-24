@@ -123,4 +123,16 @@ Rectangle {
 
     color   : primaryHue3
   }
+
+  //
+  // Login container
+  //
+  Rectangle {
+    x       : ((parent.width / 2) - (3 * spUnit))
+    y       : ((parent.height /2) - (3 * spUnit))
+    width   : (6 * spUnit)
+    height  : (6 * spUnit)
+
+    color   : primaryHue3
+  }
 }
