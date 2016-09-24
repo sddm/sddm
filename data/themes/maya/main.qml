@@ -87,4 +87,16 @@ Rectangle {
     color   : primaryDark
   }
 
+
+  //
+  // Header
+  //
+  Rectangle {
+    x       : 0
+    y       : spUnit
+    width   : parent.width
+    height  : spUnit
+
+    color   : primaryShade
+  }
 }
