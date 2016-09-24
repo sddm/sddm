@@ -42,6 +42,10 @@ Rectangle {
 
   readonly property color defaultBg : primaryShade ? primaryShade : "#1e88e5"
 
+  //
+  // Indicates one unit of measure (in pixels)
+  //
+  readonly property int spUnit: 64
 
   LayoutMirroring.enabled: Qt.locale().textDirection == Qt.RightToLeft
   LayoutMirroring.childrenInherit: true
