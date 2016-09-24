@@ -74,4 +74,17 @@ Rectangle {
       }
     }
   }
+
+  //
+  // Status bar on top
+  //
+  Rectangle {
+    x       : 0
+    y       : 0
+    width   : parent.width
+    height  : spUnit
+
+    color   : primaryDark
+  }
+
 }
