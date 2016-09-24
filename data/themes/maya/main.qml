@@ -112,4 +112,15 @@ Rectangle {
     color   : primaryShade
   }
 
+  //
+  // Footer
+  //
+  Rectangle {
+    x       : 0
+    y       : (parent.height - spUnit)
+    width   : parent.width
+    height  : spUnit
+
+    color   : primaryHue3
+  }
 }
