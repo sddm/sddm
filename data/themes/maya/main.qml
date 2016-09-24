@@ -135,4 +135,16 @@ Rectangle {
 
     color   : primaryHue3
   }
+
+  //
+  // Prompt container
+  //
+  Rectangle {
+    x       : (parent.width / 4)
+    y       : (parent.height - (3 * spUnit))
+    width   : (parent.width / 2)
+    height  : spUnit
+
+    color   : "transparent"
+  }
 }
