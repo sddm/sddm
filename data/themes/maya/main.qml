@@ -99,4 +99,17 @@ Rectangle {
 
     color   : primaryShade
   }
+
+  //
+  // Toolbar
+  //
+  Rectangle {
+    x       : 0
+    y       : (spUnit * 2)
+    width   : parent.width
+    height  : spUnit
+
+    color   : primaryShade
+  }
+
 }
