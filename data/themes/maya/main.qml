@@ -47,6 +47,17 @@ Rectangle {
   //
   readonly property int spUnit: 64
 
+  //
+  // Symmetric (equal) padding on all sides
+  //
+  readonly property int padSym : (spUnit / 8)
+
+  //
+  // Asymmetric padding in horizontal & vertical directions
+  //
+  readonly property int padAsymH : (spUnit / 2)
+  readonly property int padAsymV : (spUnit / 8)
+
   LayoutMirroring.enabled: Qt.locale().textDirection == Qt.RightToLeft
   LayoutMirroring.childrenInherit: true
 
