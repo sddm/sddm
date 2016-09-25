@@ -16,6 +16,7 @@ import SddmComponents 2.0
 import "./components"
 
 Rectangle {
+  id  : maya_root
 
   property color primaryShade : config.primaryShade ? config.primaryShade : "#303F9F"
   property color primaryLight : config.primaryLight ? config.primaryLight : "#7986CB"
@@ -83,6 +84,14 @@ Rectangle {
       prompt_txt.text = textConstants.loginFailed
     }
   }
+
+
+  signal tryLogin()
+
+  onTryLogin : {
+    sddm.login(maya_username.text, maya_password.text, maya_session.index);
+  }
+
 
   FontLoader {
     id: opensans_cond_light
@@ -326,6 +335,8 @@ Rectangle {
 
         KeyNavigation.tab     : maya_session
         KeyNavigation.backtab : maya_reboot
+
+        onClicked: sddm.powerOff()
       }
 
       //
@@ -350,6 +361,8 @@ Rectangle {
 
         KeyNavigation.tab     : maya_shutdown
         KeyNavigation.backtab : maya_login
+
+        onClicked: sddm.reboot()
       }
     }
   }
@@ -463,6 +476,14 @@ Rectangle {
 
         KeyNavigation.tab     : maya_login
         KeyNavigation.backtab : maya_username
+
+        Keys.onPressed: {
+          if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+            maya_root.tryLogin()
+
+            event.accepted = true;
+          }
+        }
       }
     }
 
@@ -494,6 +515,16 @@ Rectangle {
 
         KeyNavigation.tab     : maya_reboot
         KeyNavigation.backtab : maya_layout
+
+        onClicked: maya_root.tryLogin()
+
+        Keys.onPressed: {
+          if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
+            maya_root.tryLogin()
+
+            event.accepted = true;
+          }
+        }
       }
     }
   }
