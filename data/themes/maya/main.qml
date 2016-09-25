@@ -234,6 +234,45 @@ Rectangle {
         horizontalAlignment : Text.AlignLeft
         verticalAlignment   : Text.AlignVCenter
       }
+
+      //
+      // Session selection
+      //
+      ComboBox {
+        id      : maya_session
+
+        model   : sessionModel
+        index   : sessionModel.lastIndex
+
+        width   : spUnit * 3
+        height  : parent.height
+
+        color       : primaryHue1
+        borderColor : primaryHue3
+        focusColor  : accentLight
+        hoverColor  : accentHue2
+        textColor   : normalText
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontNormal
+
+        arrowIcon: "images/ic_arrow_drop_down_white_24px.svg"
+        arrowColor: primaryHue3
+      }
+
+      Text {
+        height  : parent.height
+
+        text    : textConstants.session
+
+        color   : normalText
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontNormal
+
+        horizontalAlignment : Text.AlignLeft
+        verticalAlignment   : Text.AlignVCenter
+      }
     }
   }
 
