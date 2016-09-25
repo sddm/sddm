@@ -219,6 +219,9 @@ Rectangle {
 
         arrowIcon: "images/ic_arrow_drop_down_white_24px.svg"
         arrowColor: primaryHue3
+
+        KeyNavigation.tab     : maya_username
+        KeyNavigation.backtab : maya_session
       }
 
       Text {
@@ -258,6 +261,9 @@ Rectangle {
 
         arrowIcon: "images/ic_arrow_drop_down_white_24px.svg"
         arrowColor: primaryHue3
+
+        KeyNavigation.tab     : maya_layout
+        KeyNavigation.backtab : maya_shutdown
       }
 
       Text {
@@ -317,6 +323,9 @@ Rectangle {
 
         hoverIconColor  : powerColor
         hoverLabelColor : accentShade
+
+        KeyNavigation.tab     : maya_session
+        KeyNavigation.backtab : maya_reboot
       }
 
       //
@@ -338,6 +347,9 @@ Rectangle {
 
         hoverIconColor  : rebootColor
         hoverLabelColor : accentShade
+
+        KeyNavigation.tab     : maya_shutdown
+        KeyNavigation.backtab : maya_login
       }
     }
   }
@@ -394,6 +406,9 @@ Rectangle {
 
         font.family     : opensans_cond_light.name
         font.pixelSize  : spFontSmall
+
+        KeyNavigation.tab     : maya_password
+        KeyNavigation.backtab : maya_layout
       }
     }
 
@@ -445,6 +460,9 @@ Rectangle {
 
         font.family     : opensans_cond_light.name
         font.pixelSize  : spFontNormal
+
+        KeyNavigation.tab     : maya_login
+        KeyNavigation.backtab : maya_username
       }
     }
 
@@ -473,6 +491,9 @@ Rectangle {
         font.family     : opensans_cond_light.name
         font.pixelSize  : spFontNormal
         font.weight     : Font.DemiBold
+
+        KeyNavigation.tab     : maya_reboot
+        KeyNavigation.backtab : maya_layout
       }
     }
   }
