@@ -188,6 +188,53 @@ Rectangle {
     height  : spUnit
 
     color   : primaryShade
+
+    Row {
+      x       : (parent.width  / 2) + padAsymH
+      y       : padAsymV
+      width   : ((parent.width  / 2) - (padAsymH * 2))
+      height  : (parent.height - (padAsymV * 2))
+
+      spacing : padAsymH
+
+      layoutDirection : Qt.RightToLeft
+
+      //
+      // Layout selection
+      //
+      LayoutBox {
+        id      : maya_layout
+
+        width   : spUnit * 2
+        height  : parent.height
+
+        color       : primaryHue1
+        borderColor : primaryHue3
+        focusColor  : accentLight
+        hoverColor  : accentHue2
+        textColor   : normalText
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontNormal
+
+        arrowIcon: "images/ic_arrow_drop_down_white_24px.svg"
+        arrowColor: primaryHue3
+      }
+
+      Text {
+        height  : parent.height
+
+        text    : textConstants.layout
+
+        color   : normalText
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontNormal
+
+        horizontalAlignment : Text.AlignLeft
+        verticalAlignment   : Text.AlignVCenter
+      }
+    }
   }
 
   //
