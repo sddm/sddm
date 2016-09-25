@@ -116,6 +116,33 @@ Rectangle {
     height  : spUnit
 
     color   : primaryShade
+
+    Row {
+      x       : padAsymH
+      y       : padAsymV
+      width   : (parent.width  - (padAsymH * 2))
+      height  : (parent.height - (padAsymV * 2))
+
+      //
+      // Welcome Text
+      //
+      Text {
+        id      : maya_welcome
+
+        width   : parent.width
+        height  : parent.height
+
+        text    : textConstants.welcomeText.arg(sddm.hostName)
+        color   : normalText
+
+        font.family         : opensans_cond_light.name
+        font.pixelSize      : spFontNormal
+
+        fontSizeMode        : Text.VerticalFit
+        horizontalAlignment : Text.AlignLeft
+        verticalAlignment   : Text.AlignVCenter
+      }
+    }
   }
 
   //
