@@ -58,6 +58,13 @@ Rectangle {
   readonly property int padAsymH : (spUnit / 2)
   readonly property int padAsymV : (spUnit / 8)
 
+  //
+  // Font sizes
+  //
+  readonly property int spFontNormal  : 24
+  readonly property int spFontSmall   : 16
+
+
   LayoutMirroring.enabled: Qt.locale().textDirection == Qt.RightToLeft
   LayoutMirroring.childrenInherit: true
 
