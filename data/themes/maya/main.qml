@@ -13,6 +13,7 @@
 import QtQuick 2.0
 import SddmComponents 2.0
 
+import "./components"
 
 Rectangle {
 
@@ -103,6 +104,29 @@ Rectangle {
     height  : spUnit
 
     color   : primaryDark
+
+    Row {
+      x       : (parent.width  / 2) + padAsymH
+      y       : padAsymV
+      width   : ((parent.width  / 2) - (padAsymH * 2))
+      height  : (parent.height - (padAsymV * 2))
+
+      spacing : padAsymH
+
+      layoutDirection : Qt.RightToLeft
+
+      //
+      // Current date & time
+      //
+      SpClock {
+        height  : parent.height
+
+        tColor  : normalText
+
+        tFont.family    : opensans_cond_light.name
+        tFont.pixelSize : spFontNormal
+      }
+    }
   }
 
 
