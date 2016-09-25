@@ -73,6 +73,15 @@ Rectangle {
 
   Connections {
     target: sddm
+
+    onLoginSucceeded: {
+      prompt_bg.color = successText
+      prompt_txt.text = textConstants.loginSucceeded
+    }
+    onLoginFailed: {
+      prompt_bg.color = failureText
+      prompt_txt.text = textConstants.loginFailed
+    }
   }
 
   FontLoader {
@@ -386,12 +395,32 @@ Rectangle {
   // Prompt container
   //
   Rectangle {
+    id      : prompt_bg
+
     x       : (parent.width / 4)
     y       : (parent.height - (3 * spUnit))
     width   : (parent.width / 2)
     height  : spUnit
 
     color   : "transparent"
+
+    Text {
+      id      : prompt_txt
+
+      x       : padSym
+      y       : padSym
+      width   : (parent.width  - (padSym * 2))
+      height  : (parent.height - (padSym * 2))
+
+      color   : normalText
+
+      text    : textConstants.prompt
+
+      font.pixelSize  : spFontNormal
+
+      horizontalAlignment : Text.AlignHCenter
+      verticalAlignment   : Text.AlignVCenter
+    }
   }
 
 
