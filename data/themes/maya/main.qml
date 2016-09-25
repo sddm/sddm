@@ -251,12 +251,135 @@ Rectangle {
   // Login container
   //
   Rectangle {
-    x       : ((parent.width / 2) - (3 * spUnit))
-    y       : ((parent.height /2) - (3 * spUnit))
+    x       : (parent.width  - (6 * spUnit)) / 2
+    y       : (parent.height - (5 * spUnit)) / 2
     width   : (6 * spUnit)
-    height  : (6 * spUnit)
+    height  : (5 * spUnit)
 
     color   : primaryHue3
+
+    Row {
+      x       : padSym
+      y       : padSym
+      width   : (parent.width - (padSym * 2))
+      height  : (spUnit - (padSym * 2))
+
+      Text {
+        width   : parent.width
+        height  : parent.height
+
+        text    : textConstants.userName
+        color   : accentLight
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontSmall
+
+        horizontalAlignment : Text.AlignLeft
+        verticalAlignment   : Text.AlignBottom
+      }
+    }
+
+    Row {
+      x       : padSym
+      y       : spUnit + padSym
+      width   : (parent.width - (padSym * 2))
+      height  : (spUnit - (padSym * 2))
+
+      TextBox {
+        id      : maya_username
+
+        width   : parent.width
+        height  : parent.height
+
+        color       : primaryHue1
+        borderColor : primaryDark
+        focusColor  : accentShade
+        hoverColor  : accentLight
+        textColor   : normalText
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontSmall
+      }
+    }
+
+    Row {
+      x       : padSym
+      y       : (2 * spUnit) + padSym
+      width   : (parent.width - (padSym * 2))
+      height  : (spUnit - (padSym * 2))
+
+      Text {
+        width   : parent.width
+        height  : parent.height
+
+        text    : textConstants.password
+        color   : accentLight
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontSmall
+
+        horizontalAlignment : Text.AlignLeft
+        verticalAlignment   : Text.AlignBottom
+      }
+    }
+
+    Row {
+      x       : padSym
+      y       : (3 * spUnit) + padSym
+      width   : (parent.width - (padSym * 2))
+      height  : (spUnit - (padSym * 2))
+
+      PasswordBox {
+        id      : maya_password
+
+        width   : parent.width
+        height  : parent.height
+
+        color       : primaryHue1
+        borderColor : primaryDark
+        focusColor  : accentShade
+        hoverColor  : accentLight
+        textColor   : normalText
+
+        image       : "images/ic_warning_white_24px.svg"
+
+        tooltipEnabled  : true
+        tooltipText     : textConstants.capslockWarning
+        tooltipFG       : normalText
+        tooltipBG       : primaryHue3
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontNormal
+      }
+    }
+
+    Row {
+      x       : padSym
+      y       : (4 * spUnit) + padSym
+      width   : (parent.width - (padSym * 2))
+      height  : (spUnit - (padSym * 2))
+
+      Button {
+        id      : maya_login
+
+        width   : parent.width
+        height  : parent.height
+
+        text    : textConstants.login
+
+        color         : primaryDark
+        textColor     : normalText
+
+        borderColor   : primaryHue1
+
+        pressedColor  : accentLight
+        activeColor   : accentShade
+
+        font.family     : opensans_cond_light.name
+        font.pixelSize  : spFontNormal
+        font.weight     : Font.DemiBold
+      }
+    }
   }
 
   //
@@ -269,5 +392,13 @@ Rectangle {
     height  : spUnit
 
     color   : "transparent"
+  }
+
+
+  Component.onCompleted: {
+    if (maya_username.text === "")
+      maya_username.focus = true
+    else
+      maya_password.focus = true
   }
 }
