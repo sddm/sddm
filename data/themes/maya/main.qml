@@ -191,6 +191,60 @@ Rectangle {
     height  : spUnit
 
     color   : primaryHue3
+
+    Row {
+      x : padAsymH;
+      y : padAsymV;
+
+      width   : (parent.width  - (padAsymH * 2))
+      height  : (parent.height - (padAsymV * 2))
+
+      spacing: padAsymH
+
+      layoutDirection : Qt.RightToLeft
+
+      //
+      // Shutdown button
+      //
+      SpButton {
+        id      : maya_shutdown
+
+        height  : parent.height
+        width   : (spUnit * 4)
+
+        font.family : opensans_cond_light.name
+
+        label       : textConstants.shutdown
+        labelColor  : normalText
+
+        icon        : "images/ic_power_settings_new_white_24px.svg"
+        iconColor   : accentShade
+
+        hoverIconColor  : powerColor
+        hoverLabelColor : accentShade
+      }
+
+      //
+      // Reboot button
+      //
+      SpButton {
+        id      : maya_reboot
+
+        height  : parent.height
+        width   : (spUnit * 4)
+
+        font.family : opensans_cond_light.name
+
+        label       : textConstants.reboot
+        labelColor  : normalText
+
+        icon        : "images/ic_refresh_white_24px.svg"
+        iconColor   : accentLight
+
+        hoverIconColor  : rebootColor
+        hoverLabelColor : accentShade
+      }
+    }
   }
 
   //
