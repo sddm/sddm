@@ -78,10 +78,14 @@ Rectangle {
     onLoginSucceeded: {
       prompt_bg.color = successText
       prompt_txt.text = textConstants.loginSucceeded
+
+      anim_success.start()
     }
     onLoginFailed: {
       prompt_bg.color = failureText
       prompt_txt.text = textConstants.loginFailed
+
+      anim_failure.start()
     }
   }
 
@@ -558,6 +562,43 @@ Rectangle {
 
       horizontalAlignment : Text.AlignHCenter
       verticalAlignment   : Text.AlignVCenter
+    }
+
+    SequentialAnimation on color {
+      id      : anim_success
+      running : false
+
+      ColorAnimation {
+        from: "transparent"
+        to: successText
+        duration: 250
+      }
+    }
+
+    SequentialAnimation on color {
+      id      : anim_failure
+      running : false
+
+      ColorAnimation {
+        from: "transparent"
+        to: failureText
+        duration: 250
+      }
+
+      PauseAnimation {
+        duration: 500
+      }
+
+      ColorAnimation {
+        from: failureText
+        to: "transparent"
+        duration: 500
+      }
+
+      onStopped: {
+        maya_password.text  = ""
+        prompt_txt.text     = textConstants.prompt
+      }
     }
   }
 
