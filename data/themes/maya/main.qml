@@ -79,11 +79,17 @@ Rectangle {
       prompt_bg.color = successText
       prompt_txt.text = textConstants.loginSucceeded
 
+      maya_busy.visible = false;
+      maya_busy_anim.stop()
+
       anim_success.start()
     }
     onLoginFailed: {
       prompt_bg.color = failureText
       prompt_txt.text = textConstants.loginFailed
+
+      maya_busy.visible = false;
+      maya_busy_anim.stop()
 
       anim_failure.start()
     }
@@ -93,6 +99,9 @@ Rectangle {
   signal tryLogin()
 
   onTryLogin : {
+    maya_busy.visible = true;
+    maya_busy_anim.start()
+
     sddm.login(maya_username.text, maya_password.text, maya_session.index);
   }
 
@@ -529,6 +538,58 @@ Rectangle {
             event.accepted = true;
           }
         }
+      }
+    }
+  }
+
+  //
+  // Busy animation (just above footer)
+  //
+  Rectangle {
+    id      : maya_busy
+
+    x       : (parent.width  - (6 * spUnit)) / 2
+    y       : (parent.height - (1.5 * spUnit))
+    width   : (6 * spUnit)
+    height  : (spUnit / 4)
+
+    visible : false
+
+    color   : "transparent"
+
+    border.color  : accentHue1
+    border.width  : 1
+
+    Rectangle {
+      id      : maya_busy_indicator
+
+      x       : 0
+      y       : 0
+      width   : (spUnit / 4)
+      height  : parent.height
+
+      color   : accentHue3
+    }
+
+    SequentialAnimation {
+      id      : maya_busy_anim
+
+      running : false
+      loops   : Animation.Infinite
+
+      NumberAnimation {
+        target    : maya_busy_indicator
+        property  : "x"
+        from      : 0
+        to        : (6 * spUnit) - (spUnit / 4)
+        duration  : 2500
+      }
+
+      NumberAnimation {
+        target    : maya_busy_indicator
+        property  : "x"
+        to        : 0
+        duration  : 2500
       }
     }
   }
