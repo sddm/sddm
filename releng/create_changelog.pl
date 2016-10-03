@@ -127,7 +127,7 @@ sub collect_entries {
             }
             my $array = \$$$logentry{$subentry};
             $$array = [] unless defined($$array);
-            push $$array, { %entry };
+            push @{ $$array }, { %entry };
         }
     }
     close FOREACH or die("git submodule foreach died: $!");
@@ -171,7 +171,7 @@ for my $toplevel (sort keys %log) {
     }
 
     # Print two-level entries now
-    foreach my $sublevel (sort keys $$value) {
+    foreach my $sublevel (sort keys %{ $$value }) {
         next if $sublevel eq "0";
         print "\n - $sublevel:\n";
         $entry = \$$$value{$sublevel};
