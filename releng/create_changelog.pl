@@ -93,8 +93,8 @@ sub collect_entries {
             unless read(FOREACH, $msg, $2 + 1) == $2 + 1;
 
         # is there a task number?
-        # Extract each argument after Task-number: to an array
-        my @tasks = ( $msg =~ /^Task-number:\s*(.*)\s*$/mixg );
+        # Extract each argument after some keywords to an array
+        my @tasks = ( $msg =~ /^(?:Issues|Closes|Fixes):\s*(.*)\s*$/mixg );
         $entry{tasks} = \@tasks;
 
         # Extract the changelogs from $msg
