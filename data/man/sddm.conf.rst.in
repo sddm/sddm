@@ -57,7 +57,8 @@ OPTIONS
 
 `Current=`
 	Name of the current theme.
-	Default value is "maui".
+	By default this setting is empty, meaning the embedded theme
+	will be used.
 
 `FacesDir=`
 	Path of the directory containing face files,
