@@ -20,6 +20,7 @@ set(DAEMON_SOURCES
     DisplayServer.cpp
     XorgDisplayServer.cpp
     Greeter.cpp
+    LogindDBusTypes.cpp
     PowerManager.cpp
     Seat.cpp
     SeatManager.cpp

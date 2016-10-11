@@ -67,9 +67,6 @@ namespace SDDM {
 
         // log message
         qDebug() << "Starting...";
-
-        // add a seat
-        m_seatManager->createSeat(QStringLiteral("seat0"));
     }
 
     bool DaemonApp::testing() const {
