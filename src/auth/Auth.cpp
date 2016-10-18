@@ -52,6 +52,7 @@ namespace SDDM {
         Q_OBJECT
     public:
         Private(Auth *parent);
+        ~Private();
         void setSocket(QLocalSocket *socket);
     public slots:
         void dataPending();
@@ -135,6 +136,12 @@ namespace SDDM {
         connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
         connect(request, SIGNAL(promptsChanged()), parent, SIGNAL(requestChanged()));
     }
+
+    Auth::Private::~Private()
+    {
+        SocketServer::instance()->helpers.remove(id);
+    }
+
 
     void Auth::Private::setSocket(QLocalSocket *socket) {
         this->socket = socket;
