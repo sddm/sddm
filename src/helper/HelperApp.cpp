@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
+
 namespace SDDM {
     HelperApp::HelperApp(int& argc, char** argv)
             : QCoreApplication(argc, argv)

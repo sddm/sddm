@@ -39,6 +39,14 @@
 #include <pwd.h>
 #include <unistd.h>
 
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusReply>
+
+#include "Login1Manager.h"
+#include "Login1Session.h"
+
+
 namespace SDDM {
     Display::Display(const int terminalId, Seat *parent) : QObject(parent),
         m_terminalId(terminalId),
@@ -272,6 +280,24 @@ namespace SDDM {
             return;
         }
 
+        QString existingSessionId;
+
+        if (Logind::isAvailable() && mainConfig.Users.ReuseSession.get()) {
+            OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+            auto reply = manager.ListSessions();
+            reply.waitForFinished();
+
+            foreach(const SessionInfo &s, reply.value()) {
+                if (s.userName == user) {
+                    OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
+                    if (session.service() == QLatin1String("sddm")) {
+                        existingSessionId =  s.sessionId;
+                        break;
+                    }
+                }
+            }
+        }
+
         // cache last session
         m_lastSession = session;
 
@@ -306,7 +332,18 @@ namespace SDDM {
         m_auth->insertEnvironment(env);
 
         m_auth->setUser(user);
-        m_auth->setSession(session.exec());
+        if (existingSessionId.isNull()) {
+            m_auth->setSession(session.exec());
+        } else {
+            //we only want to unlock the session if we can lock in, so we want to go via PAM auth, but not start a new session
+            //by not setting the session and the helper will emit authentication and then quit
+            connect(m_auth, &Auth::authentication, this, [=](){
+                qDebug() << "activating existing seat";
+                OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+                manager.UnlockSession(existingSessionId);
+                manager.ActivateSession(existingSessionId);
+            });
+        }
         m_auth->start();
     }
 
