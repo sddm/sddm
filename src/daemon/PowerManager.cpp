@@ -138,27 +138,27 @@ const QString CK2_OBJECT = QStringLiteral("org.freedesktop.ConsoleKit.Manager");
 
             // power off
             reply = m_interface->call(QStringLiteral("CanPowerOff"));
-            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
+            if (reply.isValid() && (reply.value() == QLatin1String("yes")))
                 caps |= Capability::PowerOff;
 
             // reboot
             reply = m_interface->call(QStringLiteral("CanReboot"));
-            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
+            if (reply.isValid() && (reply.value() == QLatin1String("yes")))
                 caps |= Capability::Reboot;
 
             // suspend
             reply = m_interface->call(QStringLiteral("CanSuspend"));
-            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
+            if (reply.isValid() && (reply.value() == QLatin1String("yes")))
                 caps |= Capability::Suspend;
 
             // hibernate
             reply = m_interface->call(QStringLiteral("CanHibernate"));
-            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
+            if (reply.isValid() && (reply.value() == QLatin1String("yes")))
                 caps |= Capability::Hibernate;
 
             // hybrid sleep
             reply = m_interface->call(QStringLiteral("CanHybridSleep"));
-            if (reply.isValid() && (reply.value() == QStringLiteral("yes")))
+            if (reply.isValid() && (reply.value() == QLatin1String("yes")))
                 caps |= Capability::HybridSleep;
 
             // return capabilities

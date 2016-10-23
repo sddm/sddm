@@ -133,9 +133,9 @@ namespace SDDM {
         for (int i = 0; i < ind_cnt; i++) {
             QString name = atomName(cookies[i]);
 
-            if (name == QStringLiteral("Num Lock")) {
+            if (name == QLatin1String("Num Lock")) {
                 d->numlock.mask = getIndicatorMask(i);
-            } else if (name == QStringLiteral("Caps Lock")) {
+            } else if (name == QLatin1String("Caps Lock")) {
                 d->capslock.mask = getIndicatorMask(i);
             }
         }
