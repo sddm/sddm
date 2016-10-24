@@ -122,7 +122,7 @@ namespace SDDM {
                 QStringList parts = in.readLine().split(QLatin1Char('='));
                 if (parts.size() >= 2) {
                     env.insert(parts[0], parts[1]);
-                    if (parts[0] == QStringLiteral("LANG"))
+                    if (parts[0] == QLatin1String("LANG"))
                         langEmpty = false;
                 }
             }
