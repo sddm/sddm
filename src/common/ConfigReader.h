@@ -26,6 +26,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
+#include <QtCore/QDir>
 
 #define IMPLICIT_SECTION "General"
 #define UNUSED_VARIABLE_COMMENT "# Unused variable"
@@ -36,10 +37,10 @@
 #define _S(x) QStringLiteral(x)
 
 // config wrapper
-#define Config(name, file, ...) \
+#define Config(name, file, dir, ...) \
     class name : public SDDM::ConfigBase, public SDDM::ConfigSection { \
     public: \
-        name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, QStringLiteral(IMPLICIT_SECTION)) { \
+        name() : SDDM::ConfigBase(file, dir), SDDM::ConfigSection(this, QStringLiteral(IMPLICIT_SECTION)) { \
             load(); \
         } \
         void save() { SDDM::ConfigBase::save(nullptr, nullptr); } \
@@ -183,21 +184,22 @@ namespace SDDM {
     // Base has to be separate from the Config itself - order of initialization
     class ConfigBase {
     public:
-        ConfigBase(const QString &configPath);
+        ConfigBase(const QString &configPath, const QString &configDir=QString());
 
         void load();
         void save(const ConfigSection *section = nullptr, const ConfigEntryBase *entry = nullptr);
         bool hasUnused() const;
-        const QString &path() const;
         QString toConfigFull() const;
     protected:
         bool m_unusedVariables { false };
         bool m_unusedSections { false };
 
         QString m_path {};
+        QString m_configDir;
         QMap<QString, ConfigSection*> m_sections;
         friend class ConfigSection;
     private:
+        void loadInternal(const QString &filepath);
         QDateTime m_fileModificationTime;
     };
 }
