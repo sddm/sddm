@@ -52,6 +52,7 @@ namespace SDDM {
         Q_OBJECT
     public:
         Private(Auth *parent);
+        ~Private();
         void setSocket(QLocalSocket *socket);
     public slots:
         void dataPending();
@@ -121,7 +122,7 @@ namespace SDDM {
                 QStringList parts = in.readLine().split(QLatin1Char('='));
                 if (parts.size() >= 2) {
                     env.insert(parts[0], parts[1]);
-                    if (parts[0] == QStringLiteral("LANG"))
+                    if (parts[0] == QLatin1String("LANG"))
                         langEmpty = false;
                 }
             }
@@ -135,6 +136,12 @@ namespace SDDM {
         connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
         connect(request, SIGNAL(promptsChanged()), parent, SIGNAL(requestChanged()));
     }
+
+    Auth::Private::~Private()
+    {
+        SocketServer::instance()->helpers.remove(id);
+    }
+
 
     void Auth::Private::setSocket(QLocalSocket *socket) {
         this->socket = socket;

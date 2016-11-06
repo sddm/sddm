@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>Layout</source>
-        <translation>Configuration</translation>
+        <translation>Clavier</translation>
     </message>
     <message>
         <source>Login</source>
