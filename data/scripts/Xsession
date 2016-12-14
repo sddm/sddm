@@ -83,6 +83,8 @@ elif [ -f /etc/X11/Xresources ]; then
   xrdb -merge /etc/X11/Xresources
 fi
 [ -f $HOME/.Xresources ] && xrdb -merge $HOME/.Xresources
+[ -f "$USERXSESSIONRC" ] && "$USERXSESSIONRC"
+
 
 if [ -f "$USERXSESSION" ]; then
   . "$USERXSESSION"
