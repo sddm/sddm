@@ -7,72 +7,71 @@ Commit counts have ben removed, since they change pretty frequently. Some of the
 the committer names and email addresses have changed, so we use .mailmap file to
 merge them.
 
-Abdurrahman AVCI <abdurrahmanavci@gmail.com>
-Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-Nikita Mikhailov <nslqqq@gmail.com>
-David Edmundson <kde@davidedmundson.co.uk>
-Martin Briza <mbriza@redhat.com>
-Jerome Leclanche <jerome@leclan.ch>
-AnAkkk <anakin.cs@gmail.com>
-Christopher Roy Bratusek <nano@tuxfamily.org>
-Andrea Scarpino <me@andreascarpino.it>
-Reza Fatahilah Shah <rshah0385@kireihana.com>
-Aaron Seigo <aseigo@kde.org>
-Nathan Weber <supernathansunshine@gmail.com>
-Elias Probst <mail@eliasprobst.eu>
-Richard Martin <radiosity@gmail.com>
-Leonardo <leonardo.guilherme@gmail.com>
-Yury G. Kudryashov <urkud.urkud@gmail.com>
-Alberto Milone <alberto.milone@canonical.com>
-Isaque Galdino <igaldino@gmail.com>
-Kuzma Shapran <kuzma.shapran@gmail.com>
-František Zatloukal <Zatloukal.Frantisek@gmail.com>
-Generator <american.jesus.pt@gmail.com>
-Jonathan Marten <jjm@keelhaul.me.uk>
-Jonathan Riddell <jr@jriddell.org>
-José Pedro Arvela <jparvela@gmail.com>
-Kevin Funk <kfunk@kde.org>
-Matthew Dawson <matthew@mjdsystems.ca>
-Mika Kobayashi <mika@p4d.co.jp>
-Nikolay Amiantov <ab@fmap.me>
-leuqarte <leuqarte@users.noreply.github.com>
-raven700 <raven700@o2.pl>
-Alexander Potashev <aspotashev@gmail.com>
-Andreas Müller <schnitzeltony@googlemail.com>
-Andreas Sturmlechner <andreas.sturmlechner@gmail.com>
-Arthur Țițeică <arthur@psw.ro>
-B. Jacquot <bastien.jacquot@univ-reims.fr>
-Baurzhan Muftakhidinov <baurthefirst@gmail.com>
-Benjamin Chrétien <chretien@lirmm.fr>
-Cochise César <cochisecesar@gmail.com>
-David Heidelberger <david.heidelberger@ixit.cz>
-Dāvis <davispuh@gmail.com>
-Eric Koegel <eric.koegel@gmail.com>
-Gabriel Martinez <reitaka@gmail.com>
-Harald Sitter <sitter@kde.org>
-HarveyMittens <teknocratdefunct@riseup.net>
-Jiachen Yang <farseerfc@gmail.com>
-Jon Eyolfson <jon@eyl.io>
-Lasse Liehu <lasse.liehu@gmail.com>
-Ludger Krämer <dbluelle@blau-weissoedingen.de>
-Mario Young <maye.co@gmail.com>
-Mathieu Jobin <mathieu@justbudget.com>
-Petr Vanek <petr@scribus.info>
-Robert Xu <robxu9@gmail.com>
-Rohan Garg <rohan@kde.org>
-SafaAlfulaij <safaalfulaij@hotmail.com>
-Shinjo Park <peremen@gmail.com>
-Simon Clemente <simon_clemente@yahoo.com>
-Sérgio Marques <smarquespt@gmail.com>
-Takahiro Hashimoto <kenya888@gmail.com>
-Volkan Gezer <wakeup@users.noreply.github.com>
-Volodymyr Medvid <vmmedvid@gmail.com>
-ZH <zhhhhz@zoho.com>
-Zach Ploskey <zach@ploskey.com>
-a.k.a. Harvey <teknocratdefunct@riseup.net>
-akmc <liudas@akmc.lt>
-alien999999999 <alien@rmail.be>
-mortein79 <mortein79@gmail.com>
-mscherer <misc@zarb.org>
-raffarti <raffarti@zoho.com>
-w41l <walecha99@gmail.com>
+Abdurrahman AVCI <abdurrahmanavci<AT>gmail.com>
+Pier Luigi Fiorini <pierluigi.fiorini<AT>gmail.com>
+Nikita Mikhailov <nslqqq<AT>gmail.com>
+David Edmundson <kde<AT>davidedmundson.co.uk>
+Martin Briza <mbriza<AT>redhat.com>
+Jerome Leclanche <jerome<AT>leclan.ch>
+AnAkkk <anakin.cs<AT>gmail.com>
+Christopher Roy Bratusek <nano<AT>tuxfamily.org>
+Andrea Scarpino <me<AT>andreascarpino.it>
+Reza Fatahilah Shah <rshah0385<AT>kireihana.com>
+Aaron Seigo <aseigo<AT>kde.org>
+Nathan Weber <supernathansunshine<AT>gmail.com>
+Elias Probst <mail<AT>eliasprobst.eu>
+Richard Martin <radiosity<AT>gmail.com>
+Leonardo <leonardo.guilherme<AT>gmail.com>
+Yury G. Kudryashov <urkud.urkud<AT>gmail.com>
+Alberto Milone <alberto.milone<AT>canonical.com>
+Isaque Galdino <igaldino<AT>gmail.com>
+Kuzma Shapran <kuzma.shapran<AT>gmail.com>
+František Zatloukal <Zatloukal.Frantisek<AT>gmail.com>
+Generator <american.jesus.pt<AT>gmail.com>
+Jonathan Marten <jjm<AT>keelhaul.me.uk>
+Jonathan Riddell <jr<AT>jriddell.org>
+José Pedro Arvela <jparvela<AT>gmail.com>
+Kevin Funk <kfunk<AT>kde.org>
+Matthew Dawson <matthew<AT>mjdsystems.ca>
+Mika Kobayashi <mika<AT>p4d.co.jp>
+Nikolay Amiantov <ab<AT>fmap.me>
+leuqarte <leuqarte<AT>users.noreply.github.com>
+raven700 <raven700<AT>o2.pl>
+Alexander Potashev <aspotashev<AT>gmail.com>
+Andreas Müller <schnitzeltony<AT>googlemail.com>
+Andreas Sturmlechner <andreas.sturmlechner<AT>gmail.com>
+Arthur Țițeică <arthur<AT>psw.ro>
+B. Jacquot <bastien.jacquot<AT>univ-reims.fr>
+Baurzhan Muftakhidinov <baurthefirst<AT>gmail.com>
+Benjamin Chrétien <chretien<AT>lirmm.fr>
+Cochise César <cochisecesar<AT>gmail.com>
+David Heidelberger <david.heidelberger<AT>ixit.cz>
+Dāvis <davispuh<AT>gmail.com>
+Eric Koegel <eric.koegel<AT>gmail.com>
+Gabriel Martinez <reitaka<AT>gmail.com>
+Harald Sitter <sitter<AT>kde.org>
+GinoM <ginomccarty<AT>eml.cc>
+Jiachen Yang <farseerfc<AT>gmail.com>
+Jon Eyolfson <jon<AT>eyl.io>
+Lasse Liehu <lasse.liehu<AT>gmail.com>
+Ludger Krämer <dbluelle<AT>blau-weissoedingen.de>
+Mario Young <maye.co<AT>gmail.com>
+Mathieu Jobin <mathieu<AT>justbudget.com>
+Petr Vanek <petr<AT>scribus.info>
+Robert Xu <robxu9<AT>gmail.com>
+Rohan Garg <rohan<AT>kde.org>
+SafaAlfulaij <safaalfulaij<AT>hotmail.com>
+Shinjo Park <peremen<AT>gmail.com>
+Simon Clemente <simon_clemente<AT>yahoo.com>
+Sérgio Marques <smarquespt<AT>gmail.com>
+Takahiro Hashimoto <kenya888<AT>gmail.com>
+Volkan Gezer <wakeup<AT>users.noreply.github.com>
+Volodymyr Medvid <vmmedvid<AT>gmail.com>
+ZH <zhhhhz<AT>zoho.com>
+Zach Ploskey <zach<AT>ploskey.com>
+akmc <liudas<AT>akmc.lt>
+alien999999999 <alien<AT>rmail.be>
+mortein79 <mortein79<AT>gmail.com>
+mscherer <misc<AT>zarb.org>
+raffarti <raffarti<AT>zoho.com>
+w41l <walecha99<AT>gmail.com>
