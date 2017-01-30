@@ -2,6 +2,7 @@ set(TRANSLATION_FILES
     ar.ts
     ca.ts
     cs.ts
+    da.ts
     de.ts
     es.ts
     et.ts
