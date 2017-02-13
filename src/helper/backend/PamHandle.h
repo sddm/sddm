@@ -1,6 +1,7 @@
 /*
  * PAM API Qt wrapper
- * Copyright (C) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2018 Thomas Höhn <thomas_hoehn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +24,16 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QProcessEnvironment>
+
+#include "AuthEnums.h"
+#include "PamWorkState.h"
+
 #include <security/pam_appl.h>
 
 namespace SDDM {
+
     class PamBackend;
+
     /**
     * Class wrapping the standard Linux-PAM library calls
     *
@@ -43,13 +50,16 @@ namespace SDDM {
     *
     * Error messages are automatically reported to qDebug
     */
-    class PamHandle {
+    class PamHandle : public QObject {
+        Q_OBJECT
+
     public:
+
         /**
         * ctor
         * \param parent parent backend
         */
-        explicit PamHandle(PamBackend *parent = 0);
+        explicit PamHandle(PamWorkState &ref, PamBackend *parent);
 
         virtual ~PamHandle();
 
@@ -172,11 +182,28 @@ namespace SDDM {
         void setSilence(bool silent);
 
         /**
+        * Specify what to do when pam_chauthtok fails with PAM_MAXTRIES,
+        * ignore PAM_MAXTRIES and loop pam_chauthtok, or fail and return
+        * \param loop if true continue pam_chauthtok in loop when retry limit reached
+        */
+        void setRetryLoop(bool loop);
+
+        /**
+         * Get result from last pam function call
+         *
+         * \return pam result
+         */
+        int getResult();
+
+        /**
         * Generates an error message according to the internal state
         *
         * \return error string
         */
         QString errorString();
+
+    signals:
+        void error(const QString &errmsg, AuthEnums::Error, int result);
 
     private:
         /**
@@ -190,10 +217,12 @@ namespace SDDM {
 
         int m_silent { 0 }; ///< flag mask for silence of the contained calls
 
+        PamWorkState &m_workState; ///< work state in PamBackend
         struct pam_conv m_conv; ///< the current conversation
         pam_handle_t *m_handle { nullptr }; ///< the actual PAM handle
         int m_result { 0 }; ///< PAM result
         bool m_open { false }; ///< whether the session is open
+        bool m_retryloop { false }; ///< whether to loop pam_chauthtok after maxtries reached
     };
 }
 

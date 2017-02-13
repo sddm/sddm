@@ -37,6 +37,10 @@ FocusScope {
     property alias textColor: txtMain.color
     property alias echoMode: txtMain.echoMode
     property alias text: txtMain.text
+    property alias validator: txtMain.validator
+    property alias maximumLength: txtMain.maximumLength
+
+    signal accepted
 
     Rectangle {
         id: main
@@ -85,5 +89,7 @@ FocusScope {
         focus: true
 
         passwordCharacter: "\u25cf"
+
+        onAccepted: container.accepted()
     }
 }

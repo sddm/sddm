@@ -17,7 +17,9 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
     ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/Utils.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
+    ${CMAKE_SOURCE_DIR}/src/auth/AuthEnums.h
     ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
 

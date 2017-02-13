@@ -31,7 +31,7 @@ QtObject {
     readonly property string loginFailed:       qsTr("Login failed")
     readonly property string loginSucceeded:    qsTr("Login succeeded")
     readonly property string password:          qsTr("Password")
-    readonly property string emptyPassword:     qsTr("Please enter a password!")
+    readonly property string emptyPassword:     qsTr("Emtpy input. Please enter a password!")
     readonly property string passwordChange:    qsTr("Change password")
     readonly property string prompt:            qsTr("Enter your username and password")
     readonly property string promptSelectUser:  qsTr("Select your user and enter password")
