@@ -66,6 +66,7 @@ namespace SDDM {
         enum Info {
             INFO_NONE = 0,
             INFO_UNKNOWN,
+            INFO_PAM_CONV,
             INFO_PASS_CHANGE_REQUIRED,
             _INFO_LAST
         };
@@ -74,6 +75,7 @@ namespace SDDM {
         enum Error {
             ERROR_NONE = 0,
             ERROR_UNKNOWN,
+            ERROR_PAM_CONV,
             ERROR_AUTHENTICATION,
             ERROR_INTERNAL,
             _ERROR_LAST
@@ -220,14 +222,14 @@ namespace SDDM {
         *
         * @param message message to be displayed to the user
         */
-        void error(QString message, Auth::Error type);
+        void error(QString message, Auth::Error type, int result);
 
         /**
         * Information from the underlying stack is to be presented to the user
         *
         * @param message message to be displayed to the user
         */
-        void info(QString message, Auth::Info type);
+        void info(QString message, Auth::Info type, int result);
 
     private:
         class Private;

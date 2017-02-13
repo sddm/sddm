@@ -20,7 +20,7 @@
 
 #include "PasswdBackend.h"
 
-#include "AuthMessages.h"
+#include "AuthBase.h"
 #include "HelperApp.h"
 
 #include <QtCore/QDebug>
@@ -55,7 +55,9 @@ namespace SDDM {
             r.prompts << Prompt(AuthPrompt::LOGIN_USER, QStringLiteral("Login"), false);
         r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, QStringLiteral("Password"), true);
 
-        Request response = m_app->request(r);
+        bool canceled = false;
+        Request response = m_app->request(r,canceled);
+        if(canceled==true) return false; // canceled in greeter
         for(const Prompt &p : qAsConst(response.prompts)) {
             switch (p.type) {
                 case AuthPrompt::LOGIN_USER:

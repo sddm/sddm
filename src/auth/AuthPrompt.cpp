@@ -19,8 +19,8 @@
  */
 
 #include "AuthPrompt.h"
-#include "Auth.h"
-#include "AuthMessages.h"
+#include "AuthBase.h"
+#include "AuthRequest.h"
 
 namespace SDDM {
     class AuthPrompt::Private : public Prompt {

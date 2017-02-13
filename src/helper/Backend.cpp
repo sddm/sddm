@@ -63,6 +63,11 @@ namespace SDDM {
         m_greeter = on;
     }
 
+    // Dummy, implemented and used in PamBackend
+    void Backend::setRetryLoop(bool loop) {
+        Q_UNUSED(loop);
+    }
+
     bool Backend::openSession() {
         struct passwd *pw;
         pw = getpwnam(qPrintable(qobject_cast<HelperApp*>(parent())->user()));

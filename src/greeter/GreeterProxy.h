@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2018 Thomas Höhn <thomas_hoehn@gmx.net>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -25,8 +26,9 @@
 class QLocalSocket;
 
 namespace SDDM {
+    class Request;
+    class AuthRequest;
     class SessionModel;
-
     class GreeterProxyPrivate;
     class GreeterProxy : public QObject {
         Q_OBJECT
@@ -54,6 +56,7 @@ namespace SDDM {
         bool isConnected() const;
 
         void setSessionModel(SessionModel *model);
+        AuthRequest *getRequest();
 
     public slots:
         void powerOff();
@@ -63,7 +66,11 @@ namespace SDDM {
         void hybridSleep();
         void sendKeyboardLayout(const QString &layout);
 
+        // to (pam) backend
         void login(const QString &user, const QString &password, const int sessionIndex) const;
+        void pamResponse(const QString &newPassword);
+        void cancelPamConv();
+        void enablePwdChange();
 
     private slots:
         void connected();
@@ -79,13 +86,17 @@ namespace SDDM {
         void canSuspendChanged(bool canSuspend);
         void canHibernateChanged(bool canHibernate);
         void canHybridSleepChanged(bool canHybridSleep);
-
         void socketDisconnected();
         void loginFailed();
+
         void loginSucceeded();
+        void loginFailed(const QString err_msg, int result);
+        void pamConvMsg(const QString pam_msg, int result);
+        void pamRequest();
 
     private:
         GreeterProxyPrivate *d { nullptr };
+        void setRequest(Request *r);
     };
 }
 

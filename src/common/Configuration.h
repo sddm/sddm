@@ -48,6 +48,11 @@ namespace SDDM {
         Entry(InputMethod,         QString,     QStringLiteral("qtvirtualkeyboard"),                   _S("Input method module"));
         Entry(Namespaces,          QStringList, QStringList(),                                  _S("Comma-separated list of Linux namespaces for user session to enter"));
         Entry(GreeterEnvironment,  QStringList, QStringList(),                                  _S("Comma-separated list of environment variables to be set"));
+        Entry(LocaleFile,         QString,     _S("/etc/locale.conf"),                                      _S("Configuration file for system-wide locale settings"));
+        Entry(RetryLoop,   bool,        false,                                          _S("PAM retry setting for password change with pam_pwquality module is usually very low\n"
+                                                                                                   "and aborts password change dialog in greeter too early. Set property true to ignore\n"
+                                                                                                   "PAM_MAXTRIES error from pam_chauthtok and loop password conversation."));
+
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));

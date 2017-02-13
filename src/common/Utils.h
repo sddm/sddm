@@ -1,6 +1,7 @@
 /***************************************************************************
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 * Copyright (c) 2014 David Edmundson <davidedmundson@kde.org>
+* Copyright (c) 2018 Thomas Höhn <thomas_hoehn@gmx.net>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -23,27 +24,36 @@
 
 #include <random>
 
+#include <QString>
+#include <QProcessEnvironment>
+
+#include "../auth/Auth.h"
+
+#define PAM_LOG_PREFIX "[PAM] "
+
+// Log pam function status code (rc)
+#define LOG_PAM_RESULT(fcn, rc)  \
+    qDebug().noquote().nospace() \
+        << PAM_LOG_PREFIX        \
+        << #fcn << ": rc = "     \
+        << Utils::pamResultString(rc)
+
 namespace SDDM {
 
-inline QString generateName(int length) {
-    const QString digits = QStringLiteral("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    class Utils
+        {
+        public:
+            Utils() = delete;
+            static const QString generateName(int length);
+            static bool readLocaleFile(QProcessEnvironment &env, QString localeFile);
+            static void setLocaleEnv(QProcessEnvironment &env);
 
-    // reserve space for name
-    QString name;
-    name.resize(length);
-
-    // create random device
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, digits.length() - 1);
-
-    // generate name
-    for (int i = 0; i < length; ++i)
-        name[i] = digits.at(dis(gen));
-
-    // return result
-    return name;
-}
+            // to debug pam results in backend, daemon, greeter
+            static const QString pamResultString(int errnum);
+            static const QString &msgStyleString(int msg_style);
+            static const QString &authInfoString(Auth::Info info);
+            static const QString &authErrorString(Auth::Error err);
+    };
 }
 
-#endif
+#endif // SDDM_UTILS_H

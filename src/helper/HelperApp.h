@@ -43,9 +43,9 @@ namespace SDDM {
         const QString &cookie() const;
 
     public slots:
-        Request request(const Request &request);
-        void info(const QString &message, Auth::Info type);
-        void error(const QString &message, Auth::Error type);
+        Request request(const Request &request, bool &cancel);
+        void info(const QString &message, Auth::Info type, int result);
+        void error(const QString &message, Auth::Error type, int result);
         QProcessEnvironment authenticated(const QString &user);
         void displayServerStarted(const QString &displayName);
         void sessionOpened(bool success);
@@ -53,7 +53,6 @@ namespace SDDM {
     private slots:
         void setUp();
         void doAuth();
-
         void sessionFinished(int status);
 
     private:

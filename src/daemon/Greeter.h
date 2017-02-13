@@ -46,6 +46,9 @@ namespace SDDM {
         void setDisplayServerCommand(const QString &cmd);
         bool isRunning() const;
 
+    signals:
+        void stopped();
+
     public slots:
         bool start();
         void stop();
@@ -58,8 +61,8 @@ namespace SDDM {
         void onHelperFinished(Auth::HelperExitStatus status);
         void onReadyReadStandardOutput();
         void onReadyReadStandardError();
-        void authInfo(const QString &message, Auth::Info info);
-        void authError(const QString &message, Auth::Error error);
+        void authInfo(const QString &message, Auth::Info info, int result);
+        void authError(const QString &message, Auth::Error error, int result);
 
     signals:
         void failed();
