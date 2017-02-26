@@ -23,7 +23,6 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
-#include "XorgDisplayServer.h"
 
 #include <QDebug>
 #include <QFile>
@@ -51,25 +50,15 @@ namespace SDDM {
         return m_name;
     }
 
-    void Seat::createDisplay(int terminalId) {
+    void Seat::createDisplay() {
         //reload config if needed
         mainConfig.load();
-        
-        if (terminalId == -1) {
-                // find unused terminal
-            terminalId = findUnused(mainConfig.X11.MinimumVT.get(), [&](const int number) {
-                return m_terminalIds.contains(number);
-            });
-        }
-
-        // mark terminal as used
-        m_terminalIds << terminalId;
 
         // log message
-        qDebug() << "Adding new display" << "on vt" << terminalId << "...";
+        qDebug() << "Adding new display for" << m_name;
 
         // create a new display
-        Display *display = new Display(terminalId, this);
+        Display *display = new Display(this);
 
         // restart display on stop
         connect(display, SIGNAL(stopped()), this, SLOT(displayStopped()));
@@ -82,14 +71,11 @@ namespace SDDM {
     }
 
     void Seat::removeDisplay(Display* display) {
-        qDebug() << "Removing display" << display->displayId() << "...";
+        qDebug() << "Removing display for" << m_name;
 
 
         // remove display from list
         m_displays.removeAll(display);
-
-        // mark display and terminal ids as unused
-        m_terminalIds.removeAll(display->terminalId());
 
         // stop the display
         display->blockSignals(true);

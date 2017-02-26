@@ -46,9 +46,18 @@ namespace SDDM {
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
             QProcess::start(m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
-            const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
-            qInfo() << "Starting:" << cmd;
-            QProcess::start(cmd);
+            QString cmd;
+            QStringList args;
+            if (mainConfig.X11.Unprivileged.get()) {
+                cmd = QStringLiteral("%1/sddm-display").arg(QLatin1String(LIBEXEC_INSTALL_DIR));
+                args << QLatin1String("--session")
+                     << QStringLiteral("%1 %2").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
+            } else {
+                cmd = mainConfig.X11.SessionCommand.get();
+                args << m_path;
+            }
+            qInfo() << "Starting:" << qPrintable(cmd + QLatin1Char(' ') + args.join(QLatin1Char(' ')));
+            QProcess::start(cmd, args);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
             const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
             qInfo() << "Starting:" << cmd;
@@ -69,12 +78,16 @@ namespace SDDM {
     }
 
     void UserSession::setupChildProcess() {
-        // Session type
+        // Session class and type
+        QString sessionClass = processEnvironment().value(QStringLiteral("XDG_SESSION_CLASS"));
         QString sessionType = processEnvironment().value(QStringLiteral("XDG_SESSION_TYPE"));
 
-        // For Wayland sessions we leak the VT into the session as stdin so
-        // that it stays open without races
-        if (sessionType == QLatin1String("wayland")) {
+        // We always leak the VT into the session as stdin so that it stays open without races
+        // except for X11 greeter running as root
+        bool setupVt = true;
+        if (sessionClass == QLatin1String("greeter") && sessionType == QLatin1String("x11") && !mainConfig.X11.Unprivileged.get())
+            setupVt = false;
+        if (setupVt) {
             // open VT and get the fd
             QString ttyString = QStringLiteral("/dev/tty%1").arg(processEnvironment().value(QStringLiteral("XDG_VTNR")));
             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
@@ -128,38 +141,40 @@ namespace SDDM {
             exit(Auth::HELPER_OTHER_ERROR);
         }
 
-        //we cannot use setStandardError file as this code is run in the child process
-        //we want to redirect after we setuid so that the log file is owned by the user
+        if (sessionClass == QLatin1String("user")) {
+            //we cannot use setStandardError file as this code is run in the child process
+            //we want to redirect after we setuid so that the log file is owned by the user
 
-        // determine stderr log file based on session type
-        QString sessionLog = QStringLiteral("%1/%2")
-                .arg(QString::fromLocal8Bit(pw->pw_dir))
-                .arg(sessionType == QLatin1String("x11")
-                     ? mainConfig.X11.SessionLogFile.get()
-                     : mainConfig.Wayland.SessionLogFile.get());
+            // determine stderr log file based on session type
+            QString sessionLog = QStringLiteral("%1/%2")
+                    .arg(QString::fromLocal8Bit(pw->pw_dir))
+                    .arg(sessionType == QLatin1String("x11")
+                         ? mainConfig.X11.SessionLogFile.get()
+                         : mainConfig.Wayland.SessionLogFile.get());
 
-        // create the path
-        QFileInfo finfo(sessionLog);
-        QDir().mkpath(finfo.absolutePath());
+            // create the path
+            QFileInfo finfo(sessionLog);
+            QDir().mkpath(finfo.absolutePath());
 
-        //swap the stderr pipe of this subprcess into a file
-        int fd = ::open(qPrintable(sessionLog), O_WRONLY | O_CREAT | O_TRUNC, 0600);
-        if (fd >= 0)
-        {
-            dup2 (fd, STDERR_FILENO);
-            ::close(fd);
-        } else {
-            qWarning() << "Could not open stderr to" << sessionLog;
-        }
+            //swap the stderr pipe of this subprcess into a file
+            int fd = ::open(qPrintable(sessionLog), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+            if (fd >= 0)
+            {
+                dup2 (fd, STDERR_FILENO);
+                ::close(fd);
+            } else {
+                qWarning() << "Could not open stderr to" << sessionLog;
+            }
 
-        //redirect any stdout to /dev/null
-        fd = ::open("/dev/null", O_WRONLY);
-        if (fd >= 0)
-        {
-            dup2 (fd, STDOUT_FILENO);
-            ::close(fd);
-        } else {
-            qWarning() << "Could not redirect stdout";
+            //redirect any stdout to /dev/null
+            fd = ::open("/dev/null", O_WRONLY);
+            if (fd >= 0)
+            {
+                dup2 (fd, STDOUT_FILENO);
+                ::close(fd);
+            } else {
+                qWarning() << "Could not redirect stdout";
+            }
         }
 
         // set X authority for X11 sessions only

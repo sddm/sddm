@@ -32,22 +32,17 @@ class QLocalSocket;
 
 namespace SDDM {
     class Authenticator;
-    class DisplayServer;
     class Seat;
     class SocketServer;
-    class Greeter;
 
     class Display : public QObject {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
-        explicit Display(int terminalId, Seat *parent);
+        explicit Display(Seat *parent);
         ~Display();
 
-        QString displayId() const;
         const int terminalId() const;
-
-        const QString &name() const;
 
         QString sessionType() const;
 
@@ -70,7 +65,6 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
-        QString findGreeterTheme() const;
         bool findSessionEntry(const QDir &dir, const QString &name) const;
 
         void startAuth(const QString &user, const QString &password,
@@ -79,7 +73,9 @@ namespace SDDM {
         bool m_relogin { true };
         bool m_started { false };
 
-        int m_terminalId { 7 };
+        int m_terminalId;
+        QString m_display;
+        QString m_cookie;
 
         Session m_lastSession;
 
@@ -87,11 +83,10 @@ namespace SDDM {
         QString m_sessionName;
 
         Auth *m_auth { nullptr };
-        DisplayServer *m_displayServer { nullptr };
+        Auth *m_displayAuth { nullptr };
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };
         QLocalSocket *m_socket { nullptr };
-        Greeter *m_greeter { nullptr };
 
     private slots:
         void slotRequestChanged();

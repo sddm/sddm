@@ -18,9 +18,6 @@ set(DAEMON_SOURCES
     DaemonApp.cpp
     Display.cpp
     DisplayManager.cpp
-    DisplayServer.cpp
-    XorgDisplayServer.cpp
-    Greeter.cpp
     PowerManager.cpp
     Seat.cpp
     SeatManager.cpp

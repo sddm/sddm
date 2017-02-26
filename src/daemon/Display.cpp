@@ -24,10 +24,8 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
-#include "XorgDisplayServer.h"
 #include "Seat.h"
 #include "SocketServer.h"
-#include "Greeter.h"
 #include "Utils.h"
 #include "SignalHandler.h"
 #include "VirtualTerminal.h"
@@ -40,13 +38,14 @@
 #include <unistd.h>
 
 namespace SDDM {
-    Display::Display(const int terminalId, Seat *parent) : QObject(parent),
-        m_terminalId(terminalId),
+    Display::Display(Seat *parent) : QObject(parent),
         m_auth(new Auth(this)),
-        m_displayServer(new XorgDisplayServer(this)),
+        m_displayAuth(new Auth(this)),
         m_seat(parent),
-        m_socketServer(new SocketServer(this)),
-        m_greeter(new Greeter(this)) {
+        m_socketServer(new SocketServer(this)) {
+
+        // Always allocate a new vt
+        m_terminalId = VirtualTerminal::setUpNewVt();
 
         // respond to authentication requests
         m_auth->setVerbose(true);
@@ -57,9 +56,12 @@ namespace SDDM {
         connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(slotAuthInfo(QString,Auth::Info)));
         connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(slotAuthError(QString,Auth::Error)));
 
-        // restart display after display server ended
-        connect(m_displayServer, SIGNAL(started()), this, SLOT(displayServerStarted()));
-        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+        // Display process
+        m_displayAuth->setVerbose(true);
+        m_displayAuth->setUser(QLatin1String("sddm"));
+        m_displayAuth->setGreeter(true);
+        connect(m_displayAuth, SIGNAL(session(bool)), this, SLOT(displayServerStarted()));
+        connect(m_displayAuth, SIGNAL(finished(Auth::HelperExitStatus)), this, SLOT(stop()));
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,Session)),
@@ -74,20 +76,12 @@ namespace SDDM {
         stop();
     }
 
-    QString Display::displayId() const {
-        return m_displayServer->display();
-    }
-
     const int Display::terminalId() const {
         return m_terminalId;
     }
 
-    const QString &Display::name() const {
-        return m_displayServer->display();
-    }
-
     QString Display::sessionType() const {
-        return m_displayServer->sessionType();
+        return QLatin1String("x11");
     }
 
     Seat *Display::seat() const {
@@ -99,9 +93,44 @@ namespace SDDM {
         if (m_started)
             return;
 
-        // start display server
-        if (!m_displayServer->start()) {
-            qFatal("Display server failed to start. Exiting");
+        // start socket server
+        m_socketServer->start(QLatin1String(":0"));
+        if (!daemonApp->testing()) {
+            // change the owner and group of the socket to avoid permission denied errors
+            struct passwd *pw = getpwnam("sddm");
+            if (pw) {
+                if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
+                    qWarning() << "Failed to change owner of the socket";
+                    return;
+                }
+            }
+        }
+
+        // Display process
+        QString cmd = QStringLiteral("%1/sddm-display").arg(QLatin1String(LIBEXEC_INSTALL_DIR));
+        QStringList args;
+        args << QStringLiteral("--socket") << m_socketServer->socketAddress();
+
+        if (daemonApp->testing()) {
+            args << QLatin1String("--test-mode");
+        } else {
+            // Switch to vt
+            qDebug() << "Switching to vt" << m_terminalId << "for greeter";
+            VirtualTerminal::jumpToVt(m_terminalId);
+
+            // Process environment
+            QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+            env.insert(QLatin1String("XDG_SEAT"), m_seat->name());
+            env.insert(QLatin1String("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_seat->name()));
+            env.insert(QLatin1String("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
+            env.insert(QLatin1String("XDG_SESSION_CLASS"), QLatin1String("greeter"));
+            env.insert(QLatin1String("XDG_SESSION_TYPE"), QLatin1String("x11"));
+            env.insert(QLatin1String("XDG_VTNR"), QString::number(m_terminalId));
+            m_displayAuth->insertEnvironment(env);
+
+            // Run display
+            m_displayAuth->setSession(cmd + QLatin1Char(' ') + args.join(QLatin1Char(' ')));
+            m_displayAuth->start();
         }
     }
 
@@ -137,9 +166,6 @@ namespace SDDM {
         if (m_started)
             return;
 
-        // setup display
-        m_displayServer->setupDisplay();
-
         // log message
         qDebug() << "Display server started.";
 
@@ -157,29 +183,6 @@ namespace SDDM {
             }
         }
 
-        // start socket server
-        m_socketServer->start(m_displayServer->display());
-
-        if (!daemonApp->testing()) {
-            // change the owner and group of the socket to avoid permission denied errors
-            struct passwd *pw = getpwnam("sddm");
-            if (pw) {
-                if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
-                    qWarning() << "Failed to change owner of the socket";
-                    return;
-                }
-            }
-        }
-
-        // set greeter params
-        m_greeter->setDisplay(this);
-        m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
-        m_greeter->setSocket(m_socketServer->socketAddress());
-        m_greeter->setTheme(findGreeterTheme());
-
-        // start greeter
-        m_greeter->start();
-
         // reset first flag
         daemonApp->first = false;
 
@@ -193,15 +196,14 @@ namespace SDDM {
             return;
 
         // stop the greeter
-        m_greeter->stop();
+        if (daemonApp->testing()) {
+
+        } else {
+            //m_displayAuth->stop();
+        }
 
         // stop socket server
         m_socketServer->stop();
-
-        // stop display server
-        m_displayServer->blockSignals(true);
-        m_displayServer->stop();
-        m_displayServer->blockSignals(false);
 
         // reset flag
         m_started = false;
@@ -223,25 +225,6 @@ namespace SDDM {
 
         // authenticate
         startAuth(user, password, session);
-    }
-
-    QString Display::findGreeterTheme() const {
-        QString themeName = mainConfig.Theme.Current.get();
-
-        // an unconfigured theme means the user wants to load the
-        // default theme from the resources
-        if (themeName.isEmpty())
-            return QString();
-
-        QDir dir(mainConfig.Theme.ThemeDir.get());
-
-        // return the default theme if it exists
-        if (dir.exists(themeName))
-            return dir.absoluteFilePath(themeName);
-
-        // otherwise use the embedded theme
-        qWarning() << "The configured theme" << themeName << "doesn't exist, using the embedded theme instead";
-        return QString();
     }
 
     bool Display::findSessionEntry(const QDir &dir, const QString &name) const {
@@ -282,16 +265,14 @@ namespace SDDM {
         // some information
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
-        // create new VT for Wayland sessions otherwise use greeter vt
-        int vt = terminalId();
-        if (session.xdgSessionType() == QLatin1String("wayland"))
-            vt = VirtualTerminal::setUpNewVt();
+        // Always allocate a new VT because we run a separate Xorg server or Wayland compositor
+        int vt = VirtualTerminal::setUpNewVt();
         m_lastSession.setVt(vt);
 
         QProcessEnvironment env;
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         if (session.xdgSessionType() == QLatin1String("x11"))
-            env.insert(QStringLiteral("DISPLAY"), name());
+            env.insert(QStringLiteral("DISPLAY"), m_display);
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
         env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(seat()->name()));
         env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
@@ -312,7 +293,7 @@ namespace SDDM {
         if (success) {
             qDebug() << "Authenticated successfully";
 
-            m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+            m_auth->setCookie(m_cookie);
 
             // save last user and last session
             if (mainConfig.Users.RememberLastUser.get())
@@ -325,9 +306,9 @@ namespace SDDM {
                 stateConfig.Last.Session.setDefault();
             stateConfig.save();
 
-            // switch to the new VT for Wayland sessions
-            if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
-                VirtualTerminal::jumpToVt(m_lastSession.vt());
+            // switch to the new VT for user sessions
+            qDebug() << "Switching to vt" << m_lastSession.vt() << "for user session";
+            VirtualTerminal::jumpToVt(m_lastSession.vt());
 
             if (m_socket)
                 emit loginSucceeded(m_socket);
@@ -356,13 +337,9 @@ namespace SDDM {
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
-        // Don't restart greeter and display server unless sddm-helper exited
-        // with an internal error or the user session finished successfully,
-        // we want to avoid greeter from restarting when an authentication
-        // error happens (in this case we want to show the message from the
-        // greeter
-        if (status != Auth::HELPER_AUTH_ERROR)
-            stop();
+        // Switch back to the greeter vt
+        qDebug() << "Switch back to greeter vt" << m_terminalId;
+        VirtualTerminal::jumpToVt(m_terminalId);
     }
 
     void Display::slotRequestChanged() {
