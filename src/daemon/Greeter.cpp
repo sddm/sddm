@@ -118,8 +118,7 @@ namespace SDDM {
             m_process->setProcessEnvironment(env);
 
             // start greeter
-            if (daemonApp->testing())
-                args << QStringLiteral("--test-mode");
+            args << QStringLiteral("--test-mode");
             m_process->start(QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR)), args);
 
             //if we fail to start bail immediately, and don't block in waitForStarted
