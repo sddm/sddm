@@ -105,7 +105,11 @@ namespace SDDM {
         // create models
 
         m_sessionModel = new SessionModel();
-        m_userModel = new UserModel();
+
+        // only create UserModel if required by theme, otherwise this is NULL and should not be used by the theme
+        if(!m_metadata->ignoreUsermodel())
+            m_userModel = new UserModel();
+
         m_proxy = new GreeterProxy(socket);
         m_keyboard = new KeyboardModel();
 

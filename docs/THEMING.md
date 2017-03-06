@@ -64,7 +64,8 @@ The model also provides, a `primary` property pointing to the index of the prima
 For each session, the model provides `file`, `name`, `exec` and `comment` properties.
 Also there is a `lastIndex` property, pointing to the last session the user successfully logged in.
 
-**userModel:** This is list model. Contains information about the users available on the system. This information is gathered by reading the user database provided by `getpwent()`. To prevent system users polluting the user model we only show users with user ids greater than a certain threshold. This threshold is adjustable through the config file and called `MinimumUid`.
+**userModel:** This is a list model. It contains information about the users available on the system. This information is gathered by reading the user database provided by `getpwent()`. To prevent system users polluting the user model we only show users with user ids in a certain range. This range is adjustable in the config file by `MinimumUid` and `MaximumUid`.
+Simply not using the userModel still generates the list. Themes not relying on the userModel can disable the generation of such by specifying `IgnoreUsermodel=true` in their respective metadata-file. This is especially useful for multi-user environments.
 
 For each user the model provides `name`, `realName`, `homeDir` and `icon` properties.
 This model also has a `lastIndex` property holding the index of the last user successfully logged in, and a `lastUser` property containing the name of the last user successfully logged in.
