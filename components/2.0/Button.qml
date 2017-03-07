@@ -99,7 +99,8 @@ Rectangle {
 
         cursorShape: Qt.PointingHandCursor
 
-        hoverEnabled: true
+        hoverEnabled: container.enabled
+		enabled: container.enabled
 
         acceptedButtons: Qt.LeftButton
 
