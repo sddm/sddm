@@ -49,6 +49,11 @@ OPTIONS
         or "compose" for dead keys support.
         Leave this empty if unsure.
 
+`FormResetTime=`
+	Idle timeout in seconds until sddm resets the form. Useful for
+	multi-user-environments. Set to 0 to disable this feature.
+	Default is 0.
+
 [Theme] section:
 
 `ThemeDir=`

@@ -44,6 +44,8 @@ namespace SDDM {
                                                                                                    "NOTE: Currently ignored if autologin is enabled."));
         Entry(EnableHiDPI,         bool,        true,                                           _S("Enable Qt's automatic high-DPI scaling"));
         Entry(InputMethod,         QString,     QString(),                                      _S("Input method module"));
+        Entry(FormResetTime,       int,         0,                                              _S("Idle timeout in seconds until sddm resets the form (0 = disabled)"));
+
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));

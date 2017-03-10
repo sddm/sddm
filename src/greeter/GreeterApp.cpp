@@ -39,6 +39,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QEvent>
 
 #include <iostream>
 
@@ -58,6 +59,16 @@ namespace SDDM {
     }
 
     GreeterApp *GreeterApp::self = nullptr;
+
+    // catch key-press or mouse-click to restart the timer that resets the form
+    bool GreeterApp::notify(QObject *receiver, QEvent *event) {
+        if (event->type() == QEvent::KeyPress || event->type() == QEvent::MouseButtonPress) {
+            m_formResetTimer.stop();
+            m_formResetTimer.start();
+        }
+
+        return QGuiApplication::notify(receiver, event);
+    }
 
     GreeterApp::GreeterApp(int &argc, char **argv) : QGuiApplication(argc, argv) {
         // point instance to this
@@ -134,6 +145,17 @@ namespace SDDM {
         connect(this, &GreeterApp::primaryScreenChanged, this, [this](QScreen *) {
             activatePrimary();
         });
+
+        // start timer to reset the form if user is idle
+        int formResetTime = SDDM::mainConfig.FormResetTime.get();
+        if (formResetTime > 0) {
+            if (m_metadata->formResetSupport()) {
+                connect(&m_formResetTimer, &QTimer::timeout, m_proxy, &GreeterProxy::formResetAction);
+                m_formResetTimer.start(formResetTime * 1000);
+            } else {
+                qWarning() << "Selected theme does not have the \"FormResetSupport\"-flag set!";
+            }
+        }
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {

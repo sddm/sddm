@@ -63,6 +63,7 @@ namespace SDDM {
         void hybridSleep();
 
         void login(const QString &user, const QString &password, const int sessionIndex) const;
+        void formResetAction();
 
     private slots:
         void connected();
@@ -80,6 +81,7 @@ namespace SDDM {
 
         void loginFailed();
         void loginSucceeded();
+        void formReset();
 
     private:
         GreeterProxyPrivate *d { nullptr };
