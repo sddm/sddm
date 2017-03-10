@@ -14,3 +14,4 @@ TranslationsDirectory=translations
 Email=abdurrahmanavci@gmail.com
 Theme-Id=maldives
 Theme-API=${COMPONENTS_VERSION}
+FormResetSupport=true

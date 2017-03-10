@@ -42,6 +42,13 @@ Rectangle {
         onLoginFailed: {
             pw_entry.text = ""
         }
+        onFormReset: {
+            user_entry.text = ""
+            pw_entry.text = ""
+            session.index = sessionModel.lastIndex
+            menu_session.index = sessionModel.lastIndex
+            user_entry.focus = true
+        }
     }
 
     Background {
