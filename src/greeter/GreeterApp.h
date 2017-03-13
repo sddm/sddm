@@ -21,6 +21,7 @@
 #ifndef GREETERAPP_H
 #define GREETERAPP_H
 
+#include <QFileSystemWatcher>
 #include <QGuiApplication>
 #include <QScreen>
 #include <QQuickView>
@@ -50,6 +51,10 @@ namespace SDDM {
     private slots:
         void addViewForScreen(QScreen *screen);
         void removeViewForScreen(QQuickView *view);
+        void fileChanged(const QString &path);
+
+    signals:
+        void adminInfoChanged(const QString &text);
 
     private:
         static GreeterApp *self;
@@ -65,6 +70,7 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+        QFileSystemWatcher *m_fileAgent { nullptr };
 
         void activatePrimary();
     };

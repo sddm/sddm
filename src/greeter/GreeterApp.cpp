@@ -39,6 +39,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QFileSystemWatcher>
+#include <QFile>
+#include <QTextStream>
 
 #include <iostream>
 
@@ -55,6 +58,24 @@ namespace SDDM {
             return defaultValue;
 
         return value;
+    }
+
+    QString readFile(const QString &path) {
+        // open file readonly
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qWarning() << "couldn't open file at " << path;
+            return QString();
+        }
+
+        // read everything
+        QTextStream stream(&file);
+        QString text = stream.readAll();
+
+        // close file
+        file.close();
+
+        return text;
     }
 
     GreeterApp *GreeterApp::self = nullptr;
@@ -134,6 +155,39 @@ namespace SDDM {
         connect(this, &GreeterApp::primaryScreenChanged, this, [this](QScreen *) {
             activatePrimary();
         });
+
+        // create filewatcher for adminInfo-file
+        QString adminInfoPath = SDDM::mainConfig.AdminInfoPath.get();
+
+        // check if config has been set
+        if (!adminInfoPath.isEmpty()) {
+            // check for theme-compatibility
+            if (m_metadata->adminInfoSupport()) {
+                m_fileAgent = new QFileSystemWatcher(this);
+
+                // connect signals
+                connect(m_fileAgent, &QFileSystemWatcher::fileChanged, this, &GreeterApp::fileChanged);
+                connect(this, &GreeterApp::adminInfoChanged, m_proxy, &GreeterProxy::fileChanged);
+
+                // get absolute path and add it to m_fileAgent
+                QFileInfo file(adminInfoPath);
+                QString absPath = file.absoluteFilePath();
+
+                // FIXME:
+                // adding absolute path instead of adminInfoPath because of a bug in QFileSystemWatcher
+                // causing files to be removed from the watcher when edited with vim/gedit/etc
+                // (Qt-Bug: 53607)
+                // WARNING: This does not fully fix it (e.g. vim's ":w" is still problematic)
+                // -> race condition
+                if (!m_fileAgent->addPath(absPath))
+                    qWarning() << "adminInfoPath does probably not exist!";
+
+                // call fileChanged-slot so we display the correct text
+                fileChanged(adminInfoPath);
+            } else {
+                qWarning() << "Selected theme does not have the \"AdminInfoSupport\"-flag set!";
+            }
+        }
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
@@ -229,6 +283,16 @@ namespace SDDM {
         // screen is gone, remove the window
         m_views.removeOne(view);
         view->deleteLater();
+    }
+
+    void GreeterApp::fileChanged(const QString &path) {
+        // only continue for adminInfoPath
+        if (path != SDDM::mainConfig.AdminInfoPath.get())
+            return;
+
+        // read and send adminInfo-content
+        QString text = readFile(path);
+        emit adminInfoChanged(text);
     }
 
     void GreeterApp::activatePrimary() {

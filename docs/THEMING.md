@@ -51,6 +51,8 @@ We provide a proxy object, called as `sddm` to the themes as a context property.
 
 **loginSucceeded():** Emitted when a requested login operation succeeds.
 
+**adminInfoChanged():** Emitted when the adminInfo-file (if defined) gets modified.
+
 ## Data Models
 Besides the proxy object we offer a few models that can be hooked to the views to handle multiple screens or enable selection of users or sessions.
 

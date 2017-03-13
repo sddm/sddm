@@ -28,6 +28,7 @@ namespace SDDM {
         QString mainScript { QStringLiteral("Main.qml") };
         QString configFile;
         QString translationsDirectory { QStringLiteral(".") };
+        bool adminInfoSupport;
     };
 
     ThemeMetadata::ThemeMetadata(const QString &path, QObject *parent) : QObject(parent), d(new ThemeMetadataPrivate()) {
@@ -50,11 +51,16 @@ namespace SDDM {
         return d->translationsDirectory;
     }
 
+    const bool ThemeMetadata::adminInfoSupport() const {
+        return d->adminInfoSupport;
+    }
+
     void ThemeMetadata::setTo(const QString &path) {
         QSettings settings(path, QSettings::IniFormat);
         // read values
         d->mainScript = settings.value(QStringLiteral("SddmGreeterTheme/MainScript"), d->mainScript).toString();
         d->configFile = settings.value(QStringLiteral("SddmGreeterTheme/ConfigFile"), d->configFile).toString();
         d->translationsDirectory = settings.value(QStringLiteral("SddmGreeterTheme/TranslationsDirectory"), d->translationsDirectory).toString();
+        d->adminInfoSupport = settings.value(QStringLiteral("SddmGreeterTheme/AdminInfoSupport"), d->adminInfoSupport).toBool();
     }
 }

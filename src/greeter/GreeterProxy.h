@@ -63,6 +63,7 @@ namespace SDDM {
         void hybridSleep();
 
         void login(const QString &user, const QString &password, const int sessionIndex) const;
+        void fileChanged(const QString &text);
 
     private slots:
         void connected();
@@ -77,6 +78,8 @@ namespace SDDM {
         void canSuspendChanged(bool canSuspend);
         void canHibernateChanged(bool canHibernate);
         void canHybridSleepChanged(bool canHybridSleep);
+
+        void adminInfoChanged(const QString &text);
 
         void loginFailed();
         void loginSucceeded();

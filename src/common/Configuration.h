@@ -44,6 +44,9 @@ namespace SDDM {
                                                                                                    "NOTE: Currently ignored if autologin is enabled."));
         Entry(EnableHiDPI,         bool,        true,                                           _S("Enable Qt's automatic high-DPI scaling"));
         Entry(InputMethod,         QString,     QString(),                                      _S("Input method module"));
+
+        Entry(AdminInfoPath,       QString,     QString(),                                      _S("File to be displayed by the greeter.\n"
+                                                                                                   "Useful for displaying maintenance times, etc."));
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));

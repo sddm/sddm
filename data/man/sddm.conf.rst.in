@@ -49,6 +49,11 @@ OPTIONS
         or "compose" for dead keys support.
         Leave this empty if unsure.
 
+`AdminInfoPath=`
+    Set path to file (either plaintext or HTML) to be displayed
+    by the greeter for administrative information, etc.
+    Default value is empty.
+
 [Theme] section:
 
 `ThemeDir=`

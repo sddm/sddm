@@ -144,6 +144,13 @@ namespace SDDM {
         qCritical() << "Socket error: " << d->socket->errorString();
     }
 
+    void GreeterProxy::fileChanged(const QString &text) {
+        // log adminInfo-filechange
+        qDebug() << "Modification of AdminInfoPath detected. Updating AdminInfo-text...";
+
+        emit adminInfoChanged(text);
+    }
+
     void GreeterProxy::readyRead() {
         // input stream
         QDataStream input(d->socket);
