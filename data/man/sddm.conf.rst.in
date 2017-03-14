@@ -58,6 +58,13 @@ OPTIONS
         or "compose" for dead keys support.
         Leave this empty if unsure.
 
+`Namespaces=`
+	Comma-separated list of paths bound to Linux namespaces to enter with
+	setns() before starting the user session.  For example, to enter network
+	namespace `mynet` created with `ip netns add mynet`, the value might be
+	`/run/netns/mynet`.  Default value is empty.  (The value is ignored if
+	the operating system is not Linux.)
+
 [Theme] section:
 
 `ThemeDir=`
