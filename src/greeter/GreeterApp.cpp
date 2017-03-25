@@ -31,7 +31,7 @@
 
 #include "MessageHandler.h"
 
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQuickItem>
 #include <QQuickView>
 #include <QQmlContext>
@@ -39,6 +39,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QMessageBox>
 
 #include <iostream>
 
@@ -59,7 +60,7 @@ namespace SDDM {
 
     GreeterApp *GreeterApp::self = nullptr;
 
-    GreeterApp::GreeterApp(int &argc, char **argv) : QGuiApplication(argc, argv) {
+    GreeterApp::GreeterApp(int &argc, char **argv) : QApplication(argc, argv) {
         // point instance to this
         self = this;
 
@@ -161,7 +162,9 @@ namespace SDDM {
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
-        connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
+        connect(m_proxy, &GreeterProxy::loginSucceeded, this, &GreeterApp::pamShowCloseGreeter);
+        connect(m_proxy, &GreeterProxy::loginFailed, this, &GreeterApp::pamShow);
+        connect(m_proxy, &GreeterProxy::storePamMessage, this, &GreeterApp::pamStoreMessage);
 
         // we used to have only one window as big as the virtual desktop,
         // QML took care of creating an item for each screen by iterating on
@@ -229,6 +232,29 @@ namespace SDDM {
         // screen is gone, remove the window
         m_views.removeOne(view);
         view->deleteLater();
+    }
+
+    void GreeterApp::pamStoreMessage(const QString &message) {
+        m_pamMessages.append(message);
+    }
+
+    void GreeterApp::pamShow() {
+        while (!m_pamMessages.isEmpty()) {
+            QMessageBox m;
+            m.setWindowTitle(tr("PAM Message"));
+            m.setText(m_pamMessages.takeFirst());
+            m.exec();
+        }
+    }
+
+    void GreeterApp::pamShowCloseGreeter() {
+        // closing greeter-views to show user's window manager
+        while (!m_views.isEmpty()) {
+            m_views.takeFirst()->close();
+        }
+
+        // display PAM messages
+        pamShow();
     }
 
     void GreeterApp::activatePrimary() {

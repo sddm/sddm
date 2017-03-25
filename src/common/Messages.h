@@ -37,7 +37,8 @@ namespace SDDM {
         HostName,
         Capabilities,
         LoginSucceeded,
-        LoginFailed
+        LoginFailed,
+        PamConvMsg
     };
 
     enum Capability {

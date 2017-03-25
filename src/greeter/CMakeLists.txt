@@ -26,6 +26,7 @@ qt5_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
 add_executable(sddm-greeter ${GREETER_SOURCES} ${RESOURCES})
 target_link_libraries(sddm-greeter
                       Qt5::Quick
+                      Qt5::Widgets
                       ${LIBXCB_LIBRARIES}
                       ${LIBXKB_LIBRARIES})
 

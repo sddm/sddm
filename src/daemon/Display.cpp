@@ -68,6 +68,10 @@ namespace SDDM {
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
         connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
+
+        // connect pam message signal
+        connect(this, SIGNAL(pamConvMsg(QLocalSocket*, const QString&)),
+                m_socketServer, SLOT(pamConvMsg(QLocalSocket*, const QString&)));
     }
 
     Display::~Display() {
@@ -339,9 +343,14 @@ namespace SDDM {
     }
 
     void Display::slotAuthInfo(const QString &message, Auth::Info info) {
-        // TODO: presentable to the user, eventually
         Q_UNUSED(info);
+        // TODO: handle more errors
         qWarning() << "Authentication information:" << message;
+
+        if (!m_socket)
+            return;
+
+        emit pamConvMsg(m_socket, message);
     }
 
     void Display::slotAuthError(const QString &message, Auth::Error error) {

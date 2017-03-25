@@ -21,7 +21,7 @@
 #ifndef GREETERAPP_H
 #define GREETERAPP_H
 
-#include <QGuiApplication>
+#include <QApplication>
 #include <QScreen>
 #include <QQuickView>
 
@@ -38,7 +38,7 @@ namespace SDDM {
     class KeyboardModel;
 
 
-    class GreeterApp : public QGuiApplication
+    class GreeterApp : public QApplication
     {
         Q_OBJECT
         Q_DISABLE_COPY(GreeterApp)
@@ -50,6 +50,9 @@ namespace SDDM {
     private slots:
         void addViewForScreen(QScreen *screen);
         void removeViewForScreen(QQuickView *view);
+        void pamShow();
+        void pamShowCloseGreeter();
+        void pamStoreMessage(const QString &message);
 
     private:
         static GreeterApp *self;
@@ -65,6 +68,7 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+        QStringList m_pamMessages;
 
         void activatePrimary();
     };

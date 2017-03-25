@@ -69,6 +69,8 @@ namespace SDDM {
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
 
+        void pamConvMsg(QLocalSocket *socket, const QString &message);
+
     private:
         QString findGreeterTheme() const;
         bool findSessionEntry(const QDir &dir, const QString &name) const;

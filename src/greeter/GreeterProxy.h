@@ -80,6 +80,7 @@ namespace SDDM {
 
         void loginFailed();
         void loginSucceeded();
+        void storePamMessage(const QString message);
 
     private:
         GreeterProxyPrivate *d { nullptr };

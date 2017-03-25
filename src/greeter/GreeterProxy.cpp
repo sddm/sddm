@@ -204,6 +204,16 @@ namespace SDDM {
                     emit loginFailed();
                 }
                 break;
+                case DaemonMessages::PamConvMsg: {
+                    // log message
+                    qDebug() << "Message received from daemon: PamConvMsg";
+
+                    QString msg;
+                    input >> msg;
+
+                    emit storePamMessage(msg);
+                }
+                break;
                 default: {
                     // log message
                     qWarning() << "Unknown message received from daemon.";
