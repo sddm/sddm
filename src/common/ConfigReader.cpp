@@ -113,9 +113,10 @@ namespace SDDM {
 
 
 
-    ConfigBase::ConfigBase(const QString &configPath, const QString &configDir) :
+    ConfigBase::ConfigBase(const QString &configPath, const QString &configDir, const QString &sysConfigDir) :
         m_path(configPath),
-        m_configDir(configDir)
+        m_configDir(configDir),
+        m_sysConfigDir(sysConfigDir)
     {
     }
 
@@ -135,17 +136,27 @@ namespace SDDM {
     void ConfigBase::load()
     {
         //order of priority from least influence to most influence, is
-        //m_configDir in alphabetical order then m_path
+        //m_sysConfigDir in alphabetical order then m_configDir then m_path
 
         QStringList files;
         QDateTime latestModificationTime = QFileInfo(m_path).lastModified();
 
+        if (!m_sysConfigDir.isEmpty()) {
+            //include the configDir in modification time so we also reload on any files added/removed
+            QDir dir(m_sysConfigDir);
+            if (dir.exists()) {
+                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_sysConfigDir).lastModified());
+                foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware)) {
+                    files << (file.absoluteFilePath());
+                    latestModificationTime = std::max(latestModificationTime, file.lastModified());
+                }
+            }
+        }
         if (!m_configDir.isEmpty()) {
             //include the configDir in modification time so we also reload on any files added/removed
             QDir dir(m_configDir);
             if (dir.exists()) {
                 latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_configDir).lastModified());
-
                 foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware)) {
                     files << (file.absoluteFilePath());
                     latestModificationTime = std::max(latestModificationTime, file.lastModified());
