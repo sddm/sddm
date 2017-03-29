@@ -35,6 +35,8 @@ void ConfigurationTest::init() {
     QFile::remove(CONF_FILE);
     QDir(CONF_DIR).removeRecursively();
     QDir().mkdir(CONF_DIR);
+    QDir(SYS_CONF_DIR).removeRecursively();
+    QDir().mkdir(SYS_CONF_DIR);
     QFile::remove(CONF_FILE_COPY);
     config = new TestConfig;
 }
@@ -42,6 +44,7 @@ void ConfigurationTest::init() {
 void ConfigurationTest::cleanup() {
     QFile::remove(CONF_FILE);
     QDir(CONF_DIR).removeRecursively();
+    QDir(SYS_CONF_DIR).removeRecursively();
     QFile::remove(CONF_FILE_COPY);
     if (config)
         delete config;
@@ -161,18 +164,25 @@ void ConfigurationTest::RightOnInit() {
 void ConfigurationTest::RightOnInitDir() {
     delete config;
 
-    QFile confFileA(CONF_DIR+QStringLiteral("/0001A"));
+    QFile confFileA(SYS_CONF_DIR+QStringLiteral("/0001A"));
     confFileA.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    confFileA.write("String=a\n"); //overriden by B
-    confFileA.write("StringList=a,b,c\n");
-    confFileA.write("Int=1111111\n"); //this is set in this config file but overriden in CONF_FILE
+    confFileA.write("Custom=Foo\n"); //overriden by B
+    confFileA.write("Boolean=false\n");
     confFileA.close();
 
-    QFile confFileB(CONF_DIR+QStringLiteral("/0001B"));
+    QFile confFileB(CONF_DIR+QStringLiteral("/0001A"));
     confFileB.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    confFileB.write("String=b\n");
-    confFileB.write("Int=1111111\n"); //overriden in CONF_FILE
+    confFileB.write("String=a\n"); //overriden by C
+    confFileB.write("Custom=Bar\n");
+    confFileB.write("StringList=a,b,c\n");
+    confFileB.write("Int=1111111\n"); //this is set in this config file but overriden in CONF_FILE
     confFileB.close();
+
+    QFile confFileC(CONF_DIR+QStringLiteral("/0001B"));
+    confFileC.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    confFileC.write("String=b\n");
+    confFileC.write("Int=1111111\n"); //overriden in CONF_FILE
+    confFileC.close();
 
     QFile confFileMain(CONF_FILE);
     confFileMain.open(QIODevice::WriteOnly | QIODevice::Truncate);
@@ -184,6 +194,8 @@ void ConfigurationTest::RightOnInitDir() {
     QVERIFY(config->StringList.get() == QStringList({QStringLiteral("a"), QStringLiteral("b"), QStringLiteral("c")}));
     QVERIFY(config->String.get() == QStringLiteral("b"));
     QVERIFY(config->Int.get() == 99999);
+    QVERIFY(config->Custom.get() == TestConfig::BAR);
+    QVERIFY(config->Boolean.get() == false);
 }
 
 void ConfigurationTest::FileChanged()

@@ -37,10 +37,10 @@
 #define _S(x) QStringLiteral(x)
 
 // config wrapper
-#define Config(name, file, dir, ...) \
+#define Config(name, file, dir, sysDir, ...) \
     class name : public SDDM::ConfigBase, public SDDM::ConfigSection { \
     public: \
-        name() : SDDM::ConfigBase(file, dir), SDDM::ConfigSection(this, QStringLiteral(IMPLICIT_SECTION)) { \
+        name() : SDDM::ConfigBase(file, dir, sysDir), SDDM::ConfigSection(this, QStringLiteral(IMPLICIT_SECTION)) { \
             load(); \
         } \
         void save() { SDDM::ConfigBase::save(nullptr, nullptr); } \
@@ -184,7 +184,7 @@ namespace SDDM {
     // Base has to be separate from the Config itself - order of initialization
     class ConfigBase {
     public:
-        ConfigBase(const QString &configPath, const QString &configDir=QString());
+        ConfigBase(const QString &configPath, const QString &configDir=QString(), const QString &sysConfigDir=QString());
 
         void load();
         void save(const ConfigSection *section = nullptr, const ConfigEntryBase *entry = nullptr);
@@ -196,9 +196,11 @@ namespace SDDM {
 
         QString m_path {};
         QString m_configDir;
+        QString m_sysConfigDir;
         QMap<QString, ConfigSection*> m_sections;
         friend class ConfigSection;
     private:
+        QDateTime dirLatestModifiedTime(const QString &directory);
         void loadInternal(const QString &filepath);
         QDateTime m_fileModificationTime;
     };
