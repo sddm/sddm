@@ -138,9 +138,21 @@ namespace SDDM {
         if (!file.open(QIODevice::ReadOnly))
             return;
 
+        QString current_section;
+
         QTextStream in(&file);
         while (!in.atEnd()) {
             QString line = in.readLine();
+
+            if (line.startsWith(QLatin1String("["))) {
+                // The section name ends before the last ] before the start of a comment
+                int end = line.lastIndexOf(QLatin1Char(']'), line.indexOf(QLatin1Char('#')));
+                if (end != -1)
+                    current_section = line.mid(1, end - 1);
+            }
+
+            if (current_section != QLatin1String("Desktop Entry"))
+                continue; // We are only interested in the "Desktop Entry" section
 
             if (line.startsWith(QLatin1String("Name="))) {
                 if (type == WaylandSession)
