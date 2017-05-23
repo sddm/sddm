@@ -2,11 +2,21 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pl">
 <context>
-    <name>TextConstants</name>
+    <name>PictureBox</name>
     <message>
-        <source>Welcome to %1</source>
-        <translation>Witaj w %1</translation>
+        <source>Press to login</source>
+        <translation>Przytrzymaj, aby zalogować się</translation>
     </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>%1 (Wayland)</source>
+        <translation>%1 (Wayland)</translation>
+    </message>
+</context>
+<context>
+    <name>TextConstants</name>
     <message>
         <source>Warning, Caps Lock is ON!</source>
         <translation>Uwaga, Caps Lock jest włączony!</translation>
@@ -36,8 +46,12 @@
         <translation>Wprowadź nazwę użytkownika i hasło</translation>
     </message>
     <message>
+        <source>Select your user and enter password</source>
+        <translation>Wybierz konto i wprowadź hasło</translation>
+    </message>
+    <message>
         <source>Reboot</source>
-        <translation>Restart</translation>
+        <translation>Uruchom ponownie</translation>
     </message>
     <message>
         <source>Session</source>
@@ -52,8 +66,8 @@
         <translation>Nazwa użytkownika</translation>
     </message>
     <message>
-        <source>Select your user and enter password</source>
-        <translation>Wybierz użytkownika i wprowadź hasło</translation>
+        <source>Welcome to %1</source>
+        <translation>Witamy w %1</translation>
     </message>
 </context>
 </TS>
