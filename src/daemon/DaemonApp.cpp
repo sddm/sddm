@@ -21,7 +21,6 @@
 
 #include "Configuration.h"
 #include "Constants.h"
-#include "DisplayManager.h"
 #include "PowerManager.h"
 #include "SeatManager.h"
 #include "SignalHandler.h"
@@ -49,18 +48,11 @@ namespace SDDM {
         // set testing parameter
         m_testing = (arguments().indexOf(QStringLiteral("--test-mode")) != -1);
 
-        // create display manager
-        m_displayManager = new DisplayManager(this);
-
         // create power manager
         m_powerManager = new PowerManager(this);
 
         // create seat manager
         m_seatManager = new SeatManager(this);
-
-        // connect with display manager
-        connect(m_seatManager, SIGNAL(seatCreated(QString)), m_displayManager, SLOT(AddSeat(QString)));
-        connect(m_seatManager, SIGNAL(seatRemoved(QString)), m_displayManager, SLOT(RemoveSeat(QString)));
 
         // create signal handler
         m_signalHandler = new SignalHandler(this);
@@ -75,9 +67,6 @@ namespace SDDM {
 
         // log message
         qDebug() << "Starting...";
-
-        // add a seat
-        m_seatManager->createSeat(QStringLiteral("seat0"));
     }
 
     bool DaemonApp::testing() const {
@@ -87,10 +76,6 @@ namespace SDDM {
 
     QString DaemonApp::hostName() const {
         return QHostInfo::localHostName();
-    }
-
-    DisplayManager *DaemonApp::displayManager() const {
-        return m_displayManager;
     }
 
     PowerManager *DaemonApp::powerManager() const {

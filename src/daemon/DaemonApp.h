@@ -26,7 +26,6 @@
 
 namespace SDDM {
     class Configuration;
-    class DisplayManager;
     class PowerManager;
     class SeatManager;
     class SignalHandler;
@@ -44,7 +43,6 @@ namespace SDDM {
         bool first { true };
 
         QString hostName() const;
-        DisplayManager *displayManager() const;
         PowerManager *powerManager() const;
         SeatManager *seatManager() const;
         SignalHandler *signalHandler() const;
@@ -58,7 +56,6 @@ namespace SDDM {
         int m_lastSessionId { 0 };
 
         bool m_testing { false };
-        DisplayManager *m_displayManager { nullptr };
         PowerManager *m_powerManager { nullptr };
         SeatManager *m_seatManager { nullptr };
         SignalHandler *m_signalHandler { nullptr };
