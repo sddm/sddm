@@ -72,6 +72,13 @@ namespace SDDM {
             if (mainConfig.Users.HideShells.get().contains(QString::fromLocal8Bit(current_pw->pw_shell)))
                 continue;
 
+            // skip duplicates
+            // Note: getpwent() makes no attempt to suppress duplicate information
+            // if multiple sources are specified in nsswitch.conf(5).
+            if (d->users.cend()
+                != std::find_if(d->users.cbegin(), d->users.cend(), [current_pw](const UserPtr & u) { return u->uid == current_pw->pw_uid; }))
+                continue;
+
             // create user
             UserPtr user { new User() };
             user->name = QString::fromLocal8Bit(current_pw->pw_name);
