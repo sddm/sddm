@@ -109,7 +109,7 @@ if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
 endif()
 
 # systemd
-if(NOT NO_SYSTEMD)
+if(NOT NO_SYSTEMD AND NOT USE_ELOGIND)
     pkg_check_modules(SYSTEMD "systemd")
 endif()
 
@@ -143,12 +143,32 @@ if(SYSTEMD_FOUND)
     set(REBOOT_COMMAND "/usr/bin/systemctl reboot")
 else()
     set(SYSTEMD_FOUND 0)
+endif()
+add_feature_info("systemd" SYSTEMD_FOUND "systemd support")
+add_feature_info("journald" JOURNALD_FOUND "journald support")
+
+# elogind
+if(NO_SYSTEMD AND USE_ELOGIND)
+    pkg_check_modules(ELOGIND "libelogind")
+endif()
+
+if(ELOGIND_FOUND)
+    add_definitions(-DHAVE_ELOGIND)
+    set(CMAKE_AUTOMOC_MOC_OPTIONS -DHAVE_ELOGIND)
+
+    set(MINIMUM_VT 7)
+    set(HALT_COMMAND "/usr/bin/loginctl poweroff")
+    set(REBOOT_COMMAND "/usr/bin/loginctl reboot")
+endif()
+add_feature_info("elogind" ELOGIND_FOUND "elogind support")
+
+# Default behaviour if neither systemd nor elogind is used
+if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
     set(MINIMUM_VT 7)
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
-add_feature_info("systemd" SYSTEMD_FOUND "systemd support")
-add_feature_info("journald" JOURNALD_FOUND "journald support")
+
 
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
