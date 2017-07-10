@@ -9,11 +9,11 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Dėmesio, įjungtos Didžiosios raidės!</translation>
+        <translation>Įspėjimas, įjungtos Didžiosios raidės!</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Atsijungti</translation>
+        <translation>Išdėstymas</translation>
     </message>
     <message>
         <source>Login</source>
@@ -41,7 +41,7 @@
     </message>
     <message>
         <source>Session</source>
-        <translation>Sesija</translation>
+        <translation>Seansas</translation>
     </message>
     <message>
         <source>Shutdown</source>
