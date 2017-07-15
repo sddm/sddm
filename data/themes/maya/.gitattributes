@@ -1,0 +1,12 @@
+#
+# Text files
+#
+*.qml       text eol=lf
+*.desktop   text eol=lf
+*.svg       text eol=lf
+
+#
+# Binary files
+#
+*.ttf binary
+*.png binary

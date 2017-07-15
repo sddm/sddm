@@ -2,11 +2,13 @@ set(TRANSLATION_FILES
     ar.ts
     ca.ts
     cs.ts
+    da.ts
     de.ts
     es.ts
     et.ts
     fi.ts
     fr.ts
+    hi_IN.ts
     hu.ts
     it.ts
     ja.ts

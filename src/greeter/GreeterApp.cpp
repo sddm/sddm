@@ -32,6 +32,7 @@
 #include "MessageHandler.h"
 
 #include <QGuiApplication>
+#include <QQuickItem>
 #include <QQuickView>
 #include <QQmlContext>
 #include <QQmlEngine>
@@ -211,6 +212,10 @@ namespace SDDM {
         qInfo("Loading %s...", qPrintable(mainScriptUrl.toString()));
         view->setSource(mainScriptUrl);
 
+        // set default cursor
+        QCursor cursor(Qt::ArrowCursor);
+        view->rootObject()->setCursor(cursor);
+
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
         view->show();
@@ -242,11 +247,16 @@ int main(int argc, char **argv) {
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
 
     // HiDPI
-    if (SDDM::mainConfig.EnableHiDPI.get()) {
+    bool hiDpiEnabled = false;
+    if (QGuiApplication::platformName() == QLatin1String("xcb"))
+        hiDpiEnabled = SDDM::mainConfig.X11.EnableHiDPI.get();
+    else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland")))
+        hiDpiEnabled = SDDM::mainConfig.Wayland.EnableHiDPI.get();
+    if (hiDpiEnabled) {
         qDebug() << "High-DPI autoscaling Enabled";
         QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     } else {
-        qDebug() << "High-DPI autoscaling Not Enabled";
+        qDebug() << "High-DPI autoscaling not Enabled";
     }
 
     QStringList arguments;

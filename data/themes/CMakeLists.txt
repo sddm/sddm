@@ -1,4 +1,4 @@
-set(THEMES elarun maldives)
+set(THEMES elarun maldives maya)
 
 foreach(THEME ${THEMES})
     # We assume that theme-specific translations are stored
@@ -13,7 +13,7 @@ foreach(THEME ${THEMES})
 
     qt5_add_translation(QM_FILES "${TRANSLATION_SOURCES}")
 
-    install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes" PATTERN "*.ts" EXCLUDE)
+    install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes" PATTERN "${THEME}/*.ts" EXCLUDE PATTERN "${THEME}/Main.qml" EXCLUDE PATTERN "${THEME}/metadata.desktop" EXCLUDE)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes")
 
     list(APPEND THEMES_QM_FILES ${QM_FILES})

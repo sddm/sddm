@@ -57,7 +57,8 @@ OPTIONS
 
 `Current=`
 	Name of the current theme.
-	Default value is "maui".
+	By default this setting is empty, meaning the embedded theme
+	will be used.
 
 `FacesDir=`
 	Path of the directory containing face files,
@@ -125,6 +126,11 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
+
 [Wayland] section:
 
 `SessionDir=`
@@ -140,6 +146,11 @@ OPTIONS
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
         Default value is ".local/share/sddm/wayland-session.log".
+
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
 
 [Users] section:
 

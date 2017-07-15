@@ -27,7 +27,7 @@
     <message>
         <location filename="../../components/common/TextConstants.qml" line="29"/>
         <source>Layout</source>
-        <translation>Ritning</translation>
+        <translation>Tangentbordslayout</translation>
     </message>
     <message>
         <location filename="../../components/common/TextConstants.qml" line="30"/>
@@ -42,7 +42,7 @@
     <message>
         <location filename="../../components/common/TextConstants.qml" line="32"/>
         <source>Login succeeded</source>
-        <translation>Inloggningen misslyckades</translation>
+        <translation>Inloggningen lyckades</translation>
     </message>
     <message>
         <location filename="../../components/common/TextConstants.qml" line="33"/>
@@ -52,7 +52,7 @@
     <message>
         <location filename="../../components/common/TextConstants.qml" line="34"/>
         <source>Enter your username and password</source>
-        <translation>Ange användarnamn och lösenord</translation>
+        <translation>Fyll i ditt användarnamn och lösenord</translation>
     </message>
     <message>
         <location filename="../../components/common/TextConstants.qml" line="35"/>
@@ -82,7 +82,7 @@
     <message>
         <location filename="../../components/common/TextConstants.qml" line="40"/>
         <source>Welcome to %1</source>
-        <translation>Välkommen til %1</translation>
+        <translation>Välkommen till %1</translation>
     </message>
 </context>
 </TS>
