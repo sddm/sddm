@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Inici de sessió fracassat</translation>
+        <translation>Inici de sessió no reeixit</translation>
     </message>
     <message>
         <source>Login succeeded</source>
