@@ -80,6 +80,7 @@ namespace SDDM {
         virtual QString toConfigFull() const = 0;
         virtual bool matchesDefault() const = 0;
         virtual bool isDefault() const = 0;
+        virtual bool setDefault() = 0;
     };
 
     class ConfigSection {
@@ -88,6 +89,7 @@ namespace SDDM {
         ConfigEntryBase *entry(const QString &name);
         const ConfigEntryBase *entry(const QString &name) const;
         void save(ConfigEntryBase *entry);
+        void clear();
         const QString &name() const;
         QString toConfigShort() const;
         QString toConfigFull() const;
@@ -188,6 +190,7 @@ namespace SDDM {
 
         void load();
         void save(const ConfigSection *section = nullptr, const ConfigEntryBase *entry = nullptr);
+        void wipe();
         bool hasUnused() const;
         QString toConfigFull() const;
     protected:
