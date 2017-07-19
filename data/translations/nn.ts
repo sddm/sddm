@@ -12,7 +12,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/common/Session.cpp" line="137"/>
+        <location filename="../../src/common/Session.cpp" line="166"/>
         <source>%1 (Wayland)</source>
         <translation>%1 (Wayland)</translation>
     </message>
