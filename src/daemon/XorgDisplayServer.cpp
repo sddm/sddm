@@ -249,7 +249,7 @@ namespace SDDM {
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
         displayStopScript->setProcessEnvironment(env);
 
-        // start display setup script
+        // start display stop script
         qDebug() << "Running display stop script " << displayStopCommand;
         displayStopScript->start(displayStopCommand);
 
@@ -285,7 +285,17 @@ namespace SDDM {
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
+        env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
         displayScript->setProcessEnvironment(env);
+
+        qDebug() << "Setting default cursor";
+        displayScript->start(QStringLiteral("xsetroot -cursor_name left_ptr"));
+
+        // wait for finished
+        if (!displayScript->waitForFinished(1000)) {
+            qWarning() << "Could not setup default cursor";
+            displayScript->kill();
+        }
 
         // delete displayScript on finish
         connect(displayScript, SIGNAL(finished(int,QProcess::ExitStatus)), displayScript, SLOT(deleteLater()));

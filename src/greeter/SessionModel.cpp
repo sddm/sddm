@@ -143,7 +143,7 @@ namespace SDDM {
                 }
             }
             // add to sessions list
-            if (execAllowed)
+            if (!si->isHidden() && execAllowed)
                 d->sessions.push_back(si);
             else
                 delete si;
