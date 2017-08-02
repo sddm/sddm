@@ -126,6 +126,11 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
+
 [Wayland] section:
 
 `SessionDir=`
@@ -141,6 +146,11 @@ OPTIONS
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
         Default value is ".local/share/sddm/wayland-session.log".
+
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
 
 [Users] section:
 

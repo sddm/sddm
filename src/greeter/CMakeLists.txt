@@ -1,5 +1,8 @@
-include_directories("${CMAKE_SOURCE_DIR}/src/common")
-include_directories("${CMAKE_BINARY_DIR}/src/common")
+include_directories(
+    "${CMAKE_SOURCE_DIR}/src/common"
+    "${CMAKE_BINARY_DIR}/src/common"
+    "${LIBXCB_INCLUDE_DIR}"
+)
 
 set(GREETER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp

@@ -59,6 +59,8 @@ namespace SDDM {
         QString desktopSession() const;
         QString desktopNames() const;
 
+        bool isHidden() const;
+
         void setTo(Type type, const QString &name);
 
         Session &operator=(const Session &other);
@@ -76,6 +78,7 @@ namespace SDDM {
         QString m_tryExec;
         QString m_xdgSessionType;
         QString m_desktopNames;
+        bool m_isHidden;
 
         friend class SessionModel;
     };
