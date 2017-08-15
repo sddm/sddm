@@ -92,6 +92,9 @@ find_package(XCB REQUIRED)
 # XKB
 find_package(XKB REQUIRED)
 
+# XKB
+find_package(XAU REQUIRED)
+
 # Qt 5
 find_package(Qt5 5.6.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools)
 

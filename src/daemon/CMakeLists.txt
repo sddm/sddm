@@ -57,7 +57,9 @@ target_link_libraries(sddm
                       Qt5::DBus
                       Qt5::Network
                       Qt5::Qml
-                      ${LIBXCB_LIBRARIES})
+                      ${LIBXCB_LIBRARIES}
+                      ${LIBXAU_LIBRARIES}
+)
 if(PAM_FOUND)
     target_link_libraries(sddm ${PAM_LIBRARIES})
 else()

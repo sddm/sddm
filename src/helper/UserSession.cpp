@@ -33,6 +33,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <X11/Xauth.h>
+
+
 namespace SDDM {
     UserSession::UserSession(HelperApp *parent)
             : QProcess(parent) {
@@ -170,9 +173,27 @@ namespace SDDM {
         QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
         if (!cookie.isEmpty()) {
             QString file = processEnvironment().value(QStringLiteral("XAUTHORITY"));
-            QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
+            Xauth auth = { 0 };
+            char localhost[HOST_NAME_MAX + 1] = { 0 };
+
             qDebug() << "Adding cookie to" << file;
 
+            if (gethostname(localhost, HOST_NAME_MAX) < 0) {
+                strcpy(localhost, "localhost");
+            }
+
+            // libXau expects binary data, not a string
+            QByteArray cookieBinary = QByteArray::fromHex(cookie.toLatin1());
+
+            // set up the auth entry
+            char cookieName[] = "MIT-MAGIC-COOKIE-1";
+            auth.family = FamilyLocal;
+            auth.address = localhost;
+            auth.address_length = strlen(auth.address);
+            auth.name = cookieName;
+            auth.name_length = sizeof(cookieName);
+            auth.data_length = cookieBinary.count();
+            auth.data = cookieBinary.data();
 
             // create the path
             QFileInfo finfo(file);
@@ -182,20 +203,27 @@ namespace SDDM {
             file_handler.open(QIODevice::Append);
             file_handler.close();
 
-            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
-
-            // execute xauth
-            FILE *fp = popen(qPrintable(cmd), "w");
-
-            // check file
+            // open the file
+            FILE *fp = fopen(qPrintable(file), "w");
             if (!fp)
-                return;
-            fprintf(fp, "remove %s\n", qPrintable(display));
-            fprintf(fp, "add %s . %s\n", qPrintable(display), qPrintable(cookie));
-            fprintf(fp, "exit\n");
+                qWarning() << "Opening the Xauthority file at" << file << "failed";
 
-            // close pipe
-            pclose(fp);
+            // write the Xauth data
+            if (!XauWriteAuth (fp, &auth) || fflush (fp) == EOF) {
+                qCritical() << "Writing the FamilyLocal information to" << file << "failed";
+                fclose(fp);
+                return;
+            }
+
+            auth.family = FamilyWild;
+
+            if (!XauWriteAuth (fp, &auth) || fflush (fp) == EOF) {
+                qCritical() << "Writing the FamilyWild information to" << file << "failed";
+                fclose(fp);
+                return;
+            }
+
+            fclose(fp);
         }
     }
 }
