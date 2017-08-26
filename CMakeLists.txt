@@ -82,6 +82,10 @@ if(ENABLE_PAM)
 endif()
 add_feature_info("PAM" PAM_FOUND "PAM support")
 
+# getspnam and shadow(5) support
+include(CheckFunctionExists)
+check_function_exists(getspnam HAVE_GETSPNAM)
+
 # XCB
 find_package(XCB REQUIRED)
 
