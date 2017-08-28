@@ -235,6 +235,7 @@ Rectangle {
         focusColor  : accentLight
         hoverColor  : accentHue2
         textColor   : normalText
+        menuColor   : primaryHue1
 
         font.family     : opensans_cond_light.name
         font.pixelSize  : spFontNormal
@@ -277,6 +278,7 @@ Rectangle {
         focusColor  : accentLight
         hoverColor  : accentHue2
         textColor   : normalText
+        menuColor   : primaryHue1
 
         font.family     : opensans_cond_light.name
         font.pixelSize  : spFontNormal
