@@ -12,22 +12,26 @@ set(TRANSLATION_FILES
     hu.ts
     it.ts
     ja.ts
+    kk.ts
     ko.ts
     lt.ts
     lv.ts
     nb.ts
+    nl.ts
     nn.ts
     pl.ts
     pt_BR.ts
     pt_PT.ts
     ro.ts
-    sr.ts
-    sr@ijekavian.ts
-    sr@ijekavianlatin.ts
-    sr@latin.ts
-    sv.ts
     ru.ts
+    sk.ts
+    sr@ijekavianlatin.ts
+    sr@ijekavian.ts
+    sr@latin.ts
+    sr.ts
+    sv.ts
     tr.ts
+    uk.ts
     zh_CN.ts
     zh_TW.ts
 )
