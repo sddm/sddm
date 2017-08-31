@@ -32,7 +32,9 @@ FocusScope {
     property color borderColor: "#ababab"
     property color focusColor: "#266294"
     property color hoverColor: "#5692c4"
+    property color menuColor: "white"
     property color textColor: "black"
+
     property font font
     property alias model: listView.model
     property int index: 0
@@ -147,6 +149,8 @@ FocusScope {
         width: container.width; height: 0
         anchors.top: container.bottom
         anchors.topMargin: -1
+
+        color: container.menuColor
 
         clip: true
 

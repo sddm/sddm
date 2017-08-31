@@ -49,7 +49,7 @@
     </message>
     <message>
         <source>User name</source>
-        <translation>Ім'я користувача/translation>
+        <translation>Ім'я користувача</translation>
     </message>
     <message>
         <source>Select your user and enter password</source>
