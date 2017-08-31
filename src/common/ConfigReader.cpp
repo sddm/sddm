@@ -100,6 +100,12 @@ namespace SDDM {
         m_parent->save(this, entry);
     }
 
+    void ConfigSection::clear() {
+        for (auto it : m_entries) {
+            it->setDefault();
+        }
+    }
+
     QString ConfigSection::toConfigFull() const {
         QString final = QStringLiteral("[%1]\n").arg(m_name);
         for (const ConfigEntryBase *entry : m_entries)
@@ -305,6 +311,12 @@ namespace SDDM {
                 file.write(sectionData.value(nullptr).trimmed());
                 file.write("\n");
             }
+        }
+    }
+
+    void ConfigBase::wipe() {
+        for (auto it : m_sections) {
+            it->clear();
         }
     }
 }
