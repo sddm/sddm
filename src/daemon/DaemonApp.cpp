@@ -124,6 +124,7 @@ int main(int argc, char **argv) {
 
     // spit a complete config file on stdout and quit on demand
     if (arguments.contains(QStringLiteral("--example-config"))) {
+        SDDM::mainConfig.wipe();
         QTextStream(stdout) << SDDM::mainConfig.toConfigFull();
         return EXIT_SUCCESS;
     }

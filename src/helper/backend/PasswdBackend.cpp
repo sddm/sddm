@@ -28,7 +28,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <shadow.h>
-#include <crypt.h>
+#include <unistd.h>
 
 namespace SDDM {
     PasswdBackend::PasswdBackend(HelperApp *parent)
