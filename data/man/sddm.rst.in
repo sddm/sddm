@@ -46,6 +46,9 @@ OPTIONS
 FILES
 =====
 
+**@CONFIG_DIR@**
+	System configuration directory
+
 **@CONFIG_FILE@**
 	System configuration file
 

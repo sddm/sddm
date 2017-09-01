@@ -33,7 +33,7 @@
 
 namespace SDDM {
     //     Name        File         Sections and/or Entries (but anything else too, it's a class) - Entries in a Config are assumed to be in the General section
-    Config(MainConfig, QStringLiteral(CONFIG_FILE),
+    Config(MainConfig, QStringLiteral(CONFIG_FILE), QStringLiteral(CONFIG_DIR), QStringLiteral(SYSTEM_CONFIG_DIR),
         enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
 
         //  Name                   Type         Default value                                   Description
@@ -99,7 +99,7 @@ namespace SDDM {
         );
     );
 
-    Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? QString::fromLocal8Bit(tmp->pw_dir) : QStringLiteral(STATE_DIR);}().append(QStringLiteral("/state.conf")),
+    Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? QString::fromLocal8Bit(tmp->pw_dir) : QStringLiteral(STATE_DIR);}().append(QStringLiteral("/state.conf")), QString(), QString(),
         Section(Last,
             Entry(Session,         QString,     QString(),                                      _S("Name of the session for the last logged-in user.\n"
                                                                                                    "This session will be preselected when the login screen appears."));
