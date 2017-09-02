@@ -142,8 +142,8 @@ namespace SDDM {
     void ConfigBase::load()
     {
         //order of priority from least influence to most influence, is
-        // * m_sysConfigDir (system settings /usr/lib/sddm/sddm.conf.d) in alphabetical order
-        // * m_configDir (user settings in /etc/sddm.d/)  in alphabetical order
+        // * m_sysConfigDir (system settings /usr/lib/sddm/sddm.conf.d/) in alphabetical order
+        // * m_configDir (user settings in /etc/sddm.conf.d/) in alphabetical order
         // * m_path (classic fallback /etc/sddm.conf)
 
         QStringList files;
