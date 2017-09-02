@@ -324,6 +324,8 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_CURRENT_DESKTOP"), session.desktopNames());
         env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("user"));
         env.insert(QStringLiteral("XDG_SESSION_TYPE"), session.xdgSessionType());
+        env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
+
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
         if (seat()->name() == QLatin1String("seat0")) {
             env.insert(QStringLiteral("XDG_VTNR"), QString::number(vt));
