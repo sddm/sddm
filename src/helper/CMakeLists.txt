@@ -24,6 +24,10 @@ else()
         ${HELPER_SOURCES}
         backend/PasswdBackend.cpp
     )
+
+   if(HAVE_GETSPNAM)
+       add_definitions(-DHAVE_GETSPNAM=1)
+   endif()
 endif()
 
 add_executable(sddm-helper ${HELPER_SOURCES})
