@@ -132,7 +132,7 @@ Rectangle {
 
                             Keys.onPressed: {
                                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    sddm.login(user_entry.text, pw_entry.text, menu_session.index)
+                                    sddm.login(user_entry.text, pw_entry.text, sessionBox.index)
                                     event.accepted = true
                                 }
                             }
@@ -148,7 +148,7 @@ Rectangle {
 
                     source: "images/login_normal.png"
 
-                    onClicked: sddm.login(user_entry.text, pw_entry.text, menu_session.index)
+                    onClicked: sddm.login(user_entry.text, pw_entry.text, sessionBox.index)
 
                     KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session_button
                 }
@@ -196,7 +196,7 @@ Rectangle {
                             visible: sddm.canHibernate
                             onClicked: sddm.hibernate()
 
-                            KeyNavigation.backtab: suspend_button; KeyNavigation.tab: session
+                            KeyNavigation.backtab: suspend_button; KeyNavigation.tab: sessionBox
                         }
                     }
 
@@ -220,15 +220,6 @@ Rectangle {
                         color: "#0b678c"
                         font.bold: true
                         font.pixelSize: 12
-                    }
-
-                    Menu {
-                        id: menu_session
-                        width: 200; height: 0
-                        anchors.top: buttonRow.bottom; anchors.left: buttonRow.left
-
-                        model: sessionModel
-                        index: sessionModel.lastIndex
                     }
                 }
             }
@@ -257,7 +248,7 @@ Rectangle {
             }
 
             ComboBox {
-                id: session
+                id: sessionBox
                 width: 245
                 anchors.verticalCenter: parent.verticalCenter
 
@@ -288,7 +279,7 @@ Rectangle {
 
                 arrowIcon: "angle-down.png"
 
-                KeyNavigation.backtab: session; KeyNavigation.tab: user_entry
+                KeyNavigation.backtab: sessionBox; KeyNavigation.tab: user_entry
             }
         }
     }
