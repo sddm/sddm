@@ -108,7 +108,7 @@ namespace SDDM {
         SocketWriter(d->socket) << quint32(GreeterMessages::HybridSleep);
     }
 
-    void GreeterProxy::login(const QString &user, const QString &password, const int sessionIndex) const {
+    void GreeterProxy::login(const QString &user, const QString &password, const int sessionIndex) {
         if (!d->sessionModel) {
             // log error
             qCritical() << "Session model is not set.";
@@ -116,6 +116,9 @@ namespace SDDM {
             // return
             return;
         }
+
+        // remember user for LoginSucceeded
+        loginUser = user;
 
         // get model index
         QModelIndex index = d->sessionModel->index(sessionIndex, 0);
@@ -125,6 +128,37 @@ namespace SDDM {
         QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
         Session session(type, name);
         SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
+    }
+
+    void GreeterProxy::saveLoginUser(const QString username) const {
+
+        const QString loginList = QStringLiteral("%1/logins.log").arg(QStringLiteral(STATE_DIR));
+        QFile file(loginList);
+
+        if(!file.open(QIODevice::ReadWrite | QIODevice::Text))
+        {
+            qWarning("Failed to open %s to save user name", qPrintable(loginList));
+            return;
+        }
+
+        while(!file.atEnd())
+        {
+            QString line = QLatin1String(file.readLine());
+            line = line.trimmed(); // remove \n
+            if(!username.compare(line))
+            {
+                // user already listed
+                file.close();
+                return;
+            }
+        }
+
+        qInfo("Save user %s to file %s", qPrintable(username), qPrintable(loginList));
+
+        // append user
+        file.write(username.toLatin1());
+        file.write("\n");
+        file.close();
     }
 
     void GreeterProxy::connected() {
@@ -192,6 +226,8 @@ namespace SDDM {
                     // log message
                     qDebug() << "Message received from daemon: LoginSucceeded";
 
+                    // remember user login in list /var/lib/sddm/login.log
+                    saveLoginUser(loginUser);
                     // emit signal
                     emit loginSucceeded();
                 }
