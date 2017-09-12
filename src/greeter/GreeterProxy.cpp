@@ -133,7 +133,11 @@ namespace SDDM {
     void GreeterProxy::saveLoginUser(const QString username) const {
 
         const QString loginList = QStringLiteral("%1/logins.log").arg(QStringLiteral(STATE_DIR));
+        bool saveLogins = mainConfig.Users.ShowSavedLogins.get();
         QFile file(loginList);
+
+        if(!saveLogins)
+            return;
 
         if(!file.open(QIODevice::ReadWrite | QIODevice::Text))
         {
