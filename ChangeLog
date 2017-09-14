@@ -4,6 +4,15 @@
     - Bug fixes
     * Others
 
+## 0.15.0 - 2017-08-30
+    - Fix display of avatars
+    + New sddm.conf option EnableHiDPI to allow opt out of auto scaling
+    - Theme cursor
+    + Support optional kwallet PAM opening
+    + Autologin, try last successful login if not explicitly set
+    + Ignore session desktop files with hidden=true
+    + Support elogind
+
 ## 0.14.0 - 2016-08-28
 ----------------------
     + New sddm.conf option EnableAvatars (useful for slow filesystems)

@@ -27,8 +27,11 @@
 
 #include <sys/types.h>
 #include <pwd.h>
+#include <unistd.h>
+
+#ifdef HAVE_GETSPNAM
 #include <shadow.h>
-#include <crypt.h>
+#endif
 
 namespace SDDM {
     PasswdBackend::PasswdBackend(HelperApp *parent)
@@ -71,7 +74,9 @@ namespace SDDM {
             m_app->error(QStringLiteral("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
             return false;
         }
+        const char *system_passwd = pw->pw_passwd;
 
+#ifdef HAVE_GETSPNAM
         struct spwd *spw = getspnam(pw->pw_name);
         if (!spw) {
             qWarning() << "[Passwd] Could get passwd but not shadow";
@@ -81,8 +86,11 @@ namespace SDDM {
         if(!spw->sp_pwdp || !spw->sp_pwdp[0])
             return true;
 
-        char *crypted = crypt(qPrintable(password), spw->sp_pwdp);
-        if (0 == strcmp(crypted, spw->sp_pwdp)) {
+        system_passwd = spw->sp_pwdp;
+#endif
+
+        const char * const crypted = crypt(qPrintable(password), system_passwd);
+        if (0 == strcmp(crypted, system_passwd)) {
             return true;
         }
 
