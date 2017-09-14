@@ -43,6 +43,10 @@ namespace SDDM {
                                                                                                    "If property is set to none, numlock won't be changed\n"
                                                                                                    "NOTE: Currently ignored if autologin is enabled."));
         Entry(InputMethod,         QString,     QString(),                                      _S("Input method module"));
+        Entry(FormResetTime,       int,         0,                                              _S("Idle timeout in seconds until sddm resets the form (0 = disabled)"));
+        Entry(DefaultSession,      QString,     QString(),                                      _S("Default session (preselected and used for form-reset).\n"
+                                                                                                   "If not set, the (globally) last used session is being used."));
+
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));

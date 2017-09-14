@@ -148,11 +148,21 @@ namespace SDDM {
             else
                 delete si;
         }
+
+        QString defaultSession = SDDM::mainConfig.DefaultSession.get();
+
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
-            if (d->sessions.at(i)->fileName() == stateConfig.Last.Session.get()) {
-                d->lastIndex = i;
-                break;
+            if (defaultSession.length() > 0) {
+                if (d->sessions.at(i)->fileName() == defaultSession) {
+                    d->lastIndex = i;
+                    break;
+                }
+            } else {
+                if (d->sessions.at(i)->fileName() == stateConfig.Last.Session.get()) {
+                    d->lastIndex = i;
+                    break;
+                }
             }
         }
     }

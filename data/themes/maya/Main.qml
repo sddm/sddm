@@ -93,6 +93,13 @@ Rectangle {
 
       anim_failure.start()
     }
+    onFormReset: {
+      maya_username.text = ""
+      maya_password.text = ""
+      maya_session.index = sessionModel.lastIndex
+      prompt_txt.text = ""
+      maya_username.focus = true
+    }
   }
 
 

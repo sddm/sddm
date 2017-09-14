@@ -52,6 +52,10 @@ namespace SDDM {
         d->socket->connectToServer(socket);
     }
 
+    void GreeterProxy::formResetAction() {
+        emit formReset();
+    }
+
     GreeterProxy::~GreeterProxy() {
         delete d;
     }

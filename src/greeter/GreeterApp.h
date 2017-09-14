@@ -24,6 +24,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QQuickView>
+#include <QTimer>
 
 class QTranslator;
 
@@ -47,6 +48,9 @@ namespace SDDM {
 
         static GreeterApp *instance() { return self; }
 
+    protected:
+        bool notify(QObject *receiver, QEvent *event);
+
     private slots:
         void addViewForScreen(QScreen *screen);
         void removeViewForScreen(QQuickView *view);
@@ -65,6 +69,7 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+        QTimer m_formResetTimer { this };
 
         void activatePrimary();
     };

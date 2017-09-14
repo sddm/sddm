@@ -58,6 +58,19 @@ OPTIONS
         or "compose" for dead keys support.
         Leave this empty if unsure.
 
+`FormResetTime=`
+	Idle timeout in seconds until sddm resets the form. Useful for
+	multi-user-environments. Set to 0 to disable this feature.
+	Default is 0.
+
+`DefaultSession=`
+	This specifies the `absolute path` of the default session which is preselected on
+	startup and restored on a form-reset-event (caused by `FormResetTime`).
+	Leave empty to use the last-used session (Caution: this is not a user-specific setting!).
+	To use the user's previous session, use `lightdm-xsession` or a equivalent session.
+	All available sessions are listed in the syslog-file as debug output.
+	Default value is empty.
+
 [Theme] section:
 
 `ThemeDir=`

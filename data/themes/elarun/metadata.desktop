@@ -46,4 +46,4 @@ TranslationsDirectory=translations
 Theme-Id=elarun
 Theme-API=${COMPONENTS_VERSION}
 Website=https://github.com/sddm/sddm
-
+FormResetSupport=true
