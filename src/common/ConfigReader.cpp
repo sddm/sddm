@@ -119,11 +119,11 @@ namespace SDDM {
 
 
 
-    ConfigBase::ConfigBase(const QString &configPath) : m_path(configPath) {
-    }
-
-    const QString &ConfigBase::path() const {
-        return m_path;
+    ConfigBase::ConfigBase(const QString &configPath, const QString &configDir, const QString &sysConfigDir) :
+        m_path(configPath),
+        m_configDir(configDir),
+        m_sysConfigDir(sysConfigDir)
+    {
     }
 
     bool ConfigBase::hasUnused() const {
@@ -139,21 +139,59 @@ namespace SDDM {
         return ret;
     }
 
-    void ConfigBase::load() {
-        // first check if there's at least anything to read, otherwise stick to default values
-        if (!QFile::exists(m_path))
-            return;
+    void ConfigBase::load()
+    {
+        //order of priority from least influence to most influence, is
+        // * m_sysConfigDir (system settings /usr/lib/sddm/sddm.conf.d/) in alphabetical order
+        // * m_configDir (user settings in /etc/sddm.conf.d/) in alphabetical order
+        // * m_path (classic fallback /etc/sddm.conf)
 
-        QString currentSection = QStringLiteral(IMPLICIT_SECTION);
+        QStringList files;
+        QDateTime latestModificationTime = QFileInfo(m_path).lastModified();
 
-        QFile in(m_path);
-        QDateTime modificationTime = QFileInfo(in).lastModified();
-        if (modificationTime <= m_fileModificationTime) {
+        if (!m_sysConfigDir.isEmpty()) {
+            //include the configDir in modification time so we also reload on any files added/removed
+            QDir dir(m_sysConfigDir);
+            if (dir.exists()) {
+                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_sysConfigDir).lastModified());
+                foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware)) {
+                    files << (file.absoluteFilePath());
+                    latestModificationTime = std::max(latestModificationTime, file.lastModified());
+                }
+            }
+        }
+        if (!m_configDir.isEmpty()) {
+            //include the configDir in modification time so we also reload on any files added/removed
+            QDir dir(m_configDir);
+            if (dir.exists()) {
+                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_configDir).lastModified());
+                foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware)) {
+                    files << (file.absoluteFilePath());
+                    latestModificationTime = std::max(latestModificationTime, file.lastModified());
+                }
+            }
+        }
+
+        files << m_path;
+
+        if (latestModificationTime <= m_fileModificationTime) {
             return;
         }
-        m_fileModificationTime = modificationTime;
+        m_fileModificationTime = latestModificationTime;
 
-        in.open(QIODevice::ReadOnly);
+        foreach (const QString &filepath, files) {
+            loadInternal(filepath);
+        }
+    }
+
+
+    void ConfigBase::loadInternal(const QString &filepath) {
+        QString currentSection = QStringLiteral(IMPLICIT_SECTION);
+
+        QFile in(filepath);
+
+        if (!in.open(QIODevice::ReadOnly))
+            return;
         while (!in.atEnd()) {
             QString line = QString::fromUtf8(in.readLine());
             QStringRef lineRef = QStringRef(&line).trimmed();

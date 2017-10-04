@@ -24,6 +24,7 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "SignalHandler.h"
+#include "Seat.h"
 
 #include <QDebug>
 #include <QFile>
@@ -92,7 +93,7 @@ namespace SDDM {
 
         // Touch file
         QFile file_handler(file);
-        file_handler.open(QIODevice::WriteOnly);
+        file_handler.open(QIODevice::Append);
         file_handler.close();
 
         QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
@@ -159,7 +160,11 @@ namespace SDDM {
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-noreset")
                  << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
-                 << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+                 << QStringLiteral("-seat") << displayPtr()->seat()->name();
+
+            if (displayPtr()->seat()->name() == QLatin1String("seat0")) {
+                args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+            }
             qDebug() << "Running:"
                      << qPrintable(mainConfig.X11.ServerPath.get())
                      << qPrintable(args.join(QLatin1Char(' ')));
@@ -191,7 +196,7 @@ namespace SDDM {
             displayNumber.prepend(QByteArray(":"));
             displayNumber.remove(displayNumber.size() -1, 1); //trim trailing whitespace
             m_display = QString::fromLocal8Bit(displayNumber);
-    
+
             // close our pipe
             close(pipeFds[0]);
 
