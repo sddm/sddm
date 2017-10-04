@@ -9,6 +9,7 @@
     + Support non-latin characters in theme settings.
     + Support fish shell in Xsession and wayland-session.
     + Unlock GNOME keyring at login.
+    + Configuration directory.
     - Make the default cursor themed.
     - Update date and time in elarun theme.
     - Fix theme metadata default values.
