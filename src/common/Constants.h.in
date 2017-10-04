@@ -33,6 +33,9 @@
 #define WAYLAND_SESSION_COMMAND     "@WAYLAND_SESSION_COMMAND@"
 
 #define CONFIG_FILE                 "@CONFIG_FILE@"
+#define CONFIG_DIR                  "@CONFIG_DIR@"
+#define SYSTEM_CONFIG_DIR           "@SYSTEM_CONFIG_DIR@"
+
 #define LOG_FILE                    "@LOG_FILE@"
 #define MINIMUM_VT                  @MINIMUM_VT@
 

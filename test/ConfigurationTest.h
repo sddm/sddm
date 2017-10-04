@@ -27,6 +27,8 @@
 #include "ConfigReader.h"
 
 #define CONF_FILE QStringLiteral("test.conf")
+#define CONF_DIR QStringLiteral("testconfdir")
+#define SYS_CONF_DIR QStringLiteral("testconfdir2")
 #define CONF_FILE_COPY QStringLiteral("test_copy.conf")
 
 #define TEST_STRING_1_PLAIN "Test Variable Initial String"
@@ -35,7 +37,7 @@
 #define TEST_STRINGLIST_1 {QStringLiteral("String1"), QStringLiteral("String2")}
 #define TEST_BOOL_1 true
 
-Config (TestConfig, CONF_FILE,
+Config (TestConfig, CONF_FILE, CONF_DIR, SYS_CONF_DIR,
     enum CustomType {
         FOO,
         BAR,
@@ -91,6 +93,7 @@ private slots:
     void LineChanges();
     void CustomEnum();
     void RightOnInit();
+    void RightOnInitDir();
     void FileChanged();
 
 private:

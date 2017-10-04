@@ -14,7 +14,7 @@ sddm display manager greeter
 SYNOPSIS
 ========
 
-  sddm-greeter [OPTIONS...]
+sddm-greeter [OPTIONS...]
 
 DESCRIPTION
 ===========
