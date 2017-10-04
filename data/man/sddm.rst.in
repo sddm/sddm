@@ -14,7 +14,7 @@ the simple desktop display manager
 SYNOPSIS
 ========
 
-  sddm [OPTIONS...]
+sddm [OPTIONS...]
 
 DESCRIPTION
 ===========
