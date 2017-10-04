@@ -28,9 +28,7 @@ set(TRANSLATION_FILES
     sr.ts
     sr@ijekavian.ts
     sr@ijekavianlatin.ts
-    sr@ijekavian.ts
     sr@latin.ts
-    sr.ts
     sv.ts
     tr.ts
     uk.ts
