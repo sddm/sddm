@@ -1,8 +1,8 @@
 The SDDM team is proud to announce the release ${next} of SDDM,
 the Simple Desktop Display Manager.
 
-SDDM is made possible thanks to the collaborative work of the [Hawaii](http://hawaiios.org),
-[KDE](https://www.kde.org) and [LXDE](http://lxqt.org) projects, as well as the help and contributions from dozens
+SDDM is made possible thanks to the collaborative work of the [Liri](https://liri.io),
+[KDE](https://www.kde.org) and [LXQt](http://lxqt.org) projects, as well as the help and contributions from dozens
 of other developers.
 
 [INSERT HIGHLIGHTS HERE]
