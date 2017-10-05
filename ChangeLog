@@ -4,14 +4,39 @@
     - Bug fixes
     * Others
 
+## 0.16.0 - 2017-10-04
+----------------------
+    + Support non-latin characters in theme settings.
+    + Support fish shell in Xsession and wayland-session.
+    + Unlock GNOME keyring at login.
+    + Configuration directory.
+    - Make the default cursor themed.
+    - Update date and time in elarun theme.
+    - Fix theme metadata default values.
+    - Fix session selection in elarun.
+    - Do not truncate XAUTHORITY on login.
+    - Make enabled property of Button functional.
+    - Fix typos in documentation.
+    * Re-use existing sessions.
+    * Add ConsoleKit 2 support.
+    * Stop assuming shadow(5) is always available.
+    * Explicitely set XDG_SEAT when starting a user session.
+    * Suppress errors when pam_elogind is not available.
+    * Suppress errors when pam_systemd is not available.
+    * Added possibility to change color of dropdown menu.
+    * Add Hindi translation.
+    * Completed Swedish translation.
+    * Update French translation.
+
 ## 0.15.0 - 2017-08-30
-    - Fix display of avatars
-    + New sddm.conf option EnableHiDPI to allow opt out of auto scaling
-    - Theme cursor
-    + Support optional kwallet PAM opening
-    + Autologin, try last successful login if not explicitly set
-    + Ignore session desktop files with hidden=true
-    + Support elogind
+----------------------
+    - Fix display of avatars.
+    + New sddm.conf option EnableHiDPI to allow opt out of auto scaling.
+    - Theme cursor.
+    + Support optional kwallet PAM opening.
+    + Autologin, try last successful login if not explicitly set.
+    + Ignore session desktop files with hidden=true.
+    + Support elogind.
 
 ## 0.14.0 - 2016-08-28
 ----------------------
