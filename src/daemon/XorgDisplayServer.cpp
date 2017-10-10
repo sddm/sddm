@@ -94,11 +94,6 @@ namespace SDDM {
 
         qDebug() << "Adding cookie to" << file;
 
-        // Touch file
-        QFile file_handler(file);
-        file_handler.open(QIODevice::Append);
-        file_handler.close();
-
         if (gethostname(localhost, HOST_NAME_MAX) < 0) {
             strcpy(localhost, "localhost");
         }

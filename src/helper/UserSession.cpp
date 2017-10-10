@@ -199,10 +199,6 @@ namespace SDDM {
             QFileInfo finfo(file);
             QDir().mkpath(finfo.absolutePath());
 
-            QFile file_handler(file);
-            file_handler.open(QIODevice::Append);
-            file_handler.close();
-
             // open the file
             FILE *fp = fopen(qPrintable(file), "w");
             if (!fp)
