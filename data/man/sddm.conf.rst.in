@@ -16,7 +16,7 @@ SYNOPSIS
 
 Configuration loads all files in the configuration directories followed by the configuration file in the order listed below with the latter having the most precedent. Changes should be made to the local configurations.
 
-**@SYSTEM_CONFIG_DIR@*
+**@SYSTEM_CONFIG_DIR@**
     System configuration directory
 
 **@CONFIG_DIR@**
