@@ -47,7 +47,7 @@ FILES
 =====
 
 **@SYSTEM_CONFIG_DIR@**
-        System configuration directory
+	System configuration directory
 
 **@CONFIG_DIR@**
 	Local configuration directory
