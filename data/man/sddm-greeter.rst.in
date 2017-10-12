@@ -50,7 +50,7 @@ FILES
 **@SYSTEM_CONFIG_DIR@**
         System configuration directory
 
-*@CONFIG_DIR@**
+**@CONFIG_DIR@**
         Local configuration directory
 
 **@CONFIG_FILE@**
