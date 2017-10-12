@@ -2,6 +2,20 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ca">
 <context>
+    <name>PictureBox</name>
+    <message>
+        <source>Press to login</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>%1 (Wayland)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
@@ -21,7 +35,7 @@
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Inici de sessió fracassat</translation>
+        <translation>Inici de sessió no reeixit</translation>
     </message>
     <message>
         <source>Login succeeded</source>

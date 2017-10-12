@@ -14,7 +14,7 @@ the simple desktop display manager
 SYNOPSIS
 ========
 
-  sddm [OPTIONS...]
+sddm [OPTIONS...]
 
 DESCRIPTION
 ===========
@@ -46,8 +46,14 @@ OPTIONS
 FILES
 =====
 
+**@SYSTEM_CONFIG_DIR@**
+	System configuration directory
+
+**@CONFIG_DIR@**
+	Local configuration directory
+
 **@CONFIG_FILE@**
-	System configuration file
+	Local configuration file for compatibility
 
 **@DATA_INSTALL_DIR@/themes**
 	Where sddm looks for themes

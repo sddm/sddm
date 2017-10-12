@@ -13,7 +13,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 14)
+set(SDDM_VERSION_MINOR 16)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -81,6 +81,10 @@ if(ENABLE_PAM)
     endif()
 endif()
 add_feature_info("PAM" PAM_FOUND "PAM support")
+
+# getspnam and shadow(5) support
+include(CheckFunctionExists)
+check_function_exists(getspnam HAVE_GETSPNAM)
 
 # XCB
 find_package(XCB REQUIRED)
@@ -180,6 +184,8 @@ set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"          
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
 
 set(CONFIG_FILE                 "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf"        CACHE PATH      "Path of the sddm config file")
+set(CONFIG_DIR                  "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf.d"      CACHE PATH      "Path of the sddm config directory")
+set(SYSTEM_CONFIG_DIR           "${CMAKE_INSTALL_PREFIX}/lib/sddm/sddm.conf.d"      CACHE PATH      "Path of the system sddm config directory")
 set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")

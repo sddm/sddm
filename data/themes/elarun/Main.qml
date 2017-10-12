@@ -33,6 +33,8 @@ Rectangle {
     LayoutMirroring.enabled: Qt.locale().textDirection == Qt.RightToLeft
     LayoutMirroring.childrenInherit: true
 
+    property int sessionIndex: session.index
+
     TextConstants { id: textConstants }
 
     Connections {
@@ -132,7 +134,7 @@ Rectangle {
 
                             Keys.onPressed: {
                                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    sddm.login(user_entry.text, pw_entry.text, menu_session.index)
+                                    sddm.login(user_entry.text, pw_entry.text, sessionIndex)
                                     event.accepted = true
                                 }
                             }
@@ -148,7 +150,7 @@ Rectangle {
 
                     source: "images/login_normal.png"
 
-                    onClicked: sddm.login(user_entry.text, pw_entry.text, menu_session.index)
+                    onClicked: sddm.login(user_entry.text, pw_entry.text, sessionIndex)
 
                     KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session_button
                 }
@@ -220,15 +222,6 @@ Rectangle {
                         color: "#0b678c"
                         font.bold: true
                         font.pixelSize: 12
-                    }
-
-                    Menu {
-                        id: menu_session
-                        width: 200; height: 0
-                        anchors.top: buttonRow.bottom; anchors.left: buttonRow.left
-
-                        model: sessionModel
-                        index: sessionModel.lastIndex
                     }
                 }
             }

@@ -14,7 +14,7 @@ sddm display manager configuration
 SYNOPSIS
 ========
 
-  ~sddm/state.conf
+~sddm/state.conf
 
 DESCRIPTION
 ===========

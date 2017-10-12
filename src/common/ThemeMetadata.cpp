@@ -53,8 +53,8 @@ namespace SDDM {
     void ThemeMetadata::setTo(const QString &path) {
         QSettings settings(path, QSettings::IniFormat);
         // read values
-        d->mainScript = settings.value(QStringLiteral("SddmGreeterTheme/MainScript"), d->mainScript).toString();
-        d->configFile = settings.value(QStringLiteral("SddmGreeterTheme/ConfigFile"), d->configFile).toString();
-        d->translationsDirectory = settings.value(QStringLiteral("SddmGreeterTheme/TranslationsDirectory"), d->translationsDirectory).toString();
+        d->mainScript = settings.value(QStringLiteral("SddmGreeterTheme/MainScript"), QStringLiteral("Main.qml")).toString();
+        d->configFile = settings.value(QStringLiteral("SddmGreeterTheme/ConfigFile"), QStringLiteral("theme.conf")).toString();
+        d->translationsDirectory = settings.value(QStringLiteral("SddmGreeterTheme/TranslationsDirectory"), QStringLiteral(".")).toString();
     }
 }
