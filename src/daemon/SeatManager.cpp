@@ -26,6 +26,7 @@
 #include <QDBusMessage>
 #include <QDBusPendingReply>
 #include <QDBusContext>
+#include <QDebug>
 
 #include "LogindDBusTypes.h"
 
@@ -59,6 +60,12 @@ namespace SDDM {
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply);
         connect(watcher, &QDBusPendingCallWatcher::finished, this, [=]() {
             watcher->deleteLater();
+            if (Logind::serviceName().contains(QStringLiteral("ConsoleKit"))) {
+                m_canGraphical = true;
+                emit canGraphicalChanged(m_canGraphical);
+                return;
+            }
+
             if (!reply.isValid())
                 return;
 
@@ -113,7 +120,7 @@ namespace SDDM {
             }
         });
 
-        QDBusConnection::systemBus().connect(Logind::serviceName(), Logind::managerPath(), Logind::managerIfaceName(), QStringLiteral("SeatNew"), this, SLOT(logindSeatAdded(QString,QDBusObjectPath)));
+        QDBusConnection::systemBus().connect(Logind::serviceName(), Logind::managerPath(), Logind::managerIfaceName(), Logind::newSeatSignalName(), this, SLOT(logindSeatAdded(QString,QDBusObjectPath)));
         QDBusConnection::systemBus().connect(Logind::serviceName(), Logind::managerPath(), Logind::managerIfaceName(), QStringLiteral("SeatRemoved"), this, SLOT(logindSeatRemoved(QString,QDBusObjectPath)));
     }
 
