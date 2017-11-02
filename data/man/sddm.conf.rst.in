@@ -165,7 +165,7 @@ OPTIONS
 
 `DefaultPath=`
 	Default path to set after successfully logging in.
-	Default value is "/bin:/usr/bin:/usr/local/bin".
+	Default value is "/usr/local/bin:/usr/bin:/bin".
 
 `MinimumUid=`
 	Minimum user id of the users to be listed in the
