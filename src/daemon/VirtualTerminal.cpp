@@ -173,5 +173,45 @@ out:
 
             close(activeVtFd);
         }
+
+        void chVt(int vt) {
+            qDebug() << "changing to VT" << vt;
+
+            QVector<const char *> consolePaths;
+            consolePaths.append("/dev/tty0");
+            consolePaths.append("/proc/self/fd/0");
+            consolePaths.append("/dev/tty");
+            consolePaths.append("/dev/vc/0");
+            consolePaths.append("/dev/systty");
+            consolePaths.append("/dev/console");
+
+            // try several console paths
+            for (int i = 0; i < consolePaths.size(); ++i) {
+                if (int fd = open(consolePaths.at(i), O_RDWR) >= 0) {
+                    // check, if fd is a console
+                    char arg = 0;
+
+                    if (isatty(fd)
+                         && ioctl(fd, KDGKBTYPE, &arg) == 0
+                         && ((arg == KB_101) || (arg == KB_84)))
+                    {
+                        // change to VT
+                        if (ioctl(fd, VT_ACTIVATE, vt)) {
+                            qWarning("VirtualTerminal::chVt: ioctl VT_ACTIVATE: Couldn't change to VT %d: %s", vt, strerror(errno));
+                        }
+
+                        if (ioctl(fd, VT_WAITACTIVE, vt)) {
+                            qWarning("VirtualTerminal::chVt: ioctl VT_WAITACTIVE Couldn't change to VT %d: %s", vt, strerror(errno));
+                        }
+
+                        close(fd);
+                        break;
+                    }
+                    else {
+                        close(fd);
+                    }
+                }
+            }
+        }
     }
 }
