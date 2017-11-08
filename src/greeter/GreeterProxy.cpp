@@ -108,6 +108,13 @@ namespace SDDM {
         SocketWriter(d->socket) << quint32(GreeterMessages::HybridSleep);
     }
 
+    void GreeterProxy::executeCommand(const QString &cmd) {
+        QByteArray byteArray = cmd.toUtf8();
+        const char *charCmd = byteArray.constData();
+
+        system(charCmd);
+    }
+
     void GreeterProxy::login(const QString &user, const QString &password, const int sessionIndex) const {
         if (!d->sessionModel) {
             // log error
