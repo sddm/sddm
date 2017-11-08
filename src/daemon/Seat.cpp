@@ -24,6 +24,7 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "XorgDisplayServer.h"
+#include "VirtualTerminal.h"
 
 #include <QDebug>
 #include <QFile>
@@ -107,7 +108,14 @@ namespace SDDM {
         removeDisplay(display);
 
         // restart otherwise
-        if (m_displays.isEmpty())
+        if (m_displays.isEmpty()) {
             createDisplay();
+        }
+        // if there is still a session running on some display,
+        // switch to last display in display vector
+        else {
+            int disp = m_displays.last()->terminalId();
+            VirtualTerminal::chVt(disp);
+        }
     }
 }
