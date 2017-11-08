@@ -24,6 +24,7 @@ set(DAEMON_SOURCES
     LogindDBusTypes.cpp
     XorgDisplayServer.cpp
     Greeter.cpp
+    LogindDBusTypes.cpp
     PowerManager.cpp
     Seat.cpp
     SeatManager.cpp
