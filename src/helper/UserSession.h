@@ -40,11 +40,25 @@ namespace SDDM {
         void setPath(const QString &path);
         QString path() const;
 
+        /*!
+         \brief Sets m_cachedProcessId. Needed for getting the PID of a finished UserSession
+                and calling HelperApp::utmpLogout
+         \param pid  The process ID
+        */
+        void setCachedProcessId(qint64 pid);
+
+        /*!
+         \brief Gets m_cachedProcessId
+         \return  The cached process ID
+        */
+        qint64 cachedProcessId();
+
     protected:
         void setupChildProcess();
 
     private:
         QString m_path { };
+        qint64 m_cachedProcessId;
     };
 }
 
