@@ -198,4 +198,13 @@ namespace SDDM {
             pclose(fp);
         }
     }
+
+    void UserSession::setCachedProcessId(qint64 pid) {
+        m_cachedProcessId = pid;
+    }
+
+    qint64 UserSession::cachedProcessId() {
+        return m_cachedProcessId;
+    }
+
 }
