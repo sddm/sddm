@@ -40,7 +40,7 @@ namespace SDDM {
     Q_SIGNALS:
         void canGraphicalChanged(bool);
     private Q_SLOTS:
-        void propertiesChanged(const QString &interface, QVariantMap &changedProperties , const QStringList &invalidatedProperties);
+        void propertiesChanged(const QString &interface, const QVariantMap &changedProperties , const QStringList &invalidatedProperties);
     private:
         QString m_name;
         bool m_canGraphical;
@@ -80,7 +80,7 @@ namespace SDDM {
         return m_name;
     }
 
-    void LogindSeat::propertiesChanged(const QString& interface, QVariantMap& changedProperties, const QStringList& invalidatedProperties)
+    void LogindSeat::propertiesChanged(const QString& interface, const QVariantMap& changedProperties, const QStringList& invalidatedProperties)
     {
         Q_UNUSED(invalidatedProperties);
         if (interface != Logind::seatIfaceName()) {
