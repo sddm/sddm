@@ -67,7 +67,7 @@ namespace SDDM {
             return ok;
         }
 
-        static void fixVtMode(int fd) {
+        static void fixVtMode(int fd, bool vt_auto) {
             vt_mode getmodeReply = { 0 };
             int kernelDisplayMode = 0;
             bool modeFixed = false;
@@ -90,8 +90,19 @@ namespace SDDM {
                 goto out;
 
             // VT is in the VT_AUTO + KD_GRAPHICS state, fix it
-            ok = handleVtSwitches(fd);
-            modeFixed = true;
+            if (vt_auto) {
+                // If vt_auto is true, the controlling process is already gone, so there is no
+                // process which could send the VT_RELDISP 1 ioctl to release the vt.
+                // Switch to KD_TEXT and let the kernel switch vts automatically
+                if (ioctl(fd, KDSETMODE, KD_TEXT) < 0) {
+                    qWarning("Failed to set text mode for current VT: %s", strerror(errno));
+                    ok = false;
+                }
+            }
+            else {
+                ok = handleVtSwitches(fd);
+                modeFixed = true;
+            }
 out:
             if (!ok) {
                 qCritical() << "Failed to set up VT mode";
@@ -137,7 +148,7 @@ out:
             return vt;
         }
 
-        void jumpToVt(int vt) {
+        void jumpToVt(int vt, bool vt_auto) {
             qDebug() << "Jumping to VT" << vt;
 
             int fd;
@@ -157,14 +168,18 @@ out:
                 // combination of states (KD_GRAPHICS with VT_AUTO) that we
                 // cannot switch from, so make sure things are in a way that
                 // will make VT_ACTIVATE work without hanging VT_WAITACTIVE
-                fixVtMode(activeVtFd);
+                fixVtMode(activeVtFd, vt_auto);
             } else {
                 qWarning("Failed to open %s: %s", qPrintable(ttyString), strerror(errno));
                 qDebug("Using /dev/tty0 instead of %s!", qPrintable(ttyString));
                 fd = activeVtFd;
             }
 
-            handleVtSwitches(fd);
+            // If vt_auto is true, the controlling process is already gone, so there is no
+            // process which could send the VT_RELDISP 1 ioctl to release the vt.
+            // Let the kernel switch vts automatically
+            if (!vt_auto)
+                handleVtSwitches(fd);
 
             if (ioctl(fd, VT_ACTIVATE, vt) < 0)
                 qWarning("Couldn't initiate jump to VT %d: %s", vt, strerror(errno));
@@ -172,46 +187,6 @@ out:
                 qWarning("Couldn't finalize jump to VT %d: %s", vt, strerror(errno));
 
             close(activeVtFd);
-        }
-
-        void chVt(int vt) {
-            qDebug() << "changing to VT" << vt;
-
-            QVector<const char *> consolePaths;
-            consolePaths.append("/dev/tty0");
-            consolePaths.append("/proc/self/fd/0");
-            consolePaths.append("/dev/tty");
-            consolePaths.append("/dev/vc/0");
-            consolePaths.append("/dev/systty");
-            consolePaths.append("/dev/console");
-
-            // try several console paths
-            for (int i = 0; i < consolePaths.size(); ++i) {
-                if (int fd = open(consolePaths.at(i), O_RDWR) >= 0) {
-                    // check, if fd is a console
-                    char arg = 0;
-
-                    if (isatty(fd)
-                         && ioctl(fd, KDGKBTYPE, &arg) == 0
-                         && ((arg == KB_101) || (arg == KB_84)))
-                    {
-                        // change to VT
-                        if (ioctl(fd, VT_ACTIVATE, vt)) {
-                            qWarning("VirtualTerminal::chVt: ioctl VT_ACTIVATE: Couldn't change to VT %d: %s", vt, strerror(errno));
-                        }
-
-                        if (ioctl(fd, VT_WAITACTIVE, vt)) {
-                            qWarning("VirtualTerminal::chVt: ioctl VT_WAITACTIVE Couldn't change to VT %d: %s", vt, strerror(errno));
-                        }
-
-                        close(fd);
-                        break;
-                    }
-                    else {
-                        close(fd);
-                    }
-                }
-            }
         }
     }
 }

@@ -111,11 +111,13 @@ namespace SDDM {
         if (m_displays.isEmpty()) {
             createDisplay();
         }
-        // if there is still a session running on some display,
-        // switch to last display in display vector
+        // If there is still a session running on some display,
+        // switch to last display in display vector.
+        // Set vt_auto to true, so let the kernel handle the
+        // vt switch automatically (VT_AUTO).
         else {
             int disp = m_displays.last()->terminalId();
-            VirtualTerminal::chVt(disp);
+            VirtualTerminal::jumpToVt(disp, true);
         }
     }
 }
