@@ -1,0 +1,16 @@
+[SddmGreeterTheme]
+Name=PinkList
+Description=PinkList Theme
+Author=Marco Clocchiatti and Giulio Adram
+Copyright=(c) 2013, Marco Clocchiatti and Giulio Adram
+License=CC-BY-SA
+Type=sddm-theme
+Version=0.1
+Website=https://github.com/cloc3/sddm
+Screenshot=pinkList.mp4
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Email=ziapannocchia@gmail.com
+Theme-Id=pinkList
+Theme-API=${COMPONENTS_VERSION}

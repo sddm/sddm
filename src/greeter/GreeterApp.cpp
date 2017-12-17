@@ -104,10 +104,12 @@ namespace SDDM {
 
         // create models
 
-        m_sessionModel = new SessionModel();
+        ---> Adram
         m_userModel = new UserModel();
         m_proxy = new GreeterProxy(socket);
         m_keyboard = new KeyboardModel();
+
+        ---> Adram
 
         if(!testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
@@ -183,6 +185,8 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
         view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
         view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), QString());
+        view->rootContext()->setContextProperty(QStringLiteral("applicationDirPath"), QGuiApplication::applicationDirPath());
+				---> Adram
 
         // get theme main script
         QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());

@@ -24,6 +24,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QQuickView>
+#include <QSortFilterProxyModel>
 
 class QTranslator;
 
@@ -65,6 +66,7 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+				---> Adram
 
         void activatePrimary();
     };

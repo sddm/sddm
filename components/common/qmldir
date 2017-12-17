@@ -11,3 +11,5 @@ PasswordBox     ${COMPONENTS_VERSION} PasswordBox.qml
 PictureBox      ${COMPONENTS_VERSION} PictureBox.qml
 TextBox         ${COMPONENTS_VERSION} TextBox.qml
 TextConstants   ${COMPONENTS_VERSION} TextConstants.qml
+AutoCompletionBox	${COMPONENTS_VERSION} AutoCompletionBox.qml
+ScrollBox       ${COMPONENTS_VERSION} ScrollBox.qml
