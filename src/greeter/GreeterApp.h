@@ -66,7 +66,7 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
-				---> Adram
+        QSortFilterProxyModel *m_sort_filterModel {nullptr};
 
         void activatePrimary();
     };
