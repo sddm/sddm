@@ -40,6 +40,9 @@ OPTIONS
 --test-mode
 	Start daemon in test mode.
 
+--example-config
+	Print the complete current configuration to stdout
+
 --help, -h
 	Show help message and exit.
 
