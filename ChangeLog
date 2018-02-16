@@ -4,6 +4,21 @@
     - Bug fixes
     * Others
 
+## 0.17.0 - 2017-12-05
+----------------------
+    + Added possibility to change border width of ComboBox widget.
+    + Added missing utmp/wtmp/btmp handling.
+    + Make greeter see icons set by AccountsServices.
+    - Fix sddm.conf man page syntax error and update.
+    - Fix ComboBox widget.
+    - Fix connection of PropertiesChanged event for LogindSeat.
+    - Avoid race conditions with Xsetup.
+    * Update de translation.
+    * Update lt translation.
+    * Update zh_TW translation.
+    * Adjust order of components in the default PATH.
+    * Set default input method to qtvirtualkeyboard.
+
 ## 0.16.0 - 2017-10-04
 ----------------------
     + Support non-latin characters in theme settings.
