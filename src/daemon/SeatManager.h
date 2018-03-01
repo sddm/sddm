@@ -22,28 +22,32 @@
 
 #include <QObject>
 #include <QHash>
+#include <QDBusObjectPath>
 
 namespace SDDM {
     class Seat;
+    class LogindSeat;
 
     class SeatManager : public QObject {
         Q_OBJECT
-        Q_DISABLE_COPY(SeatManager)
     public:
         explicit SeatManager(QObject *parent = 0);
 
-    public slots:
         void createSeat(const QString &name);
         void removeSeat(const QString &name);
-
         void switchToGreeter(const QString &seat);
 
-    signals:
+    Q_SIGNALS:
         void seatCreated(const QString &name);
         void seatRemoved(const QString &name);
 
+    private Q_SLOTS:
+        void logindSeatAdded(const QString &name, const QDBusObjectPath &objectPath);
+        void logindSeatRemoved(const QString &name, const QDBusObjectPath &objectPath);
+
     private:
-        QHash<QString, Seat *> m_seats;
+        QHash<QString, Seat *> m_seats; //these will exist only for graphical seats
+        QHash<QString, LogindSeat*> m_systemSeats; //these will exist for all seats
     };
 }
 

@@ -1,0 +1,31 @@
+1. INTRODUCTION
+
+  In Hindi, 'maya' refers to 'material wealth'.
+
+  This is a simple 'material' inspired SDDM theme.
+
+
+2. BACKGROUND
+
+   While contributing new translations, I tried testing them on
+   my working Linux machine. But only few strings appeared to be
+   translated.
+
+   Took some time, to discover that SDDM theme on my desktop was
+   not using strings from SDDM. Few other themes I tried, weren't
+   using all the strings.
+
+   Necessity to test translations was the driving force behind
+   this theme. The 'material' inspiration helps in keeping focus
+   on original intent.
+
+
+3. ACKNOWLEDGEMENTS
+
+   1. The basic theme and colors are material inspired.
+
+   2. Material Icons have been used from:
+        https://design.google.com/icons/
+
+   3. Open Sans Condensed font from Font Squirrel.
+        https://www.fontsquirrel.com/

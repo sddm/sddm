@@ -2,6 +2,20 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ko">
 <context>
+    <name>PictureBox</name>
+    <message>
+        <source>Press to login</source>
+        <translation>로그인하려면 누르십시오</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>%1 (Wayland)</source>
+        <translation>%1(Wayland)</translation>
+    </message>
+</context>
+<context>
     <name>TextConstants</name>
     <message>
         <source>Warning, Caps Lock is ON!</source>

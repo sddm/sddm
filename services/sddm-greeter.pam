@@ -14,4 +14,5 @@ password	required pam_deny.so
 
 # Setup session
 session		required pam_unix.so
-session		optional pam_systemd.so
+-session		optional pam_systemd.so
+-session		optional pam_elogind.so

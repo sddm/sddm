@@ -21,6 +21,7 @@
 
 #include "ThemeConfig.h"
 
+#include <QDebug>
 #include <QSettings>
 #include <QStringList>
 
@@ -31,6 +32,8 @@ namespace SDDM {
 
     void ThemeConfig::setTo(const QString &path) {
         clear();
+
+        qDebug() << "Loading theme configuration from" << path;
 
         QSettings settings(path, QSettings::IniFormat);
         QSettings userSettings(path + QStringLiteral(".user"), QSettings::IniFormat);

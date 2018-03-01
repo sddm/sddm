@@ -1,0 +1,132 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+ <interface name="org.freedesktop.login1.Session">
+  <property name="Id" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="User" type="(uo)" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+   <annotation name="org.qtproject.QtDBus.QtTypeName" value="NamedUserPath"/>
+  </property>
+  <property name="Name" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Timestamp" type="t" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="TimestampMonotonic" type="t" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="VTNr" type="u" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Seat" type="(so)" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+   <annotation name="org.qtproject.QtDBus.QtTypeName" value="NamedSeatPath"/>
+  </property>
+  <property name="TTY" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Display" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Remote" type="b" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="RemoteHost" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="RemoteUser" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Service" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Desktop" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Scope" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Leader" type="u" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Audit" type="u" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Type" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+  </property>
+  <property name="Class" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="const"/>
+   <annotation name="org.qtproject.QtDBus.PropertyGetter" value="className"/>
+  </property>
+  <property name="Active" type="b" access="read">
+  </property>
+  <property name="State" type="s" access="read">
+   <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
+  </property>
+  <property name="IdleHint" type="b" access="read">
+  </property>
+  <property name="IdleSinceHint" type="t" access="read">
+  </property>
+  <property name="IdleSinceHintMonotonic" type="t" access="read">
+  </property>
+  <method name="Terminate">
+   <annotation name="org.freedesktop.systemd1.Privileged" value="true"/>
+  </method>
+  <method name="Activate">
+  </method>
+  <method name="Lock">
+   <annotation name="org.freedesktop.systemd1.Privileged" value="true"/>
+    <annotation name="org.qtproject.QtDBus.MethodName" value="requestLock"/>
+  </method>
+  <method name="Unlock">
+   <annotation name="org.freedesktop.systemd1.Privileged" value="true"/>
+   <annotation name="org.qtproject.QtDBus.MethodName" value="requestUnlock"/>
+  </method>
+  <method name="SetIdleHint">
+   <arg type="b" direction="in"/>
+  </method>
+  <method name="Kill">
+   <arg type="s" direction="in"/>
+   <arg type="i" direction="in"/>
+   <annotation name="org.freedesktop.systemd1.Privileged" value="true"/>
+  </method>
+  <method name="TakeControl">
+   <arg type="b" direction="in"/>
+  </method>
+  <method name="ReleaseControl">
+  </method>
+  <method name="TakeDevice">
+   <arg type="u" direction="in"/>
+   <arg type="u" direction="in"/>
+   <arg type="h" direction="out"/>
+   <arg type="b" direction="out"/>
+  </method>
+  <method name="ReleaseDevice">
+   <arg type="u" direction="in"/>
+   <arg type="u" direction="in"/>
+  </method>
+  <method name="PauseDeviceComplete">
+   <arg type="u" direction="in"/>
+   <arg type="u" direction="in"/>
+  </method>
+  <signal name="PauseDevice">
+   <arg type="u"/>
+   <arg type="u"/>
+   <arg type="s"/>
+  </signal>
+  <signal name="ResumeDevice">
+   <arg type="u"/>
+   <arg type="u"/>
+   <arg type="h"/>
+  </signal>
+  <signal name="Lock">
+  </signal>
+  <signal name="Unlock">
+  </signal>
+ </interface>
+</node>
+

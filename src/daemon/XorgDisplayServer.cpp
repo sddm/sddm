@@ -24,6 +24,7 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "SignalHandler.h"
+#include "Seat.h"
 
 #include <QDebug>
 #include <QFile>
@@ -92,7 +93,7 @@ namespace SDDM {
 
         // Touch file
         QFile file_handler(file);
-        file_handler.open(QIODevice::WriteOnly);
+        file_handler.open(QIODevice::Append);
         file_handler.close();
 
         QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
@@ -159,7 +160,11 @@ namespace SDDM {
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-noreset")
                  << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
-                 << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+                 << QStringLiteral("-seat") << displayPtr()->seat()->name();
+
+            if (displayPtr()->seat()->name() == QLatin1String("seat0")) {
+                args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+            }
             qDebug() << "Running:"
                      << qPrintable(mainConfig.X11.ServerPath.get())
                      << qPrintable(args.join(QLatin1Char(' ')));
@@ -191,7 +196,7 @@ namespace SDDM {
             displayNumber.prepend(QByteArray(":"));
             displayNumber.remove(displayNumber.size() -1, 1); //trim trailing whitespace
             m_display = QString::fromLocal8Bit(displayNumber);
-    
+
             // close our pipe
             close(pipeFds[0]);
 
@@ -249,7 +254,7 @@ namespace SDDM {
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
         displayStopScript->setProcessEnvironment(env);
 
-        // start display setup script
+        // start display stop script
         qDebug() << "Running display stop script " << displayStopCommand;
         displayStopScript->start(displayStopCommand);
 
@@ -275,6 +280,8 @@ namespace SDDM {
     void XorgDisplayServer::setupDisplay() {
         QString displayCommand = mainConfig.X11.DisplayCommand.get();
 
+        // create cursor setup process
+        QProcess *setCursor = new QProcess();
         // create display setup script process
         QProcess *displayScript = new QProcess();
 
@@ -285,14 +292,28 @@ namespace SDDM {
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
+        env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+        setCursor->setProcessEnvironment(env);
         displayScript->setProcessEnvironment(env);
 
-        // delete displayScript on finish
-        connect(displayScript, SIGNAL(finished(int,QProcess::ExitStatus)), displayScript, SLOT(deleteLater()));
+        qDebug() << "Setting default cursor";
+        setCursor->start(QStringLiteral("xsetroot -cursor_name left_ptr"));
+
+        // delete setCursor on finish
+        connect(setCursor, SIGNAL(finished(int,QProcess::ExitStatus)), setCursor, SLOT(deleteLater()));
+
+        // wait for finished
+        if (!setCursor->waitForFinished(1000)) {
+            qWarning() << "Could not setup default cursor";
+            setCursor->kill();
+        }
 
         // start display setup script
         qDebug() << "Running display setup script " << displayCommand;
         displayScript->start(displayCommand);
+
+        // delete displayScript on finish
+        connect(displayScript, SIGNAL(finished(int,QProcess::ExitStatus)), displayScript, SLOT(deleteLater()));
 
         // wait for finished
         if (!displayScript->waitForFinished(30000))

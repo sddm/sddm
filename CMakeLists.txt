@@ -13,7 +13,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 14)
+set(SDDM_VERSION_MINOR 17)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -82,6 +82,10 @@ if(ENABLE_PAM)
 endif()
 add_feature_info("PAM" PAM_FOUND "PAM support")
 
+# getspnam and shadow(5) support
+include(CheckFunctionExists)
+check_function_exists(getspnam HAVE_GETSPNAM)
+
 # XCB
 find_package(XCB REQUIRED)
 
@@ -109,7 +113,7 @@ if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
 endif()
 
 # systemd
-if(NOT NO_SYSTEMD)
+if(NOT NO_SYSTEMD AND NOT USE_ELOGIND)
     pkg_check_modules(SYSTEMD "systemd")
 endif()
 
@@ -143,12 +147,32 @@ if(SYSTEMD_FOUND)
     set(REBOOT_COMMAND "/usr/bin/systemctl reboot")
 else()
     set(SYSTEMD_FOUND 0)
+endif()
+add_feature_info("systemd" SYSTEMD_FOUND "systemd support")
+add_feature_info("journald" JOURNALD_FOUND "journald support")
+
+# elogind
+if(NO_SYSTEMD AND USE_ELOGIND)
+    pkg_check_modules(ELOGIND "libelogind")
+endif()
+
+if(ELOGIND_FOUND)
+    add_definitions(-DHAVE_ELOGIND)
+    set(CMAKE_AUTOMOC_MOC_OPTIONS -DHAVE_ELOGIND)
+
+    set(MINIMUM_VT 7)
+    set(HALT_COMMAND "/usr/bin/loginctl poweroff")
+    set(REBOOT_COMMAND "/usr/bin/loginctl reboot")
+endif()
+add_feature_info("elogind" ELOGIND_FOUND "elogind support")
+
+# Default behaviour if neither systemd nor elogind is used
+if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
     set(MINIMUM_VT 7)
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
-add_feature_info("systemd" SYSTEMD_FOUND "systemd support")
-add_feature_info("journald" JOURNALD_FOUND "journald support")
+
 
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
@@ -160,6 +184,8 @@ set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"          
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
 
 set(CONFIG_FILE                 "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf"        CACHE PATH      "Path of the sddm config file")
+set(CONFIG_DIR                  "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf.d"      CACHE PATH      "Path of the sddm config directory")
+set(SYSTEM_CONFIG_DIR           "${CMAKE_INSTALL_PREFIX}/lib/sddm/sddm.conf.d"      CACHE PATH      "Path of the system sddm config directory")
 set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
