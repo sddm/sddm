@@ -13,4 +13,4 @@ ConfigFile=theme.conf
 TranslationsDirectory=translations
 Email=spremi@ymail.com
 Theme-Id=maya
-Theme-API=${COMPONENTS_VERSION}
+Theme-API=2.0

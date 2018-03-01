@@ -101,9 +101,6 @@ if(NOT QT_IMPORTS_DIR)
     exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 endif()
 
-# Set components version
-set(COMPONENTS_VERSION 2.0)
-
 # Uninstall target
 if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
