@@ -31,6 +31,8 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PAM "Enable PAM support" ON)
+option(NO_SYSTEMD "Disable systemd support" OFF)
+option(USE_ELOGIND "Use elogind instead of logind" OFF)
 
 # ECM
 find_package(ECM 1.4.0 REQUIRED NO_MODULE)
