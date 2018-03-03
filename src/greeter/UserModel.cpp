@@ -95,7 +95,7 @@ namespace SDDM {
 
             // search for face icon
             if (QFile::exists(themeDefaultFace)) 
-                user->icon =QStringLiteral("file://%1").arg(themeDefaultFace);
+                user->icon = QStringLiteral("file://%1").arg(themeDefaultFace);
             else 
                 user->icon = QStringLiteral("file://%1").arg(defaultFace);
 
