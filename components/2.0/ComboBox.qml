@@ -155,8 +155,6 @@ FocusScope {
 
         color: container.menuColor
 
-        color: container.menuColor
-
         clip: true
 
         Behavior on height { NumberAnimation { duration: 100 } }

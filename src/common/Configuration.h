@@ -42,7 +42,7 @@ namespace SDDM {
         Entry(Numlock,             NumState,    NUM_NONE,                                       _S("Initial NumLock state. Can be on, off or none.\n"
                                                                                                    "If property is set to none, numlock won't be changed\n"
                                                                                                    "NOTE: Currently ignored if autologin is enabled."));
-        Entry(InputMethod,         QString,     QString(),                                      _S("Input method module"));
+        Entry(InputMethod,         QString,     QStringLiteral("qtvirtualkeyboard"),                   _S("Input method module"));
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));
@@ -80,7 +80,7 @@ namespace SDDM {
         );
 
         Section(Users,
-            Entry(DefaultPath,         QString,     _S("/bin:/usr/bin:/usr/local/bin"),         _S("Default $PATH for logged in users"));
+            Entry(DefaultPath,         QString,     _S("/usr/local/bin:/usr/bin:/bin"),         _S("Default $PATH for logged in users"));
             Entry(MinimumUid,          int,         UID_MIN,                                    _S("Minimum user id for displayed users"));
             Entry(MaximumUid,          int,         UID_MAX,                                    _S("Maximum user id for displayed users"));
             Entry(HideUsers,           QStringList, QStringList(),                              _S("Comma-separated list of users that should not be listed"));

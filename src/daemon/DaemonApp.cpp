@@ -68,8 +68,7 @@ namespace SDDM {
         // initialize signal signalHandler
         SignalHandler::initialize();
 
-        // quit when SIGHUP, SIGINT, SIGTERM received
-        connect(m_signalHandler, SIGNAL(sighupReceived()), this, SLOT(quit()));
+        // quit when SIGINT, SIGTERM received
         connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(quit()));
         connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
 
