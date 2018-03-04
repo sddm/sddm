@@ -224,9 +224,9 @@ namespace SDDM {
         // each one could be there only once - if it occurs more times in the config, the occurrences are merged
         QVector<const ConfigSection*> sectionOrder;
         // the actual bytearray data for every section
-        QMap<const ConfigSection*, QByteArray> sectionData;
+        QHash<const ConfigSection*, QByteArray> sectionData;
         // map of nondefault entries which should be saved if they are not found in the current config file
-        QMultiMap<const ConfigSection*, const ConfigEntryBase*> remainingEntries;
+        QMultiHash<const ConfigSection*, const ConfigEntryBase*> remainingEntries;
 
 
         /*
