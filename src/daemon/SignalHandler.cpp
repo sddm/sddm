@@ -34,25 +34,25 @@ namespace SDDM {
     int sigusr1Fd[2];
 
     SignalHandler::SignalHandler(QObject *parent) : QObject(parent) {
-        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sighupFd))
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sighupFd))
             qCritical() << "Failed to create socket pair for SIGHUP handling.";
 
         snhup = new QSocketNotifier(sighupFd[1], QSocketNotifier::Read, this);
         connect(snhup, SIGNAL(activated(int)), this, SLOT(handleSighup()));
 
-        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigintFd))
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigintFd))
             qCritical() << "Failed to create socket pair for SIGINT handling.";
 
         snint = new QSocketNotifier(sigintFd[1], QSocketNotifier::Read, this);
         connect(snint, SIGNAL(activated(int)), this, SLOT(handleSigint()));
 
-        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigtermFd))
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigtermFd))
             qCritical() << "Failed to create socket pair for SIGTERM handling.";
 
         snterm = new QSocketNotifier(sigtermFd[1], QSocketNotifier::Read, this);
         connect(snterm, SIGNAL(activated(int)), this, SLOT(handleSigterm()));
 
-        if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigusr1Fd))
             qCritical() << "Failed to create socket pair for SIGUSR1 handling.";
 
         snusr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
