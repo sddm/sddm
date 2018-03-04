@@ -44,6 +44,6 @@ MainScript=Main.qml
 ConfigFile=theme.conf
 TranslationsDirectory=translations
 Theme-Id=elarun
-Theme-API=${COMPONENTS_VERSION}
+Theme-API=2.0
 Website=https://github.com/sddm/sddm
 

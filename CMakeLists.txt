@@ -31,6 +31,8 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PAM "Enable PAM support" ON)
+option(NO_SYSTEMD "Disable systemd support" OFF)
+option(USE_ELOGIND "Use elogind instead of logind" OFF)
 
 # ECM
 find_package(ECM 1.4.0 REQUIRED NO_MODULE)
@@ -93,16 +95,13 @@ find_package(XCB REQUIRED)
 find_package(XKB REQUIRED)
 
 # Qt 5
-find_package(Qt5 5.6.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools)
+find_package(Qt5 5.8.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools)
 
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
     exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 endif()
-
-# Set components version
-set(COMPONENTS_VERSION 2.0)
 
 # Uninstall target
 if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
