@@ -41,6 +41,8 @@
 #include <QTimer>
 #include <QTranslator>
 
+#include <private/qhighdpiscaling_p.h>
+
 #include <iostream>
 
 #define TR(x) QT_TRANSLATE_NOOP("Command line parser", QStringLiteral(x))
@@ -62,6 +64,39 @@ namespace SDDM {
         m_sessionModel = new SessionModel();
         m_userModel = new UserModel();
         m_keyboard = new KeyboardModel();
+    }
+
+    // The screen provided information can not be trusted,
+    // so be careful here and only try to detect 2x scale
+    qreal saneScaleForScreen(const QScreen *screen) {
+        // If we have no physical size, fall back to 1x
+        if (screen->physicalSize().height() <= 0) {
+            return 1.0;
+        }
+
+        const qreal dpi = screen->size().height() / (screen->physicalSize().height() / 25.4);
+
+        // Use 2x only if:
+        // - DPI is closer ro 192 than 96
+        // - vertical resolution is typical for HiDPI monitors
+        if (dpi > 96 * 1.5 && screen->size().height() >= 1440) {
+            return 2.0;
+        }
+
+        return 1.0;
+    }
+
+    // We override Qt's internal screen scale information here.
+    void sanitizeScreenDPI() {
+        const qreal globalScale = saneScaleForScreen(QGuiApplication::primaryScreen());
+        QHighDpiScaling::setGlobalFactor(globalScale);
+
+        const QList<QScreen *> screens = QGuiApplication::screens();
+        for (QScreen *screen : screens) {
+            const qreal screenScale = saneScaleForScreen(screen);
+            qDebug() << "Setting scale of screen" << screen->name() << "to" << screenScale;
+            QHighDpiScaling::setScreenFactor(screen, screenScale / globalScale);
+        }
     }
 
     bool GreeterApp::isTestModeEnabled() const
@@ -313,6 +348,11 @@ int main(int argc, char **argv)
     greeter->setTestModeEnabled(parser.isSet(testModeOption));
     greeter->setSocketName(parser.value(socketOption));
     greeter->setThemePath(parser.value(themeOption));
+
+    if (SDDM::mainConfig.X11.SanitizeScreenDPI.get()) {
+        SDDM::sanitizeScreenDPI();
+    }
+
     QCoreApplication::postEvent(greeter, new SDDM::StartupEvent());
 
     return app.exec();

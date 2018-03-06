@@ -2,6 +2,7 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_BINARY_DIR}/src/common"
     "${LIBXCB_INCLUDE_DIR}"
+    "${Qt5Gui_PRIVATE_INCLUDE_DIRS}"
 )
 
 set(GREETER_SOURCES

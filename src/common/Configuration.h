@@ -71,6 +71,7 @@ namespace SDDM {
             Entry(DisplayStopCommand,  QString,     _S(DATA_INSTALL_DIR "/scripts/Xstop"),      _S("Path to a script to execute when stopping the display server"));
             Entry(MinimumVT,           int,         MINIMUM_VT,                                 _S("The lowest virtual terminal number that will be used."));
             Entry(EnableHiDPI,         bool,        false,                                      _S("Enable Qt's automatic high-DPI scaling"));
+            Entry(SanitizeScreenDPI,   bool,        true,                                       _S("Try to work around incorrect DPI values reported by monitors"));
         );
 
         Section(Wayland,
