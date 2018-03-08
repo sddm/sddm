@@ -278,11 +278,27 @@ int main(int argc, char **argv)
     // Install message handler
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
 
+    // We set an attribute based on the platform we run on.
+    // We only know the platform after we constructed QGuiApplication
+    // though, so we need to find it out ourselves.
+    QLatin1String platform;
+    for (int i = 1; i < argc - 1; ++i) {
+        if(qstrcmp(argv[i], "-platform") == 0) {
+            platform = QLatin1String(argv[i + 1]);
+        }
+    }
+    if (platform.isEmpty()) {
+        platform = QLatin1String(qgetenv("QT_QPA_PLATFORM"));
+    }
+    if (platform.isEmpty()) {
+        platform = QLatin1String("xcb");
+    }
+
     // HiDPI
     bool hiDpiEnabled = false;
-    if (QGuiApplication::platformName() == QLatin1String("xcb"))
+    if (platform == QLatin1String("xcb"))
         hiDpiEnabled = SDDM::mainConfig.X11.EnableHiDPI.get();
-    else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland")))
+    else if (platform.startsWith(QLatin1String("wayland")))
         hiDpiEnabled = SDDM::mainConfig.Wayland.EnableHiDPI.get();
     if (hiDpiEnabled) {
         qDebug() << "High-DPI autoscaling Enabled";
