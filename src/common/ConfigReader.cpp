@@ -198,6 +198,12 @@ namespace SDDM {
             // get rid of comments first
             lineRef = lineRef.left(lineRef.indexOf(QLatin1Char('#'))).trimmed();
 
+            // In version 0.14.0, these sections were renamed
+            if (currentSection == QStringLiteral("XDisplay"))
+                currentSection = QStringLiteral("X11");
+            else if (currentSection == QStringLiteral("WaylandDisplay"))
+                currentSection = QStringLiteral("Wayland");
+
             // value assignment
             int separatorPosition = lineRef.indexOf(QLatin1Char('='));
             if (separatorPosition >= 0) {
