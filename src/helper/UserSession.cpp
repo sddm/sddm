@@ -193,12 +193,12 @@ namespace SDDM {
             qDebug() << "Adding cookie to" << file;
 
 
-            // create the path
+            // Create and truncate the file
             QFileInfo finfo(file);
             QDir().mkpath(finfo.absolutePath());
 
             QFile file_handler(file);
-            file_handler.open(QIODevice::Append);
+            file_handler.open(QIODevice::WriteOnly);
             file_handler.close();
 
             QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);

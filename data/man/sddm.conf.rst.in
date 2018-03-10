@@ -126,7 +126,7 @@ OPTIONS
 
 `UserAuthFile=`
         Path to the Xauthority file, relative to the home directory.
-        Default value is ".Xauthority".
+        Default value is ".local/share/sddm/.Xauthority".
 
 `DisplayCommand=`
 	Path of script to execute when starting the display server.
