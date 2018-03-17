@@ -94,9 +94,9 @@ namespace SDDM {
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
             // search for face icon
-            if (QFile::exists(themeDefaultFace)) 
+            if (QFile::exists(themeDefaultFace))
                 user->icon = QStringLiteral("file://%1").arg(themeDefaultFace);
-            else 
+            else
                 user->icon = QStringLiteral("file://%1").arg(defaultFace);
 
             // add user
