@@ -130,24 +130,45 @@ namespace SDDM {
 
         // switch user
         const QByteArray username = qobject_cast<HelperApp*>(parent())->user().toLocal8Bit();
-        struct passwd *pw = getpwnam(username.constData());
-        if (setgid(pw->pw_gid) != 0) {
-            qCritical() << "setgid(" << pw->pw_gid << ") failed for user: " << username;
+        struct passwd pw;
+        struct passwd *rpw;
+        long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
+        if (bufsize == -1)
+            bufsize = 16384;
+        char *buffer = (char *)malloc(bufsize);
+        if (buffer == NULL)
+            exit(Auth::HELPER_OTHER_ERROR);
+        int err = getpwnam_r(username.constData(), &pw, buffer, bufsize, &rpw);
+        if (rpw == NULL) {
+            if (err == 0)
+                qCritical() << "getpwnam_r(" << username << ") username not found!";
+            else
+                qCritical() << "getpwnam_r(" << username << ") failed with error: " << strerror(err);
+            free(buffer);
             exit(Auth::HELPER_OTHER_ERROR);
         }
-        if (initgroups(pw->pw_name, pw->pw_gid) != 0) {
-            qCritical() << "initgroups(" << pw->pw_name << ", " << pw->pw_gid << ") failed for user: " << username;
+        if (setgid(pw.pw_gid) != 0) {
+            qCritical() << "setgid(" << pw.pw_gid << ") failed for user: " << username;
+            free(buffer);
             exit(Auth::HELPER_OTHER_ERROR);
         }
-        if (setuid(pw->pw_uid) != 0) {
-            qCritical() << "setuid(" << pw->pw_uid << ") failed for user: " << username;
+        if (initgroups(pw.pw_name, pw.pw_gid) != 0) {
+            qCritical() << "initgroups(" << pw.pw_name << ", " << pw.pw_gid << ") failed for user: " << username;
+            free(buffer);
             exit(Auth::HELPER_OTHER_ERROR);
         }
-        if (chdir(pw->pw_dir) != 0) {
-            qCritical() << "chdir(" << pw->pw_dir << ") failed for user: " << username;
+        if (setuid(pw.pw_uid) != 0) {
+            qCritical() << "setuid(" << pw.pw_uid << ") failed for user: " << username;
+            free(buffer);
+            exit(Auth::HELPER_OTHER_ERROR);
+        }
+        if (chdir(pw.pw_dir) != 0) {
+            qCritical() << "chdir(" << pw.pw_dir << ") failed for user: " << username;
             qCritical() << "verify directory exist and has sufficient permissions";
+            free(buffer);
             exit(Auth::HELPER_OTHER_ERROR);
         }
+        free(buffer);
 
         //we cannot use setStandardError file as this code is run in the child process
         //we want to redirect after we setuid so that the log file is owned by the user
