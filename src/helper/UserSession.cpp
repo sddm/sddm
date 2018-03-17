@@ -156,7 +156,7 @@ namespace SDDM {
 
         // determine stderr log file based on session type
         QString sessionLog = QStringLiteral("%1/%2")
-                .arg(QString::fromLocal8Bit(pw->pw_dir))
+                .arg(QString::fromLocal8Bit(pw.pw_dir))
                 .arg(sessionType == QLatin1String("x11")
                      ? mainConfig.X11.SessionLogFile.get()
                      : mainConfig.Wayland.SessionLogFile.get());
