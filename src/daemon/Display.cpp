@@ -368,7 +368,8 @@ namespace SDDM {
 
             // switch to the new VT for Wayland sessions
             if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
-                VirtualTerminal::jumpToVt(m_lastSession.vt());
+                // set vt_auto to false, so handle the vt switch yourself (VT_PROCESS)
+                VirtualTerminal::jumpToVt(m_lastSession.vt(), false);
 
             if (m_socket)
                 emit loginSucceeded(m_socket);

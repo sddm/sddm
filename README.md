@@ -36,7 +36,7 @@ They can be used as a starting point for new themes.
 
 ## INSTALLATION
 
-Qt >= 5.6.0 is required to use SDDM.
+Qt >= 5.8.0 is required to use SDDM.
 
 SDDM runs the greeter as a system user named "sddm" whose home directory needs
 to be set to `/var/lib/sddm`.

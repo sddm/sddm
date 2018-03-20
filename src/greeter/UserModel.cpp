@@ -52,7 +52,10 @@ namespace SDDM {
 
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
         const QString facesDir = mainConfig.Theme.FacesDir.get();
-        const QString defaultFace = QStringLiteral("file://%1/.face.icon").arg(facesDir);
+        const QString themeDir = mainConfig.Theme.ThemeDir.get();
+        const QString currentTheme = mainConfig.Theme.Current.get();
+        const QString themeDefaultFace = QStringLiteral("%1/%2/faces/.face.icon").arg(themeDir).arg(currentTheme);
+        const QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
 
         struct passwd *current_pw;
         while ((current_pw = getpwent()) != nullptr) {
@@ -84,7 +87,10 @@ namespace SDDM {
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
 
             // search for face icon
-            user->icon = defaultFace;
+            if (QFile::exists(themeDefaultFace))
+                user->icon = QStringLiteral("file://%1").arg(themeDefaultFace);
+            else
+                user->icon = QStringLiteral("file://%1").arg(defaultFace);
 
             // add user
             d->users << user;

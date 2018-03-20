@@ -5,14 +5,14 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation type="unfinished"></translation>
+        <translation>로그인하려면 누르십시오</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1(Wayland)</translation>
     </message>
 </context>
 <context>

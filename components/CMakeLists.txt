@@ -1,8 +1,5 @@
-configure_file("${COMPONENTS_VERSION}/LayoutBox.qml" "${COMPONENTS_VERSION}/LayoutBox.qml")
-configure_file("common/qmldir" "common/qmldir")
+configure_file("2.0/LayoutBox.qml" "2.0/LayoutBox.qml")
 
-install(DIRECTORY "${COMPONENTS_VERSION}/" DESTINATION "${QT_IMPORTS_DIR}/SddmComponents")
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${COMPONENTS_VERSION}/" DESTINATION "${QT_IMPORTS_DIR}/SddmComponents")
-
+install(DIRECTORY "2.0/" DESTINATION "${QT_IMPORTS_DIR}/SddmComponents")
 install(DIRECTORY "common/" DESTINATION "${QT_IMPORTS_DIR}/SddmComponents")
-install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/common/" DESTINATION "${QT_IMPORTS_DIR}/SddmComponents")
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/2.0/" DESTINATION "${QT_IMPORTS_DIR}/SddmComponents")
