@@ -69,12 +69,3 @@ if(JOURNALD_FOUND)
 endif()
 
 install(TARGETS sddm DESTINATION "${CMAKE_INSTALL_BINDIR}")
-
-# Generate and install the default config file
-add_custom_command(COMMAND sddm --example-config > "${CMAKE_BINARY_DIR}/sddm.conf"
-    OUTPUT "${CMAKE_BINARY_DIR}/sddm.conf"
-    COMMENT "Generate default sddm.conf file"
-    DEPENDS sddm
-)
-add_custom_target(generate_config_file ALL DEPENDS "${CMAKE_BINARY_DIR}/sddm.conf")
-install(FILES "${CMAKE_BINARY_DIR}/sddm.conf" DESTINATION "${CMAKE_INSTALL_FULL_SYSCONFDIR}")
