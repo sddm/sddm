@@ -102,7 +102,8 @@ namespace SDDM {
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
         // Remove duplicates in case we have several sources specified
         // in nsswitch.conf(5).
-        std::unique(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name == u2->name; });
+        auto newEnd = std::unique(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name == u2->name; });
+        d->users.erase(newEnd, d->users.end());
 
         bool avatarsEnabled = mainConfig.Theme.EnableAvatars.get();
         if (avatarsEnabled && mainConfig.Theme.EnableAvatars.isDefault()) {
