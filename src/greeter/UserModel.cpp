@@ -48,9 +48,17 @@ namespace SDDM {
     public:
         int lastIndex { 0 };
         QList<UserPtr> users;
+        bool populated { false };
     };
 
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
+    }
+
+    UserModel::~UserModel() {
+        delete d;
+    }
+
+    void UserModel::populate() const {
         const QString facesDir = mainConfig.Theme.FacesDir.get();
         const QString themeDir = mainConfig.Theme.ThemeDir.get();
         const QString currentTheme = mainConfig.Theme.Current.get();
@@ -129,10 +137,8 @@ namespace SDDM {
                     user->icon = QStringLiteral("file://%1").arg(systemFace);
             }
         }
-    }
 
-    UserModel::~UserModel() {
-        delete d;
+        d->populated = true;
     }
 
     QHash<int, QByteArray> UserModel::roleNames() const {
@@ -148,6 +154,8 @@ namespace SDDM {
     }
 
     const int UserModel::lastIndex() const {
+        if (!d->populated)
+            populate();
         return d->lastIndex;
     }
 
@@ -156,10 +164,15 @@ namespace SDDM {
     }
 
     int UserModel::rowCount(const QModelIndex &parent) const {
+        if (!d->populated)
+            populate();
         return d->users.length();
     }
 
     QVariant UserModel::data(const QModelIndex &index, int role) const {
+        if (!d->populated)
+            populate();
+
         if (index.row() < 0 || index.row() > d->users.count())
             return QVariant();
 

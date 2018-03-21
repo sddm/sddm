@@ -56,7 +56,8 @@ namespace SDDM {
 
         int disableAvatarsThreshold() const;
     private:
-        UserModelPrivate *d { nullptr };
+        mutable UserModelPrivate *d { nullptr };
+        void populate() const;
     };
 }
 
