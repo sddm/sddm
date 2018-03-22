@@ -281,24 +281,24 @@ int main(int argc, char **argv)
     // We set an attribute based on the platform we run on.
     // We only know the platform after we constructed QGuiApplication
     // though, so we need to find it out ourselves.
-    QLatin1String platform;
+    QString platform;
     for (int i = 1; i < argc - 1; ++i) {
         if(qstrcmp(argv[i], "-platform") == 0) {
-            platform = QLatin1String(argv[i + 1]);
+            platform = QString::fromUtf8(argv[i + 1]);
         }
     }
     if (platform.isEmpty()) {
-        platform = QLatin1String(qgetenv("QT_QPA_PLATFORM"));
+        platform = QString::fromUtf8(qgetenv("QT_QPA_PLATFORM"));
     }
     if (platform.isEmpty()) {
-        platform = QLatin1String("xcb");
+        platform = QStringLiteral("xcb");
     }
 
     // HiDPI
     bool hiDpiEnabled = false;
-    if (platform == QLatin1String("xcb"))
+    if (platform == QStringLiteral("xcb"))
         hiDpiEnabled = SDDM::mainConfig.X11.EnableHiDPI.get();
-    else if (platform.startsWith(QLatin1String("wayland")))
+    else if (platform.startsWith(QStringLiteral("wayland")))
         hiDpiEnabled = SDDM::mainConfig.Wayland.EnableHiDPI.get();
     if (hiDpiEnabled) {
         qDebug() << "High-DPI autoscaling Enabled";
