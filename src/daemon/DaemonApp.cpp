@@ -74,6 +74,9 @@ namespace SDDM {
 
         // log message
         qDebug() << "Starting...";
+
+        // initialize seats only after signals are connected
+        m_seatManager->initialize();
     }
 
     bool DaemonApp::testing() const {
