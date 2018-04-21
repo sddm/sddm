@@ -34,6 +34,7 @@ namespace SDDM {
         Q_PROPERTY(QString lastUser READ lastUser CONSTANT)
         Q_PROPERTY(int count READ rowCount CONSTANT)
         Q_PROPERTY(int disableAvatarsThreshold READ disableAvatarsThreshold CONSTANT)
+        Q_PROPERTY(bool containsAllUsers READ containsAllUsers CONSTANT)
     public:
         enum UserRoles {
             NameRole = Qt::UserRole + 1,
@@ -43,7 +44,7 @@ namespace SDDM {
             NeedsPasswordRole
         };
 
-        UserModel(QObject *parent = 0);
+        UserModel(bool needAllUsers, QObject *parent = 0);
         ~UserModel();
 
         QHash<int, QByteArray> roleNames() const override;
@@ -55,6 +56,7 @@ namespace SDDM {
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
         int disableAvatarsThreshold() const;
+        bool containsAllUsers() const;
     private:
         UserModelPrivate *d { nullptr };
     };
