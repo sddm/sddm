@@ -60,7 +60,6 @@ namespace SDDM {
 
         // Create models
         m_sessionModel = new SessionModel();
-        m_userModel = new UserModel();
         m_keyboard = new KeyboardModel();
     }
 
@@ -110,6 +109,16 @@ namespace SDDM {
             m_themeConfig->setTo(configFile);
         else
             m_themeConfig = new ThemeConfig(configFile);
+
+        const bool themeNeedsAllUsers = m_themeConfig->value(QStringLiteral("needsFullUserModel"), true).toBool();
+        if(m_userModel && themeNeedsAllUsers && !m_userModel->containsAllUsers()) {
+            // The theme needs all users, but the current user model doesn't have them -> recreate
+            m_userModel->deleteLater();
+            m_userModel = nullptr;
+        }
+
+        if (!m_userModel)
+            m_userModel = new UserModel(themeNeedsAllUsers, nullptr);
 
         // Set default icon theme from greeter theme
         if (m_themeConfig->contains(QStringLiteral("iconTheme")))
