@@ -232,6 +232,7 @@ namespace SDDM {
         if (!m_testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
             QCoreApplication::exit(EXIT_FAILURE);
+            return;
         }
 
         // Set numlock upon start
