@@ -89,8 +89,10 @@ namespace SDDM {
 
         // greeter command
         QStringList args;
-        args << QLatin1String("--socket") << m_socket
-             << QLatin1String("--theme") << m_themePath;
+        args << QLatin1String("--socket") << m_socket;
+
+        if (!m_themePath.isEmpty())
+             args << QLatin1String("--theme") << m_themePath;
         if (!platformTheme.isEmpty())
             args << QLatin1String("-platformtheme") << platformTheme;
         if (!style.isEmpty())
