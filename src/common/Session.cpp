@@ -32,6 +32,7 @@ namespace SDDM {
         : m_valid(false)
         , m_type(UnknownSession)
         , m_isHidden(false)
+        , m_isNoDisplay(false)
     {
     }
 
@@ -111,6 +112,11 @@ namespace SDDM {
         return m_isHidden;
     }
 
+    bool Session::isNoDisplay() const
+    {
+        return m_isNoDisplay;
+    }
+
     void Session::setTo(Type type, const QString &_fileName)
     {
         QString fileName(_fileName);
@@ -177,6 +183,8 @@ namespace SDDM {
                 m_desktopNames = line.mid(13).replace(QLatin1Char(';'), QLatin1Char(':'));
             if (line.startsWith(QLatin1String("Hidden=")))
                 m_isHidden = line.mid(7).toLower() == QLatin1String("true");
+            if (line.startsWith(QLatin1String("NoDisplay=")))
+                m_isNoDisplay = line.mid(10).toLower() == QLatin1String("true");
         }
 
         file.close();
