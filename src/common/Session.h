@@ -60,6 +60,7 @@ namespace SDDM {
         QString desktopNames() const;
 
         bool isHidden() const;
+        bool isNoDisplay() const;
 
         void setTo(Type type, const QString &name);
 
@@ -79,6 +80,7 @@ namespace SDDM {
         QString m_xdgSessionType;
         QString m_desktopNames;
         bool m_isHidden;
+        bool m_isNoDisplay;
 
         friend class SessionModel;
     };
