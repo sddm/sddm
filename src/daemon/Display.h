@@ -73,6 +73,7 @@ namespace SDDM {
                    const QString &user, const QString &password,
                    const Session &session);
         bool attemptAutologin();
+        bool fingerprintLogin();
         void displayServerStarted();
 
     signals:

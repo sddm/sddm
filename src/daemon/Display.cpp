@@ -43,6 +43,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
+#include <QLocalSocket>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusReply>
@@ -148,6 +149,11 @@ namespace SDDM {
 
         // connect login signal
         connect(m_socketServer, &SocketServer::login, this, &Display::login);
+
+        connect(m_socketServer, &SocketServer::connected, [this](QLocalSocket* socket){
+            m_socket = socket;
+            fingerprintLogin();
+        });
 
         // connect login result signals
         connect(this, &Display::loginFailed, m_socketServer, &SocketServer::loginFailed);
@@ -261,6 +267,34 @@ namespace SDDM {
         startSocketServerAndGreeter();
     }
 
+    bool Display::fingerprintLogin(){
+        if(mainConfig.Fingerprintlogin.User.get().isEmpty()){
+            return false;
+        }
+
+        Session::Type sessionType = Session::X11Session;
+
+        QString fingerprintSession = mainConfig.Fingerprintlogin.Session.get();
+        if(fingerprintSession.isEmpty()){
+            fingerprintSession = stateConfig.Last.Session.get();
+        }
+        if (findSessionEntry(mainConfig.X11.SessionDir.get(), fingerprintSession)) {
+            sessionType = Session::X11Session;
+        } else if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), fingerprintSession)) {
+            sessionType = Session::WaylandSession;
+        } else {
+            qCritical() << "Unable to find autologin session entry" << fingerprintSession;
+            return false;
+        }
+        Session session;
+        session.setTo(sessionType, fingerprintSession);
+
+        m_auth->setFingerprintlogin(true);
+        startAuth(mainConfig.Fingerprintlogin.User.get(), QString(), session);
+        m_auth->setFingerprintlogin(false);
+        return true;
+    }
+
     void Display::displayServerStarted() {
         // check flag
         if (m_started)
@@ -325,6 +359,11 @@ namespace SDDM {
         if (user == QLatin1String("sddm")) {
             emit loginFailed(m_socket);
             return;
+        }
+
+        if(password.isEmpty() && !m_auth->fingerprintlogin()){
+            qDebug() << "use fingerprint because password is empty";
+            m_auth->setFingerprintlogin(true);
         }
 
         // authenticate
