@@ -24,6 +24,8 @@
 #include "DaemonApp.h"
 #include "DisplayManager.h"
 #include "Seat.h"
+#include "ThemeConfig.h"
+#include "ThemeMetadata.h"
 #include "Display.h"
 
 #include <QtCore/QDebug>
@@ -31,10 +33,15 @@
 
 namespace SDDM {
     Greeter::Greeter(QObject *parent) : QObject(parent) {
+        m_metadata = new ThemeMetadata(QString());
+        m_themeConfig = new ThemeConfig(QString());
     }
 
     Greeter::~Greeter() {
         stop();
+
+        delete m_metadata;
+        delete m_themeConfig;
     }
 
     void Greeter::setDisplay(Display *display) {
@@ -50,13 +57,46 @@ namespace SDDM {
     }
 
     void Greeter::setTheme(const QString &theme) {
-        m_theme = theme;
+        m_themePath = theme;
+
+        if (theme.isEmpty()) {
+            m_metadata->setTo(QString());
+            m_themeConfig->setTo(QString());
+        } else {
+            const QString path = QStringLiteral("%1/metadata.desktop").arg(m_themePath);
+            m_metadata->setTo(path);
+
+            QString configFile = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
+            m_themeConfig->setTo(configFile);
+        }
     }
 
     bool Greeter::start() {
         // check flag
         if (m_started)
             return false;
+
+        // themes
+        QString xcursorTheme = mainConfig.Theme.CursorTheme.get();
+        if (m_themeConfig->contains(QLatin1String("cursorTheme")))
+            xcursorTheme = m_themeConfig->value(QLatin1String("cursorTheme")).toString();
+        QString platformTheme;
+        if (m_themeConfig->contains(QLatin1String("platformTheme")))
+            platformTheme = m_themeConfig->value(QLatin1String("platformTheme")).toString();
+        QString style;
+        if (m_themeConfig->contains(QLatin1String("style")))
+            style = m_themeConfig->value(QLatin1String("style")).toString();
+
+        // greeter command
+        QStringList args;
+        args << QLatin1String("--socket") << m_socket;
+
+        if (!m_themePath.isEmpty())
+             args << QLatin1String("--theme") << m_themePath;
+        if (!platformTheme.isEmpty())
+            args << QLatin1String("-platformtheme") << platformTheme;
+        if (!style.isEmpty())
+            args << QLatin1String("-style") << style;
 
         if (daemonApp->testing()) {
             // create process
@@ -75,15 +115,13 @@ namespace SDDM {
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
             env.insert(QStringLiteral("DISPLAY"), m_display->name());
             env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
-            env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+            env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
+            env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());
             m_process->setProcessEnvironment(env);
 
             // start greeter
-            QStringList args;
             if (daemonApp->testing())
                 args << QStringLiteral("--test-mode");
-            args << QStringLiteral("--socket") << m_socket
-                 << QStringLiteral("--theme") << m_theme;
             m_process->start(QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR)), args);
 
             //if we fail to start bail immediately, and don't block in waitForStarted
@@ -116,10 +154,9 @@ namespace SDDM {
             connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(authError(QString,Auth::Error)));
 
             // greeter command
-            QStringList args;
-            args << QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR));
-            args << QStringLiteral("--socket") << m_socket
-                 << QStringLiteral("--theme") << m_theme;
+            QStringList cmd;
+            cmd << QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR))
+                << args;
 
             // greeter environment
             QProcessEnvironment env;
@@ -138,14 +175,15 @@ namespace SDDM {
             env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
             env.insert(QStringLiteral("DISPLAY"), m_display->name());
             env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
-            env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+            env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
             env.insert(QStringLiteral("XDG_SEAT"), m_display->seat()->name());
             env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
-            if (m_display->seat()->name() == QStringLiteral("seat0"))
+            if (m_display->seat()->name() == QLatin1String("seat0"))
                 env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
             env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("greeter"));
             env.insert(QStringLiteral("XDG_SESSION_TYPE"), m_display->sessionType());
+            env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());
 
             //some themes may use KDE components and that will automatically load KDE's crash handler which we don't want
             //counterintuitively setting this env disables that handler
@@ -158,7 +196,7 @@ namespace SDDM {
             // start greeter
             m_auth->setUser(QStringLiteral("sddm"));
             m_auth->setGreeter(true);
-            m_auth->setSession(args.join(QLatin1Char(' ')));
+            m_auth->setSession(cmd.join(QLatin1Char(' ')));
             m_auth->start();
         }
 

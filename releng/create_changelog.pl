@@ -39,23 +39,46 @@
 
 use strict;
 use warnings;
+use FileHandle;
+use Getopt::Long;
 use Text::Wrap;
 my %log;
+my $optVerbose = 0;
 
 sub help {
-    print "Usage: create-changelog <srcdir> <revision-range>\n" .
+    print "Usage: create-changelog [OPTIONS] <srcdir> <revision-range>\n" .
         "\n" .
         "srcdir                  the qt source directory\n" .
-        "revision-range          arguments to git log, like v5.0.0..v5.1.0-rc1\n";
+        "revision-range          arguments to git log, like v5.0.0..v5.1.0-rc1\n" .
+        "Options:\n" .
+        "  -v                    Verbose output.\n";
     exit 0;
+}
+
+sub isMasterRepo
+{
+    my $modulesFileName = '.gitmodules';
+    return 0 unless -e $modulesFileName;
+    my $modulesFile = new IO::File('<' . $modulesFileName) or return 0;
+    while (my $line = <$modulesFile>) {
+        if ($line =~ /\[submodule\s*"qtbase"\]/) {
+            $modulesFile->close();
+            return 1;
+        }
+    }
+    $modulesFile->close();
+    return 0;
 }
 
 sub collect_entries {
     # Run git submodule foreach
     chdir(shift @ARGV) if (scalar @ARGV);
-    my @revListCommand = ("git rev-list --reverse --grep '^\\[ChangeLog\\]' " . $ARGV[0] .
-        " 2> /dev/null | git cat-file --batch || true");
-    unshift(@revListCommand, 'git', 'submodule', 'foreach', '--quiet') if -e '.gitmodules';
+    my $cmd = "git rev-list --reverse --grep '^\\[ChangeLog\\]' " . $ARGV[0];
+    $cmd .= ' 2> /dev/null' unless $optVerbose;
+    $cmd .= ' | git cat-file --batch || true';
+    my @revListCommand = ($cmd);
+    unshift(@revListCommand, 'git', 'submodule', 'foreach', '--quiet') if isMasterRepo();
+    print STDERR "Running: ", join(' ', @revListCommand), "\n";
     open FOREACH, '-|', @revListCommand;
 
     # Collect all entries
@@ -70,8 +93,8 @@ sub collect_entries {
             unless read(FOREACH, $msg, $2 + 1) == $2 + 1;
 
         # is there a task number?
-        # Extract each argument after Task-number: to an array
-        my @tasks = ( $msg =~ /^Task-number:\s*(.*)\s*$/mixg );
+        # Extract each argument after some keywords to an array
+        my @tasks = ( $msg =~ /^(?:Issues|Closes|Fixes):\s*(.*)\s*$/mixg );
         $entry{tasks} = \@tasks;
 
         # Extract the changelogs from $msg
@@ -104,7 +127,7 @@ sub collect_entries {
             }
             my $array = \$$$logentry{$subentry};
             $$array = [] unless defined($$array);
-            push $$array, { %entry };
+            push @{ $$array }, { %entry };
         }
     }
     close FOREACH or die("git submodule foreach died: $!");
@@ -128,7 +151,7 @@ sub print_entry($%) {
     print "\n";
 }
 
-help() unless scalar @ARGV;
+help() unless GetOptions("verbose" => \$optVerbose) && scalar(@ARGV) == 2;
 
 # Now print the output
 collect_entries();
@@ -148,7 +171,7 @@ for my $toplevel (sort keys %log) {
     }
 
     # Print two-level entries now
-    foreach my $sublevel (sort keys $$value) {
+    foreach my $sublevel (sort keys %{ $$value }) {
         next if $sublevel eq "0";
         print "\n - $sublevel:\n";
         $entry = \$$$value{$sublevel};

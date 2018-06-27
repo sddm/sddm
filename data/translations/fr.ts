@@ -2,6 +2,20 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="fr">
 <context>
+    <name>PictureBox</name>
+    <message>
+        <source>Press to login</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>%1 (Wayland)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
@@ -13,7 +27,7 @@
     </message>
     <message>
         <source>Layout</source>
-        <translation>Configuration</translation>
+        <translation>Clavier</translation>
     </message>
     <message>
         <source>Login</source>

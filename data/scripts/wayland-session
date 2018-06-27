@@ -1,11 +1,9 @@
 #!/bin/sh
 # wayland-session - run as user
-# Copyright (C) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+# Copyright (C) 2015-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 
 # This file is extracted from kde-workspace (kdm/kfrontend/genkdmconf.c)
 # Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
-
-session=$1
 
 # Note that the respective logout scripts are not sourced.
 case $SHELL in
@@ -40,10 +38,16 @@ case $SHELL in
     . $wlsess_tmp
     rm -f $wlsess_tmp
     ;;
+  */fish)
+    xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
+    $SHELL --login -c "/bin/sh -c 'export -p' > $xsess_tmp"
+    . $xsess_tmp
+    rm -f $xsess_tmp
+    ;;
   *) # Plain sh, ksh, and anything we do not know.
     [ -f /etc/profile ] && . /etc/profile
     [ -f $HOME/.profile ] && . $HOME/.profile
     ;;
 esac
 
-eval exec "$session"
+exec $@

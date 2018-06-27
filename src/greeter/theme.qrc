@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/theme">
+    <file alias="angle-down.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/angle-down.png</file>
+    <file alias="angle-left.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/angle-left.png</file>
+    <file alias="angle-right.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/angle-right.png</file>
+    <file alias="background.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/background.png</file>
+    <file alias="Main.qml">${CMAKE_CURRENT_SOURCE_DIR}/theme/Main.qml</file>
+    <file alias="reboot.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/reboot.png</file>
+    <file alias="shutdown.png">${CMAKE_CURRENT_SOURCE_DIR}/theme/shutdown.png</file>
+    <file alias="metadata.desktop">${CMAKE_CURRENT_SOURCE_DIR}/theme/metadata.desktop</file>
+    <file alias="theme.conf">${CMAKE_CURRENT_SOURCE_DIR}/theme/theme.conf</file>
+</qresource>
+</RCC>

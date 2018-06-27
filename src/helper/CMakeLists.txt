@@ -24,10 +24,14 @@ else()
         ${HELPER_SOURCES}
         backend/PasswdBackend.cpp
     )
+
+   if(HAVE_GETSPNAM)
+       add_definitions(-DHAVE_GETSPNAM=1)
+   endif()
 endif()
 
 add_executable(sddm-helper ${HELPER_SOURCES})
-qt5_use_modules(sddm-helper Network)
+target_link_libraries(sddm-helper Qt5::Network Qt5::DBus Qt5::Qml)
 if(PAM_FOUND)
     target_link_libraries(sddm-helper ${PAM_LIBRARIES})
 else()

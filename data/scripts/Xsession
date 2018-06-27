@@ -1,10 +1,9 @@
 #! /bin/sh
 # Xsession - run as user
+# Copyright (C) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 
 # This file is extracted from kde-workspace (kdm/kfrontend/genkdmconf.c)
 # Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
-
-session=$1
 
 # Note that the respective logout scripts are not sourced.
 case $SHELL in
@@ -36,6 +35,12 @@ case $SHELL in
     # Note that sourcing csh.login after .cshrc is non-standard.
     xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
     $SHELL -c "if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) source ~/.login; /bin/sh -c 'export -p' >! $xsess_tmp"
+    . $xsess_tmp
+    rm -f $xsess_tmp
+    ;;
+  */fish)
+    xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
+    $SHELL --login -c "/bin/sh -c 'export -p' > $xsess_tmp"
     . $xsess_tmp
     rm -f $xsess_tmp
     ;;
@@ -85,12 +90,12 @@ elif [ -f /etc/X11/Xresources ]; then
 fi
 [ -f $HOME/.Xresources ] && xrdb -merge $HOME/.Xresources
 
-case $session in
-  "")
+if [ -f "$USERXSESSION" ]; then
+  . "$USERXSESSION"
+fi
+
+if [ -z "$*" ]; then
     exec xmessage -center -buttons OK:0 -default OK "Sorry, $DESKTOP_SESSION is no valid session."
-    ;;
-  *)
-    eval exec "$session"
-    ;;
-esac
-exec xmessage -center -buttons OK:0 -default OK "Sorry, cannot execute $session. Check $DESKTOP_SESSION.desktop."
+else
+    exec $@
+fi

@@ -23,8 +23,8 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
-#include "Seat.h"
 #include "SignalHandler.h"
+#include "Seat.h"
 
 #include <QDebug>
 #include <QFile>
@@ -93,10 +93,10 @@ namespace SDDM {
 
         // Touch file
         QFile file_handler(file);
-        file_handler.open(QIODevice::WriteOnly);
+        file_handler.open(QIODevice::Append);
         file_handler.close();
 
-        QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.XDisplay.XauthPath.get()).arg(file);
+        QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
 
         // execute xauth
         FILE *fp = popen(qPrintable(cmd), "w");
@@ -129,7 +129,7 @@ namespace SDDM {
         if (daemonApp->testing()) {
             QStringList args;
             args << m_display << QStringLiteral("-ac") << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
-            process->start(mainConfig.XDisplay.XephyrPath.get(), args);
+            process->start(mainConfig.X11.XephyrPath.get(), args);
 
 
             // wait for display server to start
@@ -155,18 +155,20 @@ namespace SDDM {
             }
 
             // start display server
-            QStringList args = mainConfig.XDisplay.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts);
+            QStringList args = mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts);
             args << QStringLiteral("-auth") << m_authPath
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-noreset")
                  << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
                  << QStringLiteral("-seat") << displayPtr()->seat()->name();
-            if (displayPtr()->seat()->name() == QStringLiteral("seat0"))
-                 args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+
+            if (displayPtr()->seat()->name() == QLatin1String("seat0")) {
+                args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+            }
             qDebug() << "Running:"
-                     << qPrintable(mainConfig.XDisplay.ServerPath.get())
+                     << qPrintable(mainConfig.X11.ServerPath.get())
                      << qPrintable(args.join(QLatin1Char(' ')));
-            process->start(mainConfig.XDisplay.ServerPath.get(), args);
+            process->start(mainConfig.X11.ServerPath.get(), args);
 
             // wait for display server to start
             if (!process->waitForStarted()) {
@@ -185,16 +187,23 @@ namespace SDDM {
             QFile readPipe;
 
             if (!readPipe.open(pipeFds[0], QIODevice::ReadOnly)) {
-                qCritical("Failed to open pipe to start X Server ");
+                qCritical("Failed to open pipe to start X Server");
 
                 close(pipeFds[0]);
                 return false;
             }
             QByteArray displayNumber = readPipe.readLine();
+            if (displayNumber.size() < 2) {
+                // X server gave nothing (or a whitespace).
+                qCritical("Failed to read display number from pipe");
+
+                close(pipeFds[0]);
+                return false;
+            }
             displayNumber.prepend(QByteArray(":"));
-            displayNumber.remove(displayNumber.size() -1, 1); //trim trailing whitespace
+            displayNumber.remove(displayNumber.size() -1, 1); // trim trailing whitespace
             m_display = QString::fromLocal8Bit(displayNumber);
-    
+
             // close our pipe
             close(pipeFds[0]);
 
@@ -239,7 +248,7 @@ namespace SDDM {
         // log message
         qDebug() << "Display server stopped.";
 
-        QString displayStopCommand = mainConfig.XDisplay.DisplayStopCommand.get();
+        QString displayStopCommand = mainConfig.X11.DisplayStopCommand.get();
 
         // create display setup script process
         QProcess *displayStopScript = new QProcess();
@@ -252,7 +261,7 @@ namespace SDDM {
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
         displayStopScript->setProcessEnvironment(env);
 
-        // start display setup script
+        // start display stop script
         qDebug() << "Running display stop script " << displayStopCommand;
         displayStopScript->start(displayStopCommand);
 
@@ -276,8 +285,10 @@ namespace SDDM {
     }
 
     void XorgDisplayServer::setupDisplay() {
-        QString displayCommand = mainConfig.XDisplay.DisplayCommand.get();
+        QString displayCommand = mainConfig.X11.DisplayCommand.get();
 
+        // create cursor setup process
+        QProcess *setCursor = new QProcess();
         // create display setup script process
         QProcess *displayScript = new QProcess();
 
@@ -288,14 +299,28 @@ namespace SDDM {
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
+        env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+        setCursor->setProcessEnvironment(env);
         displayScript->setProcessEnvironment(env);
 
-        // delete displayScript on finish
-        connect(displayScript, SIGNAL(finished(int,QProcess::ExitStatus)), displayScript, SLOT(deleteLater()));
+        qDebug() << "Setting default cursor";
+        setCursor->start(QStringLiteral("xsetroot -cursor_name left_ptr"));
+
+        // delete setCursor on finish
+        connect(setCursor, SIGNAL(finished(int,QProcess::ExitStatus)), setCursor, SLOT(deleteLater()));
+
+        // wait for finished
+        if (!setCursor->waitForFinished(1000)) {
+            qWarning() << "Could not setup default cursor";
+            setCursor->kill();
+        }
 
         // start display setup script
         qDebug() << "Running display setup script " << displayCommand;
         displayScript->start(displayCommand);
+
+        // delete displayScript on finish
+        connect(displayScript, SIGNAL(finished(int,QProcess::ExitStatus)), displayScript, SLOT(deleteLater()));
 
         // wait for finished
         if (!displayScript->waitForFinished(30000))

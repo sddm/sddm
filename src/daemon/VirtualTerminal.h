@@ -23,7 +23,8 @@
 namespace SDDM {
     namespace VirtualTerminal {
         int setUpNewVt();
-        void jumpToVt(int vt);
+        void jumpToVt(int vt, bool vt_auto);
+        void chVt(int vt);
     }
 }
 

@@ -2,6 +2,20 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es">
 <context>
+    <name>PictureBox</name>
+    <message>
+        <source>Press to login</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>%1 (Wayland)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
@@ -9,7 +23,7 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Atencio, Mayusculas estan encendidas!</translation>
+        <translation>¡Atención, el bloqueo de mayúsculas está activado!</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -17,15 +31,15 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>Iniciar sesiòn</translation>
+        <translation>Iniciar sesión</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Inicio de sesiòn fallido</translation>
+        <translation>Inicio de sesión fallido</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>Inicio de sesiòn correcto</translation>
+        <translation>Inicio de sesión correcto</translation>
     </message>
     <message>
         <source>Password</source>
@@ -41,7 +55,7 @@
     </message>
     <message>
         <source>Session</source>
-        <translation>Sesiòn</translation>
+        <translation>Sesión</translation>
     </message>
     <message>
         <source>Shutdown</source>

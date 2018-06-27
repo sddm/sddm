@@ -68,16 +68,12 @@ namespace SDDM {
         // initialize signal signalHandler
         SignalHandler::initialize();
 
-        // quit when SIGHUP, SIGINT, SIGTERM received
-        connect(m_signalHandler, SIGNAL(sighupReceived()), this, SLOT(quit()));
+        // quit when SIGINT, SIGTERM received
         connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(quit()));
         connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
 
         // log message
         qDebug() << "Starting...";
-
-        // add a seat
-        m_seatManager->createSeat(QStringLiteral("seat0"));
     }
 
     bool DaemonApp::testing() const {
@@ -127,6 +123,7 @@ int main(int argc, char **argv) {
 
     // spit a complete config file on stdout and quit on demand
     if (arguments.contains(QStringLiteral("--example-config"))) {
+        SDDM::mainConfig.wipe();
         QTextStream(stdout) << SDDM::mainConfig.toConfigFull();
         return EXIT_SUCCESS;
     }

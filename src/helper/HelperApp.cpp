@@ -34,6 +34,10 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
+#include <utmp.h>
+#include <utmpx.h>
+#include <QByteArray>
+
 namespace SDDM {
     HelperApp::HelperApp(int& argc, char** argv)
             : QCoreApplication(argc, argv)
@@ -114,12 +118,26 @@ namespace SDDM {
 
         if (!m_backend->start(m_user)) {
             authenticated(QString());
+
+            // write failed login to btmp
+            QProcessEnvironment env = m_session->processEnvironment();
+            QString displayId = env.value(QStringLiteral("DISPLAY"));
+            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            utmpLogin(vt, displayId, m_user, 0, false);
+
             exit(Auth::HELPER_AUTH_ERROR);
             return;
         }
 
         if (!m_backend->authenticate()) {
             authenticated(QString());
+
+            // write failed login to btmp
+            QProcessEnvironment env = m_session->processEnvironment();
+            QString displayId = env.value(QStringLiteral("DISPLAY"));
+            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            utmpLogin(vt, displayId, m_user, 0, false);
+
             exit(Auth::HELPER_AUTH_ERROR);
             return;
         }
@@ -138,6 +156,16 @@ namespace SDDM {
             }
 
             sessionOpened(true);
+
+            // write successful login to utmp/wtmp
+            QProcessEnvironment env = m_session->processEnvironment();
+            QString displayId = env.value(QStringLiteral("DISPLAY"));
+            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            if (env.value(QStringLiteral("XDG_SESSION_CLASS")) != QLatin1String("greeter")) {
+                // cache pid for session end
+                m_session->setCachedProcessId(m_session->processId());
+                utmpLogin(vt, displayId, m_user, m_session->processId(), true);
+            }
         }
         else
             exit(Auth::HELPER_SUCCESS);
@@ -145,6 +173,17 @@ namespace SDDM {
     }
 
     void HelperApp::sessionFinished(int status) {
+        m_backend->closeSession();
+
+        // write logout to utmp/wtmp
+        qint64 pid = m_session->cachedProcessId();
+        QProcessEnvironment env = m_session->processEnvironment();
+        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) != QLatin1String("greeter")) {
+            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            QString displayId = env.value(QStringLiteral("DISPLAY"));
+            utmpLogout(vt, displayId, pid);
+        }
+
         exit(status);
     }
 
@@ -221,6 +260,90 @@ namespace SDDM {
 
     HelperApp::~HelperApp() {
 
+    }
+
+    void HelperApp::utmpLogin(const QString &vt, const QString &displayName, const QString &user, qint64 pid, bool authSuccessful) {
+        struct utmpx entry;
+        struct timeval tv;
+
+        entry = { 0 };
+        entry.ut_type = USER_PROCESS;
+        entry.ut_pid = pid;
+
+        // ut_line: vt
+        if (!vt.isEmpty()) {
+            QString tty = QStringLiteral("tty");
+            tty.append(vt);
+            QByteArray ttyBa = tty.toLocal8Bit();
+            const char* ttyChar = ttyBa.constData();
+            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line));
+        }
+
+        // ut_host: displayName
+        QByteArray displayBa = displayName.toLocal8Bit();
+        const char* displayChar = displayBa.constData();
+        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host));
+
+        // ut_user: user
+        QByteArray userBa = user.toLocal8Bit();
+        const char* userChar = userBa.constData();
+        strncpy(entry.ut_user, userChar, sizeof(entry.ut_user));
+
+        gettimeofday(&tv, NULL);
+        entry.ut_tv.tv_sec = tv.tv_sec;
+        entry.ut_tv.tv_usec = tv.tv_usec;
+
+        // write to utmp
+        setutxent();
+        if (!pututxline (&entry))
+            qWarning() << "Failed to write utmpx: " << strerror(errno);
+        endutxent();
+
+        // append to failed login database btmp
+        if (!authSuccessful) {
+            updwtmpx("/var/log/btmp", &entry);
+        }
+
+        // append to wtmp
+        else {
+            updwtmpx("/var/log/wtmp", &entry);
+        }
+    }
+
+    void HelperApp::utmpLogout(const QString &vt, const QString &displayName, qint64 pid) {
+        struct utmpx entry;
+        struct timeval tv;
+
+        entry = { 0 };
+        entry.ut_type = DEAD_PROCESS;
+        entry.ut_pid = pid;
+
+        // ut_line: vt
+        if (!vt.isEmpty()) {
+            QString tty = QStringLiteral("tty");
+            tty.append(vt);
+            QByteArray ttyBa = tty.toLocal8Bit();
+            const char* ttyChar = ttyBa.constData();
+            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line));
+        }
+
+        // ut_host: displayName
+        QByteArray displayBa = displayName.toLocal8Bit();
+        const char* displayChar = displayBa.constData();
+        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host));
+
+        gettimeofday(&tv, NULL);
+        entry.ut_tv.tv_sec = tv.tv_sec;
+        entry.ut_tv.tv_usec = tv.tv_usec;
+
+        // write to utmp
+        setutxent();
+        if (!pututxline (&entry))
+            qWarning() << "Failed to write utmpx: " << strerror(errno);
+        endutxent();
+
+        // append to wtmp
+        updwtmpx("/var/log/wtmp", &entry);
     }
 }
 

@@ -276,6 +276,17 @@ namespace SDDM {
         return Backend::openSession();
     }
 
+    bool PamBackend::closeSession() {
+        if (m_pam->isOpen()) {
+            qDebug() << "[PAM] Closing session";
+            m_pam->closeSession();
+            m_pam->setCred(PAM_DELETE_CRED);
+            return true;
+        }
+        qWarning() << "[PAM] Asked to close the session but it wasn't previously open";
+        return Backend::closeSession();
+    }
+
     QString PamBackend::userName() {
         return QString::fromLocal8Bit((const char*) m_pam->getItem(PAM_USER));
     }

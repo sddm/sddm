@@ -2,6 +2,20 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="lt">
 <context>
+    <name>PictureBox</name>
+    <message>
+        <source>Press to login</source>
+        <translation>Paspauskite, norėdami prisijungti</translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>%1 (Wayland)</source>
+        <translation>%1 (Wayland)</translation>
+    </message>
+</context>
+<context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
@@ -9,11 +23,11 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Dėmesio, įjungtos Didžiosios raidės!</translation>
+        <translation>Įspėjimas, įjungtos Didžiosios raidės!</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Atsijungti</translation>
+        <translation>Išdėstymas</translation>
     </message>
     <message>
         <source>Login</source>
@@ -41,7 +55,7 @@
     </message>
     <message>
         <source>Session</source>
-        <translation>Sesija</translation>
+        <translation>Seansas</translation>
     </message>
     <message>
         <source>Shutdown</source>

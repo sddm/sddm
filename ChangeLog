@@ -4,7 +4,56 @@
     - Bug fixes
     * Others
 
-## 0.14.0 - XXXX-XX-XX
+## 0.17.0 - 2017-12-05
+----------------------
+    + Added possibility to change border width of ComboBox widget.
+    + Added missing utmp/wtmp/btmp handling.
+    + Make greeter see icons set by AccountsServices.
+    - Fix sddm.conf man page syntax error and update.
+    - Fix ComboBox widget.
+    - Fix connection of PropertiesChanged event for LogindSeat.
+    - Avoid race conditions with Xsetup.
+    * Update de translation.
+    * Update lt translation.
+    * Update zh_TW translation.
+    * Adjust order of components in the default PATH.
+    * Set default input method to qtvirtualkeyboard.
+
+## 0.16.0 - 2017-10-04
+----------------------
+    + Support non-latin characters in theme settings.
+    + Support fish shell in Xsession and wayland-session.
+    + Unlock GNOME keyring at login.
+    + Configuration directory.
+    - Make the default cursor themed.
+    - Update date and time in elarun theme.
+    - Fix theme metadata default values.
+    - Fix session selection in elarun.
+    - Do not truncate XAUTHORITY on login.
+    - Make enabled property of Button functional.
+    - Fix typos in documentation.
+    * Re-use existing sessions.
+    * Add ConsoleKit 2 support.
+    * Stop assuming shadow(5) is always available.
+    * Explicitely set XDG_SEAT when starting a user session.
+    * Suppress errors when pam_elogind is not available.
+    * Suppress errors when pam_systemd is not available.
+    * Added possibility to change color of dropdown menu.
+    * Add Hindi translation.
+    * Completed Swedish translation.
+    * Update French translation.
+
+## 0.15.0 - 2017-08-30
+----------------------
+    - Fix display of avatars.
+    + New sddm.conf option EnableHiDPI to allow opt out of auto scaling.
+    - Theme cursor.
+    + Support optional kwallet PAM opening.
+    + Autologin, try last successful login if not explicitly set.
+    + Ignore session desktop files with hidden=true.
+    + Support elogind.
+
+## 0.14.0 - 2016-08-28
 ----------------------
     + New sddm.conf option EnableAvatars (useful for slow filesystems)
     + New sddm.conf option UserAuthFile on the XDisplay section
@@ -13,9 +62,28 @@
       sections to change the default user session log location.
     + ComboBox now exposes the arrow background color as
       "arrowColor" property.
+    + New "style" theme configuration for QtQuick Controls 2.0.
+    + Require Qt 5.6 or better.
+    + Enable HiDPI support.
+    + Refresh sessions list.
+    + Always fallback to an embedded theme if no suitable theme is found.
+    - Actually change Qt platform theme.
+    - Switch to Wayland session vt only when authentication
+      succeeds.
+    - Close PAM session.
+    - Delete PAM credentials after closing the session.
     * More theme-neutral default user and root avatars
+    * REMOVED the "circles" theme. Remember to change it if you had it set!
+    * REMOVED the "maui" theme as a standalone theme as it is now
+      embedded in the greeter. Remember to change the theme to empty
+      if you had it set to "maui".
     * Update Estonian translation.
-
+    * Add Catalan translation from Robert Antoni Buj Gelonch.
+    * Add Dutch translation from Eric Hameleers.
+    * Add Slovak translation from Martin Minka.
+    * Add Swedish translation from Kristoffer Grundström.
+    * Add Ukrainian translation from Cherevan Andriy.
+    * Add Indian flag from Sanjeev Premi.
 
 ## 0.13.0 - 2015-11-04
 ----------------------

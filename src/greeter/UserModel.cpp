@@ -52,7 +52,12 @@ namespace SDDM {
 
     UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
         const QString facesDir = mainConfig.Theme.FacesDir.get();
+        const QString themeDir = mainConfig.Theme.ThemeDir.get();
+        const QString currentTheme = mainConfig.Theme.Current.get();
+        const QString themeDefaultFace = QStringLiteral("%1/%2/faces/.face.icon").arg(themeDir).arg(currentTheme);
         const QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
+        const QString iconURI = QStringLiteral("file://%1").arg(
+                QFile::exists(themeDefaultFace) ? themeDefaultFace : defaultFace);
 
         struct passwd *current_pw;
         while ((current_pw = getpwent()) != nullptr) {
@@ -82,9 +87,7 @@ namespace SDDM {
             // if shadow is used pw_passwd will be 'x' nevertheless, so this
             // will always be true
             user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
-
-            // search for face icon
-            user->icon = defaultFace;
+            user->icon = iconURI;
 
             // add user
             d->users << user;
@@ -94,6 +97,10 @@ namespace SDDM {
 
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
+        // Remove duplicates in case we have several sources specified
+        // in nsswitch.conf(5).
+        auto newEnd = std::unique(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name == u2->name; });
+        d->users.erase(newEnd, d->users.end());
 
         bool avatarsEnabled = mainConfig.Theme.EnableAvatars.get();
         if (avatarsEnabled && mainConfig.Theme.EnableAvatars.isDefault()) {
@@ -109,11 +116,14 @@ namespace SDDM {
             if (avatarsEnabled) {
                 const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
                 const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
+                QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
 
                 if (QFile::exists(userFace))
-                    user->icon = userFace;
+                    user->icon = QStringLiteral("file://%1").arg(userFace);
+                else if (QFile::exists(accountsServiceFace))
+                    user->icon = accountsServiceFace;
                 else if (QFile::exists(systemFace))
-                    user->icon = systemFace;
+                    user->icon = QStringLiteral("file://%1").arg(systemFace);
             }
         }
     }

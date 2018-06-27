@@ -14,7 +14,7 @@ sddm display manager greeter
 SYNOPSIS
 ========
 
-  sddm-greeter [OPTIONS...]
+sddm-greeter [OPTIONS...]
 
 DESCRIPTION
 ===========
@@ -47,8 +47,14 @@ OPTIONS
 FILES
 =====
 
+**@SYSTEM_CONFIG_DIR@**
+        System configuration directory
+
+**@CONFIG_DIR@**
+        Local configuration directory
+
 **@CONFIG_FILE@**
-	System configuration file
+	Local configuration file for compatibility
 
 **@DATA_INSTALL_DIR@/themes**
 	Where sddm looks for themes

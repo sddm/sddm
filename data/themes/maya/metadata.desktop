@@ -1,0 +1,16 @@
+[SddmGreeterTheme]
+Name=maya
+Description=Simple Material inspired theme
+Author=Sanjeev Premi
+Copyright=(c) 2016, Sanjeev Premi
+License=CC-BY-SA
+Type=sddm-theme
+Version=0.1
+Website=https://github.com/spremi
+Screenshot=preview.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Email=spremi@ymail.com
+Theme-Id=maya
+Theme-API=2.0

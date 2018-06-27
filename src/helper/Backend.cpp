@@ -67,12 +67,16 @@ namespace SDDM {
                 // determine Xauthority path
                 QString value = QStringLiteral("%1/%2")
                         .arg(QString::fromLocal8Bit(pw->pw_dir))
-                        .arg(mainConfig.XDisplay.UserAuthFile.get());
+                        .arg(mainConfig.X11.UserAuthFile.get());
                 env.insert(QStringLiteral("XAUTHORITY"), value);
             }
             // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
             m_app->session()->setProcessEnvironment(env);
         }
         return m_app->session()->start();
+    }
+
+    bool Backend::closeSession() {
+        return true;
     }
 }

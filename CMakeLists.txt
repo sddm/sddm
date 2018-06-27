@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.8)
 
 project(SDDM)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -14,7 +13,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 13)
+set(SDDM_VERSION_MINOR 17)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -32,6 +31,12 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PAM "Enable PAM support" ON)
+option(NO_SYSTEMD "Disable systemd support" OFF)
+option(USE_ELOGIND "Use elogind instead of logind" OFF)
+
+# ECM
+find_package(ECM 1.4.0 REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH};${ECM_MODULE_PATH}")
 
 # Definitions
 add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
@@ -79,6 +84,10 @@ if(ENABLE_PAM)
 endif()
 add_feature_info("PAM" PAM_FOUND "PAM support")
 
+# getspnam and shadow(5) support
+include(CheckFunctionExists)
+check_function_exists(getspnam HAVE_GETSPNAM)
+
 # XCB
 find_package(XCB REQUIRED)
 
@@ -86,9 +95,7 @@ find_package(XCB REQUIRED)
 find_package(XKB REQUIRED)
 
 # Qt 5
-find_package(Qt5Core REQUIRED)
-find_package(Qt5DBus REQUIRED)
-find_package(Qt5LinguistTools REQUIRED)
+find_package(Qt5 5.8.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test)
 
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
@@ -96,18 +103,16 @@ if(NOT QT_IMPORTS_DIR)
     exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 endif()
 
-# Set components version
-set(COMPONENTS_VERSION 2.0)
-
 # Uninstall target
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-               IMMEDIATE @ONLY)
-
-add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+                   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+                   IMMEDIATE @ONLY)
+    add_custom_target(uninstall COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+endif()
 
 # systemd
-if(NOT NO_SYSTEMD)
+if(NOT NO_SYSTEMD AND NOT USE_ELOGIND)
     pkg_check_modules(SYSTEMD "systemd")
 endif()
 
@@ -141,12 +146,32 @@ if(SYSTEMD_FOUND)
     set(REBOOT_COMMAND "/usr/bin/systemctl reboot")
 else()
     set(SYSTEMD_FOUND 0)
+endif()
+add_feature_info("systemd" SYSTEMD_FOUND "systemd support")
+add_feature_info("journald" JOURNALD_FOUND "journald support")
+
+# elogind
+if(NO_SYSTEMD AND USE_ELOGIND)
+    pkg_check_modules(ELOGIND "libelogind")
+endif()
+
+if(ELOGIND_FOUND)
+    add_definitions(-DHAVE_ELOGIND)
+    set(CMAKE_AUTOMOC_MOC_OPTIONS -DHAVE_ELOGIND)
+
+    set(MINIMUM_VT 7)
+    set(HALT_COMMAND "/usr/bin/loginctl poweroff")
+    set(REBOOT_COMMAND "/usr/bin/loginctl reboot")
+endif()
+add_feature_info("elogind" ELOGIND_FOUND "elogind support")
+
+# Default behaviour if neither systemd nor elogind is used
+if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
     set(MINIMUM_VT 7)
     set(HALT_COMMAND "/sbin/shutdown -h -P now")
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
-add_feature_info("systemd" SYSTEMD_FOUND "systemd support")
-add_feature_info("journald" JOURNALD_FOUND "journald support")
+
 
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
@@ -158,6 +183,8 @@ set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"          
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
 
 set(CONFIG_FILE                 "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf"        CACHE PATH      "Path of the sddm config file")
+set(CONFIG_DIR                  "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf.d"      CACHE PATH      "Path of the sddm config directory")
+set(SYSTEM_CONFIG_DIR           "${CMAKE_INSTALL_PREFIX}/lib/sddm/sddm.conf.d"      CACHE PATH      "Path of the system sddm config directory")
 set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")

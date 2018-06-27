@@ -13,4 +13,4 @@ ConfigFile=theme.conf
 TranslationsDirectory=translations
 Email=abdurrahmanavci@gmail.com
 Theme-Id=maldives
-Theme-API=${COMPONENTS_VERSION}
+Theme-API=2.0

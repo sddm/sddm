@@ -1,13 +1,13 @@
 module SddmComponents
 
-Background      ${COMPONENTS_VERSION} Background.qml
-Button          ${COMPONENTS_VERSION} Button.qml
-Clock           ${COMPONENTS_VERSION} Clock.qml
-ComboBox        ${COMPONENTS_VERSION} ComboBox.qml
-ImageButton     ${COMPONENTS_VERSION} ImageButton.qml
-LayoutBox       ${COMPONENTS_VERSION} LayoutBox.qml
-Menu            ${COMPONENTS_VERSION} Menu.qml
-PasswordBox     ${COMPONENTS_VERSION} PasswordBox.qml
-PictureBox      ${COMPONENTS_VERSION} PictureBox.qml
-TextBox         ${COMPONENTS_VERSION} TextBox.qml
-TextConstants   ${COMPONENTS_VERSION} TextConstants.qml
+Background 2.0 Background.qml
+Button 2.0 Button.qml
+Clock 2.0 Clock.qml
+ComboBox 2.0 ComboBox.qml
+ImageButton 2.0 ImageButton.qml
+LayoutBox 2.0 LayoutBox.qml
+Menu 2.0 Menu.qml
+PasswordBox 2.0 PasswordBox.qml
+PictureBox 2.0 PictureBox.qml
+TextBox 2.0 TextBox.qml
+TextConstants 2.0 TextConstants.qml

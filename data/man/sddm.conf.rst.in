@@ -14,7 +14,16 @@ sddm display manager configuration
 SYNOPSIS
 ========
 
-  @CONFIG_FILE@
+Configuration loads all files in the configuration directories followed by the configuration file in the order listed below with the latter having the most precedent. Changes should be made to the local configurations.
+
+**@SYSTEM_CONFIG_DIR@**
+	System configuration directory
+
+**@CONFIG_DIR@**
+	Local configuration directory
+
+**@CONFIG_FILE@**
+	Local configuration file for compatibility
 
 DESCRIPTION
 ===========
@@ -41,6 +50,21 @@ OPTIONS
 	If property is set to `none`, numlock won't be changed.
 	Default value is "none".
 
+`InputMethod=`
+        Set the Qt input method for the greeter.
+        Tablet users with Qt Virtual Keyboard installed can set this
+        to "qtvirtualkeyboard" for the on-screen keyboard.
+        Other known values are "ibus" for the Intelligent Input Bus,
+        or "compose" for dead keys support.
+        Leave this empty if unsure.
+
+`Namespaces=`
+	Comma-separated list of paths bound to Linux namespaces to enter with
+	setns() before starting the user session.  For example, to enter network
+	namespace `mynet` created with `ip netns add mynet`, the value might be
+	`/run/netns/mynet`.  Default value is empty.  (The value is ignored if
+	the operating system is not Linux.)
+
 [Theme] section:
 
 `ThemeDir=`
@@ -49,7 +73,8 @@ OPTIONS
 
 `Current=`
 	Name of the current theme.
-	Default value is "maui".
+	By default this setting is empty, meaning the embedded theme
+	will be used.
 
 `FacesDir=`
 	Path of the directory containing face files,
@@ -67,7 +92,7 @@ OPTIONS
 	them altogether.
 	Default value is true.
 
-[XDisplay] section:
+[X11] section:
 
 `ServerPath=`
 	Path of the X server.
@@ -90,12 +115,14 @@ OPTIONS
 	Default value is "/usr/share/xsessions".
 
 `SessionCommand=`
-	Path of script to execute when starting the desktop session.
+	Path of script to execute when starting the user session. This script
+	receives the value of the "Exec" setting in the ".desktop" file of the selected
+	session and runs it.
 	Default value is "@SESSION_COMMAND@".
 
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
-        Default value is ".cache/xsession-errors".
+        Default value is ".local/share/sddm/xorg-session.log".
 
 `UserAuthFile=`
         Path to the Xauthority file, relative to the home directory.
@@ -115,25 +142,38 @@ OPTIONS
 	increase as new displays added.
 	Default value is @MINIMUM_VT@.
 
-[WaylandDisplay] section:
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
+
+[Wayland] section:
 
 `SessionDir=`
 	Path of the directory containing session files.
 	Default value is "/usr/share/wayland-sessions".
 
 `SessionCommand=`
-	Path of script to execute when starting the desktop session.
+	Path of script to execute when starting the user session. This script
+	receives the value of the "Exec" setting in the ".desktop" file of the selected
+	session and run it.
 	Default value is "@WAYLAND_SESSION_COMMAND@".
 
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
-        Default value is ".cache/wayland-errors".
+        Default value is ".local/share/sddm/wayland-session.log".
+
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
 
 [Users] section:
 
 `DefaultPath=`
 	Default path to set after successfully logging in.
-	Default value is "/bin:/usr/bin:/usr/local/bin".
+	This is also where SDDM looks for programs.
+	Default value is "/usr/local/bin:/usr/bin:/bin".
 
 `MinimumUid=`
 	Minimum user id of the users to be listed in the
@@ -155,14 +195,14 @@ OPTIONS
 
 `RememberLastUser=`
 	If this flag is true, LastUser value will updated
-	on every successfull login, if false last user value
-	wont be updated.
+	on every successful login, if false last user value
+	won't be updated.
 	Default value is true.
 
 `RememberLastSession=`
 	If this flag is true, LastSession value will updated
-	on every successfull login, if false last session value
-	wont be updated.
+	on every successful login, if false last session value
+	won't be updated.
 	Default value is true.
 
 [Autologin] section:

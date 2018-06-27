@@ -26,6 +26,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 #include <QtCore/QDateTime>
+#include <QtCore/QDir>
 
 #define IMPLICIT_SECTION "General"
 #define UNUSED_VARIABLE_COMMENT "# Unused variable"
@@ -36,10 +37,10 @@
 #define _S(x) QStringLiteral(x)
 
 // config wrapper
-#define Config(name, file, ...) \
+#define Config(name, file, dir, sysDir, ...) \
     class name : public SDDM::ConfigBase, public SDDM::ConfigSection { \
     public: \
-        name() : SDDM::ConfigBase(file), SDDM::ConfigSection(this, QStringLiteral(IMPLICIT_SECTION)) { \
+        name() : SDDM::ConfigBase(file, dir, sysDir), SDDM::ConfigSection(this, QStringLiteral(IMPLICIT_SECTION)) { \
             load(); \
         } \
         void save() { SDDM::ConfigBase::save(nullptr, nullptr); } \
@@ -79,6 +80,7 @@ namespace SDDM {
         virtual QString toConfigFull() const = 0;
         virtual bool matchesDefault() const = 0;
         virtual bool isDefault() const = 0;
+        virtual bool setDefault() = 0;
     };
 
     class ConfigSection {
@@ -87,6 +89,7 @@ namespace SDDM {
         ConfigEntryBase *entry(const QString &name);
         const ConfigEntryBase *entry(const QString &name) const;
         void save(ConfigEntryBase *entry);
+        void clear();
         const QString &name() const;
         QString toConfigShort() const;
         QString toConfigFull() const;
@@ -183,21 +186,25 @@ namespace SDDM {
     // Base has to be separate from the Config itself - order of initialization
     class ConfigBase {
     public:
-        ConfigBase(const QString &configPath);
+        ConfigBase(const QString &configPath, const QString &configDir=QString(), const QString &sysConfigDir=QString());
 
         void load();
         void save(const ConfigSection *section = nullptr, const ConfigEntryBase *entry = nullptr);
+        void wipe();
         bool hasUnused() const;
-        const QString &path() const;
         QString toConfigFull() const;
     protected:
         bool m_unusedVariables { false };
         bool m_unusedSections { false };
 
         QString m_path {};
+        QString m_configDir;
+        QString m_sysConfigDir;
         QMap<QString, ConfigSection*> m_sections;
         friend class ConfigSection;
     private:
+        QDateTime dirLatestModifiedTime(const QString &directory);
+        void loadInternal(const QString &filepath);
         QDateTime m_fileModificationTime;
     };
 }
