@@ -339,7 +339,9 @@ namespace SDDM {
         } else {
             //we only want to unlock the session if we can lock in, so we want to go via PAM auth, but not start a new session
             //by not setting the session and the helper will emit authentication and then quit
-            connect(m_auth, &Auth::authentication, this, [=](){
+            connect(m_auth, &Auth::authentication, this, [=](const QString &, bool success){
+                if(!success)
+                    return;
                 qDebug() << "activating existing seat";
                 OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
                 manager.UnlockSession(existingSessionId);
