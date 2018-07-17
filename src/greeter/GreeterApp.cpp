@@ -143,7 +143,7 @@ namespace SDDM {
         // need to be careful here since Qt will move the view to
         // another screen before this signal is emitted so we
         // pass a pointer to the view to our slot
-        connect(qGuiApp, &QGuiApplication::screenRemoved, this, [view, this](QScreen *) {
+        connect(screen, &QObject::destroyed, this, [view, this](QObject *) {
             removeViewForScreen(view);
         });
 
