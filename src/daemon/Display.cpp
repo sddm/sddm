@@ -280,7 +280,7 @@ namespace SDDM {
             return;
         }
 
-        QString existingSessionId;
+        m_reuseSessionId = QString();
 
         if (Logind::isAvailable() && mainConfig.Users.ReuseSession.get()) {
             OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
@@ -291,7 +291,7 @@ namespace SDDM {
                 if (s.userName == user) {
                     OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
                     if (session.service() == QLatin1String("sddm")) {
-                        existingSessionId =  s.sessionId;
+                        m_reuseSessionId =  s.sessionId;
                         break;
                     }
                 }
@@ -334,19 +334,8 @@ namespace SDDM {
         m_auth->insertEnvironment(env);
 
         m_auth->setUser(user);
-        if (existingSessionId.isNull()) {
+        if (m_reuseSessionId.isNull()) {
             m_auth->setSession(session.exec());
-        } else {
-            //we only want to unlock the session if we can lock in, so we want to go via PAM auth, but not start a new session
-            //by not setting the session and the helper will emit authentication and then quit
-            connect(m_auth, &Auth::authentication, this, [=](const QString &, bool success){
-                if(!success)
-                    return;
-                qDebug() << "activating existing seat";
-                OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
-                manager.UnlockSession(existingSessionId);
-                manager.ActivateSession(existingSessionId);
-            });
         }
         m_auth->start();
     }
@@ -355,7 +344,13 @@ namespace SDDM {
         if (success) {
             qDebug() << "Authenticated successfully";
 
-            m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+            if (!m_reuseSessionId.isNull()) {
+                OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+                manager.UnlockSession(m_reuseSessionId);
+                manager.ActivateSession(m_reuseSessionId);
+            } else {
+                m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+            }
 
             // save last user and last session
             if (mainConfig.Users.RememberLastUser.get())
