@@ -68,7 +68,7 @@ namespace SDDM {
         qDebug() << "Socket server started.";
 
         // connect signals
-        connect(m_server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+        connect(m_server, &QLocalServer::newConnection, this, &SocketServer::newConnection);
 
         // return success
         return true;
@@ -95,8 +95,8 @@ namespace SDDM {
         QLocalSocket *socket = m_server->nextPendingConnection();
 
         // connect signals
-        connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-        connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
+        connect(socket, &QLocalSocket::readyRead, this, &SocketServer::readyRead);
+        connect(socket, &QLocalSocket::disconnected, socket, &QLocalSocket::deleteLater);
     }
 
     void SocketServer::readyRead() {
