@@ -277,18 +277,18 @@ namespace SDDM {
             tty.append(vt);
             QByteArray ttyBa = tty.toLocal8Bit();
             const char* ttyChar = ttyBa.constData();
-            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line));
+            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line) - 1);
         }
 
         // ut_host: displayName
         QByteArray displayBa = displayName.toLocal8Bit();
         const char* displayChar = displayBa.constData();
-        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host));
+        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host) - 1);
 
         // ut_user: user
         QByteArray userBa = user.toLocal8Bit();
         const char* userChar = userBa.constData();
-        strncpy(entry.ut_user, userChar, sizeof(entry.ut_user));
+        strncpy(entry.ut_user, userChar, sizeof(entry.ut_user) -1);
 
         gettimeofday(&tv, NULL);
         entry.ut_tv.tv_sec = tv.tv_sec;
@@ -325,13 +325,13 @@ namespace SDDM {
             tty.append(vt);
             QByteArray ttyBa = tty.toLocal8Bit();
             const char* ttyChar = ttyBa.constData();
-            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line));
+            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line) - 1);
         }
 
         // ut_host: displayName
         QByteArray displayBa = displayName.toLocal8Bit();
         const char* displayChar = displayBa.constData();
-        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host));
+        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host) - 1);
 
         gettimeofday(&tv, NULL);
         entry.ut_tv.tv_sec = tv.tv_sec;
