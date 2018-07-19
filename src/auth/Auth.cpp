@@ -79,7 +79,7 @@ namespace SDDM {
 
     Auth::SocketServer::SocketServer()
             : QLocalServer() {
-        connect(this, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
+        connect(this, &QLocalServer::newConnection, this, &Auth::SocketServer::handleNewConnection);
     }
 
     void Auth::SocketServer::handleNewConnection()  {
@@ -145,7 +145,7 @@ namespace SDDM {
 
     void Auth::Private::setSocket(QLocalSocket *socket) {
         this->socket = socket;
-        connect(socket, SIGNAL(readyRead()), this, SLOT(dataPending()));
+        connect(socket, &QLocalSocket::readyRead, this, &Auth::Private::dataPending);
     }
 
     void Auth::Private::dataPending() {
@@ -193,7 +193,7 @@ namespace SDDM {
             case SESSION_STATUS: {
                 bool status;
                 str >> status;
-                Q_EMIT auth->session(status);
+                Q_EMIT auth->sessionStarted(status);
                 str.reset();
                 str << SESSION_STATUS;
                 str.send();
