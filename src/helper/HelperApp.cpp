@@ -33,6 +33,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 
 #include <utmp.h>
 #include <utmpx.h>
