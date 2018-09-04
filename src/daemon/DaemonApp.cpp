@@ -87,6 +87,17 @@ namespace SDDM {
         return QHostInfo::localHostName();
     }
 
+    bool DaemonApp::isFirstSeatRun(QString &seatName) {
+        if ( m_alreadyLaunchedSeat.contains(seatName) ) {
+            return false;
+        }
+        else {
+            m_alreadyLaunchedSeat.append(seatName);
+            return true;
+        }
+
+    }
+    
     DisplayManager *DaemonApp::displayManager() const {
         return m_displayManager;
     }

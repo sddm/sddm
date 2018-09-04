@@ -60,7 +60,7 @@ namespace SDDM {
         void login(QLocalSocket *socket,
                    const QString &user, const QString &password,
                    const Session &session);
-        bool attemptAutologin();
+        bool attemptAutologin(QString &autologinSession, QString &autologinUserSession);
         void displayServerStarted();
 
     signals:

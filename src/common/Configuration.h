@@ -94,9 +94,10 @@ namespace SDDM {
         );
 
         Section(Autologin,
-            Entry(User,                QString,     QString(),                                  _S("Username for autologin session"));
-            Entry(Session,             QString,     QString(),                                  _S("Name of session file for autologin session (if empty try last logged in)"));
-            Entry(Relogin,             bool,        false,                                      _S("Whether sddm should automatically log back into sessions when they exit"));
+            Entry(SeatName,            QStringList,     QStringList(),                          _S("Comma-separated list of seat name, same order for User,Session,Relogin"));
+            Entry(User,                QStringList,     QStringList(),                          _S("Comma-separated list of Username for autologin session"));
+            Entry(Session,             QStringList,     QStringList(),                          _S("Comma-separated list of Name of session file for autologin session (if empty try last logged in)"));
+            Entry(Relogin,             QStringList,     QStringList( ),                         _S("Comma-separated list of Whether sddm should automatically log back into sessions when they exit"));
         );
     );
 
