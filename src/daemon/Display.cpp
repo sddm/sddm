@@ -189,7 +189,7 @@ namespace SDDM {
             // set flags
             m_started = true;
 
-            bool success = attemptAutologin(session,user);
+            bool success = attemptAutologin(session, user);
             if (success) {
                 return;
             }
