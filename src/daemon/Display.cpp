@@ -149,16 +149,28 @@ namespace SDDM {
         // log message
         qDebug() << "Display server started.";
 
-        bool relogin=false;
-        QString seatName=seat()->name();
+        bool relogin = false;
+        QString seatName = seat()->name();
         QString user;
-        QString session;        
+        QString session;
         int seatListIndex = mainConfig.Autologin.SeatName.get().indexOf(seatName);
         if ( seatListIndex < 0 ) {
-            qDebug() << "Seat not configured for autologin : "<<seatName;
-        }
-        else
-        {
+            if ((seatName == QLatin1String("seat0")) &&
+                (mainConfig.Autologin.SeatName.get().isEmpty()) ) {
+                // sddm configuration without autologin ??
+                if (!mainConfig.Autologin.Relogin.get().isEmpty()) {
+                    relogin = mainConfig.Autologin.Relogin.get().at(0) == QLatin1String("true");
+                }
+                if (!mainConfig.Autologin.User.get().isEmpty()) {
+                    user = mainConfig.Autologin.User.get().at(0);
+                }
+                if (!mainConfig.Autologin.Session.get().isEmpty()) {
+                    session = mainConfig.Autologin.Session.get().at(0);
+                }
+            } else {
+                qDebug() << "Seat not configured for autologin : "<<seatName;
+            }
+        } else {
             int listSize = mainConfig.Autologin.SeatName.get().size();
             if ( (listSize !=  mainConfig.Autologin.Session.get().size()) ||
                  (listSize !=  mainConfig.Autologin.Relogin.get().size()) ||
@@ -168,7 +180,7 @@ namespace SDDM {
             relogin = mainConfig.Autologin.Relogin.get().at(seatListIndex) == QLatin1String("true");
             user = mainConfig.Autologin.User.get().at(seatListIndex);
             session = mainConfig.Autologin.Session.get().at(seatListIndex);
-            qDebug() << "Autologin for "<<user<<" ,session : "<<session<<" ,relogin :"<<relogin;
+            qDebug() << "Autologin for " << user << " ,session : " << session << " ,relogin :" << relogin;
         }
 
         if ((daemonApp->isFirstSeatRun(seatName) || relogin ) &&

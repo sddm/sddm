@@ -90,12 +90,10 @@ namespace SDDM {
     bool DaemonApp::isFirstSeatRun(QString &seatName) {
         if ( m_alreadyLaunchedSeat.contains(seatName) ) {
             return false;
-        }
-        else {
+        } else {
             m_alreadyLaunchedSeat.append(seatName);
             return true;
         }
-
     }
     
     DisplayManager *DaemonApp::displayManager() const {
