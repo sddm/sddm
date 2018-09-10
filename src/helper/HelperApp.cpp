@@ -35,7 +35,9 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 
+#if defined(Q_OS_LINUX)
 #include <utmp.h>
+#endif
 #include <utmpx.h>
 #include <QByteArray>
 
@@ -302,12 +304,16 @@ namespace SDDM {
 
         // append to failed login database btmp
         if (!authSuccessful) {
+#if defined(Q_OS_LINUX)
             updwtmpx("/var/log/btmp", &entry);
+#endif
         }
 
         // append to wtmp
         else {
+#if defined(Q_OS_LINUX)
             updwtmpx("/var/log/wtmp", &entry);
+#endif
         }
     }
 
@@ -343,8 +349,10 @@ namespace SDDM {
             qWarning() << "Failed to write utmpx: " << strerror(errno);
         endutxent();
 
+#if defined(Q_OS_LINUX)
         // append to wtmp
         updwtmpx("/var/log/wtmp", &entry);
+#endif
     }
 }
 
