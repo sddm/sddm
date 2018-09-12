@@ -143,8 +143,9 @@ namespace SDDM {
         // need to be careful here since Qt will move the view to
         // another screen before this signal is emitted so we
         // pass a pointer to the view to our slot
-        connect(qGuiApp, &QGuiApplication::screenRemoved, this, [view, this](QScreen *) {
-            removeViewForScreen(view);
+        connect(qGuiApp, &QGuiApplication::screenRemoved, view, [view, this, screen](QScreen *s) {
+            if (s == screen)
+                removeViewForScreen(view);
         });
 
         // always resize when the screen geometry changes
@@ -232,6 +233,7 @@ namespace SDDM {
         if (!m_testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
             QCoreApplication::exit(EXIT_FAILURE);
+            return;
         }
 
         // Set numlock upon start

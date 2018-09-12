@@ -122,7 +122,7 @@ namespace SDDM {
         process = new QProcess(this);
 
         // delete process on finish
-        connect(process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
+        connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &XorgDisplayServer::finished);
 
         // log message
         qDebug() << "Display server starting...";
@@ -194,14 +194,21 @@ namespace SDDM {
             QFile readPipe;
 
             if (!readPipe.open(pipeFds[0], QIODevice::ReadOnly)) {
-                qCritical("Failed to open pipe to start X Server ");
+                qCritical("Failed to open pipe to start X Server");
 
                 close(pipeFds[0]);
                 return false;
             }
             QByteArray displayNumber = readPipe.readLine();
+            if (displayNumber.size() < 2) {
+                // X server gave nothing (or a whitespace).
+                qCritical("Failed to read display number from pipe");
+
+                close(pipeFds[0]);
+                return false;
+            }
             displayNumber.prepend(QByteArray(":"));
-            displayNumber.remove(displayNumber.size() -1, 1); //trim trailing whitespace
+            displayNumber.remove(displayNumber.size() -1, 1); // trim trailing whitespace
             m_display = QString::fromLocal8Bit(displayNumber);
 
             // close our pipe
@@ -307,7 +314,7 @@ namespace SDDM {
         setCursor->start(QStringLiteral("xsetroot -cursor_name left_ptr"));
 
         // delete setCursor on finish
-        connect(setCursor, SIGNAL(finished(int,QProcess::ExitStatus)), setCursor, SLOT(deleteLater()));
+        connect(setCursor, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), setCursor, &QProcess::deleteLater);
 
         // wait for finished
         if (!setCursor->waitForFinished(1000)) {
@@ -320,7 +327,7 @@ namespace SDDM {
         displayScript->start(displayCommand);
 
         // delete displayScript on finish
-        connect(displayScript, SIGNAL(finished(int,QProcess::ExitStatus)), displayScript, SLOT(deleteLater()));
+        connect(displayScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayScript, &QProcess::deleteLater);
 
         // wait for finished
         if (!displayScript->waitForFinished(30000))

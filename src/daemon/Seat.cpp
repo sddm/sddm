@@ -73,7 +73,7 @@ namespace SDDM {
         Display *display = new Display(terminalId, this);
 
         // restart display on stop
-        connect(display, SIGNAL(stopped()), this, SLOT(displayStopped()));
+        connect(display, &Display::stopped, this, &Seat::displayStopped);
 
         // add display to the list
         m_displays << display;

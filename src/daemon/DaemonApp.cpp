@@ -59,8 +59,8 @@ namespace SDDM {
         m_seatManager = new SeatManager(this);
 
         // connect with display manager
-        connect(m_seatManager, SIGNAL(seatCreated(QString)), m_displayManager, SLOT(AddSeat(QString)));
-        connect(m_seatManager, SIGNAL(seatRemoved(QString)), m_displayManager, SLOT(RemoveSeat(QString)));
+        connect(m_seatManager, &SeatManager::seatCreated, m_displayManager, &DisplayManager::AddSeat);
+        connect(m_seatManager, &SeatManager::seatRemoved, m_displayManager, &DisplayManager::RemoveSeat);
 
         // create signal handler
         m_signalHandler = new SignalHandler(this);
@@ -69,11 +69,13 @@ namespace SDDM {
         SignalHandler::initialize();
 
         // quit when SIGINT, SIGTERM received
-        connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(quit()));
-        connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
-
+        connect(m_signalHandler, &SignalHandler::sigintReceived, this, &DaemonApp::quit);
+        connect(m_signalHandler, &SignalHandler::sigtermReceived, this, &DaemonApp::quit);
         // log message
         qDebug() << "Starting...";
+
+        // initialize seats only after signals are connected
+        m_seatManager->initialize();
     }
 
     bool DaemonApp::testing() const {

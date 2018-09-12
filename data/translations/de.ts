@@ -54,6 +54,14 @@
         <translation>Neustarten</translation>
     </message>
     <message>
+        <source>Suspend</source>
+        <translation>Ruhezustand</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>Tiefschlaf</translation>
+    </message>
+    <message>
         <source>Session</source>
         <translation>Sitzung</translation>
     </message>
@@ -64,6 +72,14 @@
     <message>
         <source>User name</source>
         <translation>Benutzername</translation>
+    </message>
+    <message>
+        <source>Enter your username</source>
+        <translation>Bitte Benutzername eingeben</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>Bitte Passwort eingeben</translation>
     </message>
     <message>
         <source>Select your user and enter password</source>
