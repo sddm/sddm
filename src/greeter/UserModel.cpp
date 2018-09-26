@@ -242,6 +242,13 @@ namespace SDDM {
         else
         {
             QStringList result = output.split(QLatin1Char(':'));
+            QString userShell = QString(result.at(6)).remove(QLatin1Char('\n'));
+
+            // skip entries with shells in the hide shells list
+            if (mainConfig.Users.HideShells.get().contains(userShell)) {
+                qDebug("Login list: Ignore saved user %s because shell in HideShells list", qPrintable(username));
+                return;
+            }
 
             UserPtr user { new User() };
             user->name = username;
