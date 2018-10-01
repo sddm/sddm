@@ -187,6 +187,8 @@ out:
                 qWarning("Couldn't finalize jump to VT %d: %s", vt, strerror(errno));
 
             close(activeVtFd);
+            if (fd != activeVtFd)
+                close(fd);
         }
     }
 }
