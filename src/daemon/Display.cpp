@@ -58,16 +58,16 @@ namespace SDDM {
 
         // respond to authentication requests
         m_auth->setVerbose(true);
-        connect(m_auth, SIGNAL(requestChanged()), this, SLOT(slotRequestChanged()));
-        connect(m_auth, SIGNAL(authentication(QString,bool)), this, SLOT(slotAuthenticationFinished(QString,bool)));
-        connect(m_auth, SIGNAL(session(bool)), this, SLOT(slotSessionStarted(bool)));
-        connect(m_auth, SIGNAL(finished(Auth::HelperExitStatus)), this, SLOT(slotHelperFinished(Auth::HelperExitStatus)));
-        connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(slotAuthInfo(QString,Auth::Info)));
-        connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(slotAuthError(QString,Auth::Error)));
+        connect(m_auth, &Auth::requestChanged, this, &Display::slotRequestChanged);
+        connect(m_auth, &Auth::authentication, this, &Display::slotAuthenticationFinished);
+        connect(m_auth, &Auth::sessionStarted, this, &Display::slotSessionStarted);
+        connect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
+        connect(m_auth, &Auth::info, this, &Display::slotAuthInfo);
+        connect(m_auth, &Auth::error, this, &Display::slotAuthError);
 
         // restart display after display server ended
-        connect(m_displayServer, SIGNAL(started()), this, SLOT(displayServerStarted()));
-        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+        connect(m_displayServer, &DisplayServer::started, this, &Display::displayServerStarted);
+        connect(m_displayServer, &DisplayServer::stopped, this, &Display::stop);
 
         // connect login signal
         connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,Session)),
@@ -290,8 +290,8 @@ namespace SDDM {
             foreach(const SessionInfo &s, reply.value()) {
                 if (s.userName == user) {
                     OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
-                    if (session.service() == QLatin1String("sddm")) {
-                        m_reuseSessionId =  s.sessionId;
+                    if (session.service() == QLatin1String("sddm") && session.state() == QLatin1String("online")) {
+                        m_reuseSessionId = s.sessionId;
                         break;
                     }
                 }

@@ -5,6 +5,9 @@ SDDM is made possible thanks to the collaborative work of the [Liri](https://lir
 [KDE](https://www.kde.org) and [LXQt](http://lxqt.org) projects, as well as the help and contributions from dozens
 of other developers.
 
+SDDM is developed by volunteers, please consider [donating](https://www.bountysource.com/teams/sddm)
+money that can be used to support the features that you most desire.
+
 [INSERT HIGHLIGHTS HERE]
 
 Release notes:
