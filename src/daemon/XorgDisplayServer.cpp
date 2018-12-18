@@ -28,6 +28,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QDir>
 #include <QProcess>
 #include <QUuid>
 
@@ -128,6 +129,12 @@ namespace SDDM {
 
         if (daemonApp->testing()) {
             QStringList args;
+            QDir x11socketDir(QStringLiteral("/tmp/.X11-unix"));
+            int display = 100;
+            while (x11socketDir.exists(QStringLiteral("X%1").arg(display))) {
+                ++display;
+            }
+            m_display = QStringLiteral(":%1").arg(display);
             args << m_display << QStringLiteral("-ac") << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
             process->start(mainConfig.X11.XephyrPath.get(), args);
 
