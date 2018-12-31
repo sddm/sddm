@@ -35,6 +35,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QTimer>
+#include <QLocalSocket>
 
 #include <pwd.h>
 #include <unistd.h>
@@ -70,8 +71,7 @@ namespace SDDM {
         connect(m_displayServer, &DisplayServer::stopped, this, &Display::stop);
 
         // connect login signal
-        connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,Session)),
-                this, SLOT(login(QLocalSocket*,QString,QString,Session)));
+        connect(m_socketServer, &SocketServer::login, this, &Display::login);
 
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));

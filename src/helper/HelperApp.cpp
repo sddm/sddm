@@ -105,8 +105,8 @@ namespace SDDM {
             return;
         }
 
-        connect(m_socket, SIGNAL(connected()), this, SLOT(doAuth()));
-        connect(m_session, SIGNAL(finished(int)), this, SLOT(sessionFinished(int)));
+        connect(m_socket, &QLocalSocket::connected, this, &HelperApp::doAuth);
+        connect(m_session, QOverload<int>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
         m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
     }
 
