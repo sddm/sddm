@@ -190,6 +190,9 @@ set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.lo
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
 
+# Default settings
+set(CURRENT_THEME               ""                                                  CACHE STRING    "Default theme")
+set(INPUT_METHOD                "qtvirtualkeyboard"                                 CACHE STRING    "Default input method")
 
 # Autodetect UID_MIN and UID_MAX from /etc/login.defs
 if(NOT DEFINED LOGIN_DEFS_PATH)
