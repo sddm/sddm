@@ -178,6 +178,7 @@ set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"            
 set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")
 set(RUNTIME_DIR                 "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run/sddm"      CACHE PATH      "Runtime data storage directory")
+set(QML_INSTALL_DIR             "${QT_IMPORTS_DIR}"                                 CACHE PATH      "QML component installation directory")
 
 set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"              CACHE PATH      "Script to execute when starting the X11 desktop session")
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
