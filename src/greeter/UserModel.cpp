@@ -60,6 +60,7 @@ namespace SDDM {
                 QFile::exists(themeDefaultFace) ? themeDefaultFace : defaultFace);
 
         struct passwd *current_pw;
+        setpwent();
         while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid
