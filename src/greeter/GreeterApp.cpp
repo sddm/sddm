@@ -156,7 +156,7 @@ namespace SDDM {
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
-        connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
+        connect(m_proxy, &GreeterProxy::loginSucceeded, view, &QQuickView::close);
 
         // we used to have only one window as big as the virtual desktop,
         // QML took care of creating an item for each screen by iterating on
