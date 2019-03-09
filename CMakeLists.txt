@@ -170,7 +170,7 @@ if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
     # Set the VT on which sddm will normally appear, and the
     # commands for shutdown and reboot. On FreeBSD, there are
     # normally more getty's running than on Linux.
-    if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
         set(MINIMUM_VT 9)
         set(HALT_COMMAND "/sbin/shutdown -p now")
     else()
