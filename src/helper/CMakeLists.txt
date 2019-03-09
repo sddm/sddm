@@ -34,7 +34,7 @@ endif()
 
 add_executable(sddm-helper ${HELPER_SOURCES})
 target_link_libraries(sddm-helper Qt5::Network Qt5::DBus Qt5::Qml)
-if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
     # On FreeBSD (possibly other BSDs as well), we want to use
     # setusercontext() to set up the login configuration from login.conf
     find_library(_have_libutil util)
