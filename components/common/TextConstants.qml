@@ -40,7 +40,7 @@ QtObject {
     readonly property string shutdown:          qsTr("Shutdown")
     readonly property string suspend:           qsTr("Suspend")
     readonly property string hibernate:         qsTr("Hibernate")
-    readonly property string userName:          qsTr("User name")
+    readonly property string userName:          qsTr("Username")
     readonly property string welcomeText:       qsTr("Welcome to %1")
 }
 
