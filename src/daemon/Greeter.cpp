@@ -89,6 +89,9 @@ namespace SDDM {
 
         // greeter command
         QStringList args;
+#ifdef EMBEDDED
+        args << QLatin1String("-platform")<<mainConfig.Embedded.Platform.get();
+#endif
         args << QLatin1String("--socket") << m_socket;
 
         if (!m_themePath.isEmpty())
@@ -113,15 +116,19 @@ namespace SDDM {
 
             // set process environment
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+#ifndef EMBEDDED
             env.insert(QStringLiteral("DISPLAY"), m_display->name());
             env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
             env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
+#endif
             env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());
+
             m_process->setProcessEnvironment(env);
 
             // start greeter
             if (daemonApp->testing())
                 args << QStringLiteral("--test-mode");
+
             m_process->start(QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR)), args);
 
             //if we fail to start bail immediately, and don't block in waitForStarted
@@ -173,20 +180,25 @@ namespace SDDM {
             }, sysenv, env);
 
             env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
+#ifndef EMBEDDED
             env.insert(QStringLiteral("DISPLAY"), m_display->name());
+
             env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
             env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
+#endif
             env.insert(QStringLiteral("XDG_SEAT"), m_display->seat()->name());
             env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
             env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
+
             env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("greeter"));
             env.insert(QStringLiteral("XDG_SESSION_TYPE"), m_display->sessionType());
             env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());
-
+#ifndef EMBEDDED
             //some themes may use KDE components and that will automatically load KDE's crash handler which we don't want
             //counterintuitively setting this env disables that handler
             env.insert(QStringLiteral("KDE_DEBUG"), QStringLiteral("1"));
+#endif
             m_auth->insertEnvironment(env);
 
             // log message
@@ -268,6 +280,10 @@ namespace SDDM {
         // clean up
         m_auth->deleteLater();
         m_auth = nullptr;
+
+#ifdef EMBEDDED
+        emit stopped();
+#endif
     }
 
     void Greeter::onReadyReadStandardError()

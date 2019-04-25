@@ -33,6 +33,7 @@ option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PAM "Enable PAM support" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
+option(BUILD_EMBEDDED "build sddm for embedded system" OFF)
 
 # ECM
 find_package(ECM 1.4.0 REQUIRED NO_MODULE)
@@ -88,14 +89,19 @@ add_feature_info("PAM" PAM_FOUND "PAM support")
 include(CheckFunctionExists)
 check_function_exists(getspnam HAVE_GETSPNAM)
 
+if(BUILD_EMBEDDED)
+    add_definitions(-DEMBEDDED)
+else()
 # XCB
 find_package(XCB REQUIRED)
 
 # XKB
 find_package(XKB REQUIRED)
+endif()
+add_feature_info("Embedded" BUILD_EMBEDDED "sddm for embedded system")
 
 # Qt 5
-find_package(Qt5 5.8.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test)
+find_package(Qt5 5.11.3 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test)
 
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
@@ -190,6 +196,7 @@ set(QML_INSTALL_DIR             "${QT_IMPORTS_DIR}"                             
 
 set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"              CACHE PATH      "Script to execute when starting the X11 desktop session")
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
+set(EMBEDDED_SESSION_COMMAND    "${DATA_INSTALL_DIR}/scripts/embedded-session"      CACHE PATH      "Script to execute when starting the Embedded desktop session")
 
 set(CONFIG_FILE                 "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf"        CACHE PATH      "Path of the sddm config file")
 set(CONFIG_DIR                  "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf.d"      CACHE PATH      "Path of the sddm config directory")

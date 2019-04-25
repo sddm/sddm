@@ -59,6 +59,9 @@ namespace SDDM {
         void childExited(int exitCode, QProcess::ExitStatus exitStatus);
         void childError(QProcess::ProcessError error);
         void requestFinished();
+#ifdef EMBEDDED
+        void startSession();
+#endif
     public:
         AuthRequest *request { nullptr };
         QProcess *child { nullptr };
@@ -181,9 +184,15 @@ namespace SDDM {
                 if (!user.isEmpty()) {
                     auth->setUser(user);
                     Q_EMIT auth->authentication(user, true);
-                    str.reset();
-                    str << AUTHENTICATED << environment << cookie;
-                    str.send();
+#ifdef EMBEDDED
+                    if (greeter) {
+#endif
+                        str.reset();
+                        str << AUTHENTICATED << environment << cookie;
+                        str.send();
+#ifdef EMBEDDED
+                    }
+#endif
                 }
                 else {
                     Q_EMIT auth->authentication(user, false);
@@ -232,6 +241,13 @@ namespace SDDM {
         request->setRequest();
     }
 
+#ifdef EMBEDDED
+    void Auth::Private::startSession() {
+        SafeDataStream str(socket);
+        str << AUTHENTICATED << environment << cookie;
+        str.send();
+    }
+#endif
 
     Auth::Auth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
             : QObject(parent)
@@ -354,6 +370,14 @@ namespace SDDM {
             args << QStringLiteral("--greeter");
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);
     }
+#ifdef EMBEDDED
+    void Auth::startSession()
+    {
+        if(d->child->state()==QProcess::Running && !d->greeter) {
+            d->startSession();
+        }
+    }
+#endif
 }
 
 #include "Auth.moc"

@@ -1,4 +1,10 @@
 set(THEMES elarun maldives maya)
+if(BUILD_EMBEDDED)
+    set(THEMES
+        ${THEMES}
+        maui-embedded
+       )
+endif()
 
 foreach(THEME ${THEMES})
     # We assume that theme-specific translations are stored

@@ -1,0 +1,16 @@
+[SddmGreeterTheme]
+Name=Maui
+Description=Maui Theme
+Author=Abdurrahman AVCI
+Copyright=(c) 2013, Abdurrahman AVCI
+License=CC-BY-SA
+Type=sddm-theme
+Version=0.1
+Website=https://github.com/sddm/sddm
+Screenshot=maui.jpg
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Email=abdurrahmanavci@gmail.com
+Theme-Id=maui
+Theme-API=2.0

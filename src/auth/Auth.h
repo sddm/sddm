@@ -153,6 +153,13 @@ namespace SDDM {
         */
         void start();
 
+#ifdef EMBEDDED
+        /**
+        * Starts session
+        */
+        void startSession();
+#endif
+
     Q_SIGNALS:
         void autologinChanged();
         void greeterChanged();

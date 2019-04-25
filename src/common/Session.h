@@ -33,6 +33,9 @@ namespace SDDM {
             UnknownSession = 0,
             X11Session,
             WaylandSession
+#ifdef EMBEDDED
+            , EmbeddedSession
+#endif
         };
 
         explicit Session();

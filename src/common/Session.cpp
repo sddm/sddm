@@ -138,6 +138,12 @@ namespace SDDM {
             m_dir = QDir(mainConfig.Wayland.SessionDir.get());
             m_xdgSessionType = QStringLiteral("wayland");
             break;
+#ifdef EMBEDDED
+        case EmbeddedSession:
+            m_dir = QDir(mainConfig.Embedded.SessionDir.get());
+            m_xdgSessionType = QStringLiteral("embedded");
+            break;
+#endif
         default:
             m_xdgSessionType.clear();
             break;

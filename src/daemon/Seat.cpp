@@ -23,7 +23,9 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
+#ifndef EMBEDDED
 #include "XorgDisplayServer.h"
+#endif
 #include "VirtualTerminal.h"
 
 #include <QDebug>

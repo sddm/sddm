@@ -24,7 +24,9 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
+#ifndef EMBEDDED
 #include "XorgDisplayServer.h"
+#endif
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -52,7 +54,11 @@ namespace SDDM {
     Display::Display(const int terminalId, Seat *parent) : QObject(parent),
         m_terminalId(terminalId),
         m_auth(new Auth(this)),
+#ifndef EMBEDDED
         m_displayServer(new XorgDisplayServer(this)),
+#else
+        m_displayName(QStringLiteral(":%1").arg(m_terminalId)),
+#endif
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
@@ -66,9 +72,14 @@ namespace SDDM {
         connect(m_auth, &Auth::info, this, &Display::slotAuthInfo);
         connect(m_auth, &Auth::error, this, &Display::slotAuthError);
 
+#ifndef EMBEDDED
         // restart display after display server ended
         connect(m_displayServer, &DisplayServer::started, this, &Display::displayServerStarted);
         connect(m_displayServer, &DisplayServer::stopped, this, &Display::stop);
+#else
+        // start session after greeter is stopped (actually for embedded)
+        connect(m_greeter, &Greeter::stopped, m_auth, &Auth::startSession);
+#endif
 
         // connect login signal
         connect(m_socketServer, &SocketServer::login, this, &Display::login);
@@ -83,7 +94,11 @@ namespace SDDM {
     }
 
     QString Display::displayId() const {
+#ifndef EMBEDDED
         return m_displayServer->display();
+#else
+        return m_displayName;
+#endif
     }
 
     const int Display::terminalId() const {
@@ -91,11 +106,19 @@ namespace SDDM {
     }
 
     const QString &Display::name() const {
+#ifndef EMBEDDED
         return m_displayServer->display();
+#else
+        return m_displayName;
+#endif
     }
 
     QString Display::sessionType() const {
+#ifndef EMBEDDED
         return m_displayServer->sessionType();
+#else
+        return QString::fromLatin1("embedded");
+#endif
     }
 
     Seat *Display::seat() const {
@@ -107,14 +130,22 @@ namespace SDDM {
         if (m_started)
             return;
 
+#ifndef EMBEDDED
         // start display server
         if (!m_displayServer->start()) {
             qFatal("Display server failed to start. Exiting");
         }
+#else
+        displayServerStarted();
+#endif
     }
 
     bool Display::attemptAutologin() {
+#ifndef EMBEDDED
         Session::Type sessionType = Session::X11Session;
+#else
+        Session::Type sessionType = Session::EmbeddedSession;
+#endif
 
         // determine session type
         QString autologinSession = mainConfig.Autologin.Session.get();
@@ -126,6 +157,8 @@ namespace SDDM {
             sessionType = Session::X11Session;
         } else if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
             sessionType = Session::WaylandSession;
+        } else if (findSessionEntry(mainConfig.Embedded.SessionDir.get(), autologinSession)) {
+            sessionType = Session::EmbeddedSession;
         } else {
             qCritical() << "Unable to find autologin session entry" << autologinSession;
             return false;
@@ -142,11 +175,14 @@ namespace SDDM {
 
     void Display::displayServerStarted() {
         // check flag
+
         if (m_started)
             return;
 
+#ifndef EMBEDDED
         // setup display
         m_displayServer->setupDisplay();
+#endif
 
         // log message
         qDebug() << "Display server started.";
@@ -166,7 +202,7 @@ namespace SDDM {
         }
 
         // start socket server
-        m_socketServer->start(m_displayServer->display());
+        m_socketServer->start(name());
 
         if (!daemonApp->testing()) {
             // change the owner and group of the socket to avoid permission denied errors
@@ -181,7 +217,9 @@ namespace SDDM {
 
         // set greeter params
         m_greeter->setDisplay(this);
+#ifndef EMBEDDED
         m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
+#endif
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(findGreeterTheme());
 
@@ -206,10 +244,12 @@ namespace SDDM {
         // stop socket server
         m_socketServer->stop();
 
+#ifndef EMBEDDED
         // stop display server
         m_displayServer->blockSignals(true);
         m_displayServer->stop();
         m_displayServer->blockSignals(false);
+#endif
 
         // reset flag
         m_started = false;
@@ -316,6 +356,7 @@ namespace SDDM {
 
         QProcessEnvironment env;
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
+
         if (session.xdgSessionType() == QLatin1String("x11"))
             env.insert(QStringLiteral("DISPLAY"), name());
         env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(seat()->name()));
@@ -337,6 +378,7 @@ namespace SDDM {
         if (m_reuseSessionId.isNull()) {
             m_auth->setSession(session.exec());
         }
+
         m_auth->start();
     }
 
@@ -349,7 +391,9 @@ namespace SDDM {
                 manager.UnlockSession(m_reuseSessionId);
                 manager.ActivateSession(m_reuseSessionId);
             } else {
+#ifndef EMBEDDED
                 m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+#endif
             }
 
             // save last user and last session

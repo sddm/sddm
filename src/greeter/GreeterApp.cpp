@@ -96,7 +96,11 @@ namespace SDDM {
     {
         m_themePath = path;
         if (m_themePath.isEmpty())
+#ifdef EMBEDDED
+            m_themePath = QLatin1String("qrc:/theme-embedded");
+#else
             m_themePath = QLatin1String("qrc:/theme");
+#endif
 
         // Read theme metadata
         const QString metadataPath = QStringLiteral("%1/metadata.desktop").arg(m_themePath);
@@ -203,7 +207,11 @@ namespace SDDM {
 
             qWarning() << "Fallback to embedded theme";
             view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), errors);
+#ifdef EMBEDDED
+            view->setSource(QUrl(QStringLiteral("qrc:/theme-embedded/Main.qml")));
+#else
             view->setSource(QUrl(QStringLiteral("qrc:/theme/Main.qml")));
+#endif
         });
 
         // set main script as source
@@ -239,6 +247,7 @@ namespace SDDM {
             return;
         }
 
+#ifndef EMBEDDED
         // Set numlock upon start
         if (m_keyboard->enabled()) {
             if (mainConfig.Numlock.get() == MainConfig::NUM_SET_ON)
@@ -246,6 +255,7 @@ namespace SDDM {
             else if (mainConfig.Numlock.get() == MainConfig::NUM_SET_OFF)
                 m_keyboard->setNumLockState(false);
         }
+#endif
 
         // Set session model on proxy
         m_proxy->setSessionModel(m_sessionModel);
@@ -283,6 +293,13 @@ int main(int argc, char **argv)
     // Install message handler
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
 
+#ifdef EMBEDDED
+    if(SDDM::mainConfig.Embedded.Platform.get()==QLatin1String("linuxfb"))
+        qputenv("QT_QPA_FB_NO_LIBINPUT", "1");
+    else if(SDDM::mainConfig.Embedded.Platform.get()==QLatin1String("eglfs"))
+        qputenv("QT_QPA_EGLFS_NO_LIBINPUT", "1");
+#endif
+
     // We set an attribute based on the platform we run on.
     // We only know the platform after we constructed QGuiApplication
     // though, so we need to find it out ourselves.
@@ -305,6 +322,10 @@ int main(int argc, char **argv)
         hiDpiEnabled = SDDM::mainConfig.X11.EnableHiDPI.get();
     else if (platform.startsWith(QStringLiteral("wayland")))
         hiDpiEnabled = SDDM::mainConfig.Wayland.EnableHiDPI.get();
+#ifdef EMBEDDED
+    else if (platform == QStringLiteral("linuxfb") || platform == QStringLiteral("eglfs"))
+        hiDpiEnabled = SDDM::mainConfig.Embedded.EnableHiDPI.get();
+#endif
     if (hiDpiEnabled) {
         qDebug() << "High-DPI autoscaling Enabled";
         QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

@@ -32,7 +32,9 @@ class QLocalSocket;
 
 namespace SDDM {
     class Authenticator;
+#ifndef EMBEDDED
     class DisplayServer;
+#endif
     class Seat;
     class SocketServer;
     class Greeter;
@@ -88,7 +90,11 @@ namespace SDDM {
         QString m_reuseSessionId;
 
         Auth *m_auth { nullptr };
+#ifndef EMBEDDED
         DisplayServer *m_displayServer { nullptr };
+#else
+        QString m_displayName;
+#endif
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };
         QLocalSocket *m_socket { nullptr };

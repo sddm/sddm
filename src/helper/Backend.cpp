@@ -63,6 +63,7 @@ namespace SDDM {
             env.insert(QStringLiteral("SHELL"), QString::fromLocal8Bit(pw->pw_shell));
             env.insert(QStringLiteral("USER"), QString::fromLocal8Bit(pw->pw_name));
             env.insert(QStringLiteral("LOGNAME"), QString::fromLocal8Bit(pw->pw_name));
+#ifndef EMBEDDED
             if (env.contains(QStringLiteral("DISPLAY")) && !env.contains(QStringLiteral("XAUTHORITY"))) {
                 // determine Xauthority path
                 QString value = QStringLiteral("%1/%2")
@@ -70,6 +71,7 @@ namespace SDDM {
                         .arg(mainConfig.X11.UserAuthFile.get());
                 env.insert(QStringLiteral("XAUTHORITY"), value);
             }
+#endif
             // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
             m_app->session()->setProcessEnvironment(env);
         }

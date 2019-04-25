@@ -80,6 +80,16 @@ namespace SDDM {
             Entry(EnableHiDPI,         bool,        false,                                      _S("Enable Qt's automatic high-DPI scaling"));
         );
 
+#ifdef EMBEDDED
+        Section(Embedded,
+            Entry(SessionDir,          QString,     _S("/usr/share/embedded-sessions"),          _S("Directory containing available embedded sessions"));
+            Entry(SessionLogFile,      QString,     _S(".local/share/sddm/embedded-session.log"),_S("Path to the user session log file"));
+            Entry(EnableHiDPI,         bool,        false,                                       _S("Enable Qt's automatic high-DPI scaling"));
+            Entry(Platform,            QString,     _S("linuxfb"),                               _S("Embedded platform linuxfb/eglfs"));
+            Entry(KeymapDir,           QString,     _S("/usr/share/sddm/keymaps"),               _S("Directory containing keymaps for hardware keyboard"));
+        );
+#endif
+
         Section(Users,
             Entry(DefaultPath,         QString,     _S("/usr/local/bin:/usr/bin:/bin"),         _S("Default $PATH for logged in users"));
             Entry(MinimumUid,          int,         UID_MIN,                                    _S("Minimum user id for displayed users"));

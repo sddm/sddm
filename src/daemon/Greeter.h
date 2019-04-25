@@ -48,6 +48,11 @@ namespace SDDM {
         void stop();
         void finished();
 
+#ifdef EMBEDDED
+    signals:
+        void stopped();
+#endif
+
     private slots:
         void onRequestChanged();
         void onSessionStarted(bool success);

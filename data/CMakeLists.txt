@@ -35,3 +35,7 @@ if(BUILD_MAN_PAGES)
 endif()
 add_subdirectory(themes)
 add_subdirectory(translations)
+
+if(BUILD_EMBEDDED)
+    add_subdirectory(keymaps)
+endif()

@@ -56,6 +56,11 @@ namespace SDDM {
             const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
             qInfo() << "Starting:" << cmd;
             QProcess::start(cmd);
+#ifdef EMBEDDED
+        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("embedded")) {
+            qInfo() << "Starting:" << m_path;
+            QProcess::start(m_path);
+#endif
         } else {
             qCritical() << "Unable to run user session: unknown session type";
         }
@@ -228,9 +233,13 @@ namespace SDDM {
         // determine stderr log file based on session type
         QString sessionLog = QStringLiteral("%1/%2")
                 .arg(homeDir)
+#ifndef EMBEDDED
                 .arg(sessionType == QLatin1String("x11")
                      ? mainConfig.X11.SessionLogFile.get()
                      : mainConfig.Wayland.SessionLogFile.get());
+#else
+                .arg(mainConfig.Embedded.SessionLogFile.get());
+#endif
 
         // create the path
         QFileInfo finfo(sessionLog);

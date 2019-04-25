@@ -41,8 +41,12 @@ namespace SDDM {
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
         // initial population
         beginResetModel();
+#ifndef EMBEDDED
         populate(Session::X11Session, mainConfig.X11.SessionDir.get());
         populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+#else
+        populate(Session::EmbeddedSession, mainConfig.Embedded.SessionDir.get());
+#endif
         endResetModel();
 
         // refresh everytime a file is changed, added or removed
@@ -52,10 +56,16 @@ namespace SDDM {
             d->sessions.clear();
             populate(Session::X11Session, mainConfig.X11.SessionDir.get());
             populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+#ifdef EMBEDDED
+            populate(Session::EmbeddedSession, mainConfig.Embedded.SessionDir.get());
+#endif
             endResetModel();
         });
         watcher->addPath(mainConfig.X11.SessionDir.get());
         watcher->addPath(mainConfig.Wayland.SessionDir.get());
+#ifdef EMBEDDED
+        watcher->addPath(mainConfig.Embedded.SessionDir.get());
+#endif
     }
 
     SessionModel::~SessionModel() {

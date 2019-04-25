@@ -2,8 +2,11 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_SOURCE_DIR}/src/auth"
     "${CMAKE_BINARY_DIR}/src/common"
-    "${LIBXCB_INCLUDE_DIR}"
 )
+
+if(NOT BUILD_EMBEDDED)
+    include_directories("${LIBXCB_INCLUDE_DIR}")
+endif()
 
 set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
@@ -22,7 +25,6 @@ set(DAEMON_SOURCES
     DisplayManager.cpp
     DisplayServer.cpp
     LogindDBusTypes.cpp
-    XorgDisplayServer.cpp
     Greeter.cpp
     PowerManager.cpp
     Seat.cpp
@@ -37,6 +39,13 @@ if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
     list(APPEND DAEMON_SOURCES VirtualTerminal_FreeBSD.cpp)
 else()
     list(APPEND DAEMON_SOURCES VirtualTerminal.cpp)
+endif()
+
+if(NOT BUILD_EMBEDDED)
+    set(DAEMON_SOURCES
+        ${DAEMON_SOURCES}
+        XorgDisplayServer.cpp
+    )
 endif()
 
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "DisplayManager.h" SDDM::DisplayManager)
@@ -63,8 +72,12 @@ add_executable(sddm ${DAEMON_SOURCES})
 target_link_libraries(sddm
                       Qt5::DBus
                       Qt5::Network
-                      Qt5::Qml
-                      ${LIBXCB_LIBRARIES})
+                      Qt5::Qml)
+
+if(NOT BUILD_EMBEDDED)
+    target_link_libraries(sddm ${LIBXCB_LIBRARIES})
+endif()
+
 if(PAM_FOUND)
     target_link_libraries(sddm ${PAM_LIBRARIES})
 else()

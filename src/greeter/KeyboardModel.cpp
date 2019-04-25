@@ -19,7 +19,12 @@
 
 #include "KeyboardModel.h"
 #include "KeyboardModel_p.h"
+#ifndef EMBEDDED
 #include "XcbKeyboardBackend.h"
+#else
+#include "EmbeddedKeyboardBackend.h"
+#endif
+#include "KeyboardLayout.h"
 
 namespace SDDM {
     /**********************************************/
@@ -27,13 +32,20 @@ namespace SDDM {
     /**********************************************/
 
     KeyboardModel::KeyboardModel() : d(new KeyboardModelPrivate) {
+#ifndef EMBEDDED
         m_backend = new XcbKeyboardBackend(d);
         m_backend->init();
         m_backend->connectEventsDispatcher(this);
+#else
+        m_backend = new EmbeddedKeyboardBackend(d);
+        m_backend->init();
+#endif
     }
 
     KeyboardModel::~KeyboardModel() {
+#ifndef EMBEDDED
         m_backend->disconnect();
+#endif
         delete m_backend;
 
         for (QObject *layout: d->layouts) {
@@ -49,7 +61,9 @@ namespace SDDM {
     void KeyboardModel::setNumLockState(bool state) {
         if (d->numlock.enabled != state) {
             d->numlock.enabled = state;
+#ifndef EMBEDDED
             m_backend->sendChanges();
+#endif
 
             emit numLockStateChanged();
         }
@@ -62,7 +76,9 @@ namespace SDDM {
     void KeyboardModel::setCapsLockState(bool state) {
         if (d->capslock.enabled != state) {
             d->capslock.enabled = state;
+#ifndef EMBEDDED
             m_backend->sendChanges();
+#endif
 
             emit capsLockStateChanged();
         }
@@ -88,6 +104,20 @@ namespace SDDM {
     bool KeyboardModel::enabled() const {
         return d->enabled;
     }
+
+#ifdef EMBEDDED
+    void KeyboardModel::setLayouts(const QStringList &layouts) {
+        if (layouts.isEmpty())
+            return;
+
+        d->layouts.clear();
+        for(int i = 0; i < layouts.size(); ++i) {
+            QString nshort = layouts[i].left(layouts[i].indexOf(QLatin1Char('_')));
+            d->layouts << new KeyboardLayout(nshort, layouts[i]);
+        }
+        emit layoutsChanged();
+    }
+#endif
 
     void KeyboardModel::dispatchEvents() {
         // Save old states

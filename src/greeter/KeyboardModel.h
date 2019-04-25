@@ -66,6 +66,10 @@ namespace SDDM {
 
         bool enabled() const;
 
+#ifdef EMBEDDED
+        void setLayouts(const QStringList &layouts);
+#endif
+
     private slots:
         void dispatchEvents();
 

@@ -1,8 +1,11 @@
 include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_BINARY_DIR}/src/common"
-    "${LIBXCB_INCLUDE_DIR}"
 )
+
+if(NOT BUILD_EMBEDDED)
+    include_directories("${LIBXCB_INCLUDE_DIR}")
+endif()
 
 set(GREETER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
@@ -18,18 +21,37 @@ set(GREETER_SOURCES
     ScreenModel.cpp
     SessionModel.cpp
     UserModel.cpp
-    XcbKeyboardBackend.cpp
 )
 
-configure_file("theme.qrc" "theme.qrc")
+if(NOT BUILD_EMBEDDED)
+    set(GREETER_SOURCES
+        ${GREETER_SOURCES}
+        XcbKeyboardBackend.cpp
+       )
+else()
+    set(GREETER_SOURCES
+        ${GREETER_SOURCES}
+        EmbeddedKeyboardBackend.cpp
+       )
+endif()
 
+if(NOT BUILD_EMBEDDED)
+configure_file("theme.qrc" "theme.qrc")
 qt5_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
+else()
+configure_file("theme-embedded.qrc" "theme-embedded.qrc")
+qt5_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme-embedded.qrc)
+endif()
 
 add_executable(sddm-greeter ${GREETER_SOURCES} ${RESOURCES})
 target_link_libraries(sddm-greeter
-                      Qt5::Quick
-                      ${LIBXCB_LIBRARIES}
-                      ${LIBXKB_LIBRARIES})
+                      Qt5::Quick)
+
+if(NOT BUILD_EMBEDDED)
+    target_link_libraries(sddm-greeter
+                          ${LIBXCB_LIBRARIES}
+                          ${LIBXKB_LIBRARIES})
+endif()
 
 if(JOURNALD_FOUND)
     target_link_libraries(sddm-greeter ${JOURNALD_LIBRARIES})

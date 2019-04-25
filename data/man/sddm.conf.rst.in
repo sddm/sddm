@@ -168,6 +168,29 @@ OPTIONS
 	Can be either "true" or "false".
 	Default value is "false".
 
+[Embedded] section:
+
+`SessionDir=`
+	Path of the directory containing session files.
+	Default value is "/usr/share/embedded-sessions".
+
+`SessionLogFile=`
+        Path to the user session log file, relative to the home directory.
+        Default value is ".local/share/sddm/embedded-session.log".
+
+`EnableHiDPI=`
+	Enables Qt's automatic HiDPI scaling.
+	Can be either "true" or "false".
+	Default value is "false".
+
+`Platform=`
+	Embedded platform (linuxfb, eglfs). This is value of Qt option "-platform".
+	Default value is linuxfb.
+
+`KeymapDir=`
+	Path of the directory containing keymap files for hardware keyboard.
+	Default value is "/usr/share/sddm/keymaps".
+
 [Users] section:
 
 `DefaultPath=`
