@@ -167,8 +167,16 @@ add_feature_info("elogind" ELOGIND_FOUND "elogind support")
 
 # Default behaviour if neither systemd nor elogind is used
 if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
-    set(MINIMUM_VT 7)
-    set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    # Set the VT on which sddm will normally appear, and the
+    # commands for shutdown and reboot. On FreeBSD, there are
+    # normally more getty's running than on Linux.
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+        set(MINIMUM_VT 9)
+        set(HALT_COMMAND "/sbin/shutdown -p now")
+    else()
+        set(MINIMUM_VT 7)
+        set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    endif()
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
 

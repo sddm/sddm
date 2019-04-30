@@ -40,6 +40,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QLibraryInfo>
+#include <QVersionNumber>
+#include <QSurfaceFormat>
 
 #include <iostream>
 
@@ -307,6 +310,12 @@ int main(int argc, char **argv)
         QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     } else {
         qDebug() << "High-DPI autoscaling not Enabled";
+    }
+
+    if (QLibraryInfo::version() >= QVersionNumber(5, 13, 0)) {
+        auto format(QSurfaceFormat::defaultFormat());
+        format.setOption(QSurfaceFormat::ResetNotification);
+        QSurfaceFormat::setDefaultFormat(format);
     }
 
     QGuiApplication app(argc, argv);
