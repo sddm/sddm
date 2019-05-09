@@ -39,6 +39,7 @@ namespace SDDM {
         virtual ~HelperApp();
 
         UserSession *session();
+        Backend *backend();
         const QString &user() const;
         const QString &cookie() const;
 

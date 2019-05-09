@@ -29,6 +29,7 @@
 #include <QtCore/QProcessEnvironment>
 
 #include <pwd.h>
+#include <grp.h>
 
 namespace SDDM {
     Backend::Backend(HelperApp* parent)
@@ -78,5 +79,9 @@ namespace SDDM {
 
     bool Backend::closeSession() {
         return true;
+    }
+
+    bool Backend::setupSupplementalGroups(struct passwd *pw) {
+        return !initgroups(pw->pw_name, pw->pw_gid);
     }
 }

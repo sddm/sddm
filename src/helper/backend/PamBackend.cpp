@@ -289,6 +289,24 @@ namespace SDDM {
         return QString::fromLocal8Bit((const char*) m_pam->getItem(PAM_USER));
     }
 
+    bool PamBackend::setupSupplementalGroups(struct passwd *pw) {
+        if (!Backend::setupSupplementalGroups(pw))
+            return false;
+
+        // pam_setcred(3) may inject additional groups into the user's
+        // list of supplemental groups, and assumes that the user's
+        // supplemental groups have already been initialized before
+        // its invocation. Since pam_setcred was already called at the
+        // start of openSession, we need to repeat this step here as
+        // the user's groups have only just now been initialized.
+
+        if (!m_pam->setCred(PAM_REINITIALIZE_CRED)) {
+            m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
+            return false;
+        }
+        return true;
+    }
+
     int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {
         qDebug() << "[PAM] Conversation with" << n << "messages";
 

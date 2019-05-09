@@ -19,6 +19,7 @@
  *
  */
 
+#include "Backend.h"
 #include "Configuration.h"
 #include "UserSession.h"
 #include "HelperApp.h"
@@ -129,7 +130,8 @@ namespace SDDM {
 #endif
 
         // switch user
-        const QByteArray username = qobject_cast<HelperApp*>(parent())->user().toLocal8Bit();
+        HelperApp* app = qobject_cast<HelperApp*>(parent());
+        const QByteArray username = app->user().toLocal8Bit();
         struct passwd pw;
         struct passwd *rpw;
         long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
@@ -146,12 +148,13 @@ namespace SDDM {
                 qCritical() << "getpwnam_r(" << username << ") failed with error: " << strerror(err);
             exit(Auth::HELPER_OTHER_ERROR);
         }
-        if (setgid(pw.pw_gid) != 0) {
-            qCritical() << "setgid(" << pw.pw_gid << ") failed for user: " << username;
+
+        if (!app->backend()->setupSupplementalGroups(&pw)) {
+            qCritical() << "failed to set up supplemental groups for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
-        if (initgroups(pw.pw_name, pw.pw_gid) != 0) {
-            qCritical() << "initgroups(" << pw.pw_name << ", " << pw.pw_gid << ") failed for user: " << username;
+        if (setgid(pw.pw_gid) != 0) {
+            qCritical() << "setgid(" << pw.pw_gid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
         if (setuid(pw.pw_uid) != 0) {

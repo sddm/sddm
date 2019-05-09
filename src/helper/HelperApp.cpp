@@ -253,6 +253,10 @@ namespace SDDM {
         return m_session;
     }
 
+    Backend *HelperApp::backend() {
+        return m_backend;
+    }
+
     const QString& HelperApp::user() const {
         return m_user;
     }
