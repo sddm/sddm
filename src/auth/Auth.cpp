@@ -131,10 +131,10 @@ namespace SDDM {
         if (langEmpty)
             env.insert(QStringLiteral("LANG"), QStringLiteral("C"));
         child->setProcessEnvironment(env);
-        connect(child, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(childExited(int,QProcess::ExitStatus)));
-        connect(child, SIGNAL(error(QProcess::ProcessError)), this, SLOT(childError(QProcess::ProcessError)));
-        connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
-        connect(request, SIGNAL(promptsChanged()), parent, SIGNAL(requestChanged()));
+        connect(child, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished), this, &Auth::Private::childExited);
+        connect(child, QOverload<QProcess::ProcessError>::of(&QProcess::error), this, &Auth::Private::childError);
+        connect(request, &AuthRequest::finished, this, &Auth::Private::requestFinished);
+        connect(request, &AuthRequest::promptsChanged, parent, &Auth::requestChanged);
     }
 
     Auth::Private::~Private()

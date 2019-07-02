@@ -167,8 +167,16 @@ add_feature_info("elogind" ELOGIND_FOUND "elogind support")
 
 # Default behaviour if neither systemd nor elogind is used
 if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
-    set(MINIMUM_VT 7)
-    set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    # Set the VT on which sddm will normally appear, and the
+    # commands for shutdown and reboot. On FreeBSD, there are
+    # normally more getty's running than on Linux.
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+        set(MINIMUM_VT 9)
+        set(HALT_COMMAND "/sbin/shutdown -p now")
+    else()
+        set(MINIMUM_VT 7)
+        set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    endif()
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
 
@@ -178,6 +186,7 @@ set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"            
 set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")
 set(RUNTIME_DIR                 "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run/sddm"      CACHE PATH      "Runtime data storage directory")
+set(QML_INSTALL_DIR             "${QT_IMPORTS_DIR}"                                 CACHE PATH      "QML component installation directory")
 
 set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"              CACHE PATH      "Script to execute when starting the X11 desktop session")
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
