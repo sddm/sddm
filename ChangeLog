@@ -4,6 +4,10 @@
     - Bug fixes
     * Others
 
+## 0.18.1 - 2019-03-11
+----------------------
+    - Fix crashes when creating a user session
+
 ## 0.18.0 - 2018-07-17
 ----------------------
     + Support theme supplied avatars
