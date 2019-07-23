@@ -5,14 +5,14 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation type="unfinished"></translation>
+        <translation>按下以登录</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Wayland 会话)</translation>
     </message>
 </context>
 <context>
@@ -31,15 +31,15 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>登陆</translation>
+        <translation>登录</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>登陆失败</translation>
+        <translation>登录失败</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>登陆成功</translation>
+        <translation>登录成功</translation>
     </message>
     <message>
         <source>Password</source>
@@ -61,6 +61,15 @@
         <source>Shutdown</source>
         <translation>关机</translation>
     </message>
+    <message>
+        <source>Suspend</source>
+        <translation>挂起</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>休眠</translation>
+    </message>
+
     <message>
         <source>User name</source>
         <translation>用户名</translation>
