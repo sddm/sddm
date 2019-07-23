@@ -308,13 +308,17 @@ namespace SDDM {
         // some information
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
-        // create new VT for Wayland sessions otherwise use greeter vt
-        int vt = terminalId();
-        if (session.xdgSessionType() == QLatin1String("wayland"))
-            vt = VirtualTerminal::setUpNewVt();
-        m_lastSession.setVt(vt);
-
         QProcessEnvironment env;
+
+        // create new VT for Wayland sessions otherwise use greeter vt
+        if (seat()->name() == QLatin1String("seat0")) {
+            int vt = terminalId();
+            if (session.xdgSessionType() == QLatin1String("wayland"))
+                vt = VirtualTerminal::setUpNewVt();
+            m_lastSession.setVt(vt);
+            env.insert(QStringLiteral("XDG_VTNR"), QString::number(vt));
+	}
+
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         if (session.xdgSessionType() == QLatin1String("x11"))
             env.insert(QStringLiteral("DISPLAY"), name());
@@ -325,11 +329,7 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("user"));
         env.insert(QStringLiteral("XDG_SESSION_TYPE"), session.xdgSessionType());
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
-
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
-        if (seat()->name() == QLatin1String("seat0")) {
-            env.insert(QStringLiteral("XDG_VTNR"), QString::number(vt));
-        }
 
         m_auth->insertEnvironment(env);
 
@@ -364,9 +364,11 @@ namespace SDDM {
             stateConfig.save();
 
             // switch to the new VT for Wayland sessions
-            if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
-                // set vt_auto to false, so handle the vt switch yourself (VT_PROCESS)
-                VirtualTerminal::jumpToVt(m_lastSession.vt(), false);
+            if (seat()->name() == QLatin1String("seat0")) {
+                if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
+                    // set vt_auto to false, so handle the vt switch yourself (VT_PROCESS)
+                    VirtualTerminal::jumpToVt(m_lastSession.vt(), false);
+            }
 
             if (m_socket)
                 emit loginSucceeded(m_socket);
