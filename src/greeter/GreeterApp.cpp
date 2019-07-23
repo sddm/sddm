@@ -40,6 +40,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QLibraryInfo>
+#include <QVersionNumber>
+#include <QSurfaceFormat>
 
 #include <iostream>
 
@@ -156,7 +159,7 @@ namespace SDDM {
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
-        connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
+        connect(m_proxy, &GreeterProxy::loginSucceeded, view, &QQuickView::close);
 
         // we used to have only one window as big as the virtual desktop,
         // QML took care of creating an item for each screen by iterating on
@@ -307,6 +310,12 @@ int main(int argc, char **argv)
         QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     } else {
         qDebug() << "High-DPI autoscaling not Enabled";
+    }
+
+    if (QLibraryInfo::version() >= QVersionNumber(5, 13, 0)) {
+        auto format(QSurfaceFormat::defaultFormat());
+        format.setOption(QSurfaceFormat::ResetNotification);
+        QSurfaceFormat::setDefaultFormat(format);
     }
 
     QGuiApplication app(argc, argv);
