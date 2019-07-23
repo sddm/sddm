@@ -55,19 +55,24 @@ namespace SDDM {
     void Seat::createDisplay(int terminalId) {
         //reload config if needed
         mainConfig.load();
-        
-        if (terminalId == -1) {
+
+        if (m_name == QLatin1String("seat0")) {
+            if (terminalId == -1) {
                 // find unused terminal
-            terminalId = findUnused(mainConfig.X11.MinimumVT.get(), [&](const int number) {
-                return m_terminalIds.contains(number);
-            });
+                terminalId = findUnused(mainConfig.X11.MinimumVT.get(), [&](const int number) {
+                    return m_terminalIds.contains(number);
+                });
+            }
+
+            // mark terminal as used
+            m_terminalIds << terminalId;
+
+            // log message
+            qDebug() << "Adding new display" << "on vt" << terminalId << "...";
         }
-
-        // mark terminal as used
-        m_terminalIds << terminalId;
-
-        // log message
-        qDebug() << "Adding new display" << "on vt" << terminalId << "...";
+        else {
+            qDebug() << "Adding new VT-less display...";
+        }
 
         // create a new display
         Display *display = new Display(terminalId, this);
@@ -117,7 +122,8 @@ namespace SDDM {
         // vt switch automatically (VT_AUTO).
         else {
             int disp = m_displays.last()->terminalId();
-            VirtualTerminal::jumpToVt(disp, true);
+            if (disp != -1)
+                VirtualTerminal::jumpToVt(disp, true);
         }
     }
 }
