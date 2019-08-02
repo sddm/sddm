@@ -5,14 +5,14 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation type="unfinished"></translation>
+        <translation>Нажмите для входа</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Wayland)</translation>
     </message>
 </context>
 <context>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Внимание: нажата клавиша Caps Lock</translation>
+        <translation>Внимание: нажата клавиша Caps Lock!</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -68,6 +68,22 @@
     <message>
         <source>Select your user and enter password</source>
         <translation>Выберите пользователя и введите пароль</translation>
+    </message>
+    <message>
+        <source>Enter your username</source>
+        <translation>Введите имя пользователя</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>Введите пароль</translation>
+    </message>
+    <message>
+        <source>Suspend</source>
+        <translation>Ждущий режим</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>Спящий режим</translation>
     </message>
 </context>
 </TS>
