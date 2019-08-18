@@ -85,6 +85,10 @@ OPTIONS
 	Name of the cursor theme to be set before starting
 	the display server.
 
+`Font=`
+	Name of the font to be set before starting the
+	display server.
+
 `EnableAvatars=`
 	When enabled, home directories are searched for ".face.icon" images to
 	display as their avatars. This can be slow on some file systems.
