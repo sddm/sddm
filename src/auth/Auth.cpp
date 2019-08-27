@@ -62,6 +62,7 @@ namespace SDDM {
         AuthRequest *request { nullptr };
         QProcess *child { nullptr };
         QLocalSocket *socket { nullptr };
+        QString displayServerCmd;
         QString sessionPath { };
         QString user { };
         QString cookie { };
@@ -202,6 +203,15 @@ namespace SDDM {
                 str.send();
                 break;
             }
+        case DISPLAY_SERVER_STARTED: {
+                QString displayName;
+                str >> displayName;
+                Q_EMIT auth->displayServerReady(displayName);
+                str.reset();
+                str << DISPLAY_SERVER_STARTED;
+                str.send();
+                break;
+            }
             default: {
                 Q_EMIT auth->error(QStringLiteral("Auth: Unexpected value received: %1").arg(m), ERROR_INTERNAL);
             }
@@ -210,7 +220,9 @@ namespace SDDM {
 
     void Auth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
         if (exitStatus != QProcess::NormalExit) {
-            qWarning("Auth: sddm-helper crashed (exit code %d)", exitCode);
+            qWarning("Auth: sddm-helper (%s) crashed (exit code %d)",
+                     qPrintable(child->arguments().join(QLatin1Char(' '))),
+                     HelperExitStatus(exitStatus));
             Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
         }
 
@@ -334,6 +346,14 @@ namespace SDDM {
         }
     }
 
+    void Auth::setDisplayServerCommand(const QString &command)
+    {
+        if (d->displayServerCmd != command) {
+            d->displayServerCmd = command;
+            Q_EMIT displayServerCommandChanged();
+        }
+    }
+
     void Auth::setSession(const QString& path) {
         if (path != d->sessionPath) {
             d->sessionPath = path;
@@ -361,6 +381,8 @@ namespace SDDM {
             args << QStringLiteral("--user") << d->user;
         if (d->autologin)
             args << QStringLiteral("--autologin");
+        if (!d->displayServerCmd.isEmpty())
+            args << QStringLiteral("--display-server") << d->displayServerCmd;
         if (d->greeter)
             args << QStringLiteral("--greeter");
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);

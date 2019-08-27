@@ -6,7 +6,7 @@
 sddm display manager configuration
 ----------------------------------
 
-:Date: August 2015
+:Date: March 2021
 :Version: sddm @SDDM_VERSION_STRING@
 :Manual section: 5
 :Manual group: sddm
@@ -35,6 +35,14 @@ OPTIONS
 =======
 
 [General] section:
+
+`DisplayServer=`
+	Select the display server to use for the greeter.
+	Valid values are:
+	* `x11`: X server running as root.
+	* `x11-user`: X server running as unprivileged user.
+	Default value is "x11".
+	For `x11-user` you might need to configure Xorg.wrap(1).
 
 `HaltCommand=`
 	Halt command.
@@ -134,10 +142,14 @@ OPTIONS
 
 `DisplayCommand=`
 	Path of script to execute when starting the display server.
+	The script will be executed as root when General.DisplayServer
+	is "x11", otherwise as sddm user.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xsetup".
 
 `DisplayStopCommand=`
 	Path of script to execute when stopping the display server.
+	The script will be executed as root when General.DisplayServer
+	is "x11", otherwise as sddm user.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xstop".
 
 `MinimumVT=`

@@ -88,6 +88,16 @@ namespace SDDM {
             m_user = args[pos + 1];
         }
 
+        if ((pos = args.indexOf(QStringLiteral("--display-server"))) >= 0) {
+            if (pos >= args.length() - 1) {
+                qCritical() << "This application is not supposed to be executed manually";
+                exit(Auth::HELPER_OTHER_ERROR);
+                return;
+            }
+            m_session->setDisplayServerCommand(args[pos + 1]);
+            m_backend->setDisplayServer(true);
+        }
+
         if ((pos = args.indexOf(QStringLiteral("--autologin"))) >= 0) {
             m_backend->setAutologin(true);
         }
@@ -103,7 +113,7 @@ namespace SDDM {
         }
 
         connect(m_socket, &QLocalSocket::connected, this, &HelperApp::doAuth);
-        connect(m_session, QOverload<int>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
+        connect(m_session, &UserSession::finished, this, &HelperApp::sessionFinished);
         m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
     }
 
@@ -131,11 +141,6 @@ namespace SDDM {
 
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
-            // Allocate a new VT for the wayland session
-            if(env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
-                int vtNumber = VirtualTerminal::setUpNewVt();
-                env.insert(QStringLiteral("XDG_VTNR"), QString::number(vtNumber));
-            }
             m_session->setProcessEnvironment(env);
 
             if (!m_backend->openSession()) {
@@ -213,6 +218,19 @@ namespace SDDM {
         str >> m;
         if (m != SESSION_STATUS) {
             qCritical() << "Received a wrong opcode instead of SESSION_STATUS:" << m;
+        }
+    }
+
+    void HelperApp::displayServerStarted(const QString &displayName)
+    {
+        Msg m = Msg::MSG_UNKNOWN;
+        SafeDataStream str(m_socket);
+        str << Msg::DISPLAY_SERVER_STARTED << displayName;
+        str.send();
+        str.receive();
+        str >> m;
+        if (m != DISPLAY_SERVER_STARTED) {
+            qCritical() << "Received a wrong opcode instead of DISPLAY_SERVER_STARTED:" << m;
         }
     }
 

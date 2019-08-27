@@ -23,27 +23,41 @@
 #define SDDM_AUTH_SESSION_H
 
 #include <QtCore/QObject>
-#include <QtCore/QString>
 #include <QtCore/QProcess>
 
 namespace SDDM {
     class HelperApp;
-    class UserSession : public QProcess
+    class XOrgUserHelper;
+    class UserSession : public QObject
     {
         Q_OBJECT
     public:
         explicit UserSession(HelperApp *parent);
-        virtual ~UserSession();
 
         bool start();
+        void stop();
+
+        QProcessEnvironment processEnvironment() const;
+        void setProcessEnvironment(const QProcessEnvironment &env);
+
+        QString displayServerCommand() const;
+        void setDisplayServerCommand(const QString &command);
 
         void setPath(const QString &path);
         QString path() const;
 
+        qint64 processId() const;
+
         void setup();
+
+    Q_SIGNALS:
+        void finished(int exitCode);
 
     private:
         QString m_path { };
+        QProcess *m_process = nullptr;
+        XOrgUserHelper *m_xorgUser = nullptr;
+        QString m_displayServerCmd;
     };
 }
 

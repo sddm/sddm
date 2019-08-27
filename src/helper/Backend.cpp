@@ -54,6 +54,11 @@ namespace SDDM {
         m_autologin = on;
     }
 
+    void Backend::setDisplayServer(bool on)
+    {
+        m_displayServer = on;
+    }
+
     void Backend::setGreeter(bool on) {
         m_greeter = on;
     }

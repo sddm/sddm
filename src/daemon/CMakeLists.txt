@@ -13,6 +13,8 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/ThemeMetadata.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.h
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
@@ -22,13 +24,15 @@ set(DAEMON_SOURCES
     DisplayManager.cpp
     DisplayServer.cpp
     LogindDBusTypes.cpp
-    XorgDisplayServer.cpp
     Greeter.cpp
     PowerManager.cpp
     Seat.cpp
     SeatManager.cpp
     SignalHandler.cpp
     SocketServer.cpp
+    XorgDisplayServer.cpp
+    XorgUserDisplayServer.cpp
+    XorgUserDisplayServer.h
 )
 
 # Different implementations of the VT switching code
