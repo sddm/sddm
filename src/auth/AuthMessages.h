@@ -97,6 +97,7 @@ namespace SDDM {
         REQUEST,
         AUTHENTICATED,
         SESSION_STATUS,
+        DISPLAY_SERVER_STARTED,
         MSG_LAST,
     };
 

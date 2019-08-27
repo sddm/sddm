@@ -1,6 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2014 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2021 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -18,8 +17,8 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_XORGDISPLAYSERVER_H
-#define SDDM_XORGDISPLAYSERVER_H
+#ifndef SDDM_XORGUSERDISPLAYSERVER_H
+#define SDDM_XORGUSERDISPLAYSERVER_H
 
 #include "DisplayServer.h"
 #include "XAuth.h"
@@ -27,33 +26,28 @@
 class QProcess;
 
 namespace SDDM {
-    class XorgDisplayServer : public DisplayServer {
-        Q_OBJECT
-        Q_DISABLE_COPY(XorgDisplayServer)
-    public:
-        explicit XorgDisplayServer(Display *parent);
-        ~XorgDisplayServer();
 
-        const QString &display() const;
-        QString authPath() const;
+class XorgUserDisplayServer : public DisplayServer
+{
+    Q_OBJECT
+    Q_DISABLE_COPY(XorgUserDisplayServer)
+public:
+    explicit XorgUserDisplayServer(Display *parent);
+    ~XorgUserDisplayServer();
 
-        QString sessionType() const;
+    QString sessionType() const;
 
-        QString cookie() const;
+    void setDisplayName(const QString &displayName);
 
-    public slots:
-        bool start();
-        void stop();
-        void finished();
-        void setupDisplay();
+    static QString command(Display *display);
 
-    private:
-        XAuth m_xauth;
+public Q_SLOTS:
+    bool start();
+    void stop();
+    void finished();
+    void setupDisplay();
+};
 
-        QProcess *process { nullptr };
+} // namespace SDDM
 
-        void changeOwner(const QString &fileName);
-    };
-}
-
-#endif // SDDM_XORGDISPLAYSERVER_H
+#endif // SDDM_XORGUSERDISPLAYSERVER_H

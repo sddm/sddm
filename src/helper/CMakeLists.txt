@@ -10,9 +10,13 @@ set(HELPER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
     ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.h
     Backend.cpp
     HelperApp.cpp
     UserSession.cpp
+    xorguserhelper.cpp
+    xorguserhelper.h
 )
 
 # Different implementations of the VT switching code

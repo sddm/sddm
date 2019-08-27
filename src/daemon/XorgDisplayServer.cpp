@@ -41,31 +41,9 @@
 
 namespace SDDM {
     XorgDisplayServer::XorgDisplayServer(Display *parent) : DisplayServer(parent) {
-        // get auth directory
-        QString authDir = QStringLiteral(RUNTIME_DIR);
-
-        // use "." as authdir in test mode
         if (daemonApp->testing())
-            authDir = QStringLiteral(".");
-
-        // create auth dir if not existing
-        QDir().mkpath(authDir);
-
-        // set auth path
-        m_authPath = QStringLiteral("%1/%2").arg(authDir).arg(QUuid::createUuid().toString());
-
-        // generate cookie
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
-
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = QLatin1Char(digits[dis(gen)]);
+            m_xauth.setAuthDirectory(QStringLiteral("."));
+        m_xauth.setup();
     }
 
     XorgDisplayServer::~XorgDisplayServer() {
@@ -76,41 +54,16 @@ namespace SDDM {
         return m_display;
     }
 
-    const QString &XorgDisplayServer::authPath() const {
-        return m_authPath;
+    QString XorgDisplayServer::authPath() const {
+        return m_xauth.authPath();
     }
 
     QString XorgDisplayServer::sessionType() const {
         return QStringLiteral("x11");
     }
 
-    const QString &XorgDisplayServer::cookie() const {
-        return m_cookie;
-    }
-
-    bool XorgDisplayServer::addCookie(const QString &file) {
-        // log message
-        qDebug() << "Adding cookie to" << file;
-
-        // Touch file
-        QFile file_handler(file);
-        file_handler.open(QIODevice::Append);
-        file_handler.close();
-
-        QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
-
-        // execute xauth
-        FILE *fp = popen(qPrintable(cmd), "w");
-
-        // check file
-        if (!fp)
-            return false;
-        fprintf(fp, "remove %s\n", qPrintable(m_display));
-        fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
-        fprintf(fp, "exit\n");
-
-        // close pipe
-        return pclose(fp) == 0;
+    QString XorgDisplayServer::cookie() const {
+        return m_xauth.cookie();
     }
 
     bool XorgDisplayServer::start() {
@@ -136,7 +89,7 @@ namespace SDDM {
         // For the X server's copy, the display number doesn't matter.
         // An empty file would result in no access control!
         m_display = QStringLiteral(":0");
-        if(!addCookie(m_authPath)) {
+        if(!m_xauth.addCookie(m_display)) {
             qCritical() << "Failed to write xauth file";
             return false;
         }
@@ -159,18 +112,15 @@ namespace SDDM {
             process->setProgram(mainConfig.X11.ServerPath.get());
             args << mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts)
                  << QStringLiteral("-background") << QStringLiteral("none")
-                 << QStringLiteral("-seat") << displayPtr()->seat()->name();
-
-            if (displayPtr()->seat()->name() == QLatin1String("seat0")) {
-                args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
-            }
+                 << QStringLiteral("-seat") << displayPtr()->seat()->name()
+                 << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
         } else {
             process->setProgram(mainConfig.X11.XephyrPath.get());
             args << QStringLiteral("-br")
                  << QStringLiteral("-screen") << QStringLiteral("800x600");
         }
 
-        args << QStringLiteral("-auth") << m_authPath
+        args << QStringLiteral("-auth") << m_xauth.authPath()
              << QStringLiteral("-noreset")
              << QStringLiteral("-displayfd") << QString::number(pipeFds[1]);
 
@@ -222,13 +172,13 @@ namespace SDDM {
         // The file is also used by the greeter, which does care about the
         // display number. Write the proper entry, if it's different.
         if(m_display != QStringLiteral(":0")) {
-            if(!addCookie(m_authPath)) {
+            if(!m_xauth.addCookie(m_display)) {
                 qCritical() << "Failed to write xauth file";
                 stop();
                 return false;
             }
         }
-        changeOwner(m_authPath);
+        changeOwner(m_xauth.authPath());
 
         emit started();
 
@@ -297,7 +247,7 @@ namespace SDDM {
         displayStopScript = nullptr;
 
         // remove authority file
-        QFile::remove(m_authPath);
+        QFile::remove(m_xauth.authPath());
 
         // emit signal
         emit stopped();
@@ -316,7 +266,7 @@ namespace SDDM {
         env.insert(QStringLiteral("DISPLAY"), m_display);
         env.insert(QStringLiteral("HOME"), QStringLiteral("/"));
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
-        env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+        env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
         env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
         setCursor->setProcessEnvironment(env);
