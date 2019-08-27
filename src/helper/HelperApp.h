@@ -49,6 +49,7 @@ namespace SDDM {
         void error(const QString &message, Auth::Error type);
         QProcessEnvironment authenticated(const QString &user);
         void sessionOpened(bool success);
+        void displayServerStarted(const QString &displayName);
 
     private slots:
         void setUp();

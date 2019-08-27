@@ -40,6 +40,9 @@ namespace SDDM {
         void setPath(const QString &path);
         QString path() const;
 
+        QString displayServerCommand() const;
+        void setDisplayServerCommand(const QString &command);
+
         /*!
          \brief Sets m_cachedProcessId. Needed for getting the PID of a finished UserSession
                 and calling HelperApp::utmpLogout
@@ -58,7 +61,12 @@ namespace SDDM {
 
     private:
         QString m_path { };
+        QString m_displayServerCmd;
+        int m_displayServerPipeFds[2] = {-1, -1};
         qint64 m_cachedProcessId;
+
+    private Q_SLOTS:
+        void handleDisplayServerPipe(int fd);
     };
 }
 

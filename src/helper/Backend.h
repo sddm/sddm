@@ -36,6 +36,7 @@ namespace SDDM {
         static Backend *get(HelperApp *parent);
 
         void setAutologin(bool on = true);
+        void setDisplayServer(bool on = true);
         void setGreeter(bool on = true);
 
     public slots:
@@ -50,6 +51,7 @@ namespace SDDM {
         Backend(HelperApp *parent);
         HelperApp *m_app;
         bool m_autologin { false };
+        bool m_displayServer = false;
         bool m_greeter { false };
     };
 }

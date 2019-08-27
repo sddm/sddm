@@ -12,6 +12,8 @@ set(HELPER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.h
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.h
     Backend.cpp
     HelperApp.cpp
     UserSession.cpp

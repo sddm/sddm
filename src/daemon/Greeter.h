@@ -43,6 +43,9 @@ namespace SDDM {
         void setSocket(const QString &socket);
         void setTheme(const QString &theme);
 
+        QString displayServerCommand() const;
+        void setDisplayServerCommand(const QString &cmd);
+
     public slots:
         bool start();
         void stop();
@@ -51,6 +54,7 @@ namespace SDDM {
     private slots:
         void onRequestChanged();
         void onSessionStarted(bool success);
+        void onDisplayServerReady(const QString &displayName);
         void onHelperFinished(Auth::HelperExitStatus status);
         void onReadyReadStandardOutput();
         void onReadyReadStandardError();
@@ -64,6 +68,7 @@ namespace SDDM {
         QString m_authPath;
         QString m_socket;
         QString m_themePath;
+        QString m_displayServerCmd;
         ThemeMetadata *m_metadata { nullptr };
         ThemeConfig *m_themeConfig { nullptr };
 

@@ -41,8 +41,17 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
+        enum DisplayServerType {
+            X11DisplayServerType,
+            X11UserDisplayServerType
+        };
+        Q_ENUM(DisplayServerType)
+
         explicit Display(Seat *parent);
         ~Display();
+
+        DisplayServerType displayServerType() const;
+        DisplayServer *displayServer() const;
 
         QString displayId() const;
         const int terminalId() const;
@@ -75,6 +84,8 @@ namespace SDDM {
 
         void startAuth(const QString &user, const QString &password,
                        const Session &session);
+
+        DisplayServerType m_displayServerType = X11DisplayServerType;
 
         bool m_relogin { true };
         bool m_started { false };

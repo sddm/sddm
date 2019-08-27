@@ -337,6 +337,14 @@ int main(int argc, char **argv)
         QSurfaceFormat::setDefaultFormat(format);
     }
 
+    // Some themes may use KDE components and that will automatically load KDE's
+    // crash handler which we don't want counterintuitively setting this env
+    // disables that handler
+    qputenv("KDE_DEBUG", "1");
+
+    // Qt IM module
+    qputenv("QT_IM_MODULE", SDDM::mainConfig.InputMethod.get().toLocal8Bit().constData());
+
     QGuiApplication app(argc, argv);
 
     QCommandLineParser parser;
