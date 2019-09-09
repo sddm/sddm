@@ -18,6 +18,10 @@
 <context>
     <name>TextConstants</name>
     <message>
+        <source>Welcome to %1</source>
+        <translation>Velkommen til %1</translation>
+    </message>
+    <message>
         <source>Warning, Caps Lock is ON!</source>
         <translation>Advarsel, Caps Lock er slået til!</translation>
     </message>
@@ -31,7 +35,7 @@
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Indlogning fejlede</translation>
+        <translation>Indlogning mislykkedes</translation>
     </message>
     <message>
         <source>Login succeeded</source>
@@ -46,8 +50,44 @@
         <translation>Indtast dit brugernavn og adgangskode</translation>
     </message>
     <message>
+        <source>Reboot</source>
+        <translation>Genstart</translation>
+    </message>
+    <message>
+        <source>Session</source>
+        <translation>Session</translation>
+    </message>
+    <message>
+        <source>Shutdown</source>
+        <translation>Luk ned</translation>
+    </message>
+    <message>
+        <source>User name</source>
+        <translation>Brugernavn</translation>
+    </message>
+    <message>
         <source>Select your user and enter password</source>
         <translation>Vælg din bruger og indtast adgangskode</translation>
+    </message>
+    <message>
+        <source>Enter your username</source>
+        <translation>Indtast dit brugernavn</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>Indtast din adgangskode</translation>
+    </message>
+    <message>
+        <source>Suspend</source>
+        <translation>Hvile</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>Dvale</translation>
+    </message>
+</context>
+</TS>
+
     </message>
     <message>
         <source>Reboot</source>
