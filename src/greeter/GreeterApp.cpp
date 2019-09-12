@@ -247,6 +247,12 @@ namespace SDDM {
                 m_keyboard->setNumLockState(false);
         }
 
+        // Set font
+        QVariant fontEntry = mainConfig.Theme.Font.get();
+        QFont font = fontEntry.value<QFont>();
+        if (!fontEntry.toString().isEmpty())
+            QGuiApplication::setFont(font);
+
         // Set session model on proxy
         m_proxy->setSessionModel(m_sessionModel);
 
