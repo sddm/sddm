@@ -179,7 +179,8 @@ namespace SDDM {
             env.insert(QStringLiteral("XDG_SEAT"), m_display->seat()->name());
             env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
-            env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
+            if (m_display->seat()->name() == QLatin1String("seat0"))
+                env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
             env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("greeter"));
             env.insert(QStringLiteral("XDG_SESSION_TYPE"), m_display->sessionType());
             env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());
