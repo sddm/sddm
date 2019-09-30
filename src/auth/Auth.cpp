@@ -30,6 +30,8 @@
 
 #include <QtQml/QtQml>
 
+#include <memory>
+
 #include <unistd.h>
 
 namespace SDDM {
@@ -42,11 +44,8 @@ namespace SDDM {
 
         QMap<qint64, Auth::Private*> helpers;
     private:
-        static Auth::SocketServer *self;
         SocketServer();
     };
-
-    Auth::SocketServer *Auth::SocketServer::self = nullptr;
 
     class Auth::Private : public QObject {
         Q_OBJECT
@@ -99,11 +98,12 @@ namespace SDDM {
     }
 
     Auth::SocketServer* Auth::SocketServer::instance() {
+        static std::unique_ptr<Auth::SocketServer> self;
         if (!self) {
-            self = new SocketServer();
+            self.reset(new SocketServer());
             self->listen(QStringLiteral("sddm-auth%1").arg(QUuid::createUuid().toString().replace(QRegExp(QStringLiteral("[{}]")), QString())));
         }
-        return self;
+        return self.get();
     }
 
 
