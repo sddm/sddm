@@ -169,7 +169,7 @@ namespace SDDM {
 
             if (line.startsWith(QLatin1String("Name="))) {
                 if (type == WaylandSession)
-                    if (line.mid(5).endsWith(" (Wayland)"))
+                    if (line.mid(5).endsWith(QLatin1String(" (Wayland)")))
                         m_displayName = QObject::tr("%1").arg(line.mid(5));
                     else
                         m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
