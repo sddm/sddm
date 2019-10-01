@@ -4,6 +4,20 @@
     - Bug fixes
     * Others
 
+## 0.18.0 - 2018-07-17
+----------------------
+    + Support theme supplied avatars
+    + Compile against Qt 5.11
+    - Fix platform detection for HighDPI
+    - On close, switch VT to a running session if applicable
+    - Better ConsoleKit support
+    - Fix authentication when reusing existing sessions
+    - Hide sessions with NoDisplay=true
+    - Honor PAM's ambient supplemental groups
+    - Cleanup socket destruction
+    - Don't quit on SIGHUP
+    * Updated translations
+
 ## 0.17.0 - 2017-12-05
 ----------------------
     + Added possibility to change border width of ComboBox widget.

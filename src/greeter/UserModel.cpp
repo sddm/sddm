@@ -75,6 +75,7 @@ namespace SDDM {
         bool lastUserFound = false;
 
         struct passwd *current_pw;
+        setpwent();
         while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid

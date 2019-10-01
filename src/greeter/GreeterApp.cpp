@@ -40,6 +40,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QLibraryInfo>
+#include <QVersionNumber>
+#include <QSurfaceFormat>
 
 #include <iostream>
 
@@ -152,8 +155,9 @@ namespace SDDM {
         // need to be careful here since Qt will move the view to
         // another screen before this signal is emitted so we
         // pass a pointer to the view to our slot
-        connect(qGuiApp, &QGuiApplication::screenRemoved, this, [view, this](QScreen *) {
-            removeViewForScreen(view);
+        connect(qGuiApp, &QGuiApplication::screenRemoved, view, [view, this, screen](QScreen *s) {
+            if (s == screen)
+                removeViewForScreen(view);
         });
 
         // always resize when the screen geometry changes
@@ -164,7 +168,7 @@ namespace SDDM {
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
-        connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
+        connect(m_proxy, &GreeterProxy::loginSucceeded, view, &QQuickView::close);
 
         // we used to have only one window as big as the virtual desktop,
         // QML took care of creating an item for each screen by iterating on
@@ -241,6 +245,7 @@ namespace SDDM {
         if (!m_testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
             QCoreApplication::exit(EXIT_FAILURE);
+            return;
         }
 
         // Set numlock upon start
@@ -250,6 +255,12 @@ namespace SDDM {
             else if (mainConfig.Numlock.get() == MainConfig::NUM_SET_OFF)
                 m_keyboard->setNumLockState(false);
         }
+
+        // Set font
+        QVariant fontEntry = mainConfig.Theme.Font.get();
+        QFont font = fontEntry.value<QFont>();
+        if (!fontEntry.toString().isEmpty())
+            QGuiApplication::setFont(font);
 
         // Set session model on proxy
         m_proxy->setSessionModel(m_sessionModel);
@@ -314,6 +325,12 @@ int main(int argc, char **argv)
         QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     } else {
         qDebug() << "High-DPI autoscaling not Enabled";
+    }
+
+    if (QLibraryInfo::version() >= QVersionNumber(5, 13, 0)) {
+        auto format(QSurfaceFormat::defaultFormat());
+        format.setOption(QSurfaceFormat::ResetNotification);
+        QSurfaceFormat::setDefaultFormat(format);
     }
 
     QGuiApplication app(argc, argv);

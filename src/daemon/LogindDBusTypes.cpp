@@ -63,7 +63,7 @@ LogindPathInternal::LogindPathInternal()
         available = true;
         serviceName = QStringLiteral("org.freedesktop.ConsoleKit");
         managerPath = QStringLiteral("/org/freedesktop/ConsoleKit/Manager");
-        managerIfaceName = QStringLiteral("/org.freedesktop.ConsoleKit.Manager"); //note this doesn't match logind
+        managerIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.Manager"); //note this doesn't match logind
         seatIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.Seat");
         sessionIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.Session");
         userIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.User");
