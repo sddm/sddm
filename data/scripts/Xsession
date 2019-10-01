@@ -91,6 +91,9 @@ elif [ -f /etc/X11/Xresources ]; then
 fi
 [ -f $HOME/.Xresources ] && xrdb -merge $HOME/.Xresources
 
+if [ -f "$USERXSESSIONRC" ]; then
+  . "$USERXSESSIONRC"
+fi
 if [ -f "$USERXSESSION" ]; then
   . "$USERXSESSION"
 fi
