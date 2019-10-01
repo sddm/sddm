@@ -1,5 +1,6 @@
 set(TRANSLATION_FILES
     ar.ts
+    bn.ts
     ca.ts
     cs.ts
     da.ts
@@ -10,6 +11,8 @@ set(TRANSLATION_FILES
     fr.ts
     hi_IN.ts
     hu.ts
+    ie.ts
+    is.ts
     it.ts
     ja.ts
     kk.ts

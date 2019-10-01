@@ -31,8 +31,9 @@ namespace SDDM {
     class SeatManager : public QObject {
         Q_OBJECT
     public:
-        explicit SeatManager(QObject *parent = 0);
+        explicit SeatManager(QObject *parent = 0) : QObject(parent) {}
 
+        void initialize();
         void createSeat(const QString &name);
         void removeSeat(const QString &name);
         void switchToGreeter(const QString &seat);
