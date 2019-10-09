@@ -37,7 +37,7 @@ QtObject {
     readonly property string promptSelectUser:  qsTr("Select your user and enter password")
     readonly property string promptUser:        qsTr("Enter your username")
     readonly property string promptPassword:    qsTr("Enter your password")
-    readonly property string emptyPrompt:       qsTr("Unregistered user")
+    readonly property string emptyPrompt:       qsTr("Password:")
     readonly property string showPasswordPrompt:qsTr("Show password")
     readonly property string hidePasswordPrompt:qsTr("Hide password")
     readonly property string reboot:            qsTr("Reboot")
