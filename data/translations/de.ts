@@ -102,8 +102,8 @@
         <translation>Bitte ein neues Passwort eingeben</translation>
     </message>
     <message>
-        <source>Unregistered user</source>
-        <translation>Benutzer nicht registriert</translation>
+        <source>Password:</source>
+        <translation>Passwort:</translation>
     </message>
     <message>
         <source>Password change aborted because maximum tries reached</source>
