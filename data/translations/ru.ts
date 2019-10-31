@@ -54,6 +54,14 @@
         <translation>Перезагрузить</translation>
     </message>
     <message>
+        <source>Suspend</source>
+        <translation>Ждущий режим</translation>
+    </message>
+        <message>
+        <source>Hibernate</source>
+        <translation>Спящий режим</translation>
+    </message>
+    <message>
         <source>Session</source>
         <translation>Сеанс</translation>
     </message>
@@ -62,12 +70,8 @@
         <translation>Выключить</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Имя пользователя</translation>
-    </message>
-    <message>
-        <source>Select your user and enter password</source>
-        <translation>Выберите пользователя и введите пароль</translation>
     </message>
     <message>
         <source>Enter your username</source>
@@ -78,12 +82,36 @@
         <translation>Введите пароль</translation>
     </message>
     <message>
-        <source>Suspend</source>
-        <translation>Ждущий режим</translation>
+        <source>Select your user and enter password</source>
+        <translation>Выберите пользователя и введите пароль</translation>
     </message>
     <message>
-        <source>Hibernate</source>
-        <translation>Спящий режим</translation>
+        <source>Show password</source>
+        <translation>Показать пароль</translation>
+    </message>
+    <message>
+        <source>Hide password</source>
+        <translation>Скрыть пароль</translation>
+    </message>
+    <message>
+        <source>Please enter a password!</source>
+        <translation>Пожалуйста, введите пароль!</translation>
+    </message>
+    <message>
+        <source>Change password</source>
+        <translation>Сменить пароль</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Пароль:</translation>
+    </message>
+    <message>
+        <source>Password change aborted because maximum tries reached</source>
+        <translation>Изменение пароля отменено, поскольку достигнуто максимальное количество попыток</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>Новая попытка смены пароля! Пожалуйста, введите пароль ещё раз!</translation>
     </message>
 </context>
 </TS>
