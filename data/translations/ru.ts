@@ -107,11 +107,11 @@
     </message>
     <message>
         <source>Password change aborted because maximum tries reached</source>
-        <translation>Изменение пароля отменено, поскольку достигнуто максимальное количество попыток</translation>
+        <translation>Пароль не был изменён, поскольку достигнуто максимальное количество попыток</translation>
     </message>
     <message>
         <source>New password change round! Please input current password again!</source>
-        <translation>Новая попытка смены пароля! Пожалуйста, введите пароль ещё раз!</translation>
+        <translation>Новая попытка смены пароля! Пожалуйста, введите текущий пароль ещё раз!</translation>
     </message>
 </context>
 </TS>
