@@ -91,7 +91,7 @@ namespace SDDM {
             Entry(RememberLastUser,    bool,        true,                                       _S("Remember the last successfully logged in user"));
             Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
 
-            Entry(ReuseSession,        bool,        false,                                      _S("When logging in as the same user twice, restore the original session, rather than create a new one"));
+            Entry(ReuseSession,        bool,        true,                                       _S("When logging in as the same user twice, restore the original session, rather than create a new one"));
         );
 
         Section(Autologin,
