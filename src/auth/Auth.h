@@ -94,6 +94,10 @@ namespace SDDM {
         const QString &user() const;
         const QString &session() const;
         AuthRequest *request();
+        /**
+         * True if an authentication or session is in progress
+         */
+        bool isActive() const;
 
         /**
         * If starting a session, you will probably want to provide some basic env variables for the session.
