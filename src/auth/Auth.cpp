@@ -286,6 +286,10 @@ namespace SDDM {
         return d->request;
     }
 
+    bool Auth::isActive() const {
+        return d->child->state() != QProcess::NotRunning;
+    }
+
     void Auth::insertEnvironment(const QProcessEnvironment &env) {
         d->environment.insert(env);
     }
