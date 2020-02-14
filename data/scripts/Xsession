@@ -51,6 +51,7 @@ case $SHELL in
 esac
 
 [ -f /etc/xprofile ] && . /etc/xprofile
+[ -f /usr/local/etc/xprofile ] && . /usr/local/etc/xprofile
 [ -f $HOME/.xprofile ] && . $HOME/.xprofile
 
 # run all system xinitrc shell scripts.
