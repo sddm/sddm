@@ -235,6 +235,8 @@ add_subdirectory(components)
 add_subdirectory(data)
 add_subdirectory(services)
 add_subdirectory(src)
+
+enable_testing()
 add_subdirectory(test)
 
 # Display feature summary
