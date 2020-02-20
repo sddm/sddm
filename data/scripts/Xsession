@@ -76,7 +76,7 @@ if [ -d "$xsessionddir" ]; then
     for i in `ls $xsessionddir`; do
         script="$xsessionddir/$i"
         echo "Loading X session script $script"
-        if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\+$' > /dev/null; then
+        if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\{1,\}$' > /dev/null; then
             . "$script"
         fi
     done
