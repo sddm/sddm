@@ -302,6 +302,7 @@ namespace SDDM {
             qWarning() << "Failed to write utmpx: " << strerror(errno);
         endutxent();
 
+#if !defined(Q_OS_FREEBSD)
         // append to failed login database btmp
         if (!authSuccessful) {
 #if defined(Q_OS_LINUX)
@@ -315,6 +316,7 @@ namespace SDDM {
             updwtmpx("/var/log/wtmp", &entry);
 #endif
         }
+#endif
     }
 
     void HelperApp::utmpLogout(const QString &vt, const QString &displayName, qint64 pid) {
@@ -352,6 +354,8 @@ namespace SDDM {
 #if defined(Q_OS_LINUX)
         // append to wtmp
         updwtmpx("/var/log/wtmp", &entry);
+#elif defined(Q_OS_FREEBSD)
+        pututxline(&entry);
 #endif
     }
 }
