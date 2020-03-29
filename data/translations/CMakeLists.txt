@@ -6,8 +6,8 @@ set(TRANSLATION_FILES
     da.ts
     de.ts
     es.ts
-    eu.ts
     et.ts
+    eu.ts
     fi.ts
     fr.ts
     hi_IN.ts
