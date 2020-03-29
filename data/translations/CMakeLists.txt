@@ -7,6 +7,7 @@ set(TRANSLATION_FILES
     de.ts
     es.ts
     et.ts
+    eu.ts
     fi.ts
     fr.ts
     hi_IN.ts
