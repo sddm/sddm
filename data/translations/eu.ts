@@ -5,14 +5,14 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation type=Egin klik saioa hasteko></translation>
+        <translation>Egin klik saioa hasteko></translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation type=%1 (Wayland)></translation>
+        <translation>%1 (Wayland)></translation>
     </message>
 </context>
 <context>
