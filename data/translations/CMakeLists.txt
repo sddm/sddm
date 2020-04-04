@@ -22,6 +22,7 @@ set(TRANSLATION_FILES
     nb.ts
     nl.ts
     nn.ts
+    oc.ts
     pl.ts
     pt_BR.ts
     pt_PT.ts
