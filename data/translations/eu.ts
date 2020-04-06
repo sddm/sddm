@@ -1,82 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="zh_CN">
+<TS version="2.1" language="eu">
 <context>
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation>按下以登录</translation>
+        <translation>Egin klik saioa hasteko></translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation>%1 (Wayland 会话)</translation>
+        <translation>%1 (Wayland)></translation>
     </message>
 </context>
 <context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>欢迎来到 %1</translation>
+        <translation>Ongi etorri %1-ra</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>请注意，大小写锁定功能打开！</translation>
+        <translation>Kontuz, maiuskulak aktibatuak daude!</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>布局</translation>
+        <translation>Diseinua</translation>
     </message>
     <message>
         <source>Login</source>
-        <translation>登录</translation>
+        <translation>Saioa hasi</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>登录失败</translation>
+        <translation>Ezin izan da saioa hasi</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>登录成功</translation>
+        <translation>Saio hasiera zuzena</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>密码</translation>
+        <translation>Pasahitza</translation>
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>输入您的用户名和密码</translation>
+        <translation>Sartu erabiltzaile izena eta pasahitza</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation>重新启动</translation>
+        <translation>Berrabiarazi</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation>会话</translation>
+        <translation>Saioa</translation>
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>关机</translation>
+        <translation>Itzali</translation>
     </message>
-    <message>
-        <source>Suspend</source>
-        <translation>挂起</translation>
-    </message>
-    <message>
-        <source>Hibernate</source>
-        <translation>休眠</translation>
-    </message>
-
     <message>
         <source>User name</source>
-        <translation>用户名</translation>
+        <translation>Erabiltzaile izena</translation>
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>选择您的用户，并输入密码</translation>
+        <translation>Erabiltzailea aukeratu eta pasahitza sartu</translation>
     </message>
 </context>
 </TS>

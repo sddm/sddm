@@ -14,6 +14,10 @@
         <source>%1 (Wayland)</source>
         <translation>%1(Wayland)</translation>
     </message>
+    <message>
+        <source>%1</source>
+        <translation>%1</translation>
+    </message>
 </context>
 <context>
     <name>TextConstants</name>
@@ -68,6 +72,54 @@
     <message>
         <source>Welcome to %1</source>
         <translation>%1에 오신 것을 환영합니다</translation>
+    </message>
+    <message>
+        <source>Please enter a password!</source>
+        <translation>암호를 입력하십시오!</translation>
+    </message>
+    <message>
+        <source>Change password</source>
+        <translation>암호 변경</translation>
+    </message>
+    <message>
+        <source>Enter your username</source>
+        <translation>사용자 이름을 입력하십시오</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>암호를 입력하십시오</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>암호:</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>암호 표시</translation>
+    </message>
+    <message>
+        <source>Hide password</source>
+        <translation>암호 숨기기</translation>
+    </message>
+    <message>
+        <source>Suspend</source>
+        <translation>절전</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>최대 절전 모드</translation>
+    </message>
+    <message>
+        <source>Username</source>
+        <translation>사용자 이름</translation>
+    </message>
+    <message>
+        <source>Password change aborted because maximum tries reached</source>
+        <translation>최대 암호 변경 시도 횟수에 도달하여 암호 변경이 중단되었습니다</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>새로 암호를 변경해야 합니다! 현재 암호를 다시 입력하십시오!</translation>
     </message>
 </context>
 </TS>

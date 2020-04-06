@@ -70,7 +70,7 @@
         <translation>Herunterfahren</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Benutzername</translation>
     </message>
     <message>
@@ -84,6 +84,34 @@
     <message>
         <source>Select your user and enter password</source>
         <translation>Benutzer auswählen und Passwort eingeben</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>Passwort anzeigen</translation>
+    </message>
+    <message>
+        <source>Hide password</source>
+        <translation>Passwort verstecken</translation>
+    </message>
+    <message>
+        <source>Please enter a password!</source>
+        <translation>Bitte Passwort eingeben</translation>
+    </message>
+    <message>
+        <source>Change password</source>
+        <translation>Bitte ein neues Passwort eingeben</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Passwort:</translation>
+    </message>
+    <message>
+        <source>Password change aborted because maximum tries reached</source>
+        <translation>Wegen zu vieler Versuche, Passwort wechsel abgebrochen</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>Bitte Passwort Eingabe wiederholen</translation>
     </message>
 </context>
 </TS>

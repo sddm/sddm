@@ -40,6 +40,9 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QLibraryInfo>
+#include <QVersionNumber>
+#include <QSurfaceFormat>
 
 #include <iostream>
 
@@ -60,7 +63,6 @@ namespace SDDM {
 
         // Create models
         m_sessionModel = new SessionModel();
-        m_userModel = new UserModel();
         m_keyboard = new KeyboardModel();
     }
 
@@ -110,6 +112,16 @@ namespace SDDM {
             m_themeConfig->setTo(configFile);
         else
             m_themeConfig = new ThemeConfig(configFile);
+
+        const bool themeNeedsAllUsers = m_themeConfig->value(QStringLiteral("needsFullUserModel"), true).toBool();
+        if(m_userModel && themeNeedsAllUsers && !m_userModel->containsAllUsers()) {
+            // The theme needs all users, but the current user model doesn't have them -> recreate
+            m_userModel->deleteLater();
+            m_userModel = nullptr;
+        }
+
+        if (!m_userModel)
+            m_userModel = new UserModel(themeNeedsAllUsers, nullptr);
 
         // Set default icon theme from greeter theme
         if (m_themeConfig->contains(QStringLiteral("iconTheme")))
@@ -244,6 +256,12 @@ namespace SDDM {
                 m_keyboard->setNumLockState(false);
         }
 
+        // Set font
+        QVariant fontEntry = mainConfig.Theme.Font.get();
+        QFont font = fontEntry.value<QFont>();
+        if (!fontEntry.toString().isEmpty())
+            QGuiApplication::setFont(font);
+
         // Set session model on proxy
         m_proxy->setSessionModel(m_sessionModel);
 
@@ -307,6 +325,12 @@ int main(int argc, char **argv)
         QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     } else {
         qDebug() << "High-DPI autoscaling not Enabled";
+    }
+
+    if (QLibraryInfo::version() >= QVersionNumber(5, 13, 0)) {
+        auto format(QSurfaceFormat::defaultFormat());
+        format.setOption(QSurfaceFormat::ResetNotification);
+        QSurfaceFormat::setDefaultFormat(format);
     }
 
     QGuiApplication app(argc, argv);
