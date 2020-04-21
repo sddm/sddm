@@ -37,6 +37,7 @@
 
 #if defined(Q_OS_LINUX)
 #include <utmp.h>
+#include <sys/prctl.h>
 #endif
 #include <utmpx.h>
 #include <QByteArray>
@@ -50,6 +51,9 @@ namespace SDDM {
         qInstallMessageHandler(HelperMessageHandler);
 
         QTimer::singleShot(0, this, SLOT(setUp()));
+#if defined(Q_OS_LINUX)
+        prctl(PR_SET_CHILD_SUBREAPER);
+#endif
     }
 
     void HelperApp::setUp() {
