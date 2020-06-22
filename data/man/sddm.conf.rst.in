@@ -126,7 +126,7 @@ OPTIONS
 
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
-        Default value is ".local/share/sddm/xorg-session.log".
+        Default value is "%{HOME}%/.local/share/sddm/xorg-session.log".
 
 `UserAuthFile=`
         Path to the Xauthority file, relative to the home directory.
