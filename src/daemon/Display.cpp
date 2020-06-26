@@ -264,6 +264,12 @@ namespace SDDM {
     }
 
     void Display::startAuth(const QString &user, const QString &password, const Session &session) {
+
+        if (m_auth->isActive()) {
+            qWarning() << "Existing authentication ongoing, aborting";
+            return;
+        }
+
         m_passPhrase = password;
 
         // sanity check
