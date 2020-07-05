@@ -24,6 +24,7 @@
 #include "SafeDataStream.h"
 
 #include "MessageHandler.h"
+#include "VirtualTerminal.h"
 
 #include <QtCore/QTimer>
 #include <QtCore/QFile>
@@ -150,6 +151,11 @@ namespace SDDM {
 
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
+            // Allocate a new VT for the wayland session
+            if(env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
+                int vtNumber = VirtualTerminal::setUpNewVt();
+                env.insert(QStringLiteral("XDG_VTNR"), QString::number(vtNumber));
+            }
             m_session->setProcessEnvironment(env);
 
             if (!m_backend->openSession()) {
