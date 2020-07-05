@@ -30,7 +30,6 @@
 #include "Greeter.h"
 #include "Utils.h"
 #include "SignalHandler.h"
-#include "VirtualTerminal.h"
 
 #include <QDebug>
 #include <QFile>
@@ -310,14 +309,10 @@ namespace SDDM {
 
         QProcessEnvironment env;
 
-        // create new VT for Wayland sessions otherwise use greeter vt
         if (seat()->name() == QLatin1String("seat0")) {
-            int vt = terminalId();
-            if (session.xdgSessionType() == QLatin1String("wayland"))
-                vt = VirtualTerminal::setUpNewVt();
-            m_lastSession.setVt(vt);
-            env.insert(QStringLiteral("XDG_VTNR"), QString::number(vt));
-	}
+            // Use the greeter VT, for wayland sessions the helper overwrites this
+            env.insert(QStringLiteral("XDG_VTNR"), QString::number(terminalId()));
+        }
 
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         if (session.xdgSessionType() == QLatin1String("x11"))
@@ -362,13 +357,6 @@ namespace SDDM {
             else
                 stateConfig.Last.Session.setDefault();
             stateConfig.save();
-
-            // switch to the new VT for Wayland sessions
-            if (seat()->name() == QLatin1String("seat0")) {
-                if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
-                    // set vt_auto to false, so handle the vt switch yourself (VT_PROCESS)
-                    VirtualTerminal::jumpToVt(m_lastSession.vt(), false);
-            }
 
             if (m_socket)
                 emit loginSucceeded(m_socket);
