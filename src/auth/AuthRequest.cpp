@@ -58,7 +58,7 @@ namespace SDDM {
                 AuthPrompt *qap = new AuthPrompt(&p, this);
                 d->prompts << qap;
                 if (finishAutomatically())
-                    connect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
+                    connect(qap, &AuthPrompt::responseChanged, d, &AuthRequest::Private::responseChanged);
             }
             d->finished = false;
         }

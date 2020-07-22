@@ -340,9 +340,9 @@ namespace SDDM {
             resp[i]->resp = (char *) malloc(response.length() + 1);
             // on error, get rid of everything
             if (!resp[i]->resp) {
-                for (int j = 0; j < n; j++) {
-                    free(resp[i]->resp);
-                    resp[i]->resp = nullptr;
+                for (int j = 0; j < i; j++) {
+                    free(resp[j]->resp);
+                    resp[j]->resp = nullptr;
                 }
                 free(*resp);
                 *resp = nullptr;

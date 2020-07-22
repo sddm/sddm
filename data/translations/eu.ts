@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="et">
+<TS version="2.1" language="eu">
 <context>
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation>Klõpsa sisselogimiseks</translation>
+        <translation>Egin klik saioa hasteko></translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation>%1 (Wayland)</translation>
+        <translation>%1 (Wayland)></translation>
     </message>
 </context>
 <context>
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>%1 tervitab</translation>
+        <translation>Ongi etorri %1-ra</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Hoiatus, Caps Lock on SEES!</translation>
+        <translation>Kontuz, maiuskulak aktibatuak daude!</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Paigutus</translation>
+        <translation>Diseinua</translation>
     </message>
     <message>
         <source>Login</source>
-        <translation>Logi sisse</translation>
+        <translation>Saioa hasi</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Sisselogimine ebaõnnestus</translation>
+        <translation>Ezin izan da saioa hasi</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>Sisselogimine õnnestus</translation>
+        <translation>Saio hasiera zuzena</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Salasõna</translation>
+        <translation>Pasahitza</translation>
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>Sisesta kasutajanimi ja salasõna</translation>
+        <translation>Sartu erabiltzaile izena eta pasahitza</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation>Taaskäivita</translation>
+        <translation>Berrabiarazi</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation>Seanss</translation>
+        <translation>Saioa</translation>
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>Seiska</translation>
+        <translation>Itzali</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Kasutajanimi</translation>
+        <translation>Erabiltzaile izena</translation>
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>Vali kasutaja ja sisesta salasõna</translation>
+        <translation>Erabiltzailea aukeratu eta pasahitza sartu</translation>
     </message>
 </context>
 </TS>
