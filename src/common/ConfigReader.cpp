@@ -241,16 +241,18 @@ namespace SDDM {
         if (section) {
             if (entry && !entry->matchesDefault())
                 remainingEntries.insert(section, entry);
-            else
-                for (const ConfigEntryBase *b : section->entries().values())
+            else {
+                for (const ConfigEntryBase *b : qAsConst(section->entries()))
                     if (!b->matchesDefault())
                         remainingEntries.insert(section, b);
+            }
         }
         else {
-            for (const ConfigSection *s : m_sections)
-                for (const ConfigEntryBase *b : s->entries().values())
+            for (const ConfigSection *s : qAsConst(m_sections)) {
+                for (const ConfigEntryBase *b : qAsConst(s->entries()))
                     if (!b->matchesDefault())
                         remainingEntries.insert(s, b);
+            }
         }
 
         // initialize the current section - General, usually
