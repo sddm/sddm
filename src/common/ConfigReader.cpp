@@ -33,7 +33,8 @@ QTextStream &operator>>(QTextStream &str, QStringList &list)  {
 
     QString line = str.readLine();
 
-    Q_FOREACH (const QStringRef &s, line.splitRef(QLatin1Char(','))) {
+    const auto strings = line.splitRef(QLatin1Char(','));
+    for (const QStringRef &s : strings) {
         QStringRef trimmed = s.trimmed();
         if (!trimmed.isEmpty())
             list.append(trimmed.toString());
@@ -154,7 +155,8 @@ namespace SDDM {
             QDir dir(m_sysConfigDir);
             if (dir.exists()) {
                 latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_sysConfigDir).lastModified());
-                foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware)) {
+                const auto dirFiles = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware);
+                for (const QFileInfo &file : dirFiles) {
                     files << (file.absoluteFilePath());
                     latestModificationTime = std::max(latestModificationTime, file.lastModified());
                 }
@@ -165,7 +167,8 @@ namespace SDDM {
             QDir dir(m_configDir);
             if (dir.exists()) {
                 latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_configDir).lastModified());
-                foreach (const QFileInfo &file, dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware)) {
+                const auto dirFiles = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware);
+                for (const QFileInfo &file : dirFiles) {
                     files << (file.absoluteFilePath());
                     latestModificationTime = std::max(latestModificationTime, file.lastModified());
                 }
@@ -179,7 +182,7 @@ namespace SDDM {
         }
         m_fileModificationTime = latestModificationTime;
 
-        foreach (const QString &filepath, files) {
+        for (const QString &filepath : qAsConst(files)) {
             loadInternal(filepath);
         }
     }
