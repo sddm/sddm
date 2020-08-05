@@ -293,7 +293,8 @@ namespace SDDM {
             auto reply = manager.ListSessions();
             reply.waitForFinished();
 
-            foreach(const SessionInfo &s, reply.value()) {
+            const auto info = reply.value();
+            for(const SessionInfo &s : reply.value()) {
                 if (s.userName == user) {
                     OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
                     if (session.service() == QLatin1String("sddm") && session.state() == QLatin1String("online")) {

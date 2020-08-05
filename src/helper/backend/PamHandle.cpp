@@ -24,7 +24,8 @@
 
 namespace SDDM {
     bool PamHandle::putEnv(const QProcessEnvironment& env) {
-        foreach (const QString& s, env.toStringList()) {
+        const auto envs = env.toStringList();
+        for (const QString& s : envs) {
             m_result = pam_putenv(m_handle, qPrintable(s));
             if (m_result != PAM_SUCCESS) {
                 qWarning() << "[PAM] putEnv:" << pam_strerror(m_handle, m_result);
