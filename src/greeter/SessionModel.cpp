@@ -118,7 +118,8 @@ namespace SDDM {
         dir.setNameFilters(QStringList() << QStringLiteral("*.desktop"));
         dir.setFilter(QDir::Files);
         // read session
-        foreach(const QString &session, dir.entryList()) {
+        const auto sessions = dir.entryList();
+        for(const QString &session : sessions) {
             if (!dir.exists(session))
                 continue;
 
@@ -132,8 +133,8 @@ namespace SDDM {
                 execAllowed = false;
                 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                 QString envPath = env.value(QStringLiteral("PATH"));
-                QStringList pathList = envPath.split(QLatin1Char(':'));
-                foreach(const QString &path, pathList) {
+                const QStringList pathList = envPath.split(QLatin1Char(':'));
+                for(const QString &path : pathList) {
                     QDir pathDir(path);
                     fi.setFile(pathDir, si->tryExec());
                     if (fi.exists() && fi.isExecutable()) {

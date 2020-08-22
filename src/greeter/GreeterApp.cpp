@@ -205,7 +205,8 @@ namespace SDDM {
                 return;
 
             QString errors;
-            Q_FOREACH(const QQmlError &e, view->errors()) {
+            const auto errorList = view->errors();
+            for(const QQmlError &e : errorList) {
                 qWarning() << e;
                 errors += QLatin1String("\n") + e.toString();
             }
@@ -266,8 +267,8 @@ namespace SDDM {
         m_proxy->setSessionModel(m_sessionModel);
 
         // Create views
-        QList<QScreen *> screens = qGuiApp->primaryScreen()->virtualSiblings();
-        Q_FOREACH (QScreen *screen, screens)
+        const QList<QScreen *> screens = qGuiApp->primaryScreen()->virtualSiblings();
+        for (QScreen *screen : screens)
             addViewForScreen(screen);
 
         // Handle screens
@@ -279,7 +280,7 @@ namespace SDDM {
 
     void GreeterApp::activatePrimary() {
         // activate and give focus to the window assigned to the primary screen
-        Q_FOREACH (QQuickView *view, m_views) {
+        for (QQuickView *view : qAsConst(m_views)) {
             if (view->screen() == QGuiApplication::primaryScreen()) {
                 view->requestActivate();
                 break;
