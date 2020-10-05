@@ -11,6 +11,7 @@ set(TRANSLATION_FILES
     fi.ts
     fr.ts
     hi_IN.ts
+    he.ts
     hu.ts
     ie.ts
     is.ts
