@@ -144,7 +144,7 @@ namespace SDDM {
                 ++display;
             }
             m_display = QStringLiteral(":%1").arg(display);
-            args << m_display << QStringLiteral("-ac") << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
+            args << m_display << QStringLiteral("-auth") << m_authPath << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
             process->start(mainConfig.X11.XephyrPath.get(), args);
 
 
