@@ -115,10 +115,10 @@ namespace SDDM {
         if (autologinSession.isEmpty()) {
             autologinSession = stateConfig.Last.Session.get();
         }
-        if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
-            sessionType = Session::X11Session;
-        } else if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
+        if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
             sessionType = Session::WaylandSession;
+        } else if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
+            sessionType = Session::X11Session;
         } else {
             qCritical() << "Unable to find autologin session entry" << autologinSession;
             return false;
