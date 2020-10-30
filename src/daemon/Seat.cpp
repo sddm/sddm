@@ -52,7 +52,7 @@ namespace SDDM {
         return m_name;
     }
 
-    void Seat::createDisplay(int terminalId) {
+    bool Seat::createDisplay(int terminalId) {
         //reload config if needed
         mainConfig.load();
 
@@ -84,7 +84,12 @@ namespace SDDM {
         m_displays << display;
 
         // start the display
-        display->start();
+        if (!display->start()) {
+            qCritical() << "Could not start Display server on vt" << terminalId;
+            return false;
+        }
+
+        return true;
     }
 
     void Seat::removeDisplay(Display* display) {
