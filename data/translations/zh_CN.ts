@@ -23,7 +23,7 @@
     <name>TextConstants</name>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>警告，大小写锁定已开启！</translation>
+        <translation>警告，大写锁定已开启！</translation>
     </message>
     <message>
         <source>Layout</source>

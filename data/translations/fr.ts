@@ -5,14 +5,14 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation type="unfinished"></translation>
+        <translation>Cliquez pour vous connecter</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Wayland)</translation>
     </message>
 </context>
 <context>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Layout</source>
-        <translation>Clavier</translation>
+        <translation>Disposition</translation>
     </message>
     <message>
         <source>Login</source>
@@ -53,6 +53,14 @@
         <source>Reboot</source>
         <translation>Redémarrer</translation>
     </message>
+        <message>
+        <source>Suspend</source>
+        <translation>Suspendre</translation>
+    </message>
+        <message>
+        <source>Hibernate</source>
+        <translation>Hiberner</translation>
+    </message>
     <message>
         <source>Session</source>
         <translation>Session</translation>
@@ -65,9 +73,45 @@
         <source>User name</source>
         <translation>Identifiant</translation>
     </message>
+        <message>
+        <source>Enter your username</source>
+        <translation>Entrez votre identifiant</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>Entrez votre mot de passe</translation>
+    </message>
     <message>
         <source>Select your user and enter password</source>
         <translation>Sélectionnez votre identifiant et entrez votre mot de passe</translation>
+    </message>
+     <message>
+        <source>Show password</source>
+        <translation>Montrer le mot de passe</translation>
+    </message>
+    <message>
+        <source>Hide password</source>
+        <translation>Cacher le mot de passe</translation>
+    </message>
+    <message>
+        <source>Please enter a password!</source>
+        <translation>Veuillez entrer un mot de passe!</translation>
+    </message>
+    <message>
+        <source>Change password</source>
+        <translation>Changer le mot de passe</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Mot de passe:</translation>
+    </message>
+    <message>
+        <source>Password change aborted because maximum tries reached</source>
+        <translation>Le changement de mot de passe a échoué car vous avez atteint le nombre maximal de tentatives</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>Nouveau cycle de changement de mot de passe! Veuillez saisir à nouveau votre mot de passe actuel!</translation>
     </message>
 </context>
 </TS>
