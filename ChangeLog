@@ -33,9 +33,9 @@
     * Use modern connects
     * Update translations
 
-## 0.18.1 - 2019-03-31
+## 0.18.1 - 2019-03-11
 ----------------------
-    * Use C++ scoping for handling buffer deletion
+    - Fix crashes when creating a user session
 
 ## 0.18.0 - 2018-07-17
 ----------------------
