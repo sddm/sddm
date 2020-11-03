@@ -13,7 +13,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 18)
+set(SDDM_VERSION_MINOR 19)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -235,6 +235,8 @@ add_subdirectory(components)
 add_subdirectory(data)
 add_subdirectory(services)
 add_subdirectory(src)
+
+enable_testing()
 add_subdirectory(test)
 
 # Display feature summary
