@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="et">
+<TS version="2.1" language="he">
 <context>
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation>Klõpsa sisselogimiseks</translation>
+        <translation>יש ללחוץ כדי להתחבר</translation>
     </message>
 </context>
 <context>
@@ -19,55 +19,55 @@
     <name>TextConstants</name>
     <message>
         <source>Welcome to %1</source>
-        <translation>%1 tervitab</translation>
+        <translation>ברוך בואך אל %1</translation>
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Hoiatus, Caps Lock on SEES!</translation>
+        <translation>יש לשים לב שמקש Caps Lock מופעל!</translation>
     </message>
     <message>
         <source>Layout</source>
-        <translation>Paigutus</translation>
+        <translation>פריסה</translation>
     </message>
     <message>
         <source>Login</source>
-        <translation>Logi sisse</translation>
+        <translation>התחברות</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>Sisselogimine ebaõnnestus</translation>
+        <translation>ההתחברות נכשלה</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>Sisselogimine õnnestus</translation>
+        <translation>ההתחברות הצליחה</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation>Salasõna</translation>
+        <translation>סיסמה</translation>
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>Sisesta kasutajanimi ja salasõna</translation>
+        <translation>יש להזין את שם המשתמש ואת הסיסמה שלך</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation>Taaskäivita</translation>
+        <translation>אתחול</translation>
     </message>
     <message>
         <source>Session</source>
-        <translation>Seanss</translation>
+        <translation>הפעלה</translation>
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>Seiska</translation>
+        <translation>כיבוי</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation>Kasutajanimi</translation>
+        <translation>שם משתמש</translation>
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>Vali kasutaja ja sisesta salasõna</translation>
+        <translation>יש לבחור את המשתמש שלך ולהזין את הסיסמה</translation>
     </message>
 </context>
 </TS>

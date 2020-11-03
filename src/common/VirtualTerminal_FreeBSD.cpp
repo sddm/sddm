@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -17,36 +17,21 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_SEAT_H
-#define SDDM_SEAT_H
+#include <QDebug>
+#include <QString>
 
-#include <QObject>
-#include <QVector>
+#include "VirtualTerminal.h"
+
 
 namespace SDDM {
-    class Display;
+    namespace VirtualTerminal {
+        int setUpNewVt() {
+            qDebug() << "New VT is unsupported on FreeBSD";
+            return -1;
+        }
 
-    class Seat : public QObject {
-        Q_OBJECT
-        Q_DISABLE_COPY(Seat)
-    public:
-        explicit Seat(const QString &name, QObject *parent = 0);
-
-        const QString &name() const;
-
-    public slots:
-        bool createDisplay(int terminalId = -1);
-        void removeDisplay(SDDM::Display* display);
-
-    private slots:
-        void displayStopped();
-
-    private:
-        QString m_name;
-
-        QVector<Display *> m_displays;
-        QVector<int> m_terminalIds;
-    };
+        void jumpToVt(int vt, bool vt_auto) {
+            qDebug() << "Jumping to VT" << vt << "is unsupported on FreeBSD";
+        }
+    }
 }
-
-#endif // SDDM_SEAT_H

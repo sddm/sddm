@@ -182,7 +182,7 @@ namespace SDDM {
         *
         * @param success true if succeeded
         */
-        void session(bool success);
+        void sessionStarted(bool success);
 
         /**
         * Emitted when the helper quits, either after authentication or when the session ends.

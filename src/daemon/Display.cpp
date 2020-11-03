@@ -30,11 +30,11 @@
 #include "Greeter.h"
 #include "Utils.h"
 #include "SignalHandler.h"
-#include "VirtualTerminal.h"
 
 #include <QDebug>
 #include <QFile>
 #include <QTimer>
+#include <QLocalSocket>
 
 #include <pwd.h>
 #include <unistd.h>
@@ -58,20 +58,19 @@ namespace SDDM {
 
         // respond to authentication requests
         m_auth->setVerbose(true);
-        connect(m_auth, SIGNAL(requestChanged()), this, SLOT(slotRequestChanged()));
-        connect(m_auth, SIGNAL(authentication(QString,bool)), this, SLOT(slotAuthenticationFinished(QString,bool)));
-        connect(m_auth, SIGNAL(session(bool)), this, SLOT(slotSessionStarted(bool)));
-        connect(m_auth, SIGNAL(finished(Auth::HelperExitStatus)), this, SLOT(slotHelperFinished(Auth::HelperExitStatus)));
-        connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(slotAuthInfo(QString,Auth::Info)));
-        connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(slotAuthError(QString,Auth::Error)));
+        connect(m_auth, &Auth::requestChanged, this, &Display::slotRequestChanged);
+        connect(m_auth, &Auth::authentication, this, &Display::slotAuthenticationFinished);
+        connect(m_auth, &Auth::sessionStarted, this, &Display::slotSessionStarted);
+        connect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
+        connect(m_auth, &Auth::info, this, &Display::slotAuthInfo);
+        connect(m_auth, &Auth::error, this, &Display::slotAuthError);
 
         // restart display after display server ended
-        connect(m_displayServer, SIGNAL(started()), this, SLOT(displayServerStarted()));
-        connect(m_displayServer, SIGNAL(stopped()), this, SLOT(stop()));
+        connect(m_displayServer, &DisplayServer::started, this, &Display::displayServerStarted);
+        connect(m_displayServer, &DisplayServer::stopped, this, &Display::stop);
 
         // connect login signal
-        connect(m_socketServer, SIGNAL(login(QLocalSocket*,QString,QString,Session)),
-                this, SLOT(login(QLocalSocket*,QString,QString,Session)));
+        connect(m_socketServer, &SocketServer::login, this, &Display::login);
 
         // connect login result signals
         connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
@@ -102,15 +101,8 @@ namespace SDDM {
         return m_seat;
     }
 
-    void Display::start() {
-        // check flag
-        if (m_started)
-            return;
-
-        // start display server
-        if (!m_displayServer->start()) {
-            qFatal("Display server failed to start. Exiting");
-        }
+    bool Display::start() {
+        return m_started || m_displayServer->start();
     }
 
     bool Display::attemptAutologin() {
@@ -122,10 +114,10 @@ namespace SDDM {
         if (autologinSession.isEmpty()) {
             autologinSession = stateConfig.Last.Session.get();
         }
-        if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
-            sessionType = Session::X11Session;
-        } else if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
+        if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
             sessionType = Session::WaylandSession;
+        } else if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
+            sessionType = Session::X11Session;
         } else {
             qCritical() << "Unable to find autologin session entry" << autologinSession;
             return false;
@@ -293,11 +285,12 @@ namespace SDDM {
             auto reply = manager.ListSessions();
             reply.waitForFinished();
 
-            foreach(const SessionInfo &s, reply.value()) {
+            const auto info = reply.value();
+            for(const SessionInfo &s : reply.value()) {
                 if (s.userName == user) {
                     OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
-                    if (session.service() == QLatin1String("sddm")) {
-                        m_reuseSessionId =  s.sessionId;
+                    if (session.service() == QLatin1String("sddm") && session.state() == QLatin1String("online")) {
+                        m_reuseSessionId = s.sessionId;
                         break;
                     }
                 }
@@ -314,13 +307,13 @@ namespace SDDM {
         // some information
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
-        // create new VT for Wayland sessions otherwise use greeter vt
-        int vt = terminalId();
-        if (session.xdgSessionType() == QLatin1String("wayland"))
-            vt = VirtualTerminal::setUpNewVt();
-        m_lastSession.setVt(vt);
-
         QProcessEnvironment env;
+
+        if (seat()->name() == QLatin1String("seat0")) {
+            // Use the greeter VT, for wayland sessions the helper overwrites this
+            env.insert(QStringLiteral("XDG_VTNR"), QString::number(terminalId()));
+        }
+
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         if (session.xdgSessionType() == QLatin1String("x11"))
             env.insert(QStringLiteral("DISPLAY"), name());
@@ -331,11 +324,7 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("user"));
         env.insert(QStringLiteral("XDG_SESSION_TYPE"), session.xdgSessionType());
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
-
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
-        if (seat()->name() == QLatin1String("seat0")) {
-            env.insert(QStringLiteral("XDG_VTNR"), QString::number(vt));
-        }
 
         m_auth->insertEnvironment(env);
 
@@ -368,11 +357,6 @@ namespace SDDM {
             else
                 stateConfig.Last.Session.setDefault();
             stateConfig.save();
-
-            // switch to the new VT for Wayland sessions
-            if (m_lastSession.xdgSessionType() == QLatin1String("wayland"))
-                // set vt_auto to false, so handle the vt switch yourself (VT_PROCESS)
-                VirtualTerminal::jumpToVt(m_lastSession.vt(), false);
 
             if (m_socket)
                 emit loginSucceeded(m_socket);
