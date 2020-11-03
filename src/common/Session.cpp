@@ -31,7 +31,6 @@ namespace SDDM {
     Session::Session()
         : m_valid(false)
         , m_type(UnknownSession)
-        , m_vt(0)
         , m_isHidden(false)
         , m_isNoDisplay(false)
     {
