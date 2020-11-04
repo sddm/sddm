@@ -41,8 +41,8 @@ namespace SDDM {
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
         // initial population
         beginResetModel();
-        populate(Session::X11Session, mainConfig.X11.SessionDir.get());
         populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+        populate(Session::X11Session, mainConfig.X11.SessionDir.get());
         endResetModel();
 
         // refresh everytime a file is changed, added or removed
@@ -50,12 +50,12 @@ namespace SDDM {
         connect(watcher, &QFileSystemWatcher::directoryChanged, [this](const QString &path) {
             beginResetModel();
             d->sessions.clear();
-            populate(Session::X11Session, mainConfig.X11.SessionDir.get());
             populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+            populate(Session::X11Session, mainConfig.X11.SessionDir.get());
             endResetModel();
         });
-        watcher->addPath(mainConfig.X11.SessionDir.get());
         watcher->addPath(mainConfig.Wayland.SessionDir.get());
+        watcher->addPath(mainConfig.X11.SessionDir.get());
     }
 
     SessionModel::~SessionModel() {
@@ -118,7 +118,8 @@ namespace SDDM {
         dir.setNameFilters(QStringList() << QStringLiteral("*.desktop"));
         dir.setFilter(QDir::Files);
         // read session
-        foreach(const QString &session, dir.entryList()) {
+        const auto sessions = dir.entryList();
+        for(const QString &session : sessions) {
             if (!dir.exists(session))
                 continue;
 
@@ -132,8 +133,8 @@ namespace SDDM {
                 execAllowed = false;
                 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                 QString envPath = env.value(QStringLiteral("PATH"));
-                QStringList pathList = envPath.split(QLatin1Char(':'));
-                foreach(const QString &path, pathList) {
+                const QStringList pathList = envPath.split(QLatin1Char(':'));
+                for(const QString &path : pathList) {
                     QDir pathDir(path);
                     fi.setFile(pathDir, si->tryExec());
                     if (fi.exists() && fi.isExecutable()) {

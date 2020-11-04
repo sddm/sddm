@@ -54,7 +54,7 @@ namespace SDDM {
         Seat *seat() const;
 
     public slots:
-        void start();
+        bool start();
         void stop();
 
         void login(QLocalSocket *socket,

@@ -107,7 +107,8 @@ namespace SDDM {
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply);
         connect(watcher, &QDBusPendingCallWatcher::finished, this, [=]() {
             watcher->deleteLater();
-            foreach(const NamedSeatPath &seat, reply.value()) {
+            const auto seats = reply.value();
+            for(const NamedSeatPath &seat : seats) {
                 logindSeatAdded(seat.name, seat.path);
             }
         });

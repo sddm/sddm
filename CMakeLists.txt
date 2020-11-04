@@ -13,7 +13,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 18)
+set(SDDM_VERSION_MINOR 19)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -39,7 +39,7 @@ find_package(ECM 1.4.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH};${ECM_MODULE_PATH}")
 
 # Definitions
-add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
+add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY -DQT_NO_FOREACH)
 
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -167,8 +167,16 @@ add_feature_info("elogind" ELOGIND_FOUND "elogind support")
 
 # Default behaviour if neither systemd nor elogind is used
 if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
-    set(MINIMUM_VT 7)
-    set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    # Set the VT on which sddm will normally appear, and the
+    # commands for shutdown and reboot. On FreeBSD, there are
+    # normally more getty's running than on Linux.
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+        set(MINIMUM_VT 9)
+        set(HALT_COMMAND "/sbin/shutdown -p now")
+    else()
+        set(MINIMUM_VT 7)
+        set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    endif()
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
 
@@ -230,6 +238,8 @@ add_subdirectory(components)
 add_subdirectory(data)
 add_subdirectory(services)
 add_subdirectory(src)
+
+enable_testing()
 add_subdirectory(test)
 
 # Display feature summary

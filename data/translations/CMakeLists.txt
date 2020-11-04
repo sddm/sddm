@@ -7,9 +7,11 @@ set(TRANSLATION_FILES
     de.ts
     es.ts
     et.ts
+    eu.ts
     fi.ts
     fr.ts
     hi_IN.ts
+    he.ts
     hu.ts
     ie.ts
     is.ts
@@ -22,6 +24,7 @@ set(TRANSLATION_FILES
     nb.ts
     nl.ts
     nn.ts
+    oc.ts
     pl.ts
     pt_BR.ts
     pt_PT.ts

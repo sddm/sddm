@@ -22,6 +22,7 @@
 #include "Configuration.h"
 #include "UserSession.h"
 #include "HelperApp.h"
+#include "VirtualTerminal.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -79,7 +80,8 @@ namespace SDDM {
         // that it stays open without races
         if (sessionType == QLatin1String("wayland")) {
             // open VT and get the fd
-            QString ttyString = QStringLiteral("/dev/tty%1").arg(processEnvironment().value(QStringLiteral("XDG_VTNR")));
+            int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
+            QString ttyString = QStringLiteral("/dev/tty%1").arg(vtNumber);
             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
 
             // when this is true we'll take control of the tty
@@ -109,6 +111,8 @@ namespace SDDM {
                     exit(Auth::HELPER_OTHER_ERROR);
                 }
             }
+
+            VirtualTerminal::jumpToVt(vtNumber, false);
         }
 
 #ifdef Q_OS_LINUX

@@ -88,7 +88,7 @@ namespace SDDM {
         return m_cookie;
     }
 
-    void XorgDisplayServer::addCookie(const QString &file) {
+    bool XorgDisplayServer::addCookie(const QString &file) {
         // log message
         qDebug() << "Adding cookie to" << file;
 
@@ -104,13 +104,13 @@ namespace SDDM {
 
         // check file
         if (!fp)
-            return;
+            return false;
         fprintf(fp, "remove %s\n", qPrintable(m_display));
         fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
         fprintf(fp, "exit\n");
 
         // close pipe
-        pclose(fp);
+        return pclose(fp) == 0;
     }
 
     bool XorgDisplayServer::start() {
@@ -127,6 +127,15 @@ namespace SDDM {
         // log message
         qDebug() << "Display server starting...";
 
+        // generate auth file.
+        // For the X server's copy, the display number doesn't matter.
+        // An empty file would result in no access control!
+        m_display = QStringLiteral(":0");
+        if(!addCookie(m_authPath)) {
+            qCritical() << "Failed to write xauth file";
+            return false;
+        }
+
         if (daemonApp->testing()) {
             QStringList args;
             QDir x11socketDir(QStringLiteral("/tmp/.X11-unix"));
@@ -135,7 +144,7 @@ namespace SDDM {
                 ++display;
             }
             m_display = QStringLiteral(":%1").arg(display);
-            args << m_display << QStringLiteral("-ac") << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
+            args << m_display << QStringLiteral("-auth") << m_authPath << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
             process->start(mainConfig.X11.XephyrPath.get(), args);
 
 
@@ -217,8 +226,14 @@ namespace SDDM {
             emit started();
         }
 
-        // generate auth file
-        addCookie(m_authPath);
+        // The file is also used by the greeter, which does care about the
+        // display number. Write the proper entry, if it's different.
+        if(m_display != QStringLiteral(":0")) {
+            if(!addCookie(m_authPath)) {
+                qCritical() << "Failed to write xauth file";
+                return false;
+            }
+        }
         changeOwner(m_authPath);
 
         // set flag

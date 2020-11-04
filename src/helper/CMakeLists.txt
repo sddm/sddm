@@ -1,3 +1,5 @@
+include(CheckLibraryExists)
+
 include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_SOURCE_DIR}/src/auth"
@@ -12,6 +14,14 @@ set(HELPER_SOURCES
     HelperApp.cpp
     UserSession.cpp
 )
+
+# Different implementations of the VT switching code
+# (where the FreeBSD version does nothing).
+if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
+    list(APPEND HELPER_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal_FreeBSD.cpp)
+else()
+    list(APPEND HELPER_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
+endif()
 
 if(PAM_FOUND)
     set(HELPER_SOURCES
@@ -32,6 +42,18 @@ endif()
 
 add_executable(sddm-helper ${HELPER_SOURCES})
 target_link_libraries(sddm-helper Qt5::Network Qt5::DBus Qt5::Qml)
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+    # On FreeBSD (possibly other BSDs as well), we want to use
+    # setusercontext() to set up the login configuration from login.conf
+    find_library(_have_libutil util)
+    if(_have_libutil)
+        check_library_exists(${_have_libutil} setusercontext "" _have_setusercontext)
+    endif()
+    if(_have_libutil AND _have_setusercontext)
+        target_link_libraries(sddm-helper ${_have_libutil})
+    endif()
+endif()
+
 if(PAM_FOUND)
     target_link_libraries(sddm-helper ${PAM_LIBRARIES})
 else()

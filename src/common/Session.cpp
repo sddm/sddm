@@ -52,16 +52,6 @@ namespace SDDM {
         return m_type;
     }
 
-    int Session::vt() const
-    {
-        return m_vt;
-    }
-
-    void Session::setVt(int vt)
-    {
-        m_vt = vt;
-    }
-
     QString Session::xdgSessionType() const
     {
         return m_xdgSessionType;
@@ -130,13 +120,13 @@ namespace SDDM {
         m_desktopNames.clear();
 
         switch (type) {
-        case X11Session:
-            m_dir = QDir(mainConfig.X11.SessionDir.get());
-            m_xdgSessionType = QStringLiteral("x11");
-            break;
         case WaylandSession:
             m_dir = QDir(mainConfig.Wayland.SessionDir.get());
             m_xdgSessionType = QStringLiteral("wayland");
+            break;
+        case X11Session:
+            m_dir = QDir(mainConfig.X11.SessionDir.get());
+            m_xdgSessionType = QStringLiteral("x11");
             break;
         default:
             m_xdgSessionType.clear();
@@ -169,7 +159,10 @@ namespace SDDM {
 
             if (line.startsWith(QLatin1String("Name="))) {
                 if (type == WaylandSession)
-                    m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
+                    if (line.mid(5).endsWith(QLatin1String(" (Wayland)")))
+                        m_displayName = QObject::tr("%1").arg(line.mid(5));
+                    else
+                        m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
                 else
                     m_displayName = line.mid(5);
             }
