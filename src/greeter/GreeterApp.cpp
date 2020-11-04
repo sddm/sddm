@@ -258,10 +258,13 @@ namespace SDDM {
         }
 
         // Set font
-        QVariant fontEntry = mainConfig.Theme.Font.get();
-        QFont font = fontEntry.value<QFont>();
-        if (!fontEntry.toString().isEmpty())
-            QGuiApplication::setFont(font);
+        const QString fontStr = mainConfig.Theme.Font.get();
+        if (!fontStr.isEmpty()) {
+            QFont font;
+            if (font.fromString(fontStr)) {
+                QGuiApplication::setFont(font);
+            }
+        }
 
         // Set session model on proxy
         m_proxy->setSessionModel(m_sessionModel);
