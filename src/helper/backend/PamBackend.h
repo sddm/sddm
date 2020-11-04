@@ -28,6 +28,7 @@
 #include <QtCore/QObject>
 
 #include <security/pam_appl.h>
+#include <pwd.h>
 
 namespace SDDM {
     class PamHandle;
@@ -61,6 +62,7 @@ namespace SDDM {
         explicit PamBackend(HelperApp *parent);
         virtual ~PamBackend();
         int converse(int n, const struct pam_message **msg, struct pam_response **resp);
+        virtual bool setupSupplementalGroups(struct passwd *pw);
 
     public slots:
         virtual bool start(const QString &user = QString());

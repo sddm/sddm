@@ -22,6 +22,7 @@
 #define BACKEND_H
 
 #include <QtCore/QObject>
+#include <pwd.h>
 
 namespace SDDM {
     class HelperApp;
@@ -37,6 +38,8 @@ namespace SDDM {
 
         void setAutologin(bool on = true);
         void setGreeter(bool on = true);
+
+        virtual bool setupSupplementalGroups(struct passwd *pw);
 
     public slots:
         virtual bool start(const QString &user = QString()) = 0;

@@ -29,6 +29,7 @@
 #include <QtCore/QProcessEnvironment>
 
 #include <pwd.h>
+#include <grp.h>
 
 #if defined(Q_OS_FREEBSD)
 #include <sys/types.h>
@@ -119,5 +120,9 @@ namespace SDDM {
 
     bool Backend::closeSession() {
         return true;
+    }
+
+    bool Backend::setupSupplementalGroups(struct passwd *pw) {
+        return !initgroups(pw->pw_name, pw->pw_gid);
     }
 }
