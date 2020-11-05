@@ -175,13 +175,13 @@ namespace SDDM {
         // fetch session's user's groups
         int n_user_groups = 0;
         gid_t *user_groups = NULL;
-        if (-1 == getgrouplist(username.constData(), pw.pw_gid,
+        if (-1 == getgrouplist(pw.pw_name, pw.pw_gid,
                                NULL, &n_user_groups)) {
             user_groups = new gid_t[n_user_groups];
-            if ((n_user_groups = getgrouplist(username.constData(),
+            if ((n_user_groups = getgrouplist(pw.pw_name,
                                               pw.pw_gid, user_groups,
                                               &n_user_groups)) == -1 ) {
-                qCritical() << "getgrouplist(" << username << ", " << pw.pw_gid
+                qCritical() << "getgrouplist(" << pw.pw_name << ", " << pw.pw_gid
                             << ") failed";
                 exit(Auth::HELPER_OTHER_ERROR);
             }
