@@ -70,7 +70,7 @@
         <translation>Éteindre</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Identifiant</translation>
     </message>
         <message>
