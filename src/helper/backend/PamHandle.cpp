@@ -178,9 +178,7 @@ namespace SDDM {
         return QString::fromLocal8Bit(pam_strerror(m_handle, m_result));
     }
 
-    PamHandle::PamHandle(PamBackend *parent) {
-        // create context
-        m_conv = { &PamHandle::converse, parent };
+    PamHandle::PamHandle(PamBackend *parent) : m_conv{&PamHandle::converse, parent} { // create context
     }
 
     PamHandle::~PamHandle() {

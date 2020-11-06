@@ -15,6 +15,14 @@ set(HELPER_SOURCES
     UserSession.cpp
 )
 
+# Different implementations of the VT switching code
+# (where the FreeBSD version does nothing).
+if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
+    list(APPEND HELPER_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal_FreeBSD.cpp)
+else()
+    list(APPEND HELPER_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
+endif()
+
 if(PAM_FOUND)
     set(HELPER_SOURCES
         ${HELPER_SOURCES}
