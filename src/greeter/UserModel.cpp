@@ -33,13 +33,25 @@
 namespace SDDM {
     class User {
     public:
+        User(const struct passwd *data, const QString icon) :
+            name(QString::fromLocal8Bit(data->pw_name)),
+            realName(QString::fromLocal8Bit(data->pw_gecos).split(QLatin1Char(',')).first()),
+            homeDir(QString::fromLocal8Bit(data->pw_dir)),
+            uid(data->pw_uid),
+            gid(data->pw_gid),
+            // if shadow is used pw_passwd will be 'x' nevertheless, so this
+            // will always be true
+            needsPassword(strcmp(data->pw_passwd, "") != 0),
+            icon(icon)
+        {}
+
         QString name;
         QString realName;
         QString homeDir;
-        QString icon;
-        bool needsPassword { false };
         int uid { 0 };
         int gid { 0 };
+        bool needsPassword { false };
+        QString icon;
     };
 
     typedef std::shared_ptr<User> UserPtr;
@@ -48,13 +60,22 @@ namespace SDDM {
     public:
         int lastIndex { 0 };
         QList<UserPtr> users;
+        bool containsAllUsers { true };
     };
 
-    UserModel::UserModel(QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
+    UserModel::UserModel(bool needAllUsers, QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
         const QString facesDir = mainConfig.Theme.FacesDir.get();
-        const QString defaultFace = QStringLiteral("file://%1/.face.icon").arg(facesDir);
+        const QString themeDir = mainConfig.Theme.ThemeDir.get();
+        const QString currentTheme = mainConfig.Theme.Current.get();
+        const QString themeDefaultFace = QStringLiteral("%1/%2/faces/.face.icon").arg(themeDir).arg(currentTheme);
+        const QString defaultFace = QStringLiteral("%1/.face.icon").arg(facesDir);
+        const QString iconURI = QStringLiteral("file://%1").arg(
+                QFile::exists(themeDefaultFace) ? themeDefaultFace : defaultFace);
+
+        bool lastUserFound = false;
 
         struct passwd *current_pw;
+        setpwent();
         while ((current_pw = getpwent()) != nullptr) {
 
             // skip entries with uids smaller than minimum uid
@@ -72,35 +93,34 @@ namespace SDDM {
             if (mainConfig.Users.HideShells.get().contains(QString::fromLocal8Bit(current_pw->pw_shell)))
                 continue;
 
-            // skip duplicates
-            // Note: getpwent() makes no attempt to suppress duplicate information
-            // if multiple sources are specified in nsswitch.conf(5).
-            if (d->users.cend()
-                != std::find_if(d->users.cbegin(), d->users.cend(), [current_pw](const UserPtr & u) { return u->uid == current_pw->pw_uid; }))
-                continue;
-
             // create user
-            UserPtr user { new User() };
-            user->name = QString::fromLocal8Bit(current_pw->pw_name);
-            user->realName = QString::fromLocal8Bit(current_pw->pw_gecos).split(QLatin1Char(',')).first();
-            user->homeDir = QString::fromLocal8Bit(current_pw->pw_dir);
-            user->uid = int(current_pw->pw_uid);
-            user->gid = int(current_pw->pw_gid);
-            // if shadow is used pw_passwd will be 'x' nevertheless, so this
-            // will always be true
-            user->needsPassword = strcmp(current_pw->pw_passwd, "") != 0;
-
-            // search for face icon
-            user->icon = defaultFace;
+            UserPtr user { new User(current_pw, iconURI) };
 
             // add user
             d->users << user;
+
+            if (user->name == lastUser())
+                lastUserFound = true;
+
+            if (!needAllUsers && d->users.count() > mainConfig.Theme.DisableAvatarsThreshold.get()) {
+                struct passwd *lastUserData;
+                // If the theme doesn't require that all users are present, try to add the data for lastUser at least
+                if(!lastUserFound && (lastUserData = getpwnam(qPrintable(lastUser()))))
+                    d->users << UserPtr(new User(lastUserData, themeDefaultFace));
+
+                d->containsAllUsers = false;
+                break;
+            }
         }
 
         endpwent();
 
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
+        // Remove duplicates in case we have several sources specified
+        // in nsswitch.conf(5).
+        auto newEnd = std::unique(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name == u2->name; });
+        d->users.erase(newEnd, d->users.end());
 
         bool avatarsEnabled = mainConfig.Theme.EnableAvatars.get();
         if (avatarsEnabled && mainConfig.Theme.EnableAvatars.isDefault()) {
@@ -116,9 +136,12 @@ namespace SDDM {
             if (avatarsEnabled) {
                 const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
                 const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
+                QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
 
                 if (QFile::exists(userFace))
                     user->icon = QStringLiteral("file://%1").arg(userFace);
+                else if (QFile::exists(accountsServiceFace))
+                    user->icon = accountsServiceFace;
                 else if (QFile::exists(systemFace))
                     user->icon = QStringLiteral("file://%1").arg(systemFace);
             }
@@ -178,5 +201,9 @@ namespace SDDM {
 
     int UserModel::disableAvatarsThreshold() const {
         return mainConfig.Theme.DisableAvatarsThreshold.get();
+    }
+
+    bool UserModel::containsAllUsers() const {
+        return d->containsAllUsers;
     }
 }

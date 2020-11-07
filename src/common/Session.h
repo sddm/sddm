@@ -42,9 +42,6 @@ namespace SDDM {
 
         Type type() const;
 
-        int vt() const;
-        void setVt(int vt);
-
         QString xdgSessionType() const;
 
         QDir directory() const;
@@ -60,6 +57,7 @@ namespace SDDM {
         QString desktopNames() const;
 
         bool isHidden() const;
+        bool isNoDisplay() const;
 
         void setTo(Type type, const QString &name);
 
@@ -68,7 +66,6 @@ namespace SDDM {
     private:
         bool m_valid;
         Type m_type;
-        int m_vt;
         QDir m_dir;
         QString m_name;
         QString m_fileName;
@@ -79,6 +76,7 @@ namespace SDDM {
         QString m_xdgSessionType;
         QString m_desktopNames;
         bool m_isHidden;
+        bool m_isNoDisplay;
 
         friend class SessionModel;
     };

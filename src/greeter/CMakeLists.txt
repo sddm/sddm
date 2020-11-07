@@ -1,5 +1,8 @@
-include_directories("${CMAKE_SOURCE_DIR}/src/common")
-include_directories("${CMAKE_BINARY_DIR}/src/common")
+include_directories(
+    "${CMAKE_SOURCE_DIR}/src/common"
+    "${CMAKE_BINARY_DIR}/src/common"
+    "${LIBXCB_INCLUDE_DIR}"
+)
 
 set(GREETER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
@@ -18,8 +21,7 @@ set(GREETER_SOURCES
     XcbKeyboardBackend.cpp
 )
 
-configure_file("theme/Main.qml"                  "theme/Main.qml")
-configure_file("theme.qrc"                       "theme.qrc")
+configure_file("theme.qrc" "theme.qrc")
 
 qt5_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
 

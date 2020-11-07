@@ -54,7 +54,7 @@ namespace SDDM {
         Seat *seat() const;
 
     public slots:
-        void start();
+        bool start();
         void stop();
 
         void login(QLocalSocket *socket,
@@ -85,6 +85,7 @@ namespace SDDM {
 
         QString m_passPhrase;
         QString m_sessionName;
+        QString m_reuseSessionId;
 
         Auth *m_auth { nullptr };
         DisplayServer *m_displayServer { nullptr };

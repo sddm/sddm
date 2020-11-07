@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2015-2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2015-2018 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@
 
 #include "MessageHandler.h"
 
+#include <QCommandLineParser>
 #include <QGuiApplication>
 #include <QQuickItem>
 #include <QQuickView>
@@ -39,101 +40,106 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTranslator>
+#include <QLibraryInfo>
+#include <QVersionNumber>
+#include <QSurfaceFormat>
 
 #include <iostream>
 
+#define TR(x) QT_TRANSLATE_NOOP("Command line parser", QStringLiteral(x))
+
+static const QEvent::Type StartupEventType = static_cast<QEvent::Type>(QEvent::registerEventType());
+
 namespace SDDM {
-    QString parameter(const QStringList &arguments, const QString &key, const QString &defaultValue) {
-        int index = arguments.indexOf(key);
-
-        if ((index < 0) || (index >= arguments.size() - 1))
-            return defaultValue;
-
-        QString value = arguments.at(index + 1);
-
-        if (value.startsWith(QLatin1Char('-')))
-            return defaultValue;
-
-        return value;
-    }
-
-    GreeterApp *GreeterApp::self = nullptr;
-
-    GreeterApp::GreeterApp(int &argc, char **argv) : QGuiApplication(argc, argv) {
-        // point instance to this
-        self = this;
-
-        // Parse arguments
-        bool testing = false;
-
-        if (arguments().contains(QStringLiteral("--test-mode")))
-            testing = true;
-
-        // get socket name
-        QString socket = parameter(arguments(), QStringLiteral("--socket"), QString());
-
-        // get theme path (fallback to internal theme)
-        m_themePath = parameter(arguments(), QStringLiteral("--theme"), QString());
-        if (m_themePath.isEmpty())
-            m_themePath = QLatin1String("qrc:/theme");
-
-        // read theme metadata
-        m_metadata = new ThemeMetadata(QStringLiteral("%1/metadata.desktop").arg(m_themePath));
-
+    GreeterApp::GreeterApp(QObject *parent)
+        : QObject(parent)
+    {
         // Translations
         // Components translation
         m_components_tranlator = new QTranslator();
         if (m_components_tranlator->load(QLocale::system(), QString(), QString(), QStringLiteral(COMPONENTS_TRANSLATION_DIR)))
-            installTranslator(m_components_tranlator);
+            QCoreApplication::installTranslator(m_components_tranlator);
 
-        // Theme specific translation
-        m_theme_translator = new QTranslator();
-        if (m_theme_translator->load(QLocale::system(), QString(), QString(),
-                           QStringLiteral("%1/%2/").arg(m_themePath, m_metadata->translationsDirectory())))
-            installTranslator(m_theme_translator);
 
-        // get theme config file
+        // Create models
+        m_sessionModel = new SessionModel();
+        m_keyboard = new KeyboardModel();
+    }
+
+    bool GreeterApp::isTestModeEnabled() const
+    {
+        return m_testing;
+    }
+
+    void GreeterApp::setTestModeEnabled(bool value)
+    {
+        m_testing = value;
+    }
+
+    QString GreeterApp::socketName() const
+    {
+        return m_socket;
+    }
+
+    void GreeterApp::setSocketName(const QString &name)
+    {
+        m_socket = name;
+    }
+
+    QString GreeterApp::themePath() const
+    {
+        return m_themePath;
+    }
+
+    void GreeterApp::setThemePath(const QString &path)
+    {
+        m_themePath = path;
+        if (m_themePath.isEmpty())
+            m_themePath = QLatin1String("qrc:/theme");
+
+        // Read theme metadata
+        const QString metadataPath = QStringLiteral("%1/metadata.desktop").arg(m_themePath);
+        if (m_metadata)
+            m_metadata->setTo(metadataPath);
+        else
+            m_metadata = new ThemeMetadata(metadataPath);
+
+        // Get theme config file
         QString configFile = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
 
-        // read theme config
-        m_themeConfig = new ThemeConfig(configFile);
+        // Read theme config
+        if (m_themeConfig)
+            m_themeConfig->setTo(configFile);
+        else
+            m_themeConfig = new ThemeConfig(configFile);
 
-        // set default icon theme from greeter theme
+        const bool themeNeedsAllUsers = m_themeConfig->value(QStringLiteral("needsFullUserModel"), true).toBool();
+        if(m_userModel && themeNeedsAllUsers && !m_userModel->containsAllUsers()) {
+            // The theme needs all users, but the current user model doesn't have them -> recreate
+            m_userModel->deleteLater();
+            m_userModel = nullptr;
+        }
+
+        if (!m_userModel)
+            m_userModel = new UserModel(themeNeedsAllUsers, nullptr);
+
+        // Set default icon theme from greeter theme
         if (m_themeConfig->contains(QStringLiteral("iconTheme")))
             QIcon::setThemeName(m_themeConfig->value(QStringLiteral("iconTheme")).toString());
 
-        // create models
+        // Theme specific translation
+        if (m_theme_translator)
+            m_theme_translator->deleteLater();
+        m_theme_translator = new QTranslator();
+        if (m_theme_translator->load(QLocale::system(), QString(), QString(),
+                           QStringLiteral("%1/%2/").arg(m_themePath, m_metadata->translationsDirectory())))
+            QCoreApplication::installTranslator(m_theme_translator);
+    }
 
-        m_sessionModel = new SessionModel();
-        m_userModel = new UserModel();
-        m_proxy = new GreeterProxy(socket);
-        m_keyboard = new KeyboardModel();
-
-        if(!testing && !m_proxy->isConnected()) {
-            qCritical() << "Cannot connect to the daemon - is it running?";
-            exit(EXIT_FAILURE);
-        }
-
-        // Set numlock upon start
-        if (m_keyboard->enabled()) {
-            if (mainConfig.Numlock.get() == MainConfig::NUM_SET_ON)
-                m_keyboard->setNumLockState(true);
-            else if (mainConfig.Numlock.get() == MainConfig::NUM_SET_OFF)
-                m_keyboard->setNumLockState(false);
-        }
-
-        m_proxy->setSessionModel(m_sessionModel);
-
-        // create views
-        QList<QScreen *> screens = primaryScreen()->virtualSiblings();
-        Q_FOREACH (QScreen *screen, screens)
-            addViewForScreen(screen);
-
-        // handle screens
-        connect(this, &GreeterApp::screenAdded, this, &GreeterApp::addViewForScreen);
-        connect(this, &GreeterApp::primaryScreenChanged, this, [this](QScreen *) {
-            activatePrimary();
-        });
+    void GreeterApp::customEvent(QEvent *event)
+    {
+        if (event->type() == StartupEventType)
+            startup();
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
@@ -149,8 +155,9 @@ namespace SDDM {
         // need to be careful here since Qt will move the view to
         // another screen before this signal is emitted so we
         // pass a pointer to the view to our slot
-        connect(this, &GreeterApp::screenRemoved, this, [view, this](QScreen *) {
-            removeViewForScreen(view);
+        connect(qGuiApp, &QGuiApplication::screenRemoved, view, [view, this, screen](QScreen *s) {
+            if (s == screen)
+                removeViewForScreen(view);
         });
 
         // always resize when the screen geometry changes
@@ -161,7 +168,7 @@ namespace SDDM {
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
-        connect(m_proxy, SIGNAL(loginSucceeded()), view, SLOT(close()));
+        connect(m_proxy, &GreeterProxy::loginSucceeded, view, &QQuickView::close);
 
         // we used to have only one window as big as the virtual desktop,
         // QML took care of creating an item for each screen by iterating on
@@ -198,7 +205,8 @@ namespace SDDM {
                 return;
 
             QString errors;
-            Q_FOREACH(const QQmlError &e, view->errors()) {
+            const auto errorList = view->errors();
+            for(const QQmlError &e : errorList) {
                 qWarning() << e;
                 errors += QLatin1String("\n") + e.toString();
             }
@@ -231,26 +239,90 @@ namespace SDDM {
         view->deleteLater();
     }
 
+    void GreeterApp::startup()
+    {
+        // Connect to the daemon
+        m_proxy = new GreeterProxy(m_socket);
+        if (!m_testing && !m_proxy->isConnected()) {
+            qCritical() << "Cannot connect to the daemon - is it running?";
+            QCoreApplication::exit(EXIT_FAILURE);
+            return;
+        }
+
+        // Set numlock upon start
+        if (m_keyboard->enabled()) {
+            if (mainConfig.Numlock.get() == MainConfig::NUM_SET_ON)
+                m_keyboard->setNumLockState(true);
+            else if (mainConfig.Numlock.get() == MainConfig::NUM_SET_OFF)
+                m_keyboard->setNumLockState(false);
+        }
+
+        // Set font
+        const QString fontStr = mainConfig.Theme.Font.get();
+        if (!fontStr.isEmpty()) {
+            QFont font;
+            if (font.fromString(fontStr)) {
+                QGuiApplication::setFont(font);
+            }
+        }
+
+        // Set session model on proxy
+        m_proxy->setSessionModel(m_sessionModel);
+
+        // Create views
+        const QList<QScreen *> screens = qGuiApp->primaryScreen()->virtualSiblings();
+        for (QScreen *screen : screens)
+            addViewForScreen(screen);
+
+        // Handle screens
+        connect(qGuiApp, &QGuiApplication::screenAdded, this, &GreeterApp::addViewForScreen);
+        connect(qGuiApp, &QGuiApplication::primaryScreenChanged, this, [this](QScreen *) {
+            activatePrimary();
+        });
+    }
+
     void GreeterApp::activatePrimary() {
         // activate and give focus to the window assigned to the primary screen
-        Q_FOREACH (QQuickView *view, m_views) {
+        for (QQuickView *view : qAsConst(m_views)) {
             if (view->screen() == QGuiApplication::primaryScreen()) {
                 view->requestActivate();
                 break;
             }
         }
     }
+
+    StartupEvent::StartupEvent()
+        : QEvent(StartupEventType)
+    {
+    }
 }
 
-int main(int argc, char **argv) {
-    // install message handler
+int main(int argc, char **argv)
+{
+    // Install message handler
     qInstallMessageHandler(SDDM::GreeterMessageHandler);
+
+    // We set an attribute based on the platform we run on.
+    // We only know the platform after we constructed QGuiApplication
+    // though, so we need to find it out ourselves.
+    QString platform;
+    for (int i = 1; i < argc - 1; ++i) {
+        if(qstrcmp(argv[i], "-platform") == 0) {
+            platform = QString::fromUtf8(argv[i + 1]);
+        }
+    }
+    if (platform.isEmpty()) {
+        platform = QString::fromUtf8(qgetenv("QT_QPA_PLATFORM"));
+    }
+    if (platform.isEmpty()) {
+        platform = QStringLiteral("xcb");
+    }
 
     // HiDPI
     bool hiDpiEnabled = false;
-    if (QGuiApplication::platformName() == QLatin1String("xcb"))
+    if (platform == QStringLiteral("xcb"))
         hiDpiEnabled = SDDM::mainConfig.X11.EnableHiDPI.get();
-    else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland")))
+    else if (platform.startsWith(QStringLiteral("wayland")))
         hiDpiEnabled = SDDM::mainConfig.Wayland.EnableHiDPI.get();
     if (hiDpiEnabled) {
         qDebug() << "High-DPI autoscaling Enabled";
@@ -259,22 +331,35 @@ int main(int argc, char **argv) {
         qDebug() << "High-DPI autoscaling not Enabled";
     }
 
-    QStringList arguments;
-
-    for (int i = 0; i < argc; i++)
-        arguments << QString::fromLocal8Bit(argv[i]);
-
-    if (arguments.contains(QStringLiteral("--help")) || arguments.contains(QStringLiteral("-h"))) {
-        std::cout << "Usage: " << argv[0] << " [options] [arguments]\n"
-                     "Options: \n"
-                     "  --theme <theme path>       Set greeter theme\n"
-                     "  --socket <socket name>     Set socket name\n"
-                     "  --test-mode                Start greeter in test mode" << std::endl;
-
-        return EXIT_FAILURE;
+    if (QLibraryInfo::version() >= QVersionNumber(5, 13, 0)) {
+        auto format(QSurfaceFormat::defaultFormat());
+        format.setOption(QSurfaceFormat::ResetNotification);
+        QSurfaceFormat::setDefaultFormat(format);
     }
 
-    SDDM::GreeterApp app(argc, argv);
+    QGuiApplication app(argc, argv);
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription(TR("SDDM greeter"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    QCommandLineOption testModeOption(QLatin1String("test-mode"), TR("Start greeter in test mode"));
+    parser.addOption(testModeOption);
+
+    QCommandLineOption socketOption(QLatin1String("socket"), TR("Socket name"), TR("name"));
+    parser.addOption(socketOption);
+
+    QCommandLineOption themeOption(QLatin1String("theme"), TR("Greeter theme"), TR("path"));
+    parser.addOption(themeOption);
+
+    parser.process(app);
+
+    SDDM::GreeterApp *greeter = new SDDM::GreeterApp();
+    greeter->setTestModeEnabled(parser.isSet(testModeOption));
+    greeter->setSocketName(parser.value(socketOption));
+    greeter->setThemePath(parser.value(themeOption));
+    QCoreApplication::postEvent(greeter, new SDDM::StartupEvent());
 
     return app.exec();
 }

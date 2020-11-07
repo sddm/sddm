@@ -51,6 +51,7 @@ case $SHELL in
 esac
 
 [ -f /etc/xprofile ] && . /etc/xprofile
+[ -f /usr/local/etc/xprofile ] && . /usr/local/etc/xprofile
 [ -f $HOME/.xprofile ] && . $HOME/.xprofile
 
 # run all system xinitrc shell scripts.
@@ -75,7 +76,7 @@ if [ -d "$xsessionddir" ]; then
     for i in `ls $xsessionddir`; do
         script="$xsessionddir/$i"
         echo "Loading X session script $script"
-        if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\+$' > /dev/null; then
+        if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\{1,\}$' > /dev/null; then
             . "$script"
         fi
     done
@@ -90,11 +91,14 @@ elif [ -f /etc/X11/Xresources ]; then
 fi
 [ -f $HOME/.Xresources ] && xrdb -merge $HOME/.Xresources
 
+if [ -f "$USERXSESSIONRC" ]; then
+  . "$USERXSESSIONRC"
+fi
 if [ -f "$USERXSESSION" ]; then
   . "$USERXSESSION"
 fi
 
-if [ -z "$@" ]; then
+if [ -z "$*" ]; then
     exec xmessage -center -buttons OK:0 -default OK "Sorry, $DESKTOP_SESSION is no valid session."
 else
     exec $@

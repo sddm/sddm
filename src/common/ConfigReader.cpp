@@ -33,7 +33,8 @@ QTextStream &operator>>(QTextStream &str, QStringList &list)  {
 
     QString line = str.readLine();
 
-    Q_FOREACH (const QStringRef &s, line.splitRef(QLatin1Char(','))) {
+    const auto strings = line.splitRef(QLatin1Char(','));
+    for (const QStringRef &s : strings) {
         QStringRef trimmed = s.trimmed();
         if (!trimmed.isEmpty())
             list.append(trimmed.toString());
@@ -100,6 +101,12 @@ namespace SDDM {
         m_parent->save(this, entry);
     }
 
+    void ConfigSection::clear() {
+        for (auto it : m_entries) {
+            it->setDefault();
+        }
+    }
+
     QString ConfigSection::toConfigFull() const {
         QString final = QStringLiteral("[%1]\n").arg(m_name);
         for (const ConfigEntryBase *entry : m_entries)
@@ -113,11 +120,11 @@ namespace SDDM {
 
 
 
-    ConfigBase::ConfigBase(const QString &configPath) : m_path(configPath) {
-    }
-
-    const QString &ConfigBase::path() const {
-        return m_path;
+    ConfigBase::ConfigBase(const QString &configPath, const QString &configDir, const QString &sysConfigDir) :
+        m_path(configPath),
+        m_configDir(configDir),
+        m_sysConfigDir(sysConfigDir)
+    {
     }
 
     bool ConfigBase::hasUnused() const {
@@ -133,26 +140,72 @@ namespace SDDM {
         return ret;
     }
 
-    void ConfigBase::load() {
-        // first check if there's at least anything to read, otherwise stick to default values
-        if (!QFile::exists(m_path))
-            return;
+    void ConfigBase::load()
+    {
+        //order of priority from least influence to most influence, is
+        // * m_sysConfigDir (system settings /usr/lib/sddm/sddm.conf.d/) in alphabetical order
+        // * m_configDir (user settings in /etc/sddm.conf.d/) in alphabetical order
+        // * m_path (classic fallback /etc/sddm.conf)
 
-        QString currentSection = QStringLiteral(IMPLICIT_SECTION);
+        QStringList files;
+        QDateTime latestModificationTime = QFileInfo(m_path).lastModified();
 
-        QFile in(m_path);
-        QDateTime modificationTime = QFileInfo(in).lastModified();
-        if (modificationTime <= m_fileModificationTime) {
+        if (!m_sysConfigDir.isEmpty()) {
+            //include the configDir in modification time so we also reload on any files added/removed
+            QDir dir(m_sysConfigDir);
+            if (dir.exists()) {
+                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_sysConfigDir).lastModified());
+                const auto dirFiles = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware);
+                for (const QFileInfo &file : dirFiles) {
+                    files << (file.absoluteFilePath());
+                    latestModificationTime = std::max(latestModificationTime, file.lastModified());
+                }
+            }
+        }
+        if (!m_configDir.isEmpty()) {
+            //include the configDir in modification time so we also reload on any files added/removed
+            QDir dir(m_configDir);
+            if (dir.exists()) {
+                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_configDir).lastModified());
+                const auto dirFiles = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware);
+                for (const QFileInfo &file : dirFiles) {
+                    files << (file.absoluteFilePath());
+                    latestModificationTime = std::max(latestModificationTime, file.lastModified());
+                }
+            }
+        }
+
+        files << m_path;
+
+        if (latestModificationTime <= m_fileModificationTime) {
             return;
         }
-        m_fileModificationTime = modificationTime;
+        m_fileModificationTime = latestModificationTime;
 
-        in.open(QIODevice::ReadOnly);
+        for (const QString &filepath : qAsConst(files)) {
+            loadInternal(filepath);
+        }
+    }
+
+
+    void ConfigBase::loadInternal(const QString &filepath) {
+        QString currentSection = QStringLiteral(IMPLICIT_SECTION);
+
+        QFile in(filepath);
+
+        if (!in.open(QIODevice::ReadOnly))
+            return;
         while (!in.atEnd()) {
             QString line = QString::fromUtf8(in.readLine());
             QStringRef lineRef = QStringRef(&line).trimmed();
             // get rid of comments first
             lineRef = lineRef.left(lineRef.indexOf(QLatin1Char('#'))).trimmed();
+
+            // In version 0.14.0, these sections were renamed
+            if (currentSection == QStringLiteral("XDisplay"))
+                currentSection = QStringLiteral("X11");
+            else if (currentSection == QStringLiteral("WaylandDisplay"))
+                currentSection = QStringLiteral("Wayland");
 
             // value assignment
             int separatorPosition = lineRef.indexOf(QLatin1Char('='));
@@ -180,9 +233,9 @@ namespace SDDM {
         // each one could be there only once - if it occurs more times in the config, the occurrences are merged
         QVector<const ConfigSection*> sectionOrder;
         // the actual bytearray data for every section
-        QMap<const ConfigSection*, QByteArray> sectionData;
+        QHash<const ConfigSection*, QByteArray> sectionData;
         // map of nondefault entries which should be saved if they are not found in the current config file
-        QMultiMap<const ConfigSection*, const ConfigEntryBase*> remainingEntries;
+        QMultiHash<const ConfigSection*, const ConfigEntryBase*> remainingEntries;
 
 
         /*
@@ -191,16 +244,18 @@ namespace SDDM {
         if (section) {
             if (entry && !entry->matchesDefault())
                 remainingEntries.insert(section, entry);
-            else
-                for (const ConfigEntryBase *b : section->entries().values())
+            else {
+                for (const ConfigEntryBase *b : qAsConst(section->entries()))
                     if (!b->matchesDefault())
                         remainingEntries.insert(section, b);
+            }
         }
         else {
-            for (const ConfigSection *s : m_sections)
-                for (const ConfigEntryBase *b : s->entries().values())
+            for (const ConfigSection *s : qAsConst(m_sections)) {
+                for (const ConfigEntryBase *b : qAsConst(s->entries()))
                     if (!b->matchesDefault())
                         remainingEntries.insert(s, b);
+            }
         }
 
         // initialize the current section - General, usually
@@ -305,6 +360,12 @@ namespace SDDM {
                 file.write(sectionData.value(nullptr).trimmed());
                 file.write("\n");
             }
+        }
+    }
+
+    void ConfigBase::wipe() {
+        for (auto it : m_sections) {
+            it->clear();
         }
     }
 }

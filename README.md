@@ -17,6 +17,9 @@ a combox etc.
 There are a few sample themes distributed with SDDM.
 They can be used as a starting point for new themes.
 
+SDDM is developed by volunteers, please consider [donating](https://www.bountysource.com/teams/sddm)
+money that can be used to support the features that you most desire.
+
 ## SCREENSHOTS
 
 ![sample screenshot](https://raw.github.com/sddm/sddm/master/src/greeter/theme/maui.jpg)
@@ -36,7 +39,7 @@ They can be used as a starting point for new themes.
 
 ## INSTALLATION
 
-Qt >= 5.6.0 is required to use SDDM.
+Qt >= 5.8.0 is required to use SDDM.
 
 SDDM runs the greeter as a system user named "sddm" whose home directory needs
 to be set to `/var/lib/sddm`.

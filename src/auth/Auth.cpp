@@ -30,6 +30,8 @@
 
 #include <QtQml/QtQml>
 
+#include <memory>
+
 #include <unistd.h>
 
 namespace SDDM {
@@ -42,11 +44,8 @@ namespace SDDM {
 
         QMap<qint64, Auth::Private*> helpers;
     private:
-        static Auth::SocketServer *self;
         SocketServer();
     };
-
-    Auth::SocketServer *Auth::SocketServer::self = nullptr;
 
     class Auth::Private : public QObject {
         Q_OBJECT
@@ -79,7 +78,7 @@ namespace SDDM {
 
     Auth::SocketServer::SocketServer()
             : QLocalServer() {
-        connect(this, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
+        connect(this, &QLocalServer::newConnection, this, &Auth::SocketServer::handleNewConnection);
     }
 
     void Auth::SocketServer::handleNewConnection()  {
@@ -99,11 +98,12 @@ namespace SDDM {
     }
 
     Auth::SocketServer* Auth::SocketServer::instance() {
+        static std::unique_ptr<Auth::SocketServer> self;
         if (!self) {
-            self = new SocketServer();
+            self.reset(new SocketServer());
             self->listen(QStringLiteral("sddm-auth%1").arg(QUuid::createUuid().toString().replace(QRegExp(QStringLiteral("[{}]")), QString())));
         }
-        return self;
+        return self.get();
     }
 
 
@@ -131,10 +131,10 @@ namespace SDDM {
         if (langEmpty)
             env.insert(QStringLiteral("LANG"), QStringLiteral("C"));
         child->setProcessEnvironment(env);
-        connect(child, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(childExited(int,QProcess::ExitStatus)));
-        connect(child, SIGNAL(error(QProcess::ProcessError)), this, SLOT(childError(QProcess::ProcessError)));
-        connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
-        connect(request, SIGNAL(promptsChanged()), parent, SIGNAL(requestChanged()));
+        connect(child, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished), this, &Auth::Private::childExited);
+        connect(child, QOverload<QProcess::ProcessError>::of(&QProcess::error), this, &Auth::Private::childError);
+        connect(request, &AuthRequest::finished, this, &Auth::Private::requestFinished);
+        connect(request, &AuthRequest::promptsChanged, parent, &Auth::requestChanged);
     }
 
     Auth::Private::~Private()
@@ -145,7 +145,7 @@ namespace SDDM {
 
     void Auth::Private::setSocket(QLocalSocket *socket) {
         this->socket = socket;
-        connect(socket, SIGNAL(readyRead()), this, SLOT(dataPending()));
+        connect(socket, &QLocalSocket::readyRead, this, &Auth::Private::dataPending);
     }
 
     void Auth::Private::dataPending() {
@@ -193,7 +193,7 @@ namespace SDDM {
             case SESSION_STATUS: {
                 bool status;
                 str >> status;
-                Q_EMIT auth->session(status);
+                Q_EMIT auth->sessionStarted(status);
                 str.reset();
                 str << SESSION_STATUS;
                 str.send();
@@ -284,6 +284,10 @@ namespace SDDM {
 
     AuthRequest *Auth::request() {
         return d->request;
+    }
+
+    bool Auth::isActive() const {
+        return d->child->state() != QProcess::NotRunning;
     }
 
     void Auth::insertEnvironment(const QProcessEnvironment &env) {

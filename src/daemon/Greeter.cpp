@@ -89,8 +89,10 @@ namespace SDDM {
 
         // greeter command
         QStringList args;
-        args << QLatin1String("--socket") << m_socket
-             << QLatin1String("--theme") << m_themePath;
+        args << QLatin1String("--socket") << m_socket;
+
+        if (!m_themePath.isEmpty())
+             args << QLatin1String("--theme") << m_themePath;
         if (!platformTheme.isEmpty())
             args << QLatin1String("-platformtheme") << platformTheme;
         if (!style.isEmpty())
@@ -101,10 +103,10 @@ namespace SDDM {
             m_process = new QProcess(this);
 
             // delete process on finish
-            connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
+            connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &Greeter::finished);
 
-            connect(m_process, SIGNAL(readyReadStandardOutput()), SLOT(onReadyReadStandardOutput()));
-            connect(m_process, SIGNAL(readyReadStandardError()), SLOT(onReadyReadStandardError()));
+            connect(m_process, &QProcess::readyReadStandardOutput, this, &Greeter::onReadyReadStandardOutput);
+            connect(m_process, &QProcess::readyReadStandardError, this, &Greeter::onReadyReadStandardError);
 
             // log message
             qDebug() << "Greeter starting...";
@@ -145,11 +147,11 @@ namespace SDDM {
             // authentication
             m_auth = new Auth(this);
             m_auth->setVerbose(true);
-            connect(m_auth, SIGNAL(requestChanged()), this, SLOT(onRequestChanged()));
-            connect(m_auth, SIGNAL(session(bool)), this, SLOT(onSessionStarted(bool)));
-            connect(m_auth, SIGNAL(finished(Auth::HelperExitStatus)), this, SLOT(onHelperFinished(Auth::HelperExitStatus)));
-            connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(authInfo(QString,Auth::Info)));
-            connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(authError(QString,Auth::Error)));
+            connect(m_auth, &Auth::requestChanged, this, &Greeter::onRequestChanged);
+            connect(m_auth, &Auth::sessionStarted, this, &Greeter::onSessionStarted);
+            connect(m_auth, &Auth::finished, this, &Greeter::onHelperFinished);
+            connect(m_auth, &Auth::info, this, &Greeter::authInfo);
+            connect(m_auth, &Auth::error, this, &Greeter::authError);
 
             // greeter command
             QStringList cmd;
@@ -177,7 +179,8 @@ namespace SDDM {
             env.insert(QStringLiteral("XDG_SEAT"), m_display->seat()->name());
             env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
-            env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
+            if (m_display->seat()->name() == QLatin1String("seat0"))
+                env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
             env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("greeter"));
             env.insert(QStringLiteral("XDG_SESSION_TYPE"), m_display->sessionType());
             env.insert(QStringLiteral("QT_IM_MODULE"), mainConfig.InputMethod.get());

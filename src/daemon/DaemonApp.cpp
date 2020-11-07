@@ -59,8 +59,8 @@ namespace SDDM {
         m_seatManager = new SeatManager(this);
 
         // connect with display manager
-        connect(m_seatManager, SIGNAL(seatCreated(QString)), m_displayManager, SLOT(AddSeat(QString)));
-        connect(m_seatManager, SIGNAL(seatRemoved(QString)), m_displayManager, SLOT(RemoveSeat(QString)));
+        connect(m_seatManager, &SeatManager::seatCreated, m_displayManager, &DisplayManager::AddSeat);
+        connect(m_seatManager, &SeatManager::seatRemoved, m_displayManager, &DisplayManager::RemoveSeat);
 
         // create signal handler
         m_signalHandler = new SignalHandler(this);
@@ -68,16 +68,14 @@ namespace SDDM {
         // initialize signal signalHandler
         SignalHandler::initialize();
 
-        // quit when SIGHUP, SIGINT, SIGTERM received
-        connect(m_signalHandler, SIGNAL(sighupReceived()), this, SLOT(quit()));
-        connect(m_signalHandler, SIGNAL(sigintReceived()), this, SLOT(quit()));
-        connect(m_signalHandler, SIGNAL(sigtermReceived()), this, SLOT(quit()));
-
+        // quit when SIGINT, SIGTERM received
+        connect(m_signalHandler, &SignalHandler::sigintReceived, this, &DaemonApp::quit);
+        connect(m_signalHandler, &SignalHandler::sigtermReceived, this, &DaemonApp::quit);
         // log message
         qDebug() << "Starting...";
 
-        // add a seat
-        m_seatManager->createSeat(QStringLiteral("seat0"));
+        // initialize seats only after signals are connected
+        m_seatManager->initialize();
     }
 
     bool DaemonApp::testing() const {
@@ -127,6 +125,7 @@ int main(int argc, char **argv) {
 
     // spit a complete config file on stdout and quit on demand
     if (arguments.contains(QStringLiteral("--example-config"))) {
+        SDDM::mainConfig.wipe();
         QTextStream(stdout) << SDDM::mainConfig.toConfigFull();
         return EXIT_SUCCESS;
     }

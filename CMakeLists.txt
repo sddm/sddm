@@ -13,7 +13,7 @@ endif()
 
 # Set version
 set(SDDM_VERSION_MAJOR 0)
-set(SDDM_VERSION_MINOR 14)
+set(SDDM_VERSION_MINOR 19)
 set(SDDM_VERSION_PATCH 0)
 set(SDDM_VERSION_STRING "${SDDM_VERSION_MAJOR}.${SDDM_VERSION_MINOR}.${SDDM_VERSION_PATCH}")
 
@@ -31,13 +31,15 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PAM "Enable PAM support" ON)
+option(NO_SYSTEMD "Disable systemd support" OFF)
+option(USE_ELOGIND "Use elogind instead of logind" OFF)
 
 # ECM
 find_package(ECM 1.4.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH};${ECM_MODULE_PATH}")
 
 # Definitions
-add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY)
+add_definitions(-Wall -std=c++11 -DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_FROM_BYTEARRAY -DQT_NO_FOREACH)
 
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -82,6 +84,10 @@ if(ENABLE_PAM)
 endif()
 add_feature_info("PAM" PAM_FOUND "PAM support")
 
+# getspnam and shadow(5) support
+include(CheckFunctionExists)
+check_function_exists(getspnam HAVE_GETSPNAM)
+
 # XCB
 find_package(XCB REQUIRED)
 
@@ -89,16 +95,13 @@ find_package(XCB REQUIRED)
 find_package(XKB REQUIRED)
 
 # Qt 5
-find_package(Qt5 5.6.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools)
+find_package(Qt5 5.8.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test)
 
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
     exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 endif()
-
-# Set components version
-set(COMPONENTS_VERSION 2.0)
 
 # Uninstall target
 if ("${ECM_VERSION}" VERSION_LESS "1.7.0")
@@ -164,8 +167,16 @@ add_feature_info("elogind" ELOGIND_FOUND "elogind support")
 
 # Default behaviour if neither systemd nor elogind is used
 if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
-    set(MINIMUM_VT 7)
-    set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    # Set the VT on which sddm will normally appear, and the
+    # commands for shutdown and reboot. On FreeBSD, there are
+    # normally more getty's running than on Linux.
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
+        set(MINIMUM_VT 9)
+        set(HALT_COMMAND "/sbin/shutdown -p now")
+    else()
+        set(MINIMUM_VT 7)
+        set(HALT_COMMAND "/sbin/shutdown -h -P now")
+    endif()
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
 
@@ -175,11 +186,14 @@ set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"            
 set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")
 set(RUNTIME_DIR                 "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run/sddm"      CACHE PATH      "Runtime data storage directory")
+set(QML_INSTALL_DIR             "${QT_IMPORTS_DIR}"                                 CACHE PATH      "QML component installation directory")
 
 set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"              CACHE PATH      "Script to execute when starting the X11 desktop session")
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
 
 set(CONFIG_FILE                 "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf"        CACHE PATH      "Path of the sddm config file")
+set(CONFIG_DIR                  "${CMAKE_INSTALL_FULL_SYSCONFDIR}/sddm.conf.d"      CACHE PATH      "Path of the sddm config directory")
+set(SYSTEM_CONFIG_DIR           "${CMAKE_INSTALL_PREFIX}/lib/sddm/sddm.conf.d"      CACHE PATH      "Path of the system sddm config directory")
 set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
@@ -221,6 +235,8 @@ add_subdirectory(components)
 add_subdirectory(data)
 add_subdirectory(services)
 add_subdirectory(src)
+
+enable_testing()
 add_subdirectory(test)
 
 # Display feature summary

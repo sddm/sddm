@@ -1,8 +1,9 @@
 include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_SOURCE_DIR}/src/auth"
+    "${CMAKE_BINARY_DIR}/src/common"
+    "${LIBXCB_INCLUDE_DIR}"
 )
-include_directories("${CMAKE_BINARY_DIR}/src/common")
 
 set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
@@ -15,10 +16,12 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
+
     DaemonApp.cpp
     Display.cpp
     DisplayManager.cpp
     DisplayServer.cpp
+    LogindDBusTypes.cpp
     XorgDisplayServer.cpp
     Greeter.cpp
     PowerManager.cpp
@@ -26,12 +29,35 @@ set(DAEMON_SOURCES
     SeatManager.cpp
     SignalHandler.cpp
     SocketServer.cpp
-    VirtualTerminal.cpp
 )
+
+# Different implementations of the VT switching code
+# (where the FreeBSD version does nothing).
+if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
+    list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal_FreeBSD.cpp)
+else()
+    list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
+endif()
 
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "DisplayManager.h" SDDM::DisplayManager)
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml"     "DisplayManager.h" SDDM::DisplayManagerSeat)
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml"  "DisplayManager.h" SDDM::DisplayManagerSession)
+
+
+set_source_files_properties("${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Manager.xml" PROPERTIES
+   INCLUDE "LogindDBusTypes.h"
+)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Seat.xml" PROPERTIES
+   INCLUDE "LogindDBusTypes.h"
+)
+
+set_source_files_properties("${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Session.xml" PROPERTIES
+   INCLUDE "LogindDBusTypes.h"
+)
+
+qt5_add_dbus_interface(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Manager.xml"  "Login1Manager")
+qt5_add_dbus_interface(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Seat.xml"  "Login1Seat")
+qt5_add_dbus_interface(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Session.xml"  "Login1Session")
 
 add_executable(sddm ${DAEMON_SOURCES})
 target_link_libraries(sddm
@@ -50,12 +76,3 @@ if(JOURNALD_FOUND)
 endif()
 
 install(TARGETS sddm DESTINATION "${CMAKE_INSTALL_BINDIR}")
-
-# Generate and install the default config file
-add_custom_command(COMMAND sddm --example-config > "${CMAKE_BINARY_DIR}/sddm.conf"
-    OUTPUT "${CMAKE_BINARY_DIR}/sddm.conf"
-    COMMENT "Generate default sddm.conf file"
-    DEPENDS sddm
-)
-add_custom_target(generate_config_file ALL DEPENDS "${CMAKE_BINARY_DIR}/sddm.conf")
-install(FILES "${CMAKE_BINARY_DIR}/sddm.conf" DESTINATION "${CMAKE_INSTALL_FULL_SYSCONFDIR}")

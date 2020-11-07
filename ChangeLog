@@ -4,6 +4,102 @@
     - Bug fixes
     * Others
 
+## 0.19.0 - 2020-11-02
+----------------------
+    * Don't disable authentication in --test-mode
+    - Fix X not having access control on startup
+      (fixes CVE-2020-28049)
+    - Don't fill UserModel if theme does not require it
+    * Set re-use session option by default
+    * Avoid adjusting active auth sessions
+    * Cleanup sessions on exit
+    * Don't abort on failure to start the display server
+    + Custom default font
+    * Limit systemd service restarts
+    * Typo fixes
+    * Fix graphical glitches on NVIDIA after VT switching
+    * Rewind password database
+    * Memory allocation fixes
+    * FreeBSD fixes
+    * Use C++ scoping for handling buffer deletion
+    * Allow to configure the QML installation directory
+    * Port connects
+    * Keep string termination characters in utmp entries
+    * Look for available display for test mode
+    * Interlingue translation
+    * Remove chVt() from declarations
+    - Rewind password db before scanning it (again) for available users
+    - Session reuse: Only consider "online" sessions
+    * Use modern connects
+    * Update translations
+
+## 0.18.1 - 2019-03-11
+----------------------
+    - Fix crashes when creating a user session
+
+## 0.18.0 - 2018-07-17
+----------------------
+    + Support theme supplied avatars
+    + Compile against Qt 5.11
+    - Fix platform detection for HighDPI
+    - On close, switch VT to a running session if applicable
+    - Better ConsoleKit support
+    - Fix authentication when reusing existing sessions
+    - Hide sessions with NoDisplay=true
+    - Honor PAM's ambient supplemental groups
+    - Cleanup socket destruction
+    - Don't quit on SIGHUP
+    * Updated translations
+
+## 0.17.0 - 2017-12-05
+----------------------
+    + Added possibility to change border width of ComboBox widget.
+    + Added missing utmp/wtmp/btmp handling.
+    + Make greeter see icons set by AccountsServices.
+    - Fix sddm.conf man page syntax error and update.
+    - Fix ComboBox widget.
+    - Fix connection of PropertiesChanged event for LogindSeat.
+    - Avoid race conditions with Xsetup.
+    * Update de translation.
+    * Update lt translation.
+    * Update zh_TW translation.
+    * Adjust order of components in the default PATH.
+    * Set default input method to qtvirtualkeyboard.
+
+## 0.16.0 - 2017-10-04
+----------------------
+    + Support non-latin characters in theme settings.
+    + Support fish shell in Xsession and wayland-session.
+    + Unlock GNOME keyring at login.
+    + Configuration directory.
+    - Make the default cursor themed.
+    - Update date and time in elarun theme.
+    - Fix theme metadata default values.
+    - Fix session selection in elarun.
+    - Do not truncate XAUTHORITY on login.
+    - Make enabled property of Button functional.
+    - Fix typos in documentation.
+    * Re-use existing sessions.
+    * Add ConsoleKit 2 support.
+    * Stop assuming shadow(5) is always available.
+    * Explicitely set XDG_SEAT when starting a user session.
+    * Suppress errors when pam_elogind is not available.
+    * Suppress errors when pam_systemd is not available.
+    * Added possibility to change color of dropdown menu.
+    * Add Hindi translation.
+    * Completed Swedish translation.
+    * Update French translation.
+
+## 0.15.0 - 2017-08-30
+----------------------
+    - Fix display of avatars.
+    + New sddm.conf option EnableHiDPI to allow opt out of auto scaling.
+    - Theme cursor.
+    + Support optional kwallet PAM opening.
+    + Autologin, try last successful login if not explicitly set.
+    + Ignore session desktop files with hidden=true.
+    + Support elogind.
+
 ## 0.14.0 - 2016-08-28
 ----------------------
     + New sddm.conf option EnableAvatars (useful for slow filesystems)

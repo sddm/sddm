@@ -43,10 +43,10 @@ namespace SDDM {
     GreeterProxy::GreeterProxy(const QString &socket, QObject *parent) : QObject(parent), d(new GreeterProxyPrivate()) {
         d->socket = new QLocalSocket(this);
         // connect signals
-        connect(d->socket, SIGNAL(connected()), this, SLOT(connected()));
-        connect(d->socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-        connect(d->socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-        connect(d->socket, SIGNAL(error(QLocalSocket::LocalSocketError)), this, SLOT(error()));
+        connect(d->socket, &QLocalSocket::connected, this, &GreeterProxy::connected);
+        connect(d->socket, &QLocalSocket::disconnected, this, &GreeterProxy::disconnected);
+        connect(d->socket, &QLocalSocket::readyRead, this, &GreeterProxy::readyRead);
+        connect(d->socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error), this, &GreeterProxy::error);
 
         // connect to server
         d->socket->connectToServer(socket);

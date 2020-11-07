@@ -14,7 +14,16 @@ sddm display manager configuration
 SYNOPSIS
 ========
 
-  @CONFIG_FILE@
+Configuration loads all files in the configuration directories followed by the configuration file in the order listed below with the latter having highest precedence. Changes should be made to the local configurations.
+
+**@SYSTEM_CONFIG_DIR@**
+	System configuration directory
+
+**@CONFIG_DIR@**
+	Local configuration directory
+
+**@CONFIG_FILE@**
+	Local configuration file for compatibility
 
 DESCRIPTION
 ===========
@@ -49,6 +58,13 @@ OPTIONS
         or "compose" for dead keys support.
         Leave this empty if unsure.
 
+`Namespaces=`
+	Comma-separated list of paths bound to Linux namespaces to enter with
+	setns() before starting the user session.  For example, to enter network
+	namespace `mynet` created with `ip netns add mynet`, the value might be
+	`/run/netns/mynet`.  Default value is empty.  (The value is ignored if
+	the operating system is not Linux.)
+
 [Theme] section:
 
 `ThemeDir=`
@@ -68,6 +84,10 @@ OPTIONS
 `CursorTheme=`
 	Name of the cursor theme to be set before starting
 	the display server.
+
+`Font=`
+	Name of the font to be set before starting the
+	display server. Please note that the theme can still override this option.
 
 `EnableAvatars=`
 	When enabled, home directories are searched for ".face.icon" images to
@@ -156,7 +176,8 @@ OPTIONS
 
 `DefaultPath=`
 	Default path to set after successfully logging in.
-	Default value is "/bin:/usr/bin:/usr/local/bin".
+	This is also where SDDM looks for programs.
+	Default value is "/usr/local/bin:/usr/bin:/bin".
 
 `MinimumUid=`
 	Minimum user id of the users to be listed in the
