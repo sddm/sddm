@@ -248,6 +248,12 @@ namespace SDDM {
     }
 
     void XorgDisplayServer::finished() {
+        // clean up
+        if (process) {
+            process->deleteLater();
+            process = nullptr;
+        }
+
         // check flag
         if (!m_started)
             return;
@@ -282,10 +288,6 @@ namespace SDDM {
         // clean up the script process
         displayStopScript->deleteLater();
         displayStopScript = nullptr;
-
-        // clean up
-        process->deleteLater();
-        process = nullptr;
 
         // remove authority file
         QFile::remove(m_authPath);

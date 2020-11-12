@@ -35,13 +35,15 @@ namespace SDDM {
         const QString &name() const;
 
     public slots:
-        bool createDisplay(int terminalId = -1);
+        void createDisplay(int terminalId = -1);
         void removeDisplay(SDDM::Display* display);
 
     private slots:
         void displayStopped();
 
     private:
+        void startDisplay(SDDM::Display *display, int tryNr = 1);
+
         QString m_name;
 
         QVector<Display *> m_displays;
