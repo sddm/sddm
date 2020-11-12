@@ -65,7 +65,7 @@ namespace SDDM {
         // create a random hexadecimal number
         const char *digits = "0123456789abcdef";
         for (int i = 0; i < 32; ++i)
-            m_cookie[i] = digits[dis(gen)];
+            m_cookie[i] = QLatin1Char(digits[dis(gen)]);
     }
 
     XorgDisplayServer::~XorgDisplayServer() {
