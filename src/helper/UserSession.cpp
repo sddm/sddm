@@ -22,6 +22,7 @@
 #include "Configuration.h"
 #include "UserSession.h"
 #include "HelperApp.h"
+#include "VirtualTerminal.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -79,7 +80,8 @@ namespace SDDM {
         // that it stays open without races
         if (sessionType == QLatin1String("wayland")) {
             // open VT and get the fd
-            QString ttyString = QStringLiteral("/dev/tty%1").arg(processEnvironment().value(QStringLiteral("XDG_VTNR")));
+            int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
+            QString ttyString = QStringLiteral("/dev/tty%1").arg(vtNumber);
             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
 
             // when this is true we'll take control of the tty
@@ -109,6 +111,8 @@ namespace SDDM {
                     exit(Auth::HELPER_OTHER_ERROR);
                 }
             }
+
+            VirtualTerminal::jumpToVt(vtNumber, false);
         }
 
 #ifdef Q_OS_LINUX
@@ -171,13 +175,13 @@ namespace SDDM {
         // fetch session's user's groups
         int n_user_groups = 0;
         gid_t *user_groups = NULL;
-        if (-1 == getgrouplist(username.constData(), pw.pw_gid,
+        if (-1 == getgrouplist(pw.pw_name, pw.pw_gid,
                                NULL, &n_user_groups)) {
             user_groups = new gid_t[n_user_groups];
-            if ((n_user_groups = getgrouplist(username.constData(),
+            if ((n_user_groups = getgrouplist(pw.pw_name,
                                               pw.pw_gid, user_groups,
                                               &n_user_groups)) == -1 ) {
-                qCritical() << "getgrouplist(" << username << ", " << pw.pw_gid
+                qCritical() << "getgrouplist(" << pw.pw_name << ", " << pw.pw_gid
                             << ") failed";
                 exit(Auth::HELPER_OTHER_ERROR);
             }

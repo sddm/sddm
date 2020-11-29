@@ -129,11 +129,8 @@ namespace SDDM {
         }
     }
 
-    DisplayManagerSeat::DisplayManagerSeat(const QString &name, QObject *parent) : QObject(parent) {
-        // set name and path
-        m_name = name;
-        m_path = DISPLAYMANAGER_SEAT_PATH + name.mid(4);
-
+    DisplayManagerSeat::DisplayManagerSeat(const QString &name, QObject *parent)
+        : QObject(parent), m_name(name), m_path(DISPLAYMANAGER_SEAT_PATH + name.mid(4)) {
         // create adaptor
         new SeatAdaptor(this);
 
@@ -171,10 +168,8 @@ namespace SDDM {
        return daemonApp->displayManager()->Sessions(this);
     }
 
-    DisplayManagerSession::DisplayManagerSession(const QString &name, const QString &seat, const QString &user, QObject *parent) : QObject(parent), m_name(name), m_seat(seat), m_user(user) {
-        // set path
-        m_path = DISPLAYMANAGER_SESSION_PATH + name.mid(7);
-
+    DisplayManagerSession::DisplayManagerSession(const QString &name, const QString &seat, const QString &user, QObject *parent)
+        : QObject(parent), m_name(name), m_path(DISPLAYMANAGER_SESSION_PATH + name.mid(7)), m_seat(seat), m_user(user) {
         // create adaptor
         new SessionAdaptor(this);
 

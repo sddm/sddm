@@ -52,16 +52,6 @@ namespace SDDM {
         return m_type;
     }
 
-    int Session::vt() const
-    {
-        return m_vt;
-    }
-
-    void Session::setVt(int vt)
-    {
-        m_vt = vt;
-    }
-
     QString Session::xdgSessionType() const
     {
         return m_xdgSessionType;
@@ -99,7 +89,7 @@ namespace SDDM {
 
     QString Session::desktopSession() const
     {
-        return fileName().replace(s_entryExtention, QString());
+        return QFileInfo(m_fileName).completeBaseName();
     }
 
     QString Session::desktopNames() const
@@ -130,13 +120,13 @@ namespace SDDM {
         m_desktopNames.clear();
 
         switch (type) {
-        case X11Session:
-            m_dir = QDir(mainConfig.X11.SessionDir.get());
-            m_xdgSessionType = QStringLiteral("x11");
-            break;
         case WaylandSession:
             m_dir = QDir(mainConfig.Wayland.SessionDir.get());
             m_xdgSessionType = QStringLiteral("wayland");
+            break;
+        case X11Session:
+            m_dir = QDir(mainConfig.X11.SessionDir.get());
+            m_xdgSessionType = QStringLiteral("x11");
             break;
         default:
             m_xdgSessionType.clear();
