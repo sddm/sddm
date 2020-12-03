@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Reboot</source>
-        <translation>Start på nytt</translation>
+        <translation>Omstart</translation>
     </message>
     <message>
         <source>Suspend</source>
