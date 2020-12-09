@@ -219,8 +219,6 @@ namespace SDDM {
         // close our pipe
         close(pipeFds[0]);
 
-        emit started();
-
         // The file is also used by the greeter, which does care about the
         // display number. Write the proper entry, if it's different.
         if(m_display != QStringLiteral(":0")) {
@@ -231,6 +229,8 @@ namespace SDDM {
             }
         }
         changeOwner(m_authPath);
+
+        emit started();
 
         // set flag
         m_started = true;
