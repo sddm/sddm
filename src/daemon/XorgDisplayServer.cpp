@@ -118,6 +118,11 @@ namespace SDDM {
         if (m_started)
             return false;
 
+        if (process) {
+            qCritical() << "Tried to start Xorg before previous instance exited";
+            return false;
+        }
+
         // create process
         process = new QProcess(this);
 
@@ -195,6 +200,7 @@ namespace SDDM {
             qCritical("Failed to open pipe to start X Server");
 
             close(pipeFds[0]);
+            stop();
             return false;
         }
         QByteArray displayNumber = readPipe.readLine();
@@ -203,6 +209,7 @@ namespace SDDM {
             qCritical("Failed to read display number from pipe");
 
             close(pipeFds[0]);
+            stop();
             return false;
         }
         displayNumber.prepend(QByteArray(":"));
@@ -219,6 +226,7 @@ namespace SDDM {
         if(m_display != QStringLiteral(":0")) {
             if(!addCookie(m_authPath)) {
                 qCritical() << "Failed to write xauth file";
+                stop();
                 return false;
             }
         }
@@ -232,8 +240,7 @@ namespace SDDM {
     }
 
     void XorgDisplayServer::stop() {
-        // check flag
-        if (!m_started)
+        if (!process)
             return;
 
         // log message
