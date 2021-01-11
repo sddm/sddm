@@ -245,6 +245,11 @@ namespace SDDM {
     }
 
     bool Display::findSessionEntry(const QDir &dir, const QString &name) const {
+        // Given an absolute path: Check that it matches dir
+        const QFileInfo fileInfo(name);
+        if (fileInfo.isAbsolute() && fileInfo.absolutePath() != dir.absolutePath())
+            return false;
+
         QString fileName = name;
 
         // append extension
