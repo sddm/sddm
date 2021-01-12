@@ -135,19 +135,16 @@ namespace SDDM {
 
             if (avatarsEnabled) {
                 const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
-                 
-                if (QFile::exists(systemFace))  {
+                const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
+                const QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
+                
+                if (QFile::exists(systemFace)) {
                     user->icon = QStringLiteral("file://%1").arg(systemFace);
-                } else {
-                    const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
-                    QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
-
-                    if (QFile::exists(userFace)) {
-                        user->icon = QStringLiteral("file://%1").arg(userFace);
-                    } else if (QFile::exists(accountsServiceFace)) {
-                        user->icon = accountsServiceFace;
-                    }
-                 }
+                } else if (QFile::exists(userFace)) {
+                    user->icon = QStringLiteral("file://%1").arg(userFace);
+                } else if (QFile::exists(accountsServiceFace)) {
+                    user->icon = accountsServiceFace;
+                }
             }
         }
     }
