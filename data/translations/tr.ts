@@ -62,7 +62,7 @@
         <translation>Kapat</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Kullanıcı adı</translation>
     </message>
     <message>
