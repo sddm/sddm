@@ -139,9 +139,9 @@ namespace SDDM {
                 const QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
                 
                 if (QFile::exists(systemFace)) {
-                    user->icon = QStringLiteral("file://%1").arg(systemFace);
+                    user->icon = systemFace;
                 } else if (QFile::exists(userFace)) {
-                    user->icon = QStringLiteral("file://%1").arg(userFace);
+                    user->icon = userFace;
                 } else if (QFile::exists(accountsServiceFace)) {
                     user->icon = accountsServiceFace;
                 }
