@@ -78,7 +78,7 @@
         <translation>Zahibernuj</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Nazwa użytkownika</translation>
     </message>
     <message>
