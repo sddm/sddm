@@ -134,8 +134,8 @@ namespace SDDM {
                 d->lastIndex = i;
 
             if (avatarsEnabled) {
-                const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
                 const QString userFace = QStringLiteral("%1/.face.icon").arg(user->homeDir);
+                const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
                 const QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
                 
                 if (QFile::exists(systemFace)) {
