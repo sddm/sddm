@@ -66,10 +66,6 @@
         <translation>컴퓨터 끄기</translation>
     </message>
     <message>
-        <source>User name</source>
-        <translation>사용자 이름</translation>
-    </message>
-    <message>
         <source>Welcome to %1</source>
         <translation>%1에 오신 것을 환영합니다</translation>
     </message>
