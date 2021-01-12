@@ -89,7 +89,7 @@ namespace SDDM {
 
     QString Session::desktopSession() const
     {
-        return fileName().replace(s_entryExtention, QString());
+        return QFileInfo(m_fileName).completeBaseName();
     }
 
     QString Session::desktopNames() const
