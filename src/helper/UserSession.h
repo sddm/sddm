@@ -40,9 +40,7 @@ namespace SDDM {
 
         bool start();
 
-        bool isDisplayServer() const;
-        void setDisplayServer(bool value);
-
+        void setCompositor(const QString &command);
         void setPath(const QString &path);
         QString path() const;
 
@@ -66,11 +64,11 @@ namespace SDDM {
         void setupChildProcess();
 
     private:
-        bool m_displayServer { false };
+        void startGreeter();
+
         QString m_path { };
+        QString m_compositor { };
         qint64 m_cachedProcessId;
-        QTimer m_timer;
-        QPointer<QFileSystemWatcher> m_watcher;
     };
 }
 

@@ -52,7 +52,6 @@ namespace SDDM {
         Q_OBJECT
         // not setting NOTIFY for the properties - they should be set only once before calling start
         Q_PROPERTY(bool autologin READ autologin WRITE setAutologin NOTIFY autologinChanged)
-        Q_PROPERTY(bool displayServer READ isDisplayServer WRITE setDisplayServer NOTIFY displayServerChanged)
         Q_PROPERTY(bool greeter READ isGreeter WRITE setGreeter NOTIFY greeterChanged)
         Q_PROPERTY(bool verbose READ verbose WRITE setVerbose NOTIFY verboseChanged)
         Q_PROPERTY(QString cookie READ cookie WRITE setCookie NOTIFY cookieChanged)
@@ -92,7 +91,6 @@ namespace SDDM {
         static void registerTypes();
 
         bool autologin() const;
-        bool isDisplayServer() const;
         bool isGreeter() const;
         bool verbose() const;
         const QString &cookie() const;
@@ -127,14 +125,6 @@ namespace SDDM {
         void setAutologin(bool on = true);
 
         /**
-         * Set mode to display server
-         * This will bypass authentication checks and will wait
-         * until the display server is actually started, for example
-         * when the Wayland compositor socket is created
-         */
-        void setDisplayServer(bool on = true);
-
-        /**
          * Set mode to greeter
          * This will bypass authentication checks
          */
@@ -154,9 +144,14 @@ namespace SDDM {
 
         /**
         * Set the session to be started after authenticating.
-        * @param path Path of the session executable to be started
+        * @param command Path of the session executable to be started
         */
-        void setSession(const QString &path);
+        void setSession(const QString &command);
+
+        /**
+         * Set the @p command to be executed before launching the greeter
+         */
+        void setCompositor(const QString &command);
 
         /**
          * Set the display server cookie, to be inserted into the user's $XAUTHORITY
@@ -170,15 +165,17 @@ namespace SDDM {
         */
         void start();
 
+        void stop();
+
     Q_SIGNALS:
         void autologinChanged();
         void greeterChanged();
-        void displayServerChanged();
         void verboseChanged();
         void cookieChanged();
         void userChanged();
         void sessionChanged();
         void requestChanged();
+        void compositorChanged();
 
         /**
         * Emitted when authentication phase finishes

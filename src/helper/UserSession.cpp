@@ -23,6 +23,7 @@
 #include "UserSession.h"
 #include "HelperApp.h"
 #include "VirtualTerminal.h"
+#include "WaylandSocketWatcher.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -36,6 +37,7 @@
 #include <sched.h>
 
 namespace SDDM {
+
     UserSession::UserSession(HelperApp *parent)
             : QProcess(parent) {
     }
@@ -46,10 +48,9 @@ namespace SDDM {
 
     bool UserSession::start() {
         QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
-
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
-            qDebug() << "Starting greeter session:" << m_path;
-            QProcess::start(m_path);
+            qDebug() << "Starting greeter session:" << m_path << m_compositor;
+            QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-wayland"), {m_compositor, m_path});
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
             const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
             qInfo() << "Starting:" << cmd;
@@ -63,94 +64,34 @@ namespace SDDM {
         }
 
         // wait until the Wayland socket is ready
-        if (env.value(QLatin1String("XDG_SESSION_TYPE")) == QLatin1String("wayland") && m_displayServer) {
-            const QString runtimeDir = env.value(QLatin1String("XDG_RUNTIME_DIR"));
-            const QString socketName = QLatin1String("sddm-wayland");
-
-            // if the socket name is not specified we are not sure how it is called,
-            // it could be the default "wayland-0" or another name hence we don't
-            // even want to fallback to the default because if turns out to be the
-            // wrong name we'd have to rely on the timeout and delay the session startup
-            if (socketName.isEmpty()) {
-                // just return without even warning
-                if (!waitForStarted())
-                    return false;
-                emit sessionStarted(true);
-                return true;
-            }
-
-            const QString socketFileName = QDir(runtimeDir).absoluteFilePath(socketName);
-
-            m_watcher = new QFileSystemWatcher(this);
-
-            // give the compositor some time to start, if after that there is
-            // no socket the session is considered failed
-            m_timer.setSingleShot(true);
-            m_timer.setInterval(15000);
-            connect(&m_timer, &QTimer::timeout, this, [this, socketFileName] {
-                if (!m_watcher.isNull())
-                    m_watcher->deleteLater();
-                qWarning() << "Wayland socket watcher timed out, checking for" << socketFileName;
-                emit sessionStarted(QFile::exists(socketFileName));
-            });
-
-            connect(m_watcher, &QFileSystemWatcher::directoryChanged, this,
-                    [this, socketFileName](const QString &path) {
-                qDebug() << "Directory" << path << "has changed, checking for" << socketFileName;
-
-                if (QFile::exists(socketFileName)) {
-                    // kill the timer
-                    m_timer.stop();
-
-                    // tell HelperApp we have the socket and delete the watcher
-                    qInfo() << "Wayland socket ready";
-                    emit sessionStarted(true);
-
-                    // kill the watcher
-                    if (!m_watcher.isNull())
-                        m_watcher->deleteLater();
-                }
-            });
-
-            // if can't watch the runtime directory for any reason delete the
-            // watcher and continue
-            if (!m_watcher->addPath(runtimeDir)) {
-                qWarning("Cannot watch \"%s\" for Wayland socket", qPrintable(runtimeDir));
-                m_watcher->deleteLater();
-            }
-
-            // start the timer
-            m_timer.start();
+        if (env.value(QLatin1String("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
+            auto watcher = new WaylandSocketWatcher(this, env);
+            connect(watcher, &WaylandSocketWatcher::sessionStarted, this, &UserSession::sessionStarted);
+            watcher->start();
 
             // wait for the process to start
             if (!waitForStarted()) {
+                qDebug() << "Could not start process" << program() << errorString();
                 // if fails, the Wayland socket won't be created
-                m_timer.stop();
-                if (!m_watcher.isNull())
-                    m_watcher->deleteLater();
+                watcher->stop();
                 return false;
             }
-
-            return true;
         }
 
         // Wayland socket doesn't apply here
-        if (!waitForStarted())
+        if (!waitForStarted()) {
+            qDebug() << "Could not start process" << program() << errorString();
             return false;
+        }
         emit sessionStarted(true);
         return true;
     }
 
-    bool UserSession::isDisplayServer() const {
-        return m_displayServer;
-    }
-
-    void UserSession::setDisplayServer(bool value) {
-        m_displayServer = value;
-    }
-
     void UserSession::setPath(const QString& path) {
         m_path = path;
+    }
+    void UserSession::setCompositor(const QString& command) {
+        m_compositor = command;
     }
 
     QString UserSession::path() const {
@@ -164,6 +105,7 @@ namespace SDDM {
 
         // For Wayland sessions we leak the VT into the session as stdin so
         // that it stays open without races
+        qCritical("Starting a %s session (%s)", sessionType.toUtf8().constData(), qPrintable(program()));
         if (sessionType == QLatin1String("wayland")) {
             // open VT and get the fd
             int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
@@ -330,6 +272,7 @@ namespace SDDM {
         int fd = ::open(qPrintable(sessionLog), O_WRONLY | O_CREAT | O_TRUNC, 0600);
         if (fd >= 0)
         {
+            dup2 (fd, STDOUT_FILENO);
             dup2 (fd, STDERR_FILENO);
             ::close(fd);
         } else {
@@ -403,7 +346,7 @@ namespace SDDM {
             }
         }
 
-        qDebug() << "Ready to take off";
+        qDebug() << "See logs for" << program() << "in" << sessionLog;
     }
 
     void UserSession::setCachedProcessId(qint64 pid) {

@@ -186,6 +186,7 @@ namespace SDDM {
             m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(findGreeterTheme());
+        m_greeter->setCompositor(mainConfig.Wayland.CompositorCommand.get());
 
         // start greeter
         m_greeter->start();
@@ -295,7 +296,6 @@ namespace SDDM {
             auto reply = manager.ListSessions();
             reply.waitForFinished();
 
-            const auto info = reply.value();
             for(const SessionInfo &s : reply.value()) {
                 if (s.userName == user) {
                     OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());

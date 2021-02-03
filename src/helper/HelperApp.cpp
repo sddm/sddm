@@ -94,13 +94,17 @@ namespace SDDM {
             m_user = args[pos + 1];
         }
 
-        if ((pos = args.indexOf(QStringLiteral("--autologin"))) >= 0) {
-            m_backend->setAutologin(true);
+        if ((pos = args.indexOf(QStringLiteral("--compositor"))) >= 0) {
+            if (pos >= args.length() - 1) {
+                qCritical() << "This application is not supposed to be executed manually";
+                exit(Auth::HELPER_OTHER_ERROR);
+                return;
+            }
+            m_session->setCompositor(args[pos + 1]);
         }
 
-        if ((pos = args.indexOf(QStringLiteral("--display-server"))) >= 0) {
-            m_backend->setGreeter(true);
-            m_session->setDisplayServer(true);
+        if ((pos = args.indexOf(QStringLiteral("--autologin"))) >= 0) {
+            m_backend->setAutologin(true);
         }
 
         if ((pos = args.indexOf(QStringLiteral("--greeter"))) >= 0) {
@@ -114,7 +118,7 @@ namespace SDDM {
         }
 
         connect(m_socket, &QLocalSocket::connected, this, &HelperApp::doAuth);
-        connect(m_session, QOverload<int>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
+        connect(m_session, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
         connect(m_session, &UserSession::sessionStarted, this, &HelperApp::sessionStarted);
         m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
     }
@@ -158,7 +162,7 @@ namespace SDDM {
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
             // Allocate a new VT for the wayland session
-            if(env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
+            if(env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland") && env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("user")) {
                 int vtNumber = VirtualTerminal::setUpNewVt();
                 env.insert(QStringLiteral("XDG_VTNR"), QString::number(vtNumber));
             }
@@ -174,6 +178,7 @@ namespace SDDM {
         m_session->setProcessEnvironment(env);
 
         if (!m_backend->openSession()) {
+            qDebug() << "failed to open session";
             sessionOpened(false);
             exit(Auth::HELPER_SESSION_ERROR);
             return;
@@ -201,7 +206,7 @@ namespace SDDM {
         }
     }
 
-    void HelperApp::sessionFinished(int status) {
+    void HelperApp::sessionFinished(int exitCode, QProcess::ExitStatus exitStatus) {
         m_backend->closeSession();
 
         // write logout to utmp/wtmp
@@ -212,8 +217,7 @@ namespace SDDM {
             QString displayId = env.value(QStringLiteral("DISPLAY"));
             utmpLogout(vt, displayId, pid);
         }
-
-        exit(status);
+        exit(exitCode);
     }
 
     void HelperApp::info(const QString& message, Auth::Info type) {

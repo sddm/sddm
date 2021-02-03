@@ -54,7 +54,7 @@ namespace SDDM {
         void doAuth();
 
         void sessionStarted(bool success);
-        void sessionFinished(int status);
+        void sessionFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
     private:
         qint64 m_id { -1 };

@@ -38,26 +38,13 @@ namespace SDDM
 
         const QString &display() const;
 
-        QString sessionType() const;
+        QString sessionType() const override;
 
     public slots:
-        bool start();
-        void stop();
-        void finished();
-        void setupDisplay();
-
-    private slots:
-        void onRequestChanged();
-        void onSessionStarted(bool success);
-        void onHelperFinished(Auth::HelperExitStatus status);
-        void onReadyReadStandardOutput();
-        void onReadyReadStandardError();
-        void authInfo(const QString &message, Auth::Info info);
-        void authError(const QString &message, Auth::Error error);
-
-    private:
-        QProcess *m_process { nullptr };
-        Auth *m_auth { nullptr };
+        bool start() override;
+        void stop() override;
+        void finished() override;
+        void setupDisplay() override {}
     };
 }
 

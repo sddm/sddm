@@ -42,6 +42,7 @@ namespace SDDM {
         void setAuthPath(const QString &authPath);
         void setSocket(const QString &socket);
         void setTheme(const QString &theme);
+        void setCompositor(const QString &command);
 
     public slots:
         bool start();
@@ -60,6 +61,7 @@ namespace SDDM {
 
         Display *m_display { nullptr };
         QString m_authPath;
+        QString m_compositor;
         QString m_socket;
         QString m_themePath;
         ThemeMetadata *m_metadata { nullptr };

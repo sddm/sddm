@@ -82,6 +82,8 @@ namespace SDDM {
             Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                _S("Path to a script to execute when starting the desktop session"));
 	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/wayland-session.log"),_S("Path to the user session log file"));
             Entry(EnableHiDPI,         bool,        false,                                      _S("Enable Qt's automatic high-DPI scaling"));
+            Entry(CompositorCommand,   QString,     _S("weston --shell=fullscreen-shell.so"),   _S("Choose which Wayland compositor we will be starting"));
+            Entry(CompositorEnvironment, QString,   _S("QT_WAYLAND_SHELL_INTEGRATION=fullscreen-shell-v1"), _S("Semi-colon separed list of NAME=VALUE;NAME2=VALUE2 entries for the environment to use"));
         );
 
         Section(Users,

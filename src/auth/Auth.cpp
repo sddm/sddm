@@ -65,8 +65,8 @@ namespace SDDM {
         QString sessionPath { };
         QString user { };
         QString cookie { };
+        QString compositor { };
         bool autologin { false };
-        bool displayServer { false };
         bool greeter { false };
         QProcessEnvironment environment { };
         qint64 id { 0 };
@@ -215,7 +215,7 @@ namespace SDDM {
         if (exitCode == HELPER_SUCCESS)
             qDebug() << "Auth: sddm-helper exited successfully";
         else
-            qWarning("Auth: sddm-helper exited with %d", exitCode);
+            qWarning() << "Auth: sddm-helper ("<< qPrintable(child->arguments().join(QLatin1Char(' '))) << ") exited with" << HelperExitStatus(exitCode);
 
         Q_EMIT qobject_cast<Auth*>(parent())->finished((Auth::HelperExitStatus)exitCode);
     }
@@ -260,10 +260,6 @@ namespace SDDM {
 
     bool Auth::autologin() const {
         return d->autologin;
-    }
-
-    bool Auth::isDisplayServer() const {
-        return d->displayServer;
     }
 
     bool Auth::isGreeter() const
@@ -324,14 +320,6 @@ namespace SDDM {
         }
     }
 
-    void Auth::setDisplayServer(bool on)
-    {
-        if (on != d->displayServer) {
-            d->displayServer = on;
-            Q_EMIT displayServerChanged();
-        }
-    }
-
     void Auth::setGreeter(bool on)
     {
         if (on != d->greeter) {
@@ -344,6 +332,13 @@ namespace SDDM {
         if (path != d->sessionPath) {
             d->sessionPath = path;
             Q_EMIT sessionChanged();
+        }
+    }
+
+    void Auth::setCompositor(const QString& command) {
+        if (command != d->compositor) {
+            d->compositor = command;
+            Q_EMIT compositorChanged();
         }
     }
 
@@ -367,11 +362,20 @@ namespace SDDM {
             args << QStringLiteral("--user") << d->user;
         if (d->autologin)
             args << QStringLiteral("--autologin");
-        if (d->displayServer)
-            args << QStringLiteral("--display-server");
+        if (!d->compositor.isEmpty())
+            args << QStringLiteral("--compositor") << d->compositor;
         if (d->greeter)
             args << QStringLiteral("--greeter");
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);
+    }
+
+    void Auth::stop() {
+        if (d->child->state() != QProcess::NotRunning) {
+            d->child->terminate();
+            if (!d->child->waitForFinished(2000)) {
+                d->child->kill();
+            }
+        }
     }
 }
 

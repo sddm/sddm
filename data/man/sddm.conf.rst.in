@@ -172,6 +172,14 @@ OPTIONS
 	Can be either "true" or "false".
 	Default value is "false".
 
+`CompositorCommand=`
+	Chooses which command to issue to start a wayland compositor.
+	Default value is "weston".
+
+`CompositorEnvironment=`
+	Semi-colon separed list of NAME=VALUE;NAME2=VALUE2 entries for the environment to use
+	Default value is empty
+
 [Users] section:
 
 `DefaultPath=`

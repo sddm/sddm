@@ -13,6 +13,7 @@ set(HELPER_SOURCES
     Backend.cpp
     HelperApp.cpp
     UserSession.cpp
+    WaylandSocketWatcher.cpp
 )
 
 # Different implementations of the VT switching code
@@ -65,3 +66,7 @@ if(JOURNALD_FOUND)
 endif()
 
 install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
+
+add_executable(sddm-helper-start-wayland HelperStartWayland.cpp WaylandSocketWatcher.cpp)
+target_link_libraries(sddm-helper-start-wayland Qt5::Core)
+install(TARGETS sddm-helper-start-wayland RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")

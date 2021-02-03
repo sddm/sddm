@@ -41,6 +41,7 @@ namespace SDDM
 WaylandDisplayServer::WaylandDisplayServer(Display *parent)
     : DisplayServer(parent)
 {
+    m_display = QStringLiteral("wayland");
 }
 
 WaylandDisplayServer::~WaylandDisplayServer()
@@ -64,76 +65,14 @@ bool WaylandDisplayServer::start()
     if (m_started)
         return false;
 
-    // log message
-    qDebug() << "Compositor starting...";
-
-    const QString exe = QStringLiteral("%1/sddm-wayland-compositor").arg(QLatin1String(BIN_INSTALL_DIR));
-    const QStringList args = QStringList() << QLatin1String("--wayland-socket-name") << QLatin1String("sddm-wayland");
-
-    if (daemonApp->testing()) {
-        // create process
-        m_process = new QProcess(this);
-
-        // delete process on finish
-        connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(finished()));
-
-        connect(m_process, SIGNAL(readyReadStandardOutput()), SLOT(onReadyReadStandardOutput()));
-        connect(m_process, SIGNAL(readyReadStandardError()), SLOT(onReadyReadStandardError()));
-
-        qDebug() << "Running:" << qPrintable(exe) << qPrintable(args.join(QLatin1Char(' ')));
-        m_process->start(exe, args);
-
-        // don't block in waitForStarted if we fail to start
-        if (m_process->state() == QProcess::NotRunning) {
-            qCritical() << "Compositor failed to launch";
-            return false;
-        }
-
-        // wait for the compositor to start
-        if (!m_process->waitForStarted()) {
-            qCritical() << "Failed to start compositor";
-            return false;
-        }
-
-        qDebug() << "Compositor process started";
-        m_started = true;
-        emit started();
-    } else {
+    if (!daemonApp->testing()) {
         // setup vt
         VirtualTerminal::jumpToVt(displayPtr()->terminalId(), true);
-
-        // authentication
-        m_auth = new Auth(this);
-        m_auth->setVerbose(true);
-        connect(m_auth, SIGNAL(requestChanged()), this, SLOT(onRequestChanged()));
-        connect(m_auth, SIGNAL(session(bool)), this, SLOT(onSessionStarted(bool)));
-        connect(m_auth, SIGNAL(finished(Auth::HelperExitStatus)), this, SLOT(onHelperFinished(Auth::HelperExitStatus)));
-        connect(m_auth, SIGNAL(info(QString,Auth::Info)), this, SLOT(authInfo(QString,Auth::Info)));
-        connect(m_auth, SIGNAL(error(QString,Auth::Error)), this, SLOT(authError(QString,Auth::Error)));
-
-        // environment
-        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-
-        env.insert(QLatin1String("PATH"), mainConfig.Users.DefaultPath.get());
-        env.insert(QLatin1String("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
-        env.insert(QLatin1String("XDG_SEAT"), displayPtr()->seat()->name());
-        env.insert(QLatin1String("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(displayPtr()->seat()->name()));
-        env.insert(QLatin1String("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
-        env.insert(QLatin1String("XDG_VTNR"), QString::number(displayPtr()->terminalId()));
-        env.insert(QLatin1String("XDG_SESSION_CLASS"), QLatin1String("greeter"));
-        env.insert(QLatin1String("XDG_SESSION_TYPE"), QLatin1String("wayland"));
-        env.insert(QLatin1String("QT_QPA_PLATFORM"), QStringLiteral("greenisland"));
-
-        m_auth->insertEnvironment(env);
-
-        // start compositor
-        m_auth->setUser(QLatin1String("sddm"));
-        m_auth->setDisplayServer(true);
-        m_auth->setSession(QStringLiteral("%1 %2").arg(exe).arg(args.join(QLatin1Char(' '))));
-        m_auth->start();
     }
+    // set flag
+    m_started = true;
+    emit started();
 
-    // return success
     return true;
 }
 
@@ -143,92 +82,16 @@ void WaylandDisplayServer::stop()
     if (!m_started)
         return;
 
-    // log message
-    qDebug() << "Stopping compositor...";
-
-    // terminate process
-    m_process->terminate();
-
-    // wait for finished
-    if (!m_process->waitForFinished(5000))
-        m_process->kill();
-}
-
-void WaylandDisplayServer::finished()
-{
-    // check flag
-    if (!m_started)
-        return;
-
     // reset flag
     m_started = false;
-
-    // log message
-    qDebug() << "Compositor stopped";
-
-    // clean up
-    m_process->deleteLater();
-    m_process = nullptr;
 
     // emit signal
     emit stopped();
 }
 
-void WaylandDisplayServer::setupDisplay()
+void WaylandDisplayServer::finished()
 {
 }
 
-void WaylandDisplayServer::onRequestChanged() {
-    m_auth->request()->setFinishAutomatically(true);
 }
 
-void WaylandDisplayServer::onSessionStarted(bool success) {
-    // set flag
-    m_started = success;
-
-    // log message
-    if (success)
-        qDebug() << "Compositor successfully started";
-    else
-        qDebug() << "Compositor failed to start";
-
-    if (m_started)
-        emit started();
-}
-
-void WaylandDisplayServer::onHelperFinished(Auth::HelperExitStatus status) {
-    // reset flag
-    m_started = false;
-
-    // log message
-    qDebug() << "Compositor stopped";
-
-    // clean up
-    m_auth->deleteLater();
-    m_auth = nullptr;
-}
-
-void WaylandDisplayServer::onReadyReadStandardError()
-{
-    if (m_process) {
-        qDebug() << "Compositor errors:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardError()));
-    }
-}
-
-void WaylandDisplayServer::onReadyReadStandardOutput()
-{
-    if (m_process) {
-        qDebug() << "Compositor output:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardOutput()));
-    }
-}
-
-void WaylandDisplayServer::authInfo(const QString &message, Auth::Info info) {
-    Q_UNUSED(info);
-    qDebug() << "Information from compositor session:" << message;
-}
-
-void WaylandDisplayServer::authError(const QString &message, Auth::Error error) {
-    Q_UNUSED(error);
-    qWarning() << "Error from compositor session:" << message;
-}
-}
