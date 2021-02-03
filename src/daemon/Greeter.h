@@ -46,14 +46,12 @@ namespace SDDM {
     public slots:
         bool start();
         void stop();
-        void finished();
+        void finished(int code, QProcess::ExitStatus status);
 
     private slots:
         void onRequestChanged();
         void onSessionStarted(bool success);
         void onHelperFinished(Auth::HelperExitStatus status);
-        void onReadyReadStandardOutput();
-        void onReadyReadStandardError();
         void authInfo(const QString &message, Auth::Info info);
         void authError(const QString &message, Auth::Error error);
 

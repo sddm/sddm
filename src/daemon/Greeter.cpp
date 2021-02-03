@@ -105,8 +105,12 @@ namespace SDDM {
             // delete process on finish
             connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &Greeter::finished);
 
-            connect(m_process, &QProcess::readyReadStandardOutput, this, &Greeter::onReadyReadStandardOutput);
-            connect(m_process, &QProcess::readyReadStandardError, this, &Greeter::onReadyReadStandardError);
+            connect(m_process, &QProcess::readyReadStandardOutput, this, [this] {
+                qDebug() << "Greeter errors:" << m_process->readAllStandardOutput().constData();
+            });
+            connect(m_process, &QProcess::readyReadStandardError, this, [this] {
+                qDebug() << "Greeter errors:" << m_process->readAllStandardError().constData();
+            });
 
             // log message
             qDebug() << "Greeter starting...";
@@ -228,7 +232,7 @@ namespace SDDM {
         }
     }
 
-    void Greeter::finished() {
+    void Greeter::finished(int code, QProcess::ExitStatus status) {
         // check flag
         if (!m_started)
             return;
@@ -237,7 +241,7 @@ namespace SDDM {
         m_started = false;
 
         // log message
-        qDebug() << "Greeter stopped.";
+        qDebug() << "Greeter stopped." << code << status;
 
         // clean up
         m_process->deleteLater();
@@ -264,25 +268,11 @@ namespace SDDM {
         m_started = false;
 
         // log message
-        qDebug() << "Greeter stopped.";
+        qDebug() << "Greeter stopped." << status;
 
         // clean up
         m_auth->deleteLater();
         m_auth = nullptr;
-    }
-
-    void Greeter::onReadyReadStandardError()
-    {
-        if (m_process) {
-            qDebug() << "Greeter errors:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardError()));
-        }
-    }
-
-    void Greeter::onReadyReadStandardOutput()
-    {
-        if (m_process) {
-            qDebug() << "Greeter output:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardOutput()));
-        }
     }
 
     void Greeter::authInfo(const QString &message, Auth::Info info) {
