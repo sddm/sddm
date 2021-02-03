@@ -69,6 +69,7 @@ namespace SDDM {
             INFO_PASS_CHANGE_REQUIRED,
             _INFO_LAST
         };
+        Q_ENUM(Info)
 
         enum Error {
             ERROR_NONE = 0,
@@ -77,6 +78,7 @@ namespace SDDM {
             ERROR_INTERNAL,
             _ERROR_LAST
         };
+        Q_ENUM(Error)
 
         enum HelperExitStatus {
             HELPER_SUCCESS = 0,
@@ -84,6 +86,7 @@ namespace SDDM {
             HELPER_SESSION_ERROR,
             HELPER_OTHER_ERROR
         };
+        Q_ENUM(HelperExitStatus)
 
         static void registerTypes();
 
