@@ -358,7 +358,7 @@ namespace SDDM {
                 OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
                 manager.UnlockSession(m_reuseSessionId);
                 manager.ActivateSession(m_reuseSessionId);
-            } else {
+            } else if (qobject_cast<XorgDisplayServer *>(m_displayServer)) {
                 m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
             }
 
