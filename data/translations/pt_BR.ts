@@ -62,7 +62,7 @@
         <translation>Desligar</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Usuário</translation>
     </message>
     <message>

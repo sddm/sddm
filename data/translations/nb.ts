@@ -70,7 +70,7 @@
         <translation>Slå av</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Brukernavn</translation>
     </message>
     <message>

@@ -62,7 +62,7 @@
         <translation>Угаси</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Корисничко име</translation>
     </message>
     <message>

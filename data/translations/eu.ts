@@ -62,7 +62,7 @@
         <translation>Itzali</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Erabiltzaile izena</translation>
     </message>
     <message>

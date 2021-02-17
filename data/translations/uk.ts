@@ -48,7 +48,7 @@
         <translation>Вимкнути</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Ім'я користувача</translation>
     </message>
     <message>

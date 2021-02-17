@@ -62,7 +62,7 @@
         <translation>बंद कीजिए</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>आपकी पहचान</translation>
     </message>
     <message>

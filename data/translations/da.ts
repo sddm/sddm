@@ -70,7 +70,7 @@
         <translation>Luk ned</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Brugernavn</translation>
     </message>
     <message>

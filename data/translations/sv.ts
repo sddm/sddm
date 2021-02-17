@@ -76,7 +76,7 @@
     </message>
     <message>
         <location filename="../../components/common/TextConstants.qml" line="39"/>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Användarnamn</translation>
     </message>
     <message>
