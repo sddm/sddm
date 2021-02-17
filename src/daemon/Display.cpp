@@ -48,7 +48,6 @@
 #include "Login1Session.h"
 #include "VirtualTerminal.h"
 
-
 namespace SDDM {
     Display::Display(const int terminalId, Seat *parent) : QObject(parent),
         m_terminalId(terminalId),
@@ -62,8 +61,10 @@ namespace SDDM {
         const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
         if (displayServerType == QLatin1String("wayland"))
             m_displayServer = new WaylandDisplayServer(this);
-        else
-            m_displayServer = new XorgDisplayServer(this);
+        else {
+            m_xorgDisplayServer = new XorgDisplayServer(this);
+            m_displayServer = m_xorgDisplayServer;
+        }
 
         // respond to authentication requests
         m_auth->setVerbose(true);
@@ -183,7 +184,7 @@ namespace SDDM {
         // set greeter params
         m_greeter->setDisplay(this);
         if (m_displayServer->sessionType() == QLatin1String("x11"))
-            m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
+            m_greeter->setAuthPath(xorgServer()->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(findGreeterTheme());
         m_greeter->setCompositor(mainConfig.Wayland.CompositorCommand.get());
@@ -358,8 +359,8 @@ namespace SDDM {
                 OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
                 manager.UnlockSession(m_reuseSessionId);
                 manager.ActivateSession(m_reuseSessionId);
-            } else if (qobject_cast<XorgDisplayServer *>(m_displayServer)) {
-                m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+            } else if (m_lastSession.xdgSessionType() == QLatin1String("x11")) {
+                m_auth->setCookie(xorgServer()->cookie());
             }
 
             // save last user and last session
@@ -427,5 +428,16 @@ namespace SDDM {
 
     void Display::slotSessionStarted(bool success) {
         qDebug() << "Session started";
+    }
+
+    XorgDisplayServer* Display::xorgServer()
+    {
+        if (!m_xorgDisplayServer) {
+            m_xorgDisplayServer = new XorgDisplayServer(this);
+            m_xorgDisplayServer->start();
+            connect(m_xorgDisplayServer, &DisplayServer::started, m_xorgDisplayServer, &DisplayServer::setupDisplay);
+            connect(this, &Display::stopped, m_xorgDisplayServer, &XorgDisplayServer::stop);
+        }
+        return m_xorgDisplayServer;
     }
 }

@@ -33,6 +33,7 @@ class QLocalSocket;
 namespace SDDM {
     class Authenticator;
     class DisplayServer;
+    class XorgDisplayServer;
     class Seat;
     class SocketServer;
     class Greeter;
@@ -75,6 +76,8 @@ namespace SDDM {
 
         void startAuth(const QString &user, const QString &password,
                        const Session &session);
+        /// Provides the greeter's X.Org server or creates one if the greeter uses something else
+        XorgDisplayServer *xorgServer();
 
         bool m_relogin { true };
         bool m_started { false };
@@ -89,6 +92,7 @@ namespace SDDM {
 
         Auth *m_auth { nullptr };
         DisplayServer *m_displayServer { nullptr };
+        XorgDisplayServer *m_xorgDisplayServer { nullptr };
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };
         QLocalSocket *m_socket { nullptr };

@@ -162,6 +162,7 @@ namespace SDDM {
             QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
             env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
             process->setProcessEnvironment(env);
+            process->setProcessChannelMode(QProcess::ForwardedChannels);
 
             //create pipe for communicating with X server
             //0 == read from X, 1== write to from X
