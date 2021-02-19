@@ -87,11 +87,15 @@ Rectangle {
                 onLogin: sddm.login(model.name, password, sessionIndex);
 
                 MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
+                    anchors.left: parent.left; anchors.top: parent.top
+                    width: parent.width; height: 185
+                    cursorShape: Qt.PointingHandCursor
+                    hoverEnabled: true
+                    onEntered: {
                         listView.currentIndex = index;
                         listView.focus = true;
                     }
+                    onClicked: sddm.login (model.name, password, sessionIndex)
                 }
             }
         }
