@@ -28,6 +28,14 @@
 
 #include "MessageHandler.h"
 
+#ifdef Q_OS_FREEBSD
+/* On FreeBSD console-kit-daemon isn't started by the init system (no
+ * systemd, and there's no rc script starting it either), so try to
+ * start it from sddm via dbus activation.
+ */
+#include <QDBusConnectionInterface>
+#endif
+
 #include <QDebug>
 #include <QHostInfo>
 #include <QTimer>
@@ -49,6 +57,11 @@ namespace SDDM {
         // set testing parameter
         m_testing = (arguments().indexOf(QStringLiteral("--test-mode")) != -1);
 
+#ifdef Q_OS_FREEBSD
+        // start consolekit
+        QDBusConnection::systemBus().interface()->startService(QStringLiteral("org.freedesktop.ConsoleKit"));
+#endif
+        
         // create display manager
         m_displayManager = new DisplayManager(this);
 
