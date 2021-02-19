@@ -14,6 +14,12 @@
 
 #include "XauthUtils.h"
 
+#if !defined(HOST_NAME_MAX) && defined(_POSIX_HOST_NAME_MAX)
+// On FreeBSD HOST_NAME_MAX is not defined, intentionally,
+// to make applications use sysctl() to get real values .. let's not.
+#define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+#endif
+
 namespace SDDM { namespace Xauth {
     QByteArray generateCookie()
     {
