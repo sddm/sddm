@@ -90,6 +90,17 @@ check_function_exists(getspnam HAVE_GETSPNAM)
 
 # XAU
 pkg_check_modules(LIBXAU REQUIRED "xau")
+# If possible, convert xau to a full path; if not, keep the existing
+# setting (which is probably -lXau .. which fails on FreeBSD because
+# the **directory** it is in is not searched.
+find_library(_xau_lib
+        NAMES ${LIBXAU_LIBRARIES} xau Xau
+        HINTS ${LIBXAU_LIBRARY_DIRS} ${LIBXAU_INCLUDE_DIR}/../lib ${LIBXAU_LIBRARIES}
+)
+if(_xau_lib)
+    set(LIBXAU_LIBRARIES ${_xau_lib})
+endif()
+
 
 # XCB
 find_package(XCB REQUIRED)
