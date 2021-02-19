@@ -58,6 +58,10 @@ LogindPathInternal::LogindPathInternal()
         return;
     }
 
+#ifndef Q_OS_FREEBSD
+    /* On Linux, it is possible that ConsoleKit acts like logind; this
+     * does not apply to FreeBSD, so skip it.
+     */
     if (QDBusConnection::systemBus().interface()->isServiceRegistered(QStringLiteral("org.freedesktop.ConsoleKit"))) {
         qDebug() << "Console kit interface found";
         available = true;
@@ -69,6 +73,7 @@ LogindPathInternal::LogindPathInternal()
         userIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.User");
         return;
     }
+#endif
     qDebug() << "No session manager found";
 }
 
