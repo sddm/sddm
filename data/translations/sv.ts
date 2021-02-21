@@ -70,6 +70,7 @@
         <translation>Stäng av</translation>
     </message>
     <message>
+        <location filename="../../components/common/TextConstants.qml" line="39"/>
         <source>Username</source>
         <translation>Användarnamn</translation>
     </message>

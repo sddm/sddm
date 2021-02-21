@@ -60,7 +60,7 @@
     </message>
     <message>
         <location filename="TextConstants.qml" line="43"/>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Usator</translation>
     </message>
     <message>

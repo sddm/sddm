@@ -62,7 +62,7 @@
         <translation>シャットダウン</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>ユーザ名</translation>
     </message>
     <message>

@@ -62,7 +62,7 @@
         <translation>Uitschakelen</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Gebruikersnaam</translation>
     </message>
     <message>

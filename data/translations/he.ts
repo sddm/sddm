@@ -62,7 +62,7 @@
         <translation>כיבוי</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>שם משתמש</translation>
     </message>
     <message>
