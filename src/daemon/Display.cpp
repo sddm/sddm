@@ -313,6 +313,7 @@ namespace SDDM {
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
         QProcessEnvironment env;
+        env.insert(session.additionalEnv());
 
         if (seat()->name() == QLatin1String("seat0")) {
             // Use the greeter VT, for wayland sessions the helper overwrites this
