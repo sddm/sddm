@@ -8,7 +8,7 @@
 # Note that the respective logout scripts are not sourced.
 case $SHELL in
   */bash)
-    [ -z "$BASH" ] && exec $SHELL $0 "$@"
+    case "$BASH" in '') exec $SHELL $0 "$@" ;;esac
     set +o posix
     [ -f /etc/profile ] && . /etc/profile
     if [ -f $HOME/.bash_profile ]; then
@@ -20,7 +20,7 @@ case $SHELL in
     fi
     ;;
 */zsh)
-    [ -z "$ZSH_NAME" ] && exec $SHELL $0 "$@"
+    case "$ZSH_NAME" in '') exec $SHELL $0 "$@" ;;esac
     [ -d /etc/zsh ] && zdir=/etc/zsh || zdir=/etc
     zhome=${ZDOTDIR:-$HOME}
     # zshenv is always sourced automatically.
@@ -98,8 +98,8 @@ if [ -f "$USERXSESSION" ]; then
   . "$USERXSESSION"
 fi
 
-if [ -z "$*" ]; then
+case "$*" in '')
     exec xmessage -center -buttons OK:0 -default OK "Sorry, $DESKTOP_SESSION is no valid session."
-else
+;;*)
     exec $@
-fi
+;;fi
