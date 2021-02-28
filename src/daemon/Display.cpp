@@ -433,13 +433,14 @@ namespace SDDM {
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
-        // Don't restart greeter and display server unless sddm-helper exited
-        // with an internal error or the user session finished successfully,
-        // we want to avoid greeter from restarting when an authentication
-        // error happens (in this case we want to show the message from the
-        // greeter
-        if (status != Auth::HELPER_AUTH_ERROR)
+        // Restart the greeter and display server if sddm-helper exited
+        // with an internal error or a session error, otherwise we just
+        // want to reuse the existing so we jump to its VT
+        if (status == Auth::HELPER_SESSION_ERROR ||
+                status == Auth::HELPER_OTHER_ERROR)
             stop();
+        else
+            VirtualTerminal::jumpToVt(m_terminalId, true);
     }
 
     void Display::slotRequestChanged() {
