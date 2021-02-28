@@ -33,18 +33,6 @@
 #include <functional>
 
 namespace SDDM {
-    int findUnused(int minimum, std::function<bool(const int)> used) {
-        // initialize with minimum
-        int number = minimum;
-
-        // find unused
-        while (used(number))
-            number++;
-
-        // return number;
-        return number;
-    }
-
     Seat::Seat(const QString &name, QObject *parent) : QObject(parent), m_name(name) {
         createDisplay();
     }
@@ -53,30 +41,13 @@ namespace SDDM {
         return m_name;
     }
 
-    void Seat::createDisplay(int terminalId) {
+    void Seat::createDisplay() {
         //reload config if needed
         mainConfig.load();
 
-        if (m_name == QLatin1String("seat0")) {
-            if (terminalId == -1) {
-                // find unused terminal
-                terminalId = findUnused(mainConfig.X11.MinimumVT.get(), [&](const int number) {
-                    return m_terminalIds.contains(number);
-                });
-            }
-
-            // mark terminal as used
-            m_terminalIds << terminalId;
-
-            // log message
-            qDebug() << "Adding new display" << "on vt" << terminalId << "...";
-        }
-        else {
-            qDebug() << "Adding new VT-less display...";
-        }
-
         // create a new display
-        Display *display = new Display(terminalId, this);
+        qDebug() << "Adding new display...";
+        Display *display = new Display(this);
 
         // restart display on stop
         connect(display, &Display::stopped, this, &Seat::displayStopped);
@@ -111,9 +82,6 @@ namespace SDDM {
 
         // remove display from list
         m_displays.removeAll(display);
-
-        // mark display and terminal ids as unused
-        m_terminalIds.removeAll(display->terminalId());
 
         // stop the display
         display->blockSignals(true);

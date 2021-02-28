@@ -41,7 +41,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
-        explicit Display(int terminalId, Seat *parent);
+        explicit Display(Seat *parent);
         ~Display();
 
         QString displayId() const;

@@ -144,7 +144,7 @@ OPTIONS
 	Minimum virtual terminal number that will be used
 	by the first display. Virtual terminal number will
 	increase as new displays added.
-	Default value is @MINIMUM_VT@.
+	This setting is no longer available since SDDM v0.20.
 
 `EnableHiDPI=`
 	Enables Qt's automatic HiDPI scaling.
