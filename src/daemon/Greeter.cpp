@@ -225,6 +225,8 @@ namespace SDDM {
             // wait for finished
             if (!m_process->waitForFinished(5000))
                 m_process->kill();
+        } else {
+            m_auth->stop();
         }
     }
 

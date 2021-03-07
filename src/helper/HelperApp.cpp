@@ -22,7 +22,7 @@
 #include "Backend.h"
 #include "UserSession.h"
 #include "SafeDataStream.h"
-
+#include "SignalHandler.h"
 #include "MessageHandler.h"
 #include "VirtualTerminal.h"
 
@@ -49,6 +49,18 @@ namespace SDDM {
             , m_session(new UserSession(this))
             , m_socket(new QLocalSocket(this)) {
         qInstallMessageHandler(HelperMessageHandler);
+
+        m_signalHandler = new SignalHandler(this);
+        m_signalHandler->initialize();
+        connect(m_signalHandler, &SignalHandler::sigintReceived, this, &HelperApp::quit);
+        connect(m_signalHandler, &SignalHandler::sigtermReceived, this, &HelperApp::quit);
+
+        connect(this, &QCoreApplication::aboutToQuit, this, [this] {
+            m_session->terminate();
+            if (!m_session->waitForFinished(5000))
+                m_session->kill();
+            m_backend->closeSession();
+        });
 
         QTimer::singleShot(0, this, SLOT(setUp()));
     }
