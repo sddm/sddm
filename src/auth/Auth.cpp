@@ -358,6 +358,15 @@ namespace SDDM {
             args << QStringLiteral("--greeter");
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);
     }
+
+    void Auth::stop()
+    {
+        if (d->child->state() != QProcess::NotRunning) {
+            d->child->terminate();
+            if (!d->child->waitForFinished(5000))
+                d->child->kill();
+        }
+    }
 }
 
 #include "Auth.moc"

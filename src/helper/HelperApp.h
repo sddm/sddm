@@ -31,6 +31,7 @@ class QLocalSocket;
 namespace SDDM {
     class Backend;
     class UserSession;
+    class SignalHandler;
     class HelperApp : public QCoreApplication
     {
         Q_OBJECT
@@ -63,6 +64,7 @@ namespace SDDM {
         QString m_user { };
         // TODO: get rid of this in a nice clean way along the way with moving to user session X server
         QString m_cookie { };
+        SignalHandler *m_signalHandler = nullptr;
 
         /*!
          \brief Write utmp/wtmp/btmp records when a user logs in
