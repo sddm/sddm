@@ -240,8 +240,10 @@ namespace SDDM {
         qDebug() << "Greeter stopped.";
 
         // clean up
-        m_process->deleteLater();
-        m_process = nullptr;
+        if (m_process) {
+            m_process->deleteLater();
+            m_process = nullptr;
+        }
     }
 
     void Greeter::onRequestChanged() {

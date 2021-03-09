@@ -23,6 +23,7 @@
 #include <QDataStream>
 #include <QDir>
 #include <QSharedPointer>
+#include <QProcessEnvironment>
 
 namespace SDDM {
     class SessionModel;
@@ -59,11 +60,14 @@ namespace SDDM {
         bool isHidden() const;
         bool isNoDisplay() const;
 
+        QProcessEnvironment additionalEnv() const;
+
         void setTo(Type type, const QString &name);
 
         Session &operator=(const Session &other);
 
     private:
+        QProcessEnvironment parseEnv(const QString &list);
         bool m_valid;
         Type m_type;
         QDir m_dir;
@@ -75,6 +79,7 @@ namespace SDDM {
         QString m_tryExec;
         QString m_xdgSessionType;
         QString m_desktopNames;
+        QProcessEnvironment m_additionalEnv;
         bool m_isHidden;
         bool m_isNoDisplay;
 
