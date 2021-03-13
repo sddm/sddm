@@ -107,6 +107,10 @@ namespace SDDM {
         return m_isNoDisplay;
     }
 
+    QProcessEnvironment Session::additionalEnv() const {
+        return m_additionalEnv;
+    }
+
     void Session::setTo(Type type, const QString &_fileName)
     {
         QString fileName(_fileName);
@@ -178,6 +182,8 @@ namespace SDDM {
                 m_isHidden = line.mid(7).toLower() == QLatin1String("true");
             if (line.startsWith(QLatin1String("NoDisplay=")))
                 m_isNoDisplay = line.mid(10).toLower() == QLatin1String("true");
+            if (line.startsWith(QLatin1String("X-SDDM-Env=")))
+                m_additionalEnv = parseEnv(line.mid(strlen("X-SDDM-Env=")));
         }
 
         file.close();
@@ -191,4 +197,22 @@ namespace SDDM {
         setTo(other.type(), other.fileName());
         return *this;
     }
+
+    QProcessEnvironment SDDM::Session::parseEnv(const QString &list)
+    {
+        QProcessEnvironment env;
+
+        const QVector<QStringRef> entryList = list.splitRef(QLatin1Char(','));
+        for (const auto &entry: entryList) {
+            int midPoint = entry.indexOf(QLatin1Char('='));
+            if (midPoint < 0) {
+                qWarning() << "Malformed entry in" << fileName() << ":" << entry;
+                continue;
+            }
+            env.insert(entry.left(midPoint).toString(), entry.mid(midPoint+1).toString());
+        }
+        return env;
+    }
+
+
 }
