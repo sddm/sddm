@@ -245,6 +245,11 @@ namespace SDDM {
     }
 
     bool Display::findSessionEntry(const QDir &dir, const QString &name) const {
+        // Given an absolute path: Check that it matches dir
+        const QFileInfo fileInfo(name);
+        if (fileInfo.isAbsolute() && fileInfo.absolutePath() != dir.absolutePath())
+            return false;
+
         QString fileName = name;
 
         // append extension
@@ -308,6 +313,7 @@ namespace SDDM {
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
 
         QProcessEnvironment env;
+        env.insert(session.additionalEnv());
 
         if (seat()->name() == QLatin1String("seat0")) {
             // Use the greeter VT, for wayland sessions the helper overwrites this

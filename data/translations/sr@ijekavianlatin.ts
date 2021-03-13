@@ -62,7 +62,7 @@
         <translation>Ugasi</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Korisničko ime</translation>
     </message>
     <message>

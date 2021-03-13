@@ -62,7 +62,7 @@
         <translation>Izslēgt</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Lietotāja vārds</translation>
     </message>
     <message>

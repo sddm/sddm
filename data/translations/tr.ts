@@ -5,14 +5,14 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation type="unfinished"></translation>
+        <translation>Giriş yapmak için tıklayın</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Wayland)</translation>
     </message>
 </context>
 <context>
@@ -62,7 +62,7 @@
         <translation>Kapat</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Kullanıcı adı</translation>
     </message>
     <message>
