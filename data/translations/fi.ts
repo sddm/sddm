@@ -62,7 +62,7 @@
         <translation>Sammuta</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Käyttäjätunnus</translation>
     </message>
     <message>

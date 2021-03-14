@@ -62,7 +62,7 @@
         <translation>Leállítás</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Felhasználónév</translation>
     </message>
     <message>

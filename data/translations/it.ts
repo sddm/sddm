@@ -62,7 +62,7 @@
         <translation>Spegni</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Nome utente</translation>
     </message>
     <message>

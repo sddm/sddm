@@ -34,9 +34,9 @@ set(DAEMON_SOURCES
 # Different implementations of the VT switching code
 # (where the FreeBSD version does nothing).
 if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
-    list(APPEND DAEMON_SOURCES VirtualTerminal_FreeBSD.cpp)
+    list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal_FreeBSD.cpp)
 else()
-    list(APPEND DAEMON_SOURCES VirtualTerminal.cpp)
+    list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
 endif()
 
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "DisplayManager.h" SDDM::DisplayManager)

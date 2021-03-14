@@ -62,7 +62,7 @@
         <translation>Slökkva</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Notandanafn</translation>
     </message>
     <message>

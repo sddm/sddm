@@ -6,6 +6,10 @@
 # Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
 
 # Note that the respective logout scripts are not sourced.
+
+# Backup the user shell setting into SDDM specific variable
+SDDM_USER_SHELL=$SHELL
+
 case $SHELL in
   */bash)
     [ -z "$BASH" ] && exec $SHELL $0 "$@"
@@ -40,6 +44,7 @@ case $SHELL in
     ;;
   */fish)
     [ -f /etc/profile ] && . /etc/profile
+    [ -f $HOME/.profile ] && . $HOME/.profile
     xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
     $SHELL --login -c "/bin/sh -c 'export -p' > $xsess_tmp"
     . $xsess_tmp
@@ -50,5 +55,8 @@ case $SHELL in
     [ -f $HOME/.profile ] && . $HOME/.profile
     ;;
 esac
+
+# Restore user shell setting that may have been clobbered by setting environment
+export SHELL=$SDDM_USER_SHELL
 
 exec $@

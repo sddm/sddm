@@ -40,7 +40,7 @@ namespace SDDM {
 
         const QString &cookie() const;
 
-        void addCookie(const QString &file);
+        bool addCookie(const QString &file);
 
     public slots:
         bool start();

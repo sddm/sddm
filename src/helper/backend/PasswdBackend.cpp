@@ -56,7 +56,7 @@ namespace SDDM {
         r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, QStringLiteral("Password"), true);
 
         Request response = m_app->request(r);
-        Q_FOREACH(const Prompt &p, response.prompts) {
+        for(const Prompt &p : qAsConst(response.prompts)) {
             switch (p.type) {
                 case AuthPrompt::LOGIN_USER:
                     m_user = QString::fromUtf8(p.response);

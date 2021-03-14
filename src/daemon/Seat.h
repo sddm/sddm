@@ -42,6 +42,8 @@ namespace SDDM {
         void displayStopped();
 
     private:
+        void startDisplay(SDDM::Display *display, int tryNr = 1);
+
         QString m_name;
 
         QVector<Display *> m_displays;
