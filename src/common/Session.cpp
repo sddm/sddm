@@ -161,15 +161,8 @@ namespace SDDM {
             if (current_section != QLatin1String("Desktop Entry"))
                 continue; // We are only interested in the "Desktop Entry" section
 
-            if (line.startsWith(QLatin1String("Name="))) {
-                if (type == WaylandSession)
-                    if (line.mid(5).endsWith(QLatin1String(" (Wayland)")))
-                        m_displayName = QObject::tr("%1").arg(line.mid(5));
-                    else
-                        m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
-                else
-                    m_displayName = line.mid(5);
-            }
+            if (line.startsWith(QLatin1String("Name=")))
+                m_displayName = line.mid(5);
             if (line.startsWith(QLatin1String("Comment=")))
                 m_comment = line.mid(8);
             if (line.startsWith(QLatin1String("Exec=")))
