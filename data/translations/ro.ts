@@ -62,7 +62,7 @@
         <translation>Oprește</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Nume de utilizator</translation>
     </message>
     <message>

@@ -62,7 +62,7 @@
         <translation>Atudar</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Nom d’utilizaire</translation>
     </message>
     <message>

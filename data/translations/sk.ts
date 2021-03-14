@@ -62,7 +62,7 @@
         <translation>Vypnúť</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Užívateľské meno</translation>
     </message>
     <message>

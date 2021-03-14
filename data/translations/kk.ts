@@ -62,7 +62,7 @@
         <translation>Сөндіру</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Пайдаланушы аты</translation>
     </message>
     <message>

@@ -160,6 +160,10 @@ out:
             if (vtFd != -1) {
                 fd = vtFd;
 
+                // Clear VT
+                static const char *clearEscapeSequence = "\33[H\33[2J";
+                write(vtFd, clearEscapeSequence, sizeof(clearEscapeSequence));
+
                 // set graphics mode to prevent flickering
                 if (ioctl(fd, KDSETMODE, KD_GRAPHICS) < 0)
                     qWarning("Failed to set graphics mode for VT %d: %s", vt, strerror(errno));
