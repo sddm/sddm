@@ -12,26 +12,11 @@ SDDM_USER_SHELL=$SHELL
 
 case $SHELL in
   */bash)
-    [ -z "$BASH" ] && exec $SHELL $0 "$@"
+    [ -z "$BASH" ] && exec $SHELL --login $0 "$@"
     set +o posix
-    [ -f /etc/profile ] && . /etc/profile
-    if [ -f $HOME/.bash_profile ]; then
-      . $HOME/.bash_profile
-    elif [ -f $HOME/.bash_login ]; then
-      . $HOME/.bash_login
-    elif [ -f $HOME/.profile ]; then
-      . $HOME/.profile
-    fi
     ;;
-*/zsh)
-    [ -z "$ZSH_NAME" ] && exec $SHELL $0 "$@"
-    [ -d /etc/zsh ] && zdir=/etc/zsh || zdir=/etc
-    zhome=${ZDOTDIR:-$HOME}
-    # zshenv is always sourced automatically.
-    [ -f $zdir/zprofile ] && . $zdir/zprofile
-    [ -f $zhome/.zprofile ] && . $zhome/.zprofile
-    [ -f $zdir/zlogin ] && . $zdir/zlogin
-    [ -f $zhome/.zlogin ] && . $zhome/.zlogin
+  */zsh)
+    [ -z "$ZSH_NAME" ] && exec $SHELL --login $0 "$@"
     emulate -R sh
     ;;
   */csh|*/tcsh)
