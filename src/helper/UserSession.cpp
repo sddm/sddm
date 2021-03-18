@@ -47,6 +47,8 @@ namespace SDDM {
     bool UserSession::start() {
         QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
 
+        setup();
+
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
             QProcess::start(m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
@@ -72,7 +74,7 @@ namespace SDDM {
         return m_path;
     }
 
-    void UserSession::setupChildProcess() {
+    void UserSession::setup() {
         // Session type
         QString sessionType = processEnvironment().value(QStringLiteral("XDG_SESSION_TYPE"));
 
@@ -294,13 +296,4 @@ namespace SDDM {
             pclose(fp);
         }
     }
-
-    void UserSession::setCachedProcessId(qint64 pid) {
-        m_cachedProcessId = pid;
-    }
-
-    qint64 UserSession::cachedProcessId() {
-        return m_cachedProcessId;
-    }
-
 }

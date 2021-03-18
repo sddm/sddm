@@ -93,6 +93,8 @@ namespace SDDM {
         const QString &cookie() const;
         const QString &user() const;
         const QString &session() const;
+        qint64 sessionPid() const;
+
         AuthRequest *request();
         /**
          * True if an authentication or session is in progress
@@ -182,7 +184,7 @@ namespace SDDM {
         *
         * @param success true if succeeded
         */
-        void sessionStarted(bool success);
+        void sessionStarted(bool success, qint64 pid);
 
         /**
         * Emitted when the helper quits, either after authentication or when the session ends.

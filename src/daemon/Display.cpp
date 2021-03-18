@@ -35,6 +35,7 @@
 #include <QFile>
 #include <QTimer>
 #include <QLocalSocket>
+#include <QByteArray>
 
 #include <pwd.h>
 #include <unistd.h>
@@ -46,6 +47,10 @@
 #include "Login1Manager.h"
 #include "Login1Session.h"
 
+#if defined(Q_OS_LINUX)
+#include <utmp.h>
+#endif
+#include <utmpx.h>
 
 namespace SDDM {
     Display::Display(const int terminalId, Seat *parent) : QObject(parent),
@@ -367,6 +372,7 @@ namespace SDDM {
             if (m_socket)
                 emit loginSucceeded(m_socket);
         } else if (m_socket) {
+            utmpLogin(QString::number(terminalId()),  name(), user, 0, false);
             qDebug() << "Authentication failure";
             emit loginFailed(m_socket);
         }
@@ -391,6 +397,10 @@ namespace SDDM {
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
+        if (m_auth->sessionPid() > 0) {
+            utmpLogout(QString::number(terminalId()), name(), m_auth->sessionPid());
+        }
+
         // Don't restart greeter and display server unless sddm-helper exited
         // with an internal error or the user session finished successfully,
         // we want to avoid greeter from restarting when an authentication
@@ -411,7 +421,104 @@ namespace SDDM {
         }
     }
 
-    void Display::slotSessionStarted(bool success) {
-        qDebug() << "Session started";
+    void Display::slotSessionStarted(bool success, qint64 pid) {
+        if (success) {
+            utmpLogin(QString::number(terminalId()), name(), m_auth->user(), pid, true);
+        }
     }
+
+    void Display::utmpLogin(const QString &vt, const QString &displayName, const QString &user, qint64 pid, bool authSuccessful) {
+        struct utmpx entry;
+        struct timeval tv;
+
+        entry = { 0 };
+        entry.ut_type = USER_PROCESS;
+        entry.ut_pid = pid;
+
+        // ut_line: vt
+        if (!vt.isEmpty()) {
+            QString tty = QStringLiteral("tty");
+            tty.append(vt);
+            QByteArray ttyBa = tty.toLocal8Bit();
+            const char* ttyChar = ttyBa.constData();
+            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line) - 1);
+        }
+
+        // ut_host: displayName
+        QByteArray displayBa = displayName.toLocal8Bit();
+        const char* displayChar = displayBa.constData();
+        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host) - 1);
+
+        // ut_user: user
+        QByteArray userBa = user.toLocal8Bit();
+        const char* userChar = userBa.constData();
+        strncpy(entry.ut_user, userChar, sizeof(entry.ut_user) -1);
+
+        gettimeofday(&tv, NULL);
+        entry.ut_tv.tv_sec = tv.tv_sec;
+        entry.ut_tv.tv_usec = tv.tv_usec;
+
+        // write to utmp
+        setutxent();
+        if (!pututxline (&entry))
+            qWarning() << "Failed to write utmpx: " << strerror(errno);
+        endutxent();
+
+#if !defined(Q_OS_FREEBSD)
+        // append to failed login database btmp
+        if (!authSuccessful) {
+#if defined(Q_OS_LINUX)
+            updwtmpx("/var/log/btmp", &entry);
+#endif
+        }
+
+        // append to wtmp
+        else {
+#if defined(Q_OS_LINUX)
+            updwtmpx("/var/log/wtmp", &entry);
+#endif
+        }
+#endif
+    }
+
+    void Display::utmpLogout(const QString &vt, const QString &displayName, qint64 pid) {
+        struct utmpx entry;
+        struct timeval tv;
+
+        entry = { 0 };
+        entry.ut_type = DEAD_PROCESS;
+        entry.ut_pid = pid;
+
+        // ut_line: vt
+        if (!vt.isEmpty()) {
+            QString tty = QStringLiteral("tty");
+            tty.append(vt);
+            QByteArray ttyBa = tty.toLocal8Bit();
+            const char* ttyChar = ttyBa.constData();
+            strncpy(entry.ut_line, ttyChar, sizeof(entry.ut_line) - 1);
+        }
+
+        // ut_host: displayName
+        QByteArray displayBa = displayName.toLocal8Bit();
+        const char* displayChar = displayBa.constData();
+        strncpy(entry.ut_host, displayChar, sizeof(entry.ut_host) - 1);
+
+        gettimeofday(&tv, NULL);
+        entry.ut_tv.tv_sec = tv.tv_sec;
+        entry.ut_tv.tv_usec = tv.tv_usec;
+
+        // write to utmp
+        setutxent();
+        if (!pututxline (&entry))
+            qWarning() << "Failed to write utmpx: " << strerror(errno);
+        endutxent();
+
+#if defined(Q_OS_LINUX)
+        // append to wtmp
+        updwtmpx("/var/log/wtmp", &entry);
+#elif defined(Q_OS_FREEBSD)
+        pututxline(&entry);
+#endif
+    }
+
 }
