@@ -94,10 +94,28 @@ namespace SDDM {
         QLocalSocket *m_socket { nullptr };
         Greeter *m_greeter { nullptr };
 
+        /*!
+         \brief Write utmp/wtmp/btmp records when a user logs in
+         \param vt  Virtual terminal (tty7, tty8,...)
+         \param displayName  Display (:0, :1,...)
+         \param user  User logging in
+         \param pid  User process ID (e.g. PID of startkde)
+         \param authSuccessful  Was authentication successful
+        */
+        void utmpLogin(const QString &vt, const QString &displayName, const QString &user, qint64 pid, bool authSuccessful);
+
+        /*!
+         \brief Write utmp/wtmp records when a user logs out
+         \param vt  Virtual terminal (tty7, tty8,...)
+         \param displayName  Display (:0, :1,...)
+         \param pid  User process ID (e.g. PID of startkde)
+        */
+        void utmpLogout(const QString &vt, const QString &displayName, qint64 pid);
+
     private slots:
         void slotRequestChanged();
         void slotAuthenticationFinished(const QString &user, bool success);
-        void slotSessionStarted(bool success);
+        void slotSessionStarted(bool success, qint64 pid);
         void slotHelperFinished(Auth::HelperExitStatus status);
         void slotAuthInfo(const QString &message, Auth::Info info);
         void slotAuthError(const QString &message, Auth::Error error);
