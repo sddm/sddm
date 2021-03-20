@@ -340,7 +340,9 @@ int main(int argc, char **argv)
     qputenv("KDE_DEBUG", "1");
 
     // Qt IM module
-    qputenv("QT_IM_MODULE", SDDM::mainConfig.InputMethod.get().toLocal8Bit().constData());
+    if (!SDDM::mainConfig.InputMethod.get().isEmpty()) {
+        qputenv("QT_IM_MODULE", SDDM::mainConfig.InputMethod.get().toLocal8Bit().constData());
+    }
 
     QGuiApplication app(argc, argv);
 
