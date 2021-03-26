@@ -20,6 +20,7 @@
 
 #include "HelperApp.h"
 #include "Backend.h"
+#include "Configuration.h"
 #include "UserSession.h"
 #include "SafeDataStream.h"
 
@@ -138,6 +139,17 @@ namespace SDDM {
 
         m_user = m_backend->userName();
         QProcessEnvironment env = authenticated(m_user);
+
+        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
+            for (const auto &entry : mainConfig.GreeterEnvironment.get()) {
+                const int index = entry.indexOf(QLatin1Char('='));
+                if (index < 0) {
+                    qWarning() << "Malformed environment variable" << entry;
+                    continue;
+                }
+                env.insert(entry.left(index), entry.mid(index + 1));
+            }
+        }
 
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
