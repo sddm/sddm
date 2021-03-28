@@ -26,11 +26,11 @@
 namespace SDDM {
 
 inline QString generateName(int length) {
-    QString digits = QStringLiteral("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    const QString digits = QStringLiteral("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
     // reserve space for name
     QString name;
-    name.reserve(length);
+    name.resize(length);
 
     // create random device
     std::random_device rd;

@@ -35,6 +35,7 @@ namespace SDDM {
         }
 
         int lastIndex { 0 };
+        QStringList displayNames;
         QVector<Session *> sessions;
     };
 
@@ -50,6 +51,7 @@ namespace SDDM {
         connect(watcher, &QFileSystemWatcher::directoryChanged, [this](const QString &path) {
             beginResetModel();
             d->sessions.clear();
+            d->displayNames.clear();
             populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
             populate(Session::X11Session, mainConfig.X11.SessionDir.get());
             endResetModel();
@@ -99,6 +101,8 @@ namespace SDDM {
         case TypeRole:
             return session->type();
         case NameRole:
+            if (d->displayNames.count(session->displayName()) > 1 && session->type() == Session::WaylandSession)
+                return tr("%1 (Wayland)").arg(session->displayName());
             return session->displayName();
         case ExecRole:
             return session->exec();
@@ -144,10 +148,12 @@ namespace SDDM {
                 }
             }
             // add to sessions list
-            if (!si->isHidden() && !si->isNoDisplay() && execAllowed)
+            if (!si->isHidden() && !si->isNoDisplay() && execAllowed) {
+                d->displayNames.append(si->displayName());
                 d->sessions.push_back(si);
-            else
+            } else {
                 delete si;
+            }
         }
         // find out index of the last session
         for (int i = 0; i < d->sessions.size(); ++i) {
