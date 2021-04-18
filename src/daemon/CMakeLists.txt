@@ -2,6 +2,7 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_SOURCE_DIR}/src/auth"
     "${CMAKE_BINARY_DIR}/src/common"
+    ${LIBXAU_INCLUDE_DIRS}
     "${LIBXCB_INCLUDE_DIR}"
 )
 
@@ -13,6 +14,7 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/ThemeMetadata.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/XauthUtils.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
@@ -64,6 +66,7 @@ target_link_libraries(sddm
                       Qt5::DBus
                       Qt5::Network
                       Qt5::Qml
+                      ${LIBXAU_LIBRARIES}
                       ${LIBXCB_LIBRARIES})
 if(PAM_FOUND)
     target_link_libraries(sddm ${PAM_LIBRARIES})

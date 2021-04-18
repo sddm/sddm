@@ -88,6 +88,9 @@ add_feature_info("PAM" PAM_FOUND "PAM support")
 include(CheckFunctionExists)
 check_function_exists(getspnam HAVE_GETSPNAM)
 
+# XAU
+pkg_check_modules(LIBXAU REQUIRED "xau")
+
 # XCB
 find_package(XCB REQUIRED)
 

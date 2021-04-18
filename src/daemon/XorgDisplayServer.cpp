@@ -25,6 +25,7 @@
 #include "Display.h"
 #include "SignalHandler.h"
 #include "Seat.h"
+#include "XauthUtils.h"
 
 #include <QDebug>
 #include <QFile>
@@ -55,17 +56,7 @@ namespace SDDM {
         m_authPath = QStringLiteral("%1/%2").arg(authDir).arg(QUuid::createUuid().toString());
 
         // generate cookie
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
-
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = QLatin1Char(digits[dis(gen)]);
+        m_cookie = Xauth::generateCookie();
     }
 
     XorgDisplayServer::~XorgDisplayServer() {
@@ -84,33 +75,8 @@ namespace SDDM {
         return QStringLiteral("x11");
     }
 
-    const QString &XorgDisplayServer::cookie() const {
+    const QByteArray &XorgDisplayServer::cookie() const {
         return m_cookie;
-    }
-
-    bool XorgDisplayServer::addCookie(const QString &file) {
-        // log message
-        qDebug() << "Adding cookie to" << file;
-
-        // Touch file
-        QFile file_handler(file);
-        file_handler.open(QIODevice::Append);
-        file_handler.close();
-
-        QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
-
-        // execute xauth
-        FILE *fp = popen(qPrintable(cmd), "w");
-
-        // check file
-        if (!fp)
-            return false;
-        fprintf(fp, "remove %s\n", qPrintable(m_display));
-        fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
-        fprintf(fp, "exit\n");
-
-        // close pipe
-        return pclose(fp) == 0;
     }
 
     bool XorgDisplayServer::start() {
@@ -135,8 +101,7 @@ namespace SDDM {
         // generate auth file.
         // For the X server's copy, the display number doesn't matter.
         // An empty file would result in no access control!
-        m_display = QStringLiteral(":0");
-        if(!addCookie(m_authPath)) {
+        if(!Xauth::writeCookieToFile(m_authPath, QStringLiteral(":0"), m_cookie)) {
             qCritical() << "Failed to write xauth file";
             return false;
         }
@@ -222,7 +187,7 @@ namespace SDDM {
         // The file is also used by the greeter, which does care about the
         // display number. Write the proper entry, if it's different.
         if(m_display != QStringLiteral(":0")) {
-            if(!addCookie(m_authPath)) {
+            if(!Xauth::writeCookieToFile(m_authPath, m_display, m_cookie)) {
                 qCritical() << "Failed to write xauth file";
                 stop();
                 return false;

@@ -110,10 +110,6 @@ OPTIONS
 	Path of the Xephyr.
 	Default value is "/usr/bin/Xephyr".
 
-`XauthPath=`
-	Path of the Xauth.
-	Default value is "/usr/bin/xauth".
-
 `SessionDir=`
 	Path of the directory containing session files.
 	Default value is "/usr/share/xsessions".
@@ -127,10 +123,6 @@ OPTIONS
 `SessionLogFile=`
         Path to the user session log file, relative to the home directory.
         Default value is ".local/share/sddm/xorg-session.log".
-
-`UserAuthFile=`
-        Path to the Xauthority file, relative to the home directory.
-        Default value is ".Xauthority".
 
 `DisplayCommand=`
 	Path of script to execute when starting the display server.
@@ -150,6 +142,11 @@ OPTIONS
 	Enables Qt's automatic HiDPI scaling.
 	Can be either "true" or "false".
 	Default value is "false".
+
+The `XauthPath=` option is no longer necessary, libxau is used instead.
+
+The `UserAuthFile=` option was removed, the file is always created as
+`/tmp/xauth_XXXXX`. This is necessary for to the use of `FamilyWild` entries.
 
 [Wayland] section:
 

@@ -20,9 +20,11 @@
  */
 
 #include "Configuration.h"
+#include "Constants.h"
 #include "UserSession.h"
 #include "HelperApp.h"
 #include "VirtualTerminal.h"
+#include "XauthUtils.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -45,13 +47,40 @@ namespace SDDM {
     }
 
     bool UserSession::start() {
-        QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
+        QProcessEnvironment env = processEnvironment();
 
         setup();
 
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
             QProcess::start(m_path);
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
+            // Create the Xauthority file
+            QByteArray cookie = qobject_cast<HelperApp*>(parent())->cookie();
+            if (cookie.isEmpty())
+                return false;
+
+            // Place it into /tmp, which is guaranteed to be read/writeable by
+            // everyone while having the sticky bit set to avoid messing with
+            // other's files.
+            m_xauthFile.setFileTemplate(QStringLiteral("/tmp/xauth_XXXXXX"));
+
+            if (!m_xauthFile.open()) {
+                qCritical() << "Could not create the Xauthority file";
+                return false;
+            }
+
+            QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
+            qDebug() << "Adding cookie to" << m_xauthFile.fileName();
+
+            if (!Xauth::writeCookieToFile(m_xauthFile.fileName(), display, cookie)) {
+                qCritical() << "Failed to write the Xauthority file";
+                m_xauthFile.close();
+                return false;
+            }
+
+            env.insert(QStringLiteral("XAUTHORITY"), m_xauthFile.fileName());
+            setProcessEnvironment(env);
+
             const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
             qInfo() << "Starting:" << cmd;
             QProcess::start(cmd);
@@ -157,6 +186,11 @@ namespace SDDM {
             exit(Auth::HELPER_OTHER_ERROR);
         }
 
+        const int xauthHandle = m_xauthFile.handle();
+        if (xauthHandle != -1 && fchown(xauthHandle, pw.pw_uid, pw.pw_gid) != 0) {
+            qCritical() << "fchown failed for" << m_xauthFile.fileName();
+            exit(Auth::HELPER_OTHER_ERROR);
+        }
 #ifdef USE_PAM
 
         // fetch ambient groups from PAM's environment;
@@ -260,40 +294,6 @@ namespace SDDM {
             ::close(fd);
         } else {
             qWarning() << "Could not redirect stdout";
-        }
-
-        // set X authority for X11 sessions only
-        if (sessionType != QLatin1String("x11"))
-            return;
-        QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
-        if (!cookie.isEmpty()) {
-            QString file = processEnvironment().value(QStringLiteral("XAUTHORITY"));
-            QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
-            qDebug() << "Adding cookie to" << file;
-
-
-            // create the path
-            QFileInfo finfo(file);
-            QDir().mkpath(finfo.absolutePath());
-
-            QFile file_handler(file);
-            file_handler.open(QIODevice::Append);
-            file_handler.close();
-
-            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
-
-            // execute xauth
-            FILE *fp = popen(qPrintable(cmd), "w");
-
-            // check file
-            if (!fp)
-                return;
-            fprintf(fp, "remove %s\n", qPrintable(display));
-            fprintf(fp, "add %s . %s\n", qPrintable(display), qPrintable(cookie));
-            fprintf(fp, "exit\n");
-
-            // close pipe
-            pclose(fp);
         }
     }
 }

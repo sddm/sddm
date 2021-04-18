@@ -25,6 +25,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QProcess>
+#include <QtCore/QTemporaryFile>
 
 namespace SDDM {
     class HelperApp;
@@ -44,6 +45,7 @@ namespace SDDM {
 
     private:
         QString m_path { };
+        QTemporaryFile m_xauthFile;
     };
 }
 

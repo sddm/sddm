@@ -38,7 +38,7 @@ namespace SDDM {
 
         QString sessionType() const;
 
-        const QString &cookie() const;
+        const QByteArray &cookie() const;
 
         bool addCookie(const QString &file);
 
@@ -50,7 +50,7 @@ namespace SDDM {
 
     private:
         QString m_authPath;
-        QString m_cookie;
+        QByteArray m_cookie;
 
         QProcess *process { nullptr };
 

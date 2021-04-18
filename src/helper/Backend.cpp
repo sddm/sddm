@@ -68,13 +68,6 @@ namespace SDDM {
             env.insert(QStringLiteral("SHELL"), QString::fromLocal8Bit(pw->pw_shell));
             env.insert(QStringLiteral("USER"), QString::fromLocal8Bit(pw->pw_name));
             env.insert(QStringLiteral("LOGNAME"), QString::fromLocal8Bit(pw->pw_name));
-            if (env.contains(QStringLiteral("DISPLAY")) && !env.contains(QStringLiteral("XAUTHORITY"))) {
-                // determine Xauthority path
-                QString value = QStringLiteral("%1/%2")
-                        .arg(QString::fromLocal8Bit(pw->pw_dir))
-                        .arg(mainConfig.X11.UserAuthFile.get());
-                env.insert(QStringLiteral("XAUTHORITY"), value);
-            }
 #if defined(Q_OS_FREEBSD)
         /* get additional environment variables via setclassenvironment();
             this needs to be done here instead of in UserSession::setupChildProcess
