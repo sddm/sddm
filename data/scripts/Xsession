@@ -9,10 +9,12 @@
 case $SHELL in
   */bash)
     [ -z "$BASH" ] && exec $SHELL --login $0 "$@"
+    shopt -q login_shell || exec $SHELL --login $0 "$@"
     set +o posix
     ;;
-*/zsh)
+  */zsh)
     [ -z "$ZSH_NAME" ] && exec $SHELL --login $0 "$@"
+    [[ -o login ]] || exec $SHELL --login $0 "$@"
     emulate -R sh
     ;;
   */csh|*/tcsh)
