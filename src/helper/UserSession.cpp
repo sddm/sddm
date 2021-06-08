@@ -82,6 +82,8 @@ namespace SDDM {
             const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
             qInfo() << "Starting Wayland user session:" << cmd;
             m_process->start(mainConfig.Wayland.SessionCommand.get(), QStringList{m_path});
+            m_process->closeWriteChannel();
+            m_process->closeReadChannel(QProcess::StandardOutput);
         } else {
             qCritical() << "Unable to run user session: unknown session type";
         }
@@ -310,25 +312,7 @@ namespace SDDM {
             QFileInfo finfo(sessionLog);
             QDir().mkpath(finfo.absolutePath());
 
-            //swap the stderr pipe of this subprcess into a file
-            int fd = ::open(qPrintable(sessionLog), O_WRONLY | O_CREAT | O_TRUNC, 0600);
-            if (fd >= 0)
-            {
-                dup2 (fd, STDERR_FILENO);
-                ::close(fd);
-            } else {
-                qWarning() << "Could not open stderr to" << sessionLog;
-            }
-
-            //redirect any stdout to /dev/null
-            fd = ::open("/dev/null", O_WRONLY);
-            if (fd >= 0)
-            {
-                dup2 (fd, STDOUT_FILENO);
-                ::close(fd);
-            } else {
-                qWarning() << "Could not redirect stdout";
-            }
+            m_process->setStandardErrorFile(sessionLog);
         }
 
         // set X authority for X11 sessions only
