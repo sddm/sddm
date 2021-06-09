@@ -21,6 +21,7 @@
 #define SDDM_DAEMONAPP_H
 
 #include <QCoreApplication>
+#include <QStringList>
 
 #define daemonApp DaemonApp::instance()
 
@@ -41,9 +42,9 @@ namespace SDDM {
 
         // TODO: move these two away
         bool testing() const;
-        bool first { true };
 
         QString hostName() const;
+        bool isFirstSeatRun(QString &seatName);
         DisplayManager *displayManager() const;
         PowerManager *powerManager() const;
         SeatManager *seatManager() const;
@@ -54,6 +55,7 @@ namespace SDDM {
 
     private:
         static DaemonApp *self;
+        QStringList m_alreadyLaunchedSeat;
 
         int m_lastSessionId { 0 };
 
