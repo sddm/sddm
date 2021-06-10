@@ -150,9 +150,6 @@ bool XOrgUserHelper::startServer(const QString &cmd)
     // Append VT from environment
     args << QStringLiteral("vt%1").arg(serverEnv.value(QStringLiteral("XDG_VTNR")));
 
-    // Log to stdout
-    args << QStringLiteral("-logfile") << QStringLiteral("/dev/null");
-
     // Command string
     serverCmd += QLatin1Char(' ') + args.join(QLatin1Char(' '));
 
