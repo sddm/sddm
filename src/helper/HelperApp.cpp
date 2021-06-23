@@ -103,6 +103,10 @@ namespace SDDM {
             m_backend->setAutologin(true);
         }
 
+        if((pos = args.indexOf(QStringLiteral("--fingerprintlogin"))) >= 0) {
+            m_backend->setFingerPrintLogin(true);
+        }
+
         if ((pos = args.indexOf(QStringLiteral("--greeter"))) >= 0) {
             m_backend->setGreeter(true);
         }

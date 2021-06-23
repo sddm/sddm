@@ -221,6 +221,9 @@ namespace SDDM {
             service = QStringLiteral("sddm-greeter");
         else if (m_autologin)
             service = QStringLiteral("sddm-autologin");
+        else if (m_fingerprintlogin)
+            service = QStringLiteral("sddm-fingerprint");
+        qDebug() << "[PAM] using service name" << service;
         result = m_pam->start(service, user);
 
         if (!result)

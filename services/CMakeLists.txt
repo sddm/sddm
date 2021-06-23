@@ -12,4 +12,5 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/sddm-greeter.pam.in" "${CMAKE_CURREN
 
 install(FILES sddm.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm)
 install(FILES sddm-autologin.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-autologin)
+install(FILES sddm-fingerprint.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-fingerprint)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sddm-greeter.pam" DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-greeter)

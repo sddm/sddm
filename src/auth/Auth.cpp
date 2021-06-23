@@ -67,6 +67,7 @@ namespace SDDM {
         QString user { };
         QString cookie { };
         bool autologin { false };
+        bool fingerprintlogin { false };
         bool greeter { false };
         QProcessEnvironment environment { };
         qint64 sessionPid { -1 };
@@ -226,12 +227,13 @@ namespace SDDM {
             Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
         }
 
-        if (exitCode == HELPER_SUCCESS)
+        if (exitCode == HELPER_SUCCESS) {
             qDebug() << "Auth: sddm-helper exited successfully";
+            emit qobject_cast<Auth*>(parent())->finished(static_cast<Auth::HelperExitStatus>(exitCode));
+        }
+
         else
             qWarning("Auth: sddm-helper exited with %d", exitCode);
-
-        Q_EMIT qobject_cast<Auth*>(parent())->finished((Auth::HelperExitStatus)exitCode);
     }
 
     void Auth::Private::childError(QProcess::ProcessError error) {
@@ -274,6 +276,10 @@ namespace SDDM {
 
     bool Auth::autologin() const {
         return d->autologin;
+    }
+
+    bool Auth::fingerprintlogin() const {
+        return d->fingerprintlogin;
     }
 
     bool Auth::isGreeter() const
@@ -338,6 +344,12 @@ namespace SDDM {
         }
     }
 
+    void Auth::setFingerprintlogin(bool on){
+        if(on != d->fingerprintlogin){
+            d->fingerprintlogin = on;
+        }
+    }
+
     void Auth::setGreeter(bool on)
     {
         if (on != d->greeter) {
@@ -383,8 +395,15 @@ namespace SDDM {
             args << QStringLiteral("--autologin");
         if (!d->displayServerCmd.isEmpty())
             args << QStringLiteral("--display-server") << d->displayServerCmd;
+        if (d->fingerprintlogin)
+            args << QStringLiteral("--fingerprintlogin");
         if (d->greeter)
             args << QStringLiteral("--greeter");
+        if(d->child->state() != QProcess::NotRunning){
+            d->child->terminate();
+            d->child->waitForFinished();
+        }
+        qDebug() << "starting sddm-helper with" << args;
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);
     }
 }
