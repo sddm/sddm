@@ -1,6 +1,7 @@
 /*
  * PAM API Qt wrapper
- * Copyright (C) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2018 Thomas Höhn <thomas_hoehn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,18 +62,54 @@ namespace SDDM {
         return env;
     }
 
+    /** \note pam_chauthtok results:
+     *
+     * \li PAM_AUTHTOK_ERR
+     * \li PAM_AUTHTOK_RECOVERY_ERR
+     * \li PAM_AUTHTOK_LOCK_BUSY
+     * \li PAM_AUTHTOK_DISABLE_AGING
+     * \li PAM_PERM_DENIED
+     * \li PAM_TRY_AGAIN
+     * \li PAM_MAXTRIES
+     * \li PAM_USER_UNKNOWN
+     * \li PAM_SUCCESS
+     */
     bool PamHandle::chAuthTok(int flags) {
-        m_result = pam_chauthtok(m_handle, flags | m_silent);
-        if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] chAuthTok:" << pam_strerror(m_handle, m_result);
-        }
+        int old_result = m_result;
+        do {
+            // clear PAM_MAXTRIES result and restore last
+            // value from previous round, for pam_conv
+            if(m_result == PAM_MAXTRIES)
+                m_result = old_result;
+
+            m_result = pam_chauthtok(m_handle, flags | m_silent);
+
+            if (m_result != PAM_SUCCESS) {
+                QString errmsg = QString::fromLocal8Bit(pam_strerror(m_handle, m_result));
+                qWarning() << "[PAM] chAuthTok:" << errmsg << ", rc =" << m_result;
+
+                if(m_result == PAM_MAXTRIES && m_retryloop) {
+                    /* tell greeter about PAM_MAXTRIES result, or user might be
+                     * puzzled about multiple question rounds with current password */
+                    emit error(errmsg, AuthEnums::Error::ERROR_PAM_CONV, m_result); // instead m_app->error
+                }
+            }
+
+            if(m_result == PAM_MAXTRIES && m_retryloop)
+                qDebug() << "Loop pam_chauthtok and ignore PAM_MAXTRIES...";
+
+        /* ignore PAM_MAXTRIES result and loop chauthtok? */
+        } while(m_result == PAM_MAXTRIES && m_retryloop);
+
         return m_result == PAM_SUCCESS;
     }
 
     bool PamHandle::acctMgmt(int flags) {
+        if(m_workState == STATE_AUTHENTICATED)
+            m_workState = STATE_AUTHORIZE;
         m_result = pam_acct_mgmt(m_handle, flags | m_silent);
         if (m_result == PAM_NEW_AUTHTOK_REQD) {
-            // TODO see if this should really return the value or just true regardless of the outcome
+            m_workState = STATE_CHANGEAUTHTOK;
             return chAuthTok(PAM_CHANGE_EXPIRED_AUTHTOK);
         }
         else if (m_result != PAM_SUCCESS) {
@@ -82,29 +119,57 @@ namespace SDDM {
         return true;
     }
 
+    /** \note pam_authenticate results:
+     *
+     * \li PAM_ABORT
+     * \li PAM_AUTH_ERR
+     * \li PAM_CRED_INSUFFICIENT
+     * \li PAM_AUTHINFO_UNVAIL
+     * \li PAM_MAXTRIES
+     * \li PAM_USER_UNKNOWN
+     * \li PAM_SUCCESS
+     */
     bool PamHandle::authenticate(int flags) {
         qDebug() << "[PAM] Authenticating...";
+        if(m_workState == STATE_STARTED)
+            m_workState = STATE_AUTHENTICATE;
         m_result = pam_authenticate(m_handle, flags | m_silent);
-        if (m_result != PAM_SUCCESS) {
+        if (m_result == PAM_SUCCESS)
+            m_workState = STATE_AUTHENTICATED;
+        else
             qWarning() << "[PAM] authenticate:" << pam_strerror(m_handle, m_result);
-        }
         qDebug() << "[PAM] returning.";
         return m_result == PAM_SUCCESS;
     }
 
+    /** \note pam_setcred results:
+     *
+     * \li PAM_BUF_ERR
+     * \li PAM_CRED_ERR
+     * \li PAM_CRED_EXPIRED
+     * \li PAM_CRED_UNAVAIL
+     * \li PAM_SYSTEM_ERR
+     * \li PAM_USER_UNKNOWN
+     * \li PAM_SUCCESS
+     */
     bool PamHandle::setCred(int flags) {
         m_result = pam_setcred(m_handle, flags | m_silent);
-        if (m_result != PAM_SUCCESS) {
+        if (m_result == PAM_SUCCESS) {
+            if(m_workState == STATE_AUTHENTICATED)
+                m_workState = STATE_CREDITED;
+        } else
             qWarning() << "[PAM] setCred:" << pam_strerror(m_handle, m_result);
-        }
+
         return m_result == PAM_SUCCESS;
     }
 
     bool PamHandle::openSession() {
         m_result = pam_open_session(m_handle, m_silent);
-        if (m_result != PAM_SUCCESS) {
+        if (m_result == PAM_SUCCESS) {
+            if(m_workState == STATE_CREDITED)
+                m_workState = STATE_SESSION_STARTED;
+        } else
             qWarning() << "[PAM] openSession:" << pam_strerror(m_handle, m_result);
-        }
         m_open = m_result == PAM_SUCCESS;
         return m_open;
     }
@@ -114,6 +179,7 @@ namespace SDDM {
         if (m_result != PAM_SUCCESS) {
             qWarning() << "[PAM] closeSession:" << pam_strerror(m_handle, m_result);
         }
+        m_workState = STATE_FINISHED;
         return m_result == PAM_SUCCESS;
     }
 
@@ -138,23 +204,37 @@ namespace SDDM {
         return item;
     }
 
+    /** \note converse results:
+     *
+     * \li PAM_BUF_ERR
+     * \li PAM_CONV_ERR
+     * \li PAM_SUCCESS
+     */
     int PamHandle::converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data) {
         qDebug() << "[PAM] Preparing to converse...";
         PamBackend *c = static_cast<PamBackend *>(data);
         return c->converse(n, msg, resp);
     }
 
+    /** \note pam_start results:
+     *
+     * \li PAM_ABORT
+     * \li PAM_BUF_ERR
+     * \li PAM_SYSTEM_ERR
+     * \li PAM_SUCCESS
+     */
     bool PamHandle::start(const QString &service, const QString &user) {
+        qDebug() << "[PAM] Starting...";
+        qDebug() << "[PAM] pam_start( service =" << service << ", user =" << user << ")";
         if (user.isEmpty())
             m_result = pam_start(qPrintable(service), NULL, &m_conv, &m_handle);
         else
             m_result = pam_start(qPrintable(service), qPrintable(user), &m_conv, &m_handle);
-        if (m_result != PAM_SUCCESS) {
+        if (m_result == PAM_SUCCESS)
+            m_workState = STATE_STARTED;
+        else {
             qWarning() << "[PAM] start" << pam_strerror(m_handle, m_result);
             return false;
-        }
-        else {
-            qDebug() << "[PAM] Starting...";
         }
         return true;
     }
@@ -163,6 +243,8 @@ namespace SDDM {
         if (!m_handle)
             return false;
         m_result = pam_end(m_handle, m_result | flags);
+        // pam finished, ignore rc
+        m_workState = STATE_FINISHED;
         if (m_result != PAM_SUCCESS) {
             qWarning() << "[PAM] end:" << pam_strerror(m_handle, m_result);
             return false;
@@ -174,11 +256,21 @@ namespace SDDM {
         return true;
     }
 
+    int PamHandle::getResult() {
+        return m_result;
+    }
+
     QString PamHandle::errorString() {
         return QString::fromLocal8Bit(pam_strerror(m_handle, m_result));
     }
 
-    PamHandle::PamHandle(PamBackend *parent) : m_conv{&PamHandle::converse, parent} { // create context
+    void PamHandle::setRetryLoop(bool loop) {
+        m_retryloop = loop;
+    }
+
+    PamHandle::PamHandle(PamWorkState &ref, PamBackend *parent)
+        : m_workState(ref), // use pam work state from parent
+          m_conv{&PamHandle::converse, parent} { // create context
     }
 
     PamHandle::~PamHandle() {

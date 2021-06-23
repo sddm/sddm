@@ -1,4 +1,5 @@
 /***************************************************************************
+* Copyright (c) 2018 Thomas Höhn <thomas_hoehn@gmx.net>
 * Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
 *
@@ -24,6 +25,8 @@
 #include "Messages.h"
 #include "SessionModel.h"
 #include "SocketWriter.h"
+#include "AuthBase.h"
+#include "AuthRequest.h"
 
 #include <QLocalSocket>
 
@@ -32,12 +35,14 @@ namespace SDDM {
     public:
         SessionModel *sessionModel { nullptr };
         QLocalSocket *socket { nullptr };
+        AuthRequest *request { nullptr };
         QString hostName;
         bool canPowerOff { false };
         bool canReboot { false };
         bool canSuspend { false };
         bool canHibernate { false };
         bool canHybridSleep { false };
+        bool enablePwdChange { false };
     };
 
     GreeterProxy::GreeterProxy(const QString &socket, QObject *parent) : QObject(parent), d(new GreeterProxyPrivate()) {
@@ -47,7 +52,8 @@ namespace SDDM {
         connect(d->socket, &QLocalSocket::disconnected, this, &GreeterProxy::disconnected);
         connect(d->socket, &QLocalSocket::readyRead, this, &GreeterProxy::readyRead);
         connect(d->socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error), this, &GreeterProxy::error);
-
+        // AuthRequest for exchange of PAM conversation prompts/responses with qml
+        d->request = new AuthRequest(this);
         // connect to server
         d->socket->connectToServer(socket);
     }
@@ -62,6 +68,22 @@ namespace SDDM {
 
     void GreeterProxy::setSessionModel(SessionModel *model) {
         d->sessionModel = model;
+    }
+
+    void GreeterProxy::enablePwdChange() {
+        qDebug() << "Enable password change for theme";
+        d->enablePwdChange = true;
+    }
+
+    /** AuthRequest for exchange of PAM prompts/responses
+     *  between GreeterProxy and greeter GUI
+     */
+    AuthRequest *GreeterProxy::getRequest() {
+        return d->request;
+    }
+
+    void GreeterProxy::setRequest(Request *r) {
+        d->request->setRequest(r);
     }
 
     bool GreeterProxy::canPowerOff() const {
@@ -112,8 +134,6 @@ namespace SDDM {
         if (!d->sessionModel) {
             // log error
             qCritical() << "Session model is not set.";
-
-            // return
             return;
         }
 
@@ -125,6 +145,18 @@ namespace SDDM {
         QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
         Session session(type, name);
         SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
+    }
+
+    // todo: mind session index like for login
+    void GreeterProxy::pamResponse(const QString &newPassword) {
+        // send new password to daemon for pam conv
+        SocketWriter(d->socket) << quint32(GreeterMessages::PamResponse) << newPassword;
+    }
+
+    // todo: mind session index like for login
+    void GreeterProxy::cancelPamConv() {
+        // send command to daemon (to pam conv() in backend)
+        SocketWriter(d->socket) << quint32(GreeterMessages::PamCancel);
     }
 
     void GreeterProxy::connected() {
@@ -197,13 +229,55 @@ namespace SDDM {
                 }
                 break;
                 case DaemonMessages::LoginFailed: {
+                    QString m;
+                    int rc;
+                    // read pam conv() message (info/error) and pam rc from daemon
+                    input >> m >> rc;
                     // log message
-                    qDebug() << "Message received from daemon: LoginFailed";
-
+                    qDebug() << "Message received from daemon: LoginFailed, " << m << ", rc =" << rc;
                     // emit signal
-                    emit loginFailed();
+                    emit loginFailed(m, rc);
                 }
                 break;
+                // pam messages from conv() following login, e.g. for expired pwd
+                // conv() msg with msg_style: PAM_ERROR_MSG or PAM_TEXT_INFO
+                case DaemonMessages::PamConvMsg: {
+                    QString m;
+                    int rc;
+                    // read pam conv() message (info/error) and pam rc from daemon
+                    input >> m >> rc;
+                    qDebug() << "PAM conversation message from daemon: " << m << ", rc =" << rc;
+                    // send message to GUI
+                    emit pamConvMsg(m, rc);
+                }
+                break;
+
+                // new request with prompts from conv() after login, e.g. due to expired pwd
+                // request contains prompt (message) from conv() with msg_style:
+                // PAM_PROMPT_ECHO_ON (user name) or PAM_PROMPT_ECHO_OFF (passwords)
+                case DaemonMessages::PamRequest: {
+                    Request r;
+                    // read request from daemon (Display->SocketServer)
+                    input >> r;
+                    // set pam request  for qml and convert Request to AuthRequest
+                    setRequest(&r);
+                    // log prompts
+                    qDebug() << "PAM request with " << r.prompts.length() << " prompts from daemon";
+                    for (const Prompt &p : r.prompts)
+                        qDebug() << "GreeterProxy: Prompt message =" << p.message << ", hidden =" << p.hidden
+                                        << ", type =" << AuthPrompt::typeToString(p.type) << "(" << p.type << ")";
+
+                    // compatibility with old themes: cancel pam
+                    // conversation if theme does not support it
+                    if(!d->enablePwdChange) {
+                        qDebug() << "Cancled password change. Not supported by theme.";
+                        cancelPamConv();
+                    } else
+                        // otherwise send pam messages to GUI
+                        emit pamRequest();
+                }
+                break;
+
                 default: {
                     // log message
                     qWarning() << "Unknown message received from daemon.";

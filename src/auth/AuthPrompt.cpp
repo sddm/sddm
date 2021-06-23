@@ -19,8 +19,8 @@
  */
 
 #include "AuthPrompt.h"
-#include "Auth.h"
-#include "AuthMessages.h"
+#include "AuthBase.h"
+#include "AuthRequest.h"
 
 namespace SDDM {
     class AuthPrompt::Private : public Prompt {
@@ -68,5 +68,33 @@ namespace SDDM {
 
     bool AuthPrompt::hidden() const {
         return d->hidden;
+    }
+
+    /** \internal Get string representation of type for debug logging */
+    const QString &AuthPrompt::typeToString(int type) {
+
+        static const QString stringList[] = {
+            QStringLiteral("LOGIN_PASSWORD"),
+            QStringLiteral("CHANGE_PASSWORD"),
+            QStringLiteral("LOGIN_USER"),
+            QStringLiteral("NONE"),
+            QStringLiteral("UNKNOWN")
+        };
+
+        switch(type) {
+        // most likely one first
+        case AuthPrompt::LOGIN_PASSWORD:
+            return stringList[0]; break;
+        case AuthPrompt::CHANGE_PASSWORD:
+            return stringList[1]; break;
+        case AuthPrompt::LOGIN_USER:
+            return stringList[2]; break;
+        case AuthPrompt::NONE:
+            return stringList[3]; break;
+        default: break;
+        }
+
+        // AuthPrompt::UNKNOWN
+        return stringList[4];
     }
 }

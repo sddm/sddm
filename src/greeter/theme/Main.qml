@@ -25,6 +25,7 @@
 
 import QtQuick 2.0
 import SddmComponents 2.0
+import PamTypes 1.0
 
 Rectangle {
     id: container
@@ -38,14 +39,41 @@ Rectangle {
 
     TextConstants { id: textConstants }
 
+    Component {
+        id: pwdChangeComp
+        // dialog to change expired passwords
+        PasswordChange {
+            color: "#22888888"
+            promptColor: "white"
+            infosColor: "lightcoral"
+            titleColor: "white"
+            titleTextColor: "black"
+            //infosHeight: 10
+        }
+    }
+
+    PamConvHelper {
+        loader: pwdChangeLoader
+        component: pwdChangeComp
+    }
+
+    function resetTxtMsg() {
+        txtMessage.text = textConstants.promptSelectUser
+        txtMessage.color = "white"
+    }
+
     Connections {
         target: sddm
-        onLoginSucceeded: {
-        }
-
         onLoginFailed: {
-            txtMessage.text = textConstants.loginFailed
             listView.currentItem.password = ""
+            listView.currentItem.forceActiveFocus()
+            txtMessage.color = "red"
+            // explain why password change dialog suddenly disappears,
+            // cause pam_chauthtok failed with PAM_MAXTRIES
+            if(result == PamTypes.RESULT_PAM_MAXTRIES)
+                txtMessage.text = textConstants.pamMaxtriesError
+            else // filter out login failure details
+                txtMessage.text = textConstants.loginFailed
         }
     }
 
@@ -98,6 +126,8 @@ Rectangle {
 
         Row {
             anchors.fill: parent
+            // hide main input for small displays when password change dialog is active
+            visible: !(pwdChangeLoader.status == Loader.Ready && container.height < 768)
             //visible: primaryScreen
 
             Rectangle {
@@ -113,6 +143,7 @@ Rectangle {
             }
 
             Rectangle {
+                id: rightBox
                 width: parent.width / 2; height: parent.height
                 color: "#22000000"
                 clip: true
@@ -121,6 +152,8 @@ Rectangle {
                     id: usersContainer
                     width: parent.width; height: 300
                     anchors.verticalCenter: parent.verticalCenter
+                    // block user selection during password change
+                    enabled: pwdChangeLoader.status != Loader.Ready
 
                     ImageButton {
                         id: prevUser
@@ -149,7 +182,7 @@ Rectangle {
                         delegate: userDelegate
                         orientation: ListView.Horizontal
                         currentIndex: userModel.lastIndex
-
+                        onCurrentIndexChanged: resetTxtMsg()
                         KeyNavigation.backtab: prevUser; KeyNavigation.tab: nextUser
                     }
 
@@ -188,7 +221,19 @@ Rectangle {
                     font.pixelSize: 20
                     visible: __sddm_errors !== ""
                 }
+
             }
+
+        }
+
+        Loader {
+            id: pwdChangeLoader
+            // if screen has enough space show dialog below picture box
+            anchors.top: container.height<768 ? undefined : actionBar.bottom
+            anchors.topMargin: container.height<768 ? undefined : 32
+            anchors.horizontalCenter: container.height<768 ? undefined : parent.horizontalCenter
+            // otherwise on small displays center on screen and hide picture box
+            anchors.centerIn: container.height<768 ? parent : undefined
         }
 
         Rectangle {

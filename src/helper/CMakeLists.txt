@@ -12,6 +12,7 @@ set(HELPER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
     ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
     ${CMAKE_SOURCE_DIR}/src/common/XAuth.h
+    ${CMAKE_SOURCE_DIR}/src/common/Utils.cpp
     Backend.cpp
     HelperApp.cpp
     UserSession.cpp

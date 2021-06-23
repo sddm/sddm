@@ -25,6 +25,7 @@
 #include <QLocalSocket>
 
 #include "Session.h"
+#include "AuthBase.h" // for Request
 
 namespace SDDM {
     class SocketWriter {
@@ -36,6 +37,7 @@ namespace SDDM {
         SocketWriter &operator << (const quint32 &u);
         SocketWriter &operator << (const QString &s);
         SocketWriter &operator << (const Session &s);
+        SocketWriter &operator << (const Request &r);
 
     private:
         QByteArray data;

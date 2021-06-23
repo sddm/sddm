@@ -25,6 +25,7 @@
 #include <QString>
 
 #include "Session.h"
+#include "AuthRequest.h"
 
 class QLocalServer;
 class QLocalSocket;
@@ -41,18 +42,25 @@ namespace SDDM {
 
         QString socketAddress() const;
 
+    public slots:
+        // from (pam) backend to greeter
+        void loginSucceeded(QLocalSocket *socket);
+        void loginFailed(QLocalSocket *socket, const QString &message, int result);
+        void pamConvMsg(QLocalSocket *socket, const QString &message, int result);
+        void pamRequest(QLocalSocket *socket, const AuthRequest * const request);
+
     private slots:
         void newConnection();
         void readyRead();
 
-        void loginFailed(QLocalSocket *socket);
-        void loginSucceeded(QLocalSocket *socket);
-
     signals:
+        // from greeter to (pam) backend
         void login(QLocalSocket *socket,
                    const QString &user, const QString &password,
                    const Session &session);
         void connected();
+        void sendPamResponse(const QString &newPassword);
+        void cancelPamConv();
 
     private:
         QLocalServer *m_server { nullptr };

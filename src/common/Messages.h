@@ -23,9 +23,12 @@
 #include <QFlags>
 
 namespace SDDM {
+    /** daemon to greeter messages */
     enum class GreeterMessages {
         Connect = 0,
         Login,
+        PamResponse,
+        PamCancel,
         PowerOff,
         Reboot,
         Suspend,
@@ -33,9 +36,12 @@ namespace SDDM {
         HybridSleep
     };
 
+    /** greeter to daemon messages */
     enum class DaemonMessages {
         HostName,
         Capabilities,
+        PamConvMsg,
+        PamRequest,
         LoginSucceeded,
         LoginFailed
     };

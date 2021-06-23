@@ -27,6 +27,7 @@ import QtQuick 2.0
 import SddmComponents 2.0
 
 Rectangle {
+    id: container
     width: 640
     height: 480
 
@@ -37,11 +38,28 @@ Rectangle {
 
     TextConstants { id: textConstants }
 
+    Component {
+        id: pwdChangeComp
+        // dialog to change expired passwords
+        PasswordChange {
+            radius: 8
+            color: "#22888888"
+            infosColor: "lightcoral"
+            infosHeight: 20
+        }
+    }
+
+    PamConvHelper {
+        loader: pwdChangeLoader
+        component: pwdChangeComp
+    }
+
     Connections {
         target: sddm
         onLoginSucceeded: {
         }
         onLoginFailed: {
+            pw_entry.forceActiveFocus()
             pw_entry.text = ""
         }
     }
@@ -62,9 +80,23 @@ Rectangle {
         color: "transparent"
         //visible: primaryScreen
 
+        Loader {
+            id: pwdChangeLoader
+            anchors.horizontalCenter: rectangle.horizontalCenter
+            // for regular display size show dialog below user input
+            anchors.top: container.height<768 ? undefined : rectangle.bottom
+            // center on small displays
+            anchors.verticalCenter: container.height<768 ? parent.verticalCenter : undefined
+            anchors.topMargin: 16
+        }
+
         Rectangle {
+            id: rectangle
             width: 416; height: 262
             color: "#00000000"
+            enabled: pwdChangeLoader.status != Loader.Ready
+            // hide main input for small displays when password change dialog is active
+            visible: !(pwdChangeLoader.status == Loader.Ready && container.height < 768)
 
             anchors.centerIn: parent
 

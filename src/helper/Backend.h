@@ -39,6 +39,8 @@ namespace SDDM {
         void setDisplayServer(bool on = true);
         void setGreeter(bool on = true);
 
+        virtual void setRetryLoop(bool loop);
+
     public slots:
         virtual bool start(const QString &user = QString()) = 0;
         virtual bool authenticate() = 0;

@@ -1,6 +1,7 @@
 /*
  * PAM authentication backend
- * Copyright (C) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2018 Thomas Höhn <thomas_hoehn@gmx.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +22,10 @@
 #if !defined(PAMBACKEND_H) && defined(USE_PAM)
 #define PAMBACKEND_H
 
-#include "Constants.h"
-#include "AuthMessages.h"
+#include "AuthEnums.h"
+#include "AuthBase.h"
+#include "PamWorkState.h"
+
 #include "../Backend.h"
 
 #include <QtCore/QObject>
@@ -34,10 +37,9 @@ namespace SDDM {
     class PamBackend;
     class PamData {
     public:
-        PamData();
+        PamData(PamWorkState &ref);
 
         bool insertPrompt(const struct pam_message *msg, bool predict = true);
-        Auth::Info handleInfo(const struct pam_message *msg, bool predict);
 
         const Request& getRequest() const;
         void completeRequest(const Request& request);
@@ -52,6 +54,7 @@ namespace SDDM {
 
         bool m_sent { false };
         Request m_currentRequest { };
+        PamWorkState &m_workState;
     };
 
     class PamBackend : public Backend
@@ -61,6 +64,7 @@ namespace SDDM {
         explicit PamBackend(HelperApp *parent);
         virtual ~PamBackend();
         int converse(int n, const struct pam_message **msg, struct pam_response **resp);
+        void setRetryLoop(bool loop = false);
 
     public slots:
         virtual bool start(const QString &user = QString());
@@ -71,8 +75,10 @@ namespace SDDM {
         virtual QString userName();
 
     private:
+        bool m_convCanceled { false };
         PamData *m_data { nullptr };
         PamHandle *m_pam { nullptr };
+        PamWorkState m_workState { STATE_INITIAL };
     };
 }
 

@@ -74,6 +74,15 @@ namespace SDDM {
         }
     }
 
+    bool SafeDataStream::available() {
+        if (!m_device->isOpen()) {
+            qCritical() << " Auth: SafeDataStream: Could not read from the device";
+            return false;
+        }
+
+        return m_device->bytesAvailable();
+    }
+
     void SafeDataStream::reset() {
         m_data.clear();
         device()->reset();

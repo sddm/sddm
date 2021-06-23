@@ -49,4 +49,10 @@ namespace SDDM {
 
         return *this;
     }
+
+    SocketWriter &SocketWriter::operator << (const Request &r) {
+        *output << r;
+
+        return *this;
+    }
 }

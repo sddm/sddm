@@ -37,6 +37,8 @@ FocusScope {
     property alias textColor: txtMain.textColor
     property alias echoMode: txtMain.echoMode
     property alias text: txtMain.text
+    property alias validator: txtMain.validator
+    property alias maximumLength: txtMain.maximumLength
 
     property alias image: img.source
     property double imageFadeIn: 300
@@ -46,6 +48,8 @@ FocusScope {
     property alias tooltipText: tooltipText.text
     property alias tooltipFG: tooltipText.color
     property alias tooltipBG: tooltip.color
+
+    signal accepted
 
     TextConstants {
         id: textConstants
@@ -57,8 +61,12 @@ FocusScope {
         font.pixelSize: 14
 
         echoMode: TextInput.Password
+        // default validator
+        validator: RegExpValidator { regExp: /[][!"§#$%&'()*+,./:;<=>?@\^_´`{|}~a-zA-Z0-9-]*/ }
 
         focus: true
+
+        onAccepted: container.accepted()
     }
 
     Image {

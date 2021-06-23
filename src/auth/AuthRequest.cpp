@@ -1,6 +1,7 @@
 /*
  * Qt Authentication Library
- * Copyright (C) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2013 Martin Bříza <mbriza@redhat.com>
+ * Copyright (c) 2018 Thomas Höhn <thomas_hoehn@gmx.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,8 +19,8 @@
  *
  */
 
+#include "AuthBase.h"
 #include "AuthRequest.h"
-#include "Auth.h"
 #include "AuthMessages.h"
 
 namespace SDDM {
@@ -46,15 +47,15 @@ namespace SDDM {
             qobject_cast<AuthRequest*>(parent())->done();
     }
 
-    AuthRequest::AuthRequest(Auth *parent)
+    AuthRequest::AuthRequest(QObject *parent)
             : QObject(parent)
             , d(new Private(this)) { }
 
-    void AuthRequest::setRequest(const Request *request) {
+    void AuthRequest::setRequest(const Request * const request) {
         QList<AuthPrompt*> promptsCopy(d->prompts);
         d->prompts.clear();
         if (request != nullptr) {
-            for (const Prompt& p : qAsConst(request->prompts)) {
+            for(const Prompt& p : qAsConst(request->prompts)) {
                 AuthPrompt *qap = new AuthPrompt(&p, this);
                 d->prompts << qap;
                 if (finishAutomatically())
@@ -72,7 +73,7 @@ namespace SDDM {
         return d->prompts;
     }
 
-    QQmlListProperty<AuthPrompt> AuthRequest::promptsDecl() {
+    QQmlListProperty<AuthPrompt> AuthRequest::promptsRead() {
         return QQmlListProperty<AuthPrompt>(this, d->prompts);
     }
 
@@ -81,6 +82,14 @@ namespace SDDM {
             d->finished = true;
             Q_EMIT finished();
         }
+    }
+
+    // send to (pam) backend
+    void AuthRequest::cancel() {
+        if (!d->finished) {
+            d->finished = true;
+        }
+        Q_EMIT canceled();
     }
 
     bool AuthRequest::finishAutomatically() {
@@ -96,7 +105,7 @@ namespace SDDM {
 
     Request AuthRequest::request() const {
         Request r;
-        for (const AuthPrompt* qap : qAsConst(d->prompts)) {
+        for(const AuthPrompt* qap : qAsConst(d->prompts)) {
             Prompt p;
             p.hidden = qap->hidden();
             p.message = qap->message();
@@ -105,6 +114,53 @@ namespace SDDM {
             r.prompts << p;
         }
         return r;
+    }
+
+    QString AuthRequest::findChangePwdMessage() {
+        for(const AuthPrompt* qap : qAsConst(d->prompts)) {
+            if(qap->type()==AuthPrompt::CHANGE_PASSWORD)
+                return qap->message();
+        }
+        return QString();
+    }
+
+    AuthPrompt *AuthRequest::findPrompt(AuthPrompt::Type type) const {
+        for(AuthPrompt* qap : qAsConst(d->prompts)) {
+            if(qap->type()==type)
+                return qap;
+        }
+        return NULL;
+    }
+
+    bool AuthRequest::setLoginResponse(const QString &username, const QString &password) {
+        AuthPrompt* prompt = nullptr;
+
+        if(!username.isNull()) {
+            prompt = findPrompt(AuthPrompt::LOGIN_USER);
+            if(prompt) prompt->setResponse(qPrintable(username));
+        }
+        if(!password.isNull()) {
+            prompt = findPrompt(AuthPrompt::LOGIN_PASSWORD);
+            if(prompt) prompt->setResponse(qPrintable(password));
+        }
+        if(prompt)
+            return true;
+
+        return false;
+    }
+
+    bool AuthRequest::setChangeResponse(const QString &password) {
+        AuthPrompt* prompt;
+
+        if(!password.isNull()) {
+            prompt = findPrompt(AuthPrompt::CHANGE_PASSWORD);
+            if(prompt) {
+                prompt->setResponse(qPrintable(password));
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 

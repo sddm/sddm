@@ -24,6 +24,7 @@
 
 import QtQuick 2.0
 import SddmComponents 2.0
+import PamTypes 1.0
 
 Rectangle {
     id: container
@@ -37,6 +38,21 @@ Rectangle {
 
     TextConstants { id: textConstants }
 
+    Component {
+        id: pwdChangeComp
+        PasswordChange {
+            radius: 8
+            color: "transparent"
+            titleTextColor: "black"
+            infosHeight: 10
+        }
+    }
+
+    PamConvHelper {
+        loader: pwdChangeLoader
+        component: pwdChangeComp
+    }
+
     Connections {
         target: sddm
 
@@ -48,7 +64,13 @@ Rectangle {
         onLoginFailed: {
             password.text = ""
             errorMessage.color = "red"
-            errorMessage.text = textConstants.loginFailed
+            //password.forceActiveFocus()
+            // explain why password change dialog suddenly disappears,
+            // cause pam_chauthtok failed with PAM_MAXTRIES
+            if(result == PamTypes.RESULT_PAM_MAXTRIES)
+                errorMessage.text = textConstants.pamMaxtriesError
+            else // filter out login failure details
+                errorMessage.text = textConstants.loginFailed
         }
     }
 
@@ -78,10 +100,32 @@ Rectangle {
         }
 
         Image {
+            id: dialogImg
+            // for regular display size show dialog on top left
+            anchors.left: container.height<1024 ? undefined : parent.left
+            anchors.top: container.height<1024 ? undefined : parent.top
+            // center on small displays
+            anchors.centerIn: container.height<1024 ? parent : undefined
+            anchors.margins: container.height<1024 ? undefined : 32
+            width: pwdChangeLoader.width+32
+            height: pwdChangeLoader.height+32
+            visible: pwdChangeLoader.status == Loader.Ready
+            source: "rectangle.png"
+        }
+
+        Loader {
+            id: pwdChangeLoader
+            anchors.centerIn: dialogImg
+        }
+
+        Image {
             id: rectangle
             anchors.centerIn: parent
             width: Math.max(320, mainColumn.implicitWidth + 50)
             height: Math.max(320, mainColumn.implicitHeight + 50)
+            enabled: pwdChangeLoader.status != Loader.Ready
+            // hide main input for small displays when password change dialog is active
+            visible: !(pwdChangeLoader.status == Loader.Ready && container.height<1024)
 
             source: "rectangle.png"
 

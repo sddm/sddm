@@ -37,6 +37,7 @@ namespace SDDM {
 
         bool start();
         void stop();
+        void terminate();
 
         QProcessEnvironment processEnvironment() const;
         void setProcessEnvironment(const QProcessEnvironment &env);
