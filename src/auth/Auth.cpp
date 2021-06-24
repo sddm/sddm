@@ -134,7 +134,7 @@ namespace SDDM {
             env.insert(QStringLiteral("LANG"), QStringLiteral("C"));
         child->setProcessEnvironment(env);
         connect(child, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished), this, &Auth::Private::childExited);
-        connect(child, QOverload<QProcess::ProcessError>::of(&QProcess::error), this, &Auth::Private::childError);
+        connect(child, &QProcess::errorOccurred, this, &Auth::Private::childError);
         connect(request, &AuthRequest::finished, this, &Auth::Private::requestFinished);
         connect(request, &AuthRequest::promptsChanged, parent, &Auth::requestChanged);
     }
@@ -267,8 +267,8 @@ namespace SDDM {
     }
 
     void Auth::registerTypes() {
-        qmlRegisterType<AuthPrompt>();
-        qmlRegisterType<AuthRequest>();
+        qmlRegisterAnonymousType<AuthPrompt>("Auth", 1);
+        qmlRegisterAnonymousType<AuthRequest>("Auth", 1);
         qmlRegisterType<Auth>("Auth", 1, 0, "Auth");
     }
 
