@@ -13,6 +13,7 @@ endif (PAM_INCLUDE_DIR AND PAM_LIBRARY)
 find_path(PAM_INCLUDE_DIR NAMES security/pam_appl.h pam/pam_appl.h)
 find_library(PAM_LIBRARY pam)
 find_library(DL_LIBRARY dl)
+find_library(HAVE_PAM_FAILLOCK NAME pam_faillock.so PATH_SUFFIXES security)
 
 if (PAM_INCLUDE_DIR AND PAM_LIBRARY)
 	set(PAM_FOUND TRUE)

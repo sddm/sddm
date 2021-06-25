@@ -33,6 +33,8 @@ set(DAEMON_SOURCES
     XorgDisplayServer.cpp
     XorgUserDisplayServer.cpp
     XorgUserDisplayServer.h
+    WaylandDisplayServer.cpp
+    WaylandDisplayServer.h
 )
 
 # Different implementations of the VT switching code

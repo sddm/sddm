@@ -73,7 +73,7 @@ namespace SDDM {
     }
 
     QQmlListProperty<AuthPrompt> AuthRequest::promptsDecl() {
-        return QQmlListProperty<AuthPrompt>(this, d->prompts);
+        return QQmlListProperty<AuthPrompt>(this, &d->prompts);
     }
 
     void AuthRequest::done() {

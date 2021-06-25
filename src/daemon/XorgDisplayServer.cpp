@@ -110,7 +110,7 @@ namespace SDDM {
         QStringList args;
         if (!daemonApp->testing()) {
             process->setProgram(mainConfig.X11.ServerPath.get());
-            args << mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts)
+            args << mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), Qt::SkipEmptyParts)
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-seat") << displayPtr()->seat()->name()
                  << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
@@ -221,7 +221,7 @@ namespace SDDM {
         // log message
         qDebug() << "Display server stopped.";
 
-        QString displayStopCommand = mainConfig.X11.DisplayStopCommand.get();
+        QStringList displayStopCommand = QProcess::splitCommand(mainConfig.X11.DisplayStopCommand.get());
 
         // create display setup script process
         QProcess *displayStopScript = new QProcess();
@@ -236,7 +236,8 @@ namespace SDDM {
 
         // start display stop script
         qDebug() << "Running display stop script " << displayStopCommand;
-        displayStopScript->start(displayStopCommand);
+        const auto program = displayStopCommand.takeFirst();
+        displayStopScript->start(program, displayStopCommand);
 
         // wait for finished
         if (!displayStopScript->waitForFinished(5000))
@@ -254,8 +255,6 @@ namespace SDDM {
     }
 
     void XorgDisplayServer::setupDisplay() {
-        QString displayCommand = mainConfig.X11.DisplayCommand.get();
-
         // create cursor setup process
         QProcess *setCursor = new QProcess();
         // create display setup script process
@@ -273,7 +272,7 @@ namespace SDDM {
         displayScript->setProcessEnvironment(env);
 
         qDebug() << "Setting default cursor";
-        setCursor->start(QStringLiteral("xsetroot -cursor_name left_ptr"));
+        setCursor->start(QStringLiteral("xsetroot"), { QStringLiteral("-cursor_name"), QStringLiteral("left_ptr") });
 
         // delete setCursor on finish
         connect(setCursor, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), setCursor, &QProcess::deleteLater);
@@ -285,8 +284,10 @@ namespace SDDM {
         }
 
         // start display setup script
-        qDebug() << "Running display setup script " << displayCommand;
-        displayScript->start(displayCommand);
+        qDebug() << "Running display setup script " << mainConfig.X11.DisplayCommand.get();
+        QStringList displayCommand = QProcess::splitCommand(mainConfig.X11.DisplayCommand.get());
+        const QString program = displayCommand.takeFirst();
+        displayScript->start(program, displayCommand);
 
         // delete displayScript on finish
         connect(displayScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayScript, &QProcess::deleteLater);

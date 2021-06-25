@@ -17,6 +17,8 @@ set(HELPER_SOURCES
     UserSession.cpp
     xorguserhelper.cpp
     xorguserhelper.h
+    waylandhelper.cpp
+    waylandsocketwatcher.cpp
 )
 
 # Different implementations of the VT switching code

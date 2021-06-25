@@ -149,6 +149,7 @@ namespace SDDM {
         view->setResizeMode(QQuickView::SizeRootObjectToView);
         //view->setGeometry(QRect(QPoint(0, 0), screen->geometry().size()));
         view->setGeometry(screen->geometry());
+        view->setFlags(Qt::FramelessWindowHint);
         m_views.append(view);
 
         // remove the view when the screen is removed, but we
