@@ -39,7 +39,7 @@ money that can be used to support the features that you most desire.
 
 ## INSTALLATION
 
-Qt >= 5.8.0 is required to use SDDM.
+Qt >= 5.15.0 is required to use SDDM.
 
 SDDM runs the greeter as a system user named "sddm" whose home directory needs
 to be set to `/var/lib/sddm`.
