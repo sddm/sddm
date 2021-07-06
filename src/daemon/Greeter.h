@@ -35,10 +35,9 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Greeter)
     public:
-        explicit Greeter(QObject *parent = 0);
+        explicit Greeter(Display *parent = 0);
         ~Greeter();
 
-        void setDisplay(Display *display);
         void setAuthPath(const QString &authPath);
         void setSocket(const QString &socket);
         void setTheme(const QString &theme);
@@ -64,7 +63,7 @@ namespace SDDM {
     private:
         bool m_started { false };
 
-        Display *m_display { nullptr };
+        Display * const m_display { nullptr };
         QString m_authPath;
         QString m_socket;
         QString m_themePath;
