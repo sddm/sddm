@@ -223,7 +223,6 @@ namespace SDDM {
         }
 
         // set greeter params
-        m_greeter->setDisplay(this);
         if (qobject_cast<XorgDisplayServer *>(m_displayServer))
             m_greeter->setAuthPath(qobject_cast<XorgDisplayServer *>(m_displayServer)->authPath());
         m_greeter->setSocket(m_socketServer->socketAddress());
