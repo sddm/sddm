@@ -68,12 +68,19 @@ namespace SDDM {
             if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland") && env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
                 m_wayland = new WaylandHelper(this);
                 m_wayland->setEnvironment(env);
-                if (!m_wayland->startCompositor(m_displayServerCmd))
+                connect(m_wayland, &WaylandHelper::failed, this, &UserSession::stop);
+                if (!m_wayland->startCompositor(m_displayServerCmd)) {
+                    qWarning() << "Could not start wayland compositor" << m_displayServerCmd;
+                    Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
                     return false;
+                }
             } else {
                 m_xorgUser->setEnvironment(env);
-                if (!m_xorgUser->start(m_displayServerCmd))
+                if (!m_xorgUser->start(m_displayServerCmd)) {
+                    qWarning() << "Could not start display server" << m_displayServerCmd;
+                    Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
                     return false;
+                }
             }
         }
 
