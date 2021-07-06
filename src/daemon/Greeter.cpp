@@ -302,6 +302,10 @@ namespace SDDM {
         // clean up
         m_auth->deleteLater();
         m_auth = nullptr;
+
+        if (status == Auth::HELPER_SESSION_ERROR) {
+            Q_EMIT failed();
+        }
     }
 
     void Greeter::onReadyReadStandardError()
