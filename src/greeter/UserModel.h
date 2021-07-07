@@ -43,6 +43,7 @@ namespace SDDM {
             IconRole,
             NeedsPasswordRole
         };
+        Q_ENUM(UserRoles)
 
         UserModel(bool needAllUsers, QObject *parent = 0);
         ~UserModel();

@@ -43,6 +43,7 @@ namespace SDDM {
             ExecRole,
             CommentRole
         };
+        Q_ENUM(SessionRole)
 
         SessionModel(QObject *parent = 0);
         ~SessionModel();
