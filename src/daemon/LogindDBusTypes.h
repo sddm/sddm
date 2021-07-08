@@ -13,6 +13,7 @@ struct Logind
     static QString sessionIfaceName();
     static QString seatIfaceName();
     static QString userIfaceName();
+    static QString newSeatSignalName();
 };
 
 
