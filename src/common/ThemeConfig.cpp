@@ -24,6 +24,8 @@
 #include <QDebug>
 #include <QSettings>
 #include <QStringList>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 namespace SDDM {
     ThemeConfig::ThemeConfig(const QString &path) {
@@ -46,11 +48,44 @@ namespace SDDM {
 
         // read default keys
         for (const QString &key: settings.allKeys()) {
-            insert(key, settings.value(key));
+
+            // check if the keys value is written as a number
+            QRegularExpression re(QStringLiteral("\\A(?:\\d+)\\z"));
+            QRegularExpressionMatch check = re.match(settings.value(key).toString());
+            if (check.hasMatch()) {
+                // convert the value accordingly to integer
+                insert(key, settings.value(key).toInt());
+
+            // check if the keys value is written as a boolean
+            } else if (settings.value(key).toString().toLower() == (QStringLiteral("true")) ||
+                       settings.value(key).toString().toLower() == (QStringLiteral("false"))) {
+                // convert the value accordingly to boolean
+                insert(key, settings.value(key).toBool());
+
+            // pass on as is
+            } else if (!userSettings.value(key).toString().isEmpty()) {
+                insert(key, settings.value(key));
+            }
         }
+
         // read user set themes overwriting defaults if they exist
         for (const QString &key: userSettings.allKeys()) {
-            if (!userSettings.value(key).toString().isEmpty()) {
+
+            // check if the keys value is written as a number
+            QRegularExpression re(QStringLiteral("\\A(?:\\d+)\\z"));
+            QRegularExpressionMatch check = re.match(userSettings.value(key).toString());
+            if (check.hasMatch()) {
+                // convert the value accordingly to integer
+                insert(key, userSettings.value(key).toInt());
+
+                // check if the keys value is written as a boolean
+            } else if (userSettings.value(key).toString().toLower() == (QStringLiteral("true")) ||
+                userSettings.value(key).toString().toLower() == (QStringLiteral("false"))) {
+                // convert the value accordingly to boolean
+                insert(key, userSettings.value(key).toBool());
+
+            // pass on as is
+            } else if (!userSettings.value(key).toString().isEmpty()) {
                 insert(key, userSettings.value(key));
             }
         }
