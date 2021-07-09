@@ -136,6 +136,8 @@ namespace SDDM {
             m_xorgUser->stop();
             m_wayland->stop();
         }
+
+        Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
     }
 
     QProcessEnvironment UserSession::processEnvironment() const
