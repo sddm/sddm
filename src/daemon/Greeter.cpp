@@ -241,6 +241,8 @@ namespace SDDM {
             // wait for finished
             if (!m_process->waitForFinished(5000))
                 m_process->kill();
+        } else {
+            m_auth->stop();
         }
     }
 
@@ -300,6 +302,10 @@ namespace SDDM {
         // clean up
         m_auth->deleteLater();
         m_auth = nullptr;
+
+        if (status == Auth::HELPER_SESSION_ERROR) {
+            Q_EMIT failed();
+        }
     }
 
     void Greeter::onReadyReadStandardError()

@@ -60,6 +60,9 @@ namespace SDDM {
         void authInfo(const QString &message, Auth::Info info);
         void authError(const QString &message, Auth::Error error);
 
+    signals:
+        void failed();
+
     private:
         bool m_started { false };
 
