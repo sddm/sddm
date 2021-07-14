@@ -34,7 +34,10 @@
 #include <QtCore/QProcess>
 
 namespace SDDM {
-    Greeter::Greeter(QObject *parent) : QObject(parent) {
+    Greeter::Greeter(Display *parent)
+        : QObject(parent)
+        , m_display(parent)
+    {
         m_metadata = new ThemeMetadata(QString());
         m_themeConfig = new ThemeConfig(QString());
     }
@@ -44,10 +47,6 @@ namespace SDDM {
 
         delete m_metadata;
         delete m_themeConfig;
-    }
-
-    void Greeter::setDisplay(Display *display) {
-        m_display = display;
     }
 
     void Greeter::setAuthPath(const QString &authPath) {
@@ -110,6 +109,7 @@ namespace SDDM {
         if (!style.isEmpty())
             args << QLatin1String("-style") << style;
 
+        Q_ASSERT(m_display);
         if (daemonApp->testing()) {
             // create process
             m_process = new QProcess(this);
@@ -241,6 +241,8 @@ namespace SDDM {
             // wait for finished
             if (!m_process->waitForFinished(5000))
                 m_process->kill();
+        } else {
+            m_auth->stop();
         }
     }
 
@@ -300,6 +302,10 @@ namespace SDDM {
         // clean up
         m_auth->deleteLater();
         m_auth = nullptr;
+
+        if (status == Auth::HELPER_SESSION_ERROR) {
+            Q_EMIT failed();
+        }
     }
 
     void Greeter::onReadyReadStandardError()

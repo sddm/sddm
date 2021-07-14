@@ -40,6 +40,7 @@ namespace SDDM {
             NameRole = Qt::UserRole + 1,
             GeometryRole
         };
+        Q_ENUM(ScreenRoles)
 
         ScreenModel(QScreen *screen, QObject *parent = 0);
         ~ScreenModel();

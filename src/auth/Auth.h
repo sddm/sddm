@@ -165,6 +165,11 @@ namespace SDDM {
         */
         void start();
 
+        /**
+         * Indicates that we do not need the process anymore.
+         */
+        void stop();
+
     Q_SIGNALS:
         void autologinChanged();
         void greeterChanged();
