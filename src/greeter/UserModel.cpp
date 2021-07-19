@@ -138,14 +138,18 @@ namespace SDDM {
                 const QString systemFace = QStringLiteral("%1/%2.face.icon").arg(facesDir).arg(user->name);
                 const QString accountsServiceFace = QStringLiteral("/var/lib/AccountsService/icons/%1").arg(user->name);
 
+                QString userIcon;
                 // If the home is encrypted it takes a lot of time to open
                 // up the greeter, therefore we try the system avatar first
                 if (QFile::exists(systemFace))
-                    user->icon = systemFace;
+                    userIcon = systemFace;
                 else if (QFile::exists(userFace))
-                    user->icon = userFace;
+                    userIcon = userFace;
                 else if (QFile::exists(accountsServiceFace))
-                    user->icon = accountsServiceFace;
+                    userIcon = accountsServiceFace;
+
+                if (!userIcon.isEmpty())
+                    user->icon = QStringLiteral("file://%1").arg(userIcon);
             }
         }
     }
