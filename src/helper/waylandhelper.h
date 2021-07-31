@@ -22,8 +22,6 @@
 
 #include <QProcess>
 
-#include "XAuth.h"
-
 namespace SDDM {
 class WaylandSocketWatcher;
 
@@ -39,6 +37,9 @@ public:
     bool startCompositor(const QString &cmd);
     void startGreeter(QProcess *process);
     void stop();
+
+Q_SIGNALS:
+    void failed();
 
 private:
     QProcessEnvironment m_environment;

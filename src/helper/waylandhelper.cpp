@@ -103,7 +103,10 @@ void WaylandHelper::startGreeter(QProcess *process)
 {
     if (m_watcher->status() == WaylandSocketWatcher::Started) {
         process->start();
+    } else if (m_watcher->status() == WaylandSocketWatcher::Failed) {
+        Q_EMIT failed();
     } else {
+        connect(m_watcher, &WaylandSocketWatcher::failed, this, &WaylandHelper::failed);
         connect(m_watcher, &WaylandSocketWatcher::started, this, [this, process] {
             m_watcher->stop();
             process->start();

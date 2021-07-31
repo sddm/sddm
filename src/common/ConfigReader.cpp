@@ -265,7 +265,7 @@ namespace SDDM {
         QByteArray junk;
         // stores the junk to the temporary storage
         auto collectJunk = [&junk](const QString &data) {
-            junk.append(data);
+            junk.append(data.toUtf8());
         };
 
         // a short function to assign the current junk and current line to the right section, eventually create a new one
@@ -275,7 +275,7 @@ namespace SDDM {
                 sectionData[currentSection] = QByteArray();
             }
             sectionData[currentSection].append(junk);
-            sectionData[currentSection].append(data);
+            sectionData[currentSection].append(data.toUtf8());
             junk.clear();
         };
 
