@@ -42,8 +42,6 @@ Q_SIGNALS:
     void failed();
 
 private:
-    void switchVt();
-
     QProcessEnvironment m_environment;
     QProcess *m_serverProcess = nullptr;
     WaylandSocketWatcher * const m_watcher;
