@@ -62,14 +62,14 @@ namespace SDDM {
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this)) {
 
-        // Allocate vt
-        m_terminalId = VirtualTerminal::setUpNewVt();
 
         // Save display server type
         const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
-        if (displayServerType == QLatin1String("x11"))
+        if (displayServerType == QLatin1String("x11")) {
+            // Allocate vt
+            m_terminalId = VirtualTerminal::setUpNewVt();
             m_displayServerType = X11DisplayServerType;
-        else if (displayServerType == QStringLiteral("x11-user"))
+        } else if (displayServerType == QStringLiteral("x11-user"))
             m_displayServerType = X11UserDisplayServerType;
         else if (displayServerType == QStringLiteral("wayland"))
             m_displayServerType = WaylandDisplayServerType;
@@ -95,7 +95,9 @@ namespace SDDM {
         }
 
         // Print what VT we are using for more information
-        qDebug("Using VT %d", m_terminalId);
+        if (m_terminalId > 0) {
+            qDebug("Using VT %d", m_terminalId);
+        }
 
         // respond to authentication requests
         m_auth->setVerbose(true);
