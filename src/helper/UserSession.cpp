@@ -116,7 +116,6 @@ namespace SDDM {
 
         if (m_process->waitForStarted()) {
             int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
-            VirtualTerminal::jumpToVt(vtNumber, true);
             return true;
         } else if (isWaylandGreeter) {
             // This is probably fine, we need the compositor to start first
@@ -217,7 +216,7 @@ namespace SDDM {
                 }
             }
 
-            VirtualTerminal::jumpToVt(vtNumber, false);
+            VirtualTerminal::jumpToVt(vtNumber, true);
         }
 
 #ifdef Q_OS_LINUX
