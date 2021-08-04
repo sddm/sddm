@@ -30,7 +30,6 @@
 #include "SocketServer.h"
 #include "Greeter.h"
 #include "Utils.h"
-#include "SignalHandler.h"
 
 #include <QDebug>
 #include <QFile>
