@@ -253,6 +253,8 @@ namespace SDDM {
         // stop the greeter
         m_greeter->stop();
 
+	m_auth->stop();
+
         // stop socket server
         m_socketServer->stop();
 
