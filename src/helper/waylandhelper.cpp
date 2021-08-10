@@ -99,12 +99,6 @@ bool WaylandHelper::startProcess(const QString &cmd, QProcess **p)
     return true;
 }
 
-void WaylandHelper::switchVt()
-{
-    int vtNumber = m_environment.value(QStringLiteral("XDG_VTNR")).toInt();
-    VirtualTerminal::jumpToVt(vtNumber, true);
-}
-
 void WaylandHelper::startGreeter(QProcess *process)
 {
     if (m_watcher->status() == WaylandSocketWatcher::Started) {

@@ -23,7 +23,6 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
-#include "SignalHandler.h"
 #include "Seat.h"
 
 #include <QDebug>
