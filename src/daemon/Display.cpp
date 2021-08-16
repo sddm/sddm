@@ -369,7 +369,9 @@ namespace SDDM {
         m_sessionName = session.fileName();
 
         // New VT
-        m_lastSession.setVt(VirtualTerminal::setUpNewVt());
+        if (session.xdgSessionType() != QLatin1String("x11") || m_displayServerType != X11DisplayServerType) {
+            m_lastSession.setVt(VirtualTerminal::setUpNewVt());
+        }
 
         // some information
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
