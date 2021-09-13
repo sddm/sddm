@@ -125,6 +125,7 @@ namespace SDDM {
     }
 
     Display::~Display() {
+        disconnect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
         stop();
     }
 
