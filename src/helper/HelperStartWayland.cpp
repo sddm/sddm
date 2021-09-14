@@ -25,12 +25,16 @@
 
 #include <QCoreApplication>
 #include <QTextStream>
-#include <QProcess>
 #include "waylandhelper.h"
-#include <unistd.h>
+#include "MessageHandler.h"
+
+void WaylandHelperMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+    SDDM::messageHandler(type, context, QStringLiteral("WaylandHelper: "), msg);
+}
 
 int main(int argc, char** argv)
 {
+    qInstallMessageHandler(WaylandHelperMessageHandler);
     Q_ASSERT(::getuid() != 0);
     QCoreApplication app(argc, argv);
     if (argc != 3) {

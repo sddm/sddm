@@ -62,10 +62,6 @@ else()
     target_link_libraries(sddm-helper crypt)
 endif()
 
-if(JOURNALD_FOUND)
-    target_link_libraries(sddm-helper ${JOURNALD_LIBRARIES})
-endif()
-
 install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 add_executable(sddm-helper-start-wayland HelperStartWayland.cpp waylandsocketwatcher.cpp waylandhelper.cpp)
@@ -79,3 +75,9 @@ add_executable(sddm-helper-start-x11user HelperStartX11User.cpp xorguserhelper.c
                                                 )
 target_link_libraries(sddm-helper-start-x11user Qt5::Core)
 install(TARGETS sddm-helper-start-x11user RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
+
+if(JOURNALD_FOUND)
+    target_link_libraries(sddm-helper ${JOURNALD_LIBRARIES})
+    target_link_libraries(sddm-helper-start-x11user ${JOURNALD_LIBRARIES})
+    target_link_libraries(sddm-helper-start-wayland ${JOURNALD_LIBRARIES})
+endif()

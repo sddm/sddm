@@ -26,11 +26,17 @@
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QProcess>
+#include <QDebug>
 #include "xorguserhelper.h"
-#include <unistd.h>
+#include "MessageHandler.h"
+
+void X11UserHelperMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+    SDDM::messageHandler(type, context, QStringLiteral("X11UserHelper: "), msg);
+}
 
 int main(int argc, char** argv)
 {
+    qInstallMessageHandler(X11UserHelperMessageHandler);
     Q_ASSERT(::getuid() != 0);
     QCoreApplication app(argc, argv);
     if (argc != 3) {
@@ -45,9 +51,11 @@ int main(int argc, char** argv)
         helper.stop();
     });
     QObject::connect(&helper, &XOrgUserHelper::displayChanged, &app, [&helper, &app] {
+        qDebug() << "starting XOrg Greeter..." << helper.sessionEnvironment().value(QStringLiteral("DISPLAY"));
         auto args = QProcess::splitCommand(app.arguments()[2]);
 
         QProcess *process = new QProcess(&app);
+        process->setProcessChannelMode(QProcess::ForwardedChannels);
         process->setProgram(args.takeFirst());
         process->setArguments(args);
         process->setProcessEnvironment(helper.sessionEnvironment());

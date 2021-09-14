@@ -105,10 +105,14 @@ bool XOrgUserHelper::startProcess(const QString &cmd,
     // Make sure to forward the input of this process into the Xorg
     // server, otherwise it will complain that only console users are allowed
     auto *process = new QProcess(this);
-    process->setInputChannelMode(QProcess::ForwardedInputChannel);
-    process->setProcessChannelMode(QProcess::ForwardedChannels);
     process->setProcessEnvironment(env);
-
+    process->setInputChannelMode(QProcess::ForwardedInputChannel);
+    connect(process, &QProcess::readyReadStandardError, this, [process] {
+        qWarning() << process->readAllStandardError();
+    });
+    connect(process, &QProcess::readyReadStandardOutput, this, [process] {
+        qInfo() << process->readAllStandardOutput();
+    });
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             process, [](int exitCode, QProcess::ExitStatus exitStatus) {
         if (exitCode != 0 || exitStatus != QProcess::NormalExit)

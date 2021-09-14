@@ -71,10 +71,14 @@ void WaylandHelper::stop()
 bool WaylandHelper::startProcess(const QString &cmd, QProcess **p)
 {
     auto *process = new QProcess(this);
-    process->setInputChannelMode(QProcess::ForwardedInputChannel);
-    process->setProcessChannelMode(QProcess::ForwardedChannels);
     process->setProcessEnvironment(m_environment);
-
+    process->setInputChannelMode(QProcess::ForwardedInputChannel);
+    connect(process, &QProcess::readyReadStandardError, this, [process] {
+        qWarning() << process->readAllStandardError();
+    });
+    connect(process, &QProcess::readyReadStandardOutput, this, [process] {
+        qInfo() << process->readAllStandardOutput();
+    });
     qDebug() << "Starting Wayland process" << cmd << m_environment.value(QStringLiteral("USER"));
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             process, [](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -108,6 +112,12 @@ void WaylandHelper::startGreeter(const QString &cmd)
     process->setProgram(args.takeFirst());
     process->setArguments(args);
     process->setProcessEnvironment(m_environment);
+    connect(process, &QProcess::readyReadStandardError, this, [process] {
+        qWarning() << process->readAllStandardError();
+    });
+    connect(process, &QProcess::readyReadStandardOutput, this, [process] {
+        qInfo() << process->readAllStandardOutput();
+    });
     startGreeter(process);
 }
 
