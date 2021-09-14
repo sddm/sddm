@@ -42,11 +42,10 @@
 
 namespace SDDM {
     UserSession::UserSession(HelperApp *parent)
-        : QObject(parent)
-        , m_process(new QProcess(this))
+        : QProcess(parent)
         , m_xorgUser(new XOrgUserHelper(this))
     {
-        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &UserSession::finished);
+        connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &UserSession::finished);
         connect(m_xorgUser, &XOrgUserHelper::displayChanged, this, [this, parent](const QString &display) {
             auto env = processEnvironment();
             env.insert(QStringLiteral("DISPLAY"), m_xorgUser->display());
@@ -90,31 +89,31 @@ namespace SDDM {
                 qInfo() << "Starting X11 greeter session:" << m_path;
                 auto args = QProcess::splitCommand(m_path);
                 const auto program = args.takeFirst();
-                m_process->start(program, args);
+                QProcess::start(program, args);
             } else {
                 const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
                 qInfo() << "Starting X11 user session:" << cmd;
-                m_process->start(mainConfig.X11.SessionCommand.get(), QStringList{m_path});
+                QProcess::start(mainConfig.X11.SessionCommand.get(), QStringList{m_path});
             }
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
                 isWaylandGreeter = true;
                 auto args = QProcess::splitCommand(m_path);
-                m_process->setProgram(args.takeFirst());
-                m_process->setArguments(args);
-                m_wayland->startGreeter(m_process);
+                setProgram(args.takeFirst());
+                setArguments(args);
+                m_wayland->startGreeter(this);
             } else {
                 const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
                 qInfo() << "Starting Wayland user session:" << cmd;
-                m_process->start(mainConfig.Wayland.SessionCommand.get(), QStringList{m_path});
-                m_process->closeWriteChannel();
-                m_process->closeReadChannel(QProcess::StandardOutput);
+                QProcess::start(mainConfig.Wayland.SessionCommand.get(), QStringList{m_path});
+                closeWriteChannel();
+                closeReadChannel(QProcess::StandardOutput);
             }
         } else {
             qCritical() << "Unable to run user session: unknown session type";
         }
 
-        if (m_process->waitForStarted()) {
+        if (waitForStarted()) {
             int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
             return true;
         } else if (isWaylandGreeter) {
@@ -127,9 +126,9 @@ namespace SDDM {
 
     void UserSession::stop()
     {
-        m_process->terminate();
-        if (!m_process->waitForFinished(5000))
-            m_process->kill();
+        terminate();
+        if (!waitForFinished(5000))
+            kill();
 
         if (!m_displayServerCmd.isEmpty()) {
             m_xorgUser->stop();
@@ -139,15 +138,15 @@ namespace SDDM {
         Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
     }
 
-    QProcessEnvironment UserSession::processEnvironment() const
-    {
-        return m_process->processEnvironment();
-    }
-
-    void UserSession::setProcessEnvironment(const QProcessEnvironment &env)
-    {
-        m_process->setProcessEnvironment(env);
-    }
+//     QProcessEnvironment UserSession::processEnvironment() const
+//     {
+//         return processEnvironment();
+//     }
+//
+//     void UserSession::setProcessEnvironment(const QProcessEnvironment &env)
+//     {
+//         setProcessEnvironment(env);
+//     }
 
     QString UserSession::displayServerCommand() const
     {
@@ -167,10 +166,6 @@ namespace SDDM {
         return m_path;
     }
 
-    qint64 UserSession::processId() const
-    {
-        return m_process->processId();
-    }
 
     void UserSession::setupChildProcess() {
         // Session type
@@ -345,10 +340,10 @@ namespace SDDM {
             QFileInfo finfo(sessionLog);
             QDir().mkpath(finfo.absolutePath());
 
-            m_process->setStandardErrorFile(sessionLog);
-            m_process->setStandardOutputFile(QProcess::nullDevice());
+            setStandardErrorFile(sessionLog);
+            setStandardOutputFile(QProcess::nullDevice());
         } else {
-            m_process->setProcessChannelMode(QProcess::ForwardedChannels);
+            setProcessChannelMode(QProcess::ForwardedChannels);
         }
 
         // set X authority for X11 sessions only
