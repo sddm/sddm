@@ -34,7 +34,8 @@ namespace SDDM {
 
 WaylandHelper::WaylandHelper(QObject *parent)
     : QObject(parent)
-    , m_watcher(new WaylandSocketWatcher)
+    , m_environment(QProcessEnvironment::systemEnvironment())
+    , m_watcher(new WaylandSocketWatcher(this))
 {
 }
 
@@ -97,6 +98,17 @@ bool WaylandHelper::startProcess(const QString &cmd, QProcess **p)
 
     qDebug() << "started succesfully" << cmd;
     return true;
+}
+
+void WaylandHelper::startGreeter(const QString &cmd)
+{
+    auto args = QProcess::splitCommand(cmd);
+
+    QProcess *process = new QProcess(this);
+    process->setProgram(args.takeFirst());
+    process->setArguments(args);
+    process->setProcessEnvironment(m_environment);
+    startGreeter(process);
 }
 
 void WaylandHelper::startGreeter(QProcess *process)

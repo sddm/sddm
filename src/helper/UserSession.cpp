@@ -43,53 +43,25 @@
 namespace SDDM {
     UserSession::UserSession(HelperApp *parent)
         : QProcess(parent)
-        , m_xorgUser(new XOrgUserHelper(this))
     {
         connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &UserSession::finished);
-        connect(m_xorgUser, &XOrgUserHelper::displayChanged, this, [this, parent](const QString &display) {
-            auto env = processEnvironment();
-            env.insert(QStringLiteral("DISPLAY"), m_xorgUser->display());
-            env.insert(QStringLiteral("XAUTHORITY"), m_xorgUser->xauthPath());
-            setProcessEnvironment(env);
-
-            parent->displayServerStarted(display);
-        });
     }
 
     bool UserSession::start() {
         auto helper = qobject_cast<HelperApp*>(parent());
         QProcessEnvironment env = helper->session()->processEnvironment();
 
-        // WARNING- THESE ARE CURRENTLY RUN AS ROOT NOW!!!
-        // WE DEFINITELY DO NOT WANT THESE RUN AS ROOT
-
-        if (!m_displayServerCmd.isEmpty()) {
-            if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland") && env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
-                m_wayland = new WaylandHelper(this);
-                m_wayland->setEnvironment(env);
-                connect(m_wayland, &WaylandHelper::failed, this, &UserSession::stop);
-                if (!m_wayland->startCompositor(m_displayServerCmd)) {
-                    qWarning() << "Could not start wayland compositor" << m_displayServerCmd;
-                    Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
-                    return false;
-                }
-            } else {
-                m_xorgUser->setEnvironment(env);
-                if (!m_xorgUser->start(m_displayServerCmd)) {
-                    qWarning() << "Could not start display server" << m_displayServerCmd;
-                    Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
-                    return false;
-                }
-            }
-        }
-
         bool isWaylandGreeter = false;
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
-                qInfo() << "Starting X11 greeter session:" << m_path;
-                auto args = QProcess::splitCommand(m_path);
-                const auto program = args.takeFirst();
-                QProcess::start(program, args);
+                if (m_displayServerCmd.isEmpty()) {
+                    qInfo() << "Starting X11 greeter session:" << m_path;
+                    auto args = QProcess::splitCommand(m_path);
+                    const auto program = args.takeFirst();
+                    QProcess::start(program, args);
+                } else {
+                    QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-x11user"), {m_displayServerCmd, m_path});
+                }
             } else {
                 const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
                 qInfo() << "Starting X11 user session:" << cmd;
@@ -97,11 +69,9 @@ namespace SDDM {
             }
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
+                Q_ASSERT(!m_displayServerCmd.isEmpty());
+                QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-wayland"), {m_displayServerCmd, m_path});
                 isWaylandGreeter = true;
-                auto args = QProcess::splitCommand(m_path);
-                setProgram(args.takeFirst());
-                setArguments(args);
-                m_wayland->startGreeter(this);
             } else {
                 const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
                 qInfo() << "Starting Wayland user session:" << cmd;
@@ -114,7 +84,6 @@ namespace SDDM {
         }
 
         if (waitForStarted()) {
-            int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
             return true;
         } else if (isWaylandGreeter) {
             // This is probably fine, we need the compositor to start first
@@ -130,23 +99,8 @@ namespace SDDM {
         if (!waitForFinished(5000))
             kill();
 
-        if (!m_displayServerCmd.isEmpty()) {
-            m_xorgUser->stop();
-            m_wayland->stop();
-        }
-
         Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
     }
-
-//     QProcessEnvironment UserSession::processEnvironment() const
-//     {
-//         return processEnvironment();
-//     }
-//
-//     void UserSession::setProcessEnvironment(const QProcessEnvironment &env)
-//     {
-//         setProcessEnvironment(env);
-//     }
 
     QString UserSession::displayServerCommand() const
     {
@@ -165,7 +119,6 @@ namespace SDDM {
     QString UserSession::path() const {
         return m_path;
     }
-
 
     void UserSession::setupChildProcess() {
         // Session type

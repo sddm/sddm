@@ -77,7 +77,7 @@ namespace SDDM {
     }
 
     void Seat::removeDisplay(Display* display) {
-        qDebug() << "Removing display" << display->displayId() << "...";
+        qDebug() << "Removing display" << display << "...";
 
 
         // remove display from list

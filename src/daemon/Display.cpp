@@ -134,10 +134,6 @@ namespace SDDM {
         return m_displayServer;
     }
 
-    QString Display::displayId() const {
-        return m_displayServer->display();
-    }
-
     const int Display::terminalId() const {
         return m_terminalId;
     }

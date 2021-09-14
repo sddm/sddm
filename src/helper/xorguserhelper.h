@@ -36,6 +36,9 @@ public:
     QProcessEnvironment environment() const;
     void setEnvironment(const QProcessEnvironment &env);
 
+    /// @returns the same as @m environment plus the variables we need here
+    QProcessEnvironment sessionEnvironment() const;
+
     QString display() const;
 
     QString xauthPath() const;

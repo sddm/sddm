@@ -35,6 +35,15 @@ XOrgUserHelper::XOrgUserHelper(QObject *parent)
 {
 }
 
+QProcessEnvironment XOrgUserHelper::sessionEnvironment() const
+{
+    auto env = QProcessEnvironment::systemEnvironment();
+    env.insert(QStringLiteral("DISPLAY"), m_display);
+    env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
+    env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
+    return env;
+}
+
 QProcessEnvironment XOrgUserHelper::environment() const
 {
     return m_environment;
@@ -228,15 +237,10 @@ void XOrgUserHelper::startDisplayCommand()
 
 void XOrgUserHelper::displayFinished()
 {
-    auto env = QProcessEnvironment::systemEnvironment();
-    env.insert(QStringLiteral("DISPLAY"), m_display);
-    env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
-    env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
-
     auto cmd = mainConfig.X11.DisplayStopCommand.get();
     qInfo("Running display stop script: %s", qPrintable(cmd));
     QProcess *displayStopScript = nullptr;
-    if (startProcess(cmd, env, &displayStopScript)) {
+    if (startProcess(cmd, sessionEnvironment(), &displayStopScript)) {
         if (!displayStopScript->waitForFinished(5000))
             displayStopScript->kill();
         displayStopScript->deleteLater();

@@ -38,16 +38,11 @@ namespace SDDM {
         bool start();
         void stop();
 
-//         QProcessEnvironment processEnvironment() const;
-//         void setProcessEnvironment(const QProcessEnvironment &env);
-
         QString displayServerCommand() const;
         void setDisplayServerCommand(const QString &command);
 
         void setPath(const QString &path);
         QString path() const;
-
-//         qint64 processId() const;
 
         /*!
          \brief Sets m_cachedProcessId. Needed for getting the PID of a finished UserSession
@@ -74,8 +69,6 @@ namespace SDDM {
         void setup();
 
         QString m_path { };
-        XOrgUserHelper *m_xorgUser = nullptr;
-        WaylandHelper *m_wayland = nullptr;
         QString m_displayServerCmd;
         qint64 m_cachedProcessId = -1;
     };
