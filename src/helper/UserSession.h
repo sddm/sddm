@@ -78,7 +78,7 @@ namespace SDDM {
         XOrgUserHelper *m_xorgUser = nullptr;
         WaylandHelper *m_wayland = nullptr;
         QString m_displayServerCmd;
-        qint64 m_cachedProcessId;
+        qint64 m_cachedProcessId = -1;
     };
 }
 

@@ -42,6 +42,16 @@
 #endif
 #include <utmpx.h>
 #include <QByteArray>
+#include <signal.h>
+
+// ensure we exit gracefully and close the session if sigtermed (i.e restarting sddm)
+static void sigtermHandler(int signalNumber)
+{
+    Q_UNUSED(signalNumber)
+    if (qApp) {
+        qApp->exit(-1);
+    }
+}
 
 namespace SDDM {
     HelperApp::HelperApp(int& argc, char** argv)
@@ -50,6 +60,8 @@ namespace SDDM {
             , m_session(new UserSession(this))
             , m_socket(new QLocalSocket(this)) {
         qInstallMessageHandler(HelperMessageHandler);
+
+        signal(SIGTERM, sigtermHandler);
 
         QTimer::singleShot(0, this, SLOT(setUp()));
     }
@@ -200,19 +212,6 @@ namespace SDDM {
     }
 
     void HelperApp::sessionFinished(int status) {
-        Q_ASSERT(getuid() == 0);
-
-        m_backend->closeSession();
-
-        // write logout to utmp/wtmp
-        qint64 pid = m_session->cachedProcessId();
-        QProcessEnvironment env = m_session->processEnvironment();
-        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) != QLatin1String("greeter")) {
-            QString vt = env.value(QStringLiteral("XDG_VTNR"));
-            QString displayId = env.value(QStringLiteral("DISPLAY"));
-            utmpLogout(vt, displayId, pid);
-        }
-
         exit(status);
     }
 
@@ -301,7 +300,21 @@ namespace SDDM {
     }
 
     HelperApp::~HelperApp() {
+        Q_ASSERT(getuid() == 0);
 
+        m_backend->closeSession();
+
+        // write logout to utmp/wtmp
+        qint64 pid = m_session->cachedProcessId();
+        if (pid < 0) {
+            return;
+        }
+        QProcessEnvironment env = m_session->processEnvironment();
+        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) != QLatin1String("greeter")) {
+            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            QString displayId = env.value(QStringLiteral("DISPLAY"));
+            utmpLogout(vt, displayId, pid);
+        }
     }
 
     void HelperApp::utmpLogin(const QString &vt, const QString &displayName, const QString &user, qint64 pid, bool authSuccessful) {
