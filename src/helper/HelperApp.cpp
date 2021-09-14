@@ -144,6 +144,7 @@ namespace SDDM {
             return;
         }
 
+        Q_ASSERT(getuid() == 0);
         if (!m_backend->authenticate()) {
             authenticated(QString());
 
@@ -199,6 +200,8 @@ namespace SDDM {
     }
 
     void HelperApp::sessionFinished(int status) {
+        Q_ASSERT(getuid() == 0);
+
         m_backend->closeSession();
 
         // write logout to utmp/wtmp
