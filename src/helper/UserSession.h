@@ -49,8 +49,26 @@ namespace SDDM {
 
         qint64 processId() const;
 
+        /*!
+         \brief Sets m_cachedProcessId. Needed for getting the PID of a finished UserSession
+                and calling HelperApp::utmpLogout
+         \param pid  The process ID
+        */
+        void setCachedProcessId(qint64 pid);
+
+        /*!
+         \brief Gets m_cachedProcessId
+         \return  The cached process ID
+        */
+        qint64 cachedProcessId();
+
+
     Q_SIGNALS:
         void finished(int exitCode);
+
+
+    protected:
+        void setupChildProcess();
 
     private:
         void setup();
@@ -60,6 +78,7 @@ namespace SDDM {
         XOrgUserHelper *m_xorgUser = nullptr;
         WaylandHelper *m_wayland = nullptr;
         QString m_displayServerCmd;
+        qint64 m_cachedProcessId;
     };
 }
 

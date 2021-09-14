@@ -61,7 +61,8 @@ namespace SDDM {
         auto helper = qobject_cast<HelperApp*>(parent());
         QProcessEnvironment env = helper->session()->processEnvironment();
 
-        setup();
+        // WARNING- THESE ARE CURRENTLY RUN AS ROOT NOW!!!
+        // WE DEFINITELY DO NOT WANT THESE RUN AS ROOT
 
         if (!m_displayServerCmd.isEmpty()) {
             if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland") && env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
@@ -171,7 +172,7 @@ namespace SDDM {
         return m_process->processId();
     }
 
-    void UserSession::setup() {
+    void UserSession::setupChildProcess() {
         // Session type
         QString sessionType = processEnvironment().value(QStringLiteral("XDG_SESSION_TYPE"));
         QString sessionClass = processEnvironment().value(QStringLiteral("XDG_SESSION_CLASS"));
@@ -365,4 +366,13 @@ namespace SDDM {
             }
         }
     }
+
+    void UserSession::setCachedProcessId(qint64 pid) {
+        m_cachedProcessId = pid;
+    }
+
+    qint64 UserSession::cachedProcessId() {
+        return m_cachedProcessId;
+    }
+
 }

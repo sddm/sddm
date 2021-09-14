@@ -69,7 +69,6 @@ namespace SDDM {
         bool autologin { false };
         bool greeter { false };
         QProcessEnvironment environment { };
-        qint64 sessionPid { -1 };
         qint64 id { 0 };
         static qint64 lastId;
     };
@@ -194,10 +193,8 @@ namespace SDDM {
             }
             case SESSION_STATUS: {
                 bool status;
-                qint64 pid; //not pid_t as we need to define the wire type
-                str >> status >> pid;
-                sessionPid = pid;
-                Q_EMIT auth->sessionStarted(status, pid);
+                str >> status;
+                Q_EMIT auth->sessionStarted(status);
                 str.reset();
                 str << SESSION_STATUS;
                 str.send();
@@ -299,10 +296,6 @@ namespace SDDM {
 
     AuthRequest *Auth::request() {
         return d->request;
-    }
-
-    qint64 Auth::sessionPid() const {
-        return d->sessionPid;
     }
 
     bool Auth::isActive() const {
