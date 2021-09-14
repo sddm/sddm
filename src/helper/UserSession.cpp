@@ -46,7 +46,6 @@ namespace SDDM {
         , m_process(new QProcess(this))
         , m_xorgUser(new XOrgUserHelper(this))
     {
-        m_process->setProcessChannelMode(QProcess::ForwardedChannels);
         connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &UserSession::finished);
         connect(m_xorgUser, &XOrgUserHelper::displayChanged, this, [this, parent](const QString &display) {
             auto env = processEnvironment();
@@ -116,7 +115,6 @@ namespace SDDM {
 
         if (m_process->waitForStarted()) {
             int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
-            VirtualTerminal::jumpToVt(vtNumber, true);
             return true;
         } else if (isWaylandGreeter) {
             // This is probably fine, we need the compositor to start first
@@ -217,7 +215,7 @@ namespace SDDM {
                 }
             }
 
-            VirtualTerminal::jumpToVt(vtNumber, false);
+            VirtualTerminal::jumpToVt(vtNumber, true);
         }
 
 #ifdef Q_OS_LINUX
@@ -347,6 +345,9 @@ namespace SDDM {
             QDir().mkpath(finfo.absolutePath());
 
             m_process->setStandardErrorFile(sessionLog);
+            m_process->setStandardOutputFile(QProcess::nullDevice());
+        } else {
+            m_process->setProcessChannelMode(QProcess::ForwardedChannels);
         }
 
         // set X authority for X11 sessions only
