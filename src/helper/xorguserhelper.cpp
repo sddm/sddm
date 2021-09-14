@@ -32,12 +32,13 @@ namespace SDDM {
 
 XOrgUserHelper::XOrgUserHelper(QObject *parent)
     : QObject(parent)
+    , m_environment(QProcessEnvironment::systemEnvironment())
 {
 }
 
 QProcessEnvironment XOrgUserHelper::sessionEnvironment() const
 {
-    auto env = QProcessEnvironment::systemEnvironment();
+    auto env = m_environment;
     env.insert(QStringLiteral("DISPLAY"), m_display);
     env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
     env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
