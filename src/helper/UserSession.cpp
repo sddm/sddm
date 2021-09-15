@@ -53,20 +53,22 @@ namespace SDDM {
 
         bool isWaylandGreeter = false;
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
+            QString command;
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
-                if (m_displayServerCmd.isEmpty()) {
-                    qInfo() << "Starting X11 greeter session:" << m_path;
-                    auto args = QProcess::splitCommand(m_path);
-                    const auto program = args.takeFirst();
-                    QProcess::start(program, args);
-                } else {
-                    QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-x11user"), {m_displayServerCmd, m_path});
-                }
+                command = m_path;
             } else {
-                const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
-                qInfo() << "Starting X11 user session:" << cmd;
-                QProcess::start(mainConfig.X11.SessionCommand.get(), QStringList{m_path});
+                command = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
             }
+
+            qInfo() << "Starting X11 session:" << m_displayServerCmd << command;
+            if (m_displayServerCmd.isEmpty()) {
+                auto args = QProcess::splitCommand(command);
+                const auto program = args.takeFirst();
+                QProcess::start(program, args);
+            } else {
+                QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-x11user"), {m_displayServerCmd, command});
+            }
+
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
                 Q_ASSERT(!m_displayServerCmd.isEmpty());
