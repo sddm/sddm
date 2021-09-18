@@ -91,6 +91,9 @@ namespace SDDM {
         QString xcursorTheme = mainConfig.Theme.CursorTheme.get();
         if (m_themeConfig->contains(QLatin1String("cursorTheme")))
             xcursorTheme = m_themeConfig->value(QLatin1String("cursorTheme")).toString();
+        QString xcursorSize = mainConfig.Theme.CursorSize.get();
+        if (m_themeConfig->contains(QLatin1String("cursorSize")))
+            xcursorSize = m_themeConfig->value(QLatin1String("cursorSize")).toString();
         QString platformTheme;
         if (m_themeConfig->contains(QLatin1String("platformTheme")))
             platformTheme = m_themeConfig->value(QLatin1String("platformTheme")).toString();
@@ -131,6 +134,8 @@ namespace SDDM {
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
                 env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
                 env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
+                if (!xcursorSize.isEmpty())
+                    env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
                 m_process->setProcessEnvironment(env);
             }
             // Greeter command
@@ -187,6 +192,8 @@ namespace SDDM {
 
             env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
             env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
+            if (!xcursorSize.isEmpty())
+                env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
             env.insert(QStringLiteral("XDG_SEAT"), m_display->seat()->name());
             env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_display->seat()->name()));
             env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
