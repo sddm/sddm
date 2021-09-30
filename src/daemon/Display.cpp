@@ -364,11 +364,14 @@ namespace SDDM {
 
         // New VT
         if (session.xdgSessionType() != QLatin1String("x11") || m_displayServerType != X11DisplayServerType) {
-            m_lastSession.setVt(VirtualTerminal::fetchAvailableVt());
+            if (m_displayServerType == X11DisplayServerType)
+                m_lastSession.setVt(VirtualTerminal::setUpNewVt());
+            else
+                m_lastSession.setVt(VirtualTerminal::fetchAvailableVt());
         }
 
         // some information
-        qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec();
+        qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec() << "for VT" << m_lastSession.vt();
 
         QProcessEnvironment env;
         env.insert(session.additionalEnv());
