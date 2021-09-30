@@ -302,6 +302,7 @@ namespace SDDM {
     HelperApp::~HelperApp() {
         Q_ASSERT(getuid() == 0);
 
+        m_session->stop();
         m_backend->closeSession();
 
         // write logout to utmp/wtmp
