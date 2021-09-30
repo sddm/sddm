@@ -364,7 +364,7 @@ namespace SDDM {
 
         // New VT
         if (session.xdgSessionType() != QLatin1String("x11") || m_displayServerType != X11DisplayServerType) {
-            m_lastSession.setVt(VirtualTerminal::setUpNewVt());
+            m_lastSession.setVt(VirtualTerminal::fetchAvailableVt());
         }
 
         // some information
