@@ -210,7 +210,7 @@ namespace SDDM {
             // take control of the tty
             if (takeControl) {
                 if (ioctl(STDIN_FILENO, TIOCSCTTY) < 0) {
-                    qCritical("Failed to take control of the tty: %s", strerror(errno));
+                    qCritical("Failed to take control of %s: %s", qPrintable(ttyString), strerror(errno));
                     exit(Auth::HELPER_OTHER_ERROR);
                 }
             }
