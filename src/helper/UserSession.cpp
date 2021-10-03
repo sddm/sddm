@@ -39,6 +39,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sched.h>
+#ifdef Q_OS_FREEBSD
+#include <login_cap.h>
+#endif
 
 namespace SDDM {
     UserSession::UserSession(HelperApp *parent)
@@ -213,6 +216,14 @@ namespace SDDM {
                 qCritical() << "getpwnam_r(" << username << ") failed with error: " << strerror(err);
             exit(Auth::HELPER_OTHER_ERROR);
         }
+#if defined(Q_OS_FREEBSD)
+        // execve() uses the environment prepared in Backend::openSession(),
+        // therefore environment variables which are set here are ignored.
+        if (setusercontext(NULL, &pw, pw.pw_uid, LOGIN_SETALL) != 0) {
+            qCritical() << "setusercontext(NULL, *, " << pw.pw_uid << ", LOGIN_SETALL) failed for user: " << username;
+            exit(Auth::HELPER_OTHER_ERROR);
+        }
+#else
         if (setgid(pw.pw_gid) != 0) {
             qCritical() << "setgid(" << pw.pw_gid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
@@ -283,6 +294,7 @@ namespace SDDM {
             qCritical() << "setuid(" << pw.pw_uid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
+#endif /* Q_OS_FREEBSD */
         if (chdir(pw.pw_dir) != 0) {
             qCritical() << "chdir(" << pw.pw_dir << ") failed for user: " << username;
             qCritical() << "verify directory exist and has sufficient permissions";
