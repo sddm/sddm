@@ -22,12 +22,30 @@
 
 #include "VirtualTerminal.h"
 
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/ioctl.h>
+#include <sys/consio.h>
+
 
 namespace SDDM {
     namespace VirtualTerminal {
         int setUpNewVt() {
-            qDebug() << "New VT is unsupported on FreeBSD";
-            return -1;
+            int fd = ::open("/dev/console", O_RDONLY);
+            if(fd == -1) {
+                qDebug() << "Failed to open /dev/console: " << strerror(errno);
+                return -1;
+            }
+
+            int vt;
+            int err = ::ioctl(fd, VT_OPENQRY, &vt);
+            if(err == -1) {
+                qDebug() << "ioctl(VT_OPENQRY) failed: " << strerror(errno);
+                return -1;
+            }
+
+            return vt;
         }
 
         void jumpToVt(int vt, bool vt_auto) {
