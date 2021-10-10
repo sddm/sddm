@@ -212,6 +212,8 @@ namespace SDDM {
             bool success = attemptAutologin();
             if (success) {
                 return;
+            } else {
+                qWarning() << "Autologin failed!";
             }
         }
 
