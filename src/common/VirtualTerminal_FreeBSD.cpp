@@ -36,20 +36,9 @@ namespace SDDM {
         static const char ttyvs[] = "0123456789ab";
 
         int setUpNewVt() {
-            int fd = ::open("/dev/console", O_RDONLY);
-            if(fd == -1) {
-                qWarning() << "Failed to open /dev/console: " << strerror(errno);
-                return -1;
-            }
-
-            int vt;
-            int err = ::ioctl(fd, VT_OPENQRY, &vt);
-            if(err == -1) {
-                qWarning() << "ioctl(VT_OPENQRY) failed: " << strerror(errno);
-                return -1;
-            }
-
-            return vt;
+            // there is no way to create VTs on FreeBSD, so
+            // just try to fetch any available
+            return fetchAvailableVt();
         }
 
         void jumpToVt(int vt, bool vt_auto) {
@@ -73,6 +62,23 @@ namespace SDDM {
             if (::ioctl(fd, VT_ACTIVATE, vt) == -1) {
                 qWarning() << "ioctl(VT_ACTIVATE) failed: " << strerror(errno);
             }
+        }
+
+        int fetchAvailableVt() {
+            int fd = ::open("/dev/console", O_RDONLY);
+            if(fd == -1) {
+                qWarning() << "Failed to open /dev/console: " << strerror(errno);
+                return -1;
+            }
+
+            int vt;
+            int err = ::ioctl(fd, VT_OPENQRY, &vt);
+            if(err == -1) {
+                qWarning() << "ioctl(VT_OPENQRY) failed: " << strerror(errno);
+                return -1;
+            }
+
+            return vt;
         }
     }
 }
