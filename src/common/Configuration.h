@@ -55,6 +55,7 @@ namespace SDDM {
             Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Global directory for user avatars\n"
                                                                                                    "The files should be named <username>.face.icon"));
             Entry(CursorTheme,         QString,     QString(),                                  _S("Cursor theme used in the greeter"));
+            Entry(CursorSize,          QString,     QString(),                                  _S("Cursor size used in the greeter"));
             Entry(Font,                QString,     QString(),                                  _S("Font used in the greeter"));
             Entry(EnableAvatars,       bool,        true,                                       _S("Enable display of custom user avatars"));
             Entry(DisableAvatarsThreshold,int,      7,                                          _S("Number of users to use as threshold\n"

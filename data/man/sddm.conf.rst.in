@@ -94,6 +94,9 @@ OPTIONS
 	Name of the cursor theme to be set before starting
 	the display server.
 
+`CursorSize=`
+	Cursor size to be set before starting the display server.
+
 `Font=`
 	Name of the font to be set before starting the
 	display server. Please note that the theme can still override this option.
