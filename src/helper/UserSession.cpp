@@ -85,7 +85,9 @@ namespace SDDM {
             qCritical() << "Unable to run user session: unknown session type";
         }
 
-        if (waitForStarted()) {
+        const bool started = waitForStarted();
+        m_cachedProcessId = processId();
+        if (started) {
             return true;
         } else if (isWaylandGreeter) {
             // This is probably fine, we need the compositor to start first
@@ -322,10 +324,6 @@ namespace SDDM {
                 XAuth::addCookieToFile(display, file, cookie);
             }
         }
-    }
-
-    void UserSession::setCachedProcessId(qint64 pid) {
-        m_cachedProcessId = pid;
     }
 
     qint64 UserSession::cachedProcessId() {

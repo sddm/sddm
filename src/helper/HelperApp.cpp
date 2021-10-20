@@ -202,7 +202,6 @@ namespace SDDM {
             const QString vt = env.value(QStringLiteral("XDG_VTNR"));
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) != QLatin1String("greeter")) {
                 // cache pid for session end
-                m_session->setCachedProcessId(m_session->processId());
                 utmpLogin(vt, displayId, m_user, m_session->processId(), true);
             }
         }
