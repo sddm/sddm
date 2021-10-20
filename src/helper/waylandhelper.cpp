@@ -34,7 +34,8 @@ namespace SDDM {
 
 WaylandHelper::WaylandHelper(QObject *parent)
     : QObject(parent)
-    , m_watcher(new WaylandSocketWatcher)
+    , m_environment(QProcessEnvironment::systemEnvironment())
+    , m_watcher(new WaylandSocketWatcher(this))
 {
 }
 
@@ -70,10 +71,14 @@ void WaylandHelper::stop()
 bool WaylandHelper::startProcess(const QString &cmd, QProcess **p)
 {
     auto *process = new QProcess(this);
-    process->setInputChannelMode(QProcess::ForwardedInputChannel);
-    process->setProcessChannelMode(QProcess::ForwardedChannels);
     process->setProcessEnvironment(m_environment);
-
+    process->setInputChannelMode(QProcess::ForwardedInputChannel);
+    connect(process, &QProcess::readyReadStandardError, this, [process] {
+        qWarning() << process->readAllStandardError();
+    });
+    connect(process, &QProcess::readyReadStandardOutput, this, [process] {
+        qInfo() << process->readAllStandardOutput();
+    });
     qDebug() << "Starting Wayland process" << cmd << m_environment.value(QStringLiteral("USER"));
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             process, [](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -97,6 +102,23 @@ bool WaylandHelper::startProcess(const QString &cmd, QProcess **p)
 
     qDebug() << "started succesfully" << cmd;
     return true;
+}
+
+void WaylandHelper::startGreeter(const QString &cmd)
+{
+    auto args = QProcess::splitCommand(cmd);
+
+    QProcess *process = new QProcess(this);
+    process->setProgram(args.takeFirst());
+    process->setArguments(args);
+    process->setProcessEnvironment(m_environment);
+    connect(process, &QProcess::readyReadStandardError, this, [process] {
+        qWarning() << process->readAllStandardError();
+    });
+    connect(process, &QProcess::readyReadStandardOutput, this, [process] {
+        qInfo() << process->readAllStandardOutput();
+    });
+    startGreeter(process);
 }
 
 void WaylandHelper::startGreeter(QProcess *process)

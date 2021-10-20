@@ -15,10 +15,6 @@ set(HELPER_SOURCES
     Backend.cpp
     HelperApp.cpp
     UserSession.cpp
-    xorguserhelper.cpp
-    xorguserhelper.h
-    waylandhelper.cpp
-    waylandsocketwatcher.cpp
 )
 
 # Different implementations of the VT switching code
@@ -66,8 +62,22 @@ else()
     target_link_libraries(sddm-helper crypt)
 endif()
 
+install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
+
+add_executable(sddm-helper-start-wayland HelperStartWayland.cpp waylandsocketwatcher.cpp waylandhelper.cpp)
+target_link_libraries(sddm-helper-start-wayland Qt5::Core)
+install(TARGETS sddm-helper-start-wayland RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
+
+add_executable(sddm-helper-start-x11user HelperStartX11User.cpp xorguserhelper.cpp
+                                                ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
+                                                ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
+                                                ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
+                                                )
+target_link_libraries(sddm-helper-start-x11user Qt5::Core)
+install(TARGETS sddm-helper-start-x11user RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
+
 if(JOURNALD_FOUND)
     target_link_libraries(sddm-helper ${JOURNALD_LIBRARIES})
+    target_link_libraries(sddm-helper-start-x11user ${JOURNALD_LIBRARIES})
+    target_link_libraries(sddm-helper-start-wayland ${JOURNALD_LIBRARIES})
 endif()
-
-install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")

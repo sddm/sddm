@@ -32,7 +32,17 @@ namespace SDDM {
 
 XOrgUserHelper::XOrgUserHelper(QObject *parent)
     : QObject(parent)
+    , m_environment(QProcessEnvironment::systemEnvironment())
 {
+}
+
+QProcessEnvironment XOrgUserHelper::sessionEnvironment() const
+{
+    auto env = m_environment;
+    env.insert(QStringLiteral("DISPLAY"), m_display);
+    env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
+    env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
+    return env;
 }
 
 QProcessEnvironment XOrgUserHelper::environment() const
@@ -95,10 +105,14 @@ bool XOrgUserHelper::startProcess(const QString &cmd,
     // Make sure to forward the input of this process into the Xorg
     // server, otherwise it will complain that only console users are allowed
     auto *process = new QProcess(this);
-    process->setInputChannelMode(QProcess::ForwardedInputChannel);
-    process->setProcessChannelMode(QProcess::ForwardedChannels);
     process->setProcessEnvironment(env);
-
+    process->setInputChannelMode(QProcess::ForwardedInputChannel);
+    connect(process, &QProcess::readyReadStandardError, this, [process] {
+        qWarning() << process->readAllStandardError();
+    });
+    connect(process, &QProcess::readyReadStandardOutput, this, [process] {
+        qInfo() << process->readAllStandardOutput();
+    });
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             process, [](int exitCode, QProcess::ExitStatus exitStatus) {
         if (exitCode != 0 || exitStatus != QProcess::NormalExit)
@@ -228,15 +242,10 @@ void XOrgUserHelper::startDisplayCommand()
 
 void XOrgUserHelper::displayFinished()
 {
-    auto env = QProcessEnvironment::systemEnvironment();
-    env.insert(QStringLiteral("DISPLAY"), m_display);
-    env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
-    env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
-
     auto cmd = mainConfig.X11.DisplayStopCommand.get();
     qInfo("Running display stop script: %s", qPrintable(cmd));
     QProcess *displayStopScript = nullptr;
-    if (startProcess(cmd, env, &displayStopScript)) {
+    if (startProcess(cmd, sessionEnvironment(), &displayStopScript)) {
         if (!displayStopScript->waitForFinished(5000))
             displayStopScript->kill();
         displayStopScript->deleteLater();

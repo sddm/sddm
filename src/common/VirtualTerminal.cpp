@@ -30,6 +30,7 @@
 #include <linux/vt.h>
 #include <linux/kd.h>
 #include <sys/ioctl.h>
+#include <qscopeguard.h>
 
 #define RELEASE_DISPLAY_SIGNAL (SIGRTMAX)
 #define ACQUIRE_DISPLAY_SIGNAL (SIGRTMAX - 1)
@@ -115,6 +116,32 @@ out:
                 qDebug() << "VT mode didn't need to be fixed";
         }
 
+        int fetchAvailableVt() {
+            // open VT master
+            int fd = open("/dev/tty0", O_RDWR | O_NOCTTY);
+            if (fd < 0) {
+                qCritical() << "Failed to open VT master:" << strerror(errno);
+                return -1;
+            }
+            auto closeFd = qScopeGuard([fd] {
+                close(fd);
+            });
+
+            vt_stat vtState = { 0 };
+            if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
+                qCritical() << "Failed to get current VT:" << strerror(errno);
+
+                int vt = 0;
+                // If there's no current tty, request the next to open
+                if (ioctl(fd, VT_OPENQRY, &vt) < 0) {
+                    qCritical() << "Failed to open new VT:" << strerror(errno);
+                    return -1;
+                }
+                return vt;
+            }
+            return vtState.v_active;
+        }
+
         int setUpNewVt() {
             // open VT master
             int fd = open("/dev/tty0", O_RDWR | O_NOCTTY);
@@ -122,25 +149,24 @@ out:
                 qCritical() << "Failed to open VT master:" << strerror(errno);
                 return -1;
             }
-
-            vt_stat vtState = { 0 };
-            if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
-                qCritical() << "Failed to get current VT:" << strerror(errno);
+            auto closeFd = qScopeGuard([fd] {
                 close(fd);
-                return -1;
-            }
+            });
 
             int vt = 0;
             if (ioctl(fd, VT_OPENQRY, &vt) < 0) {
                 qCritical() << "Failed to open new VT:" << strerror(errno);
-                close(fd);
                 return -1;
             }
 
-            close(fd);
-
             // fallback to active VT
             if (vt <= 0) {
+                vt_stat vtState = { 0 };
+                if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
+                    qCritical() << "Failed to get current VT:" << strerror(errno);
+                    return -1;
+                }
+
                 qWarning() << "New VT" << vt << "is not valid, fall back to" << vtState.v_active;
                 return vtState.v_active;
             }

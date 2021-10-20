@@ -29,7 +29,7 @@ namespace SDDM {
     class HelperApp;
     class XOrgUserHelper;
     class WaylandHelper;
-    class UserSession : public QObject
+    class UserSession : public QProcess
     {
         Q_OBJECT
     public:
@@ -38,28 +38,36 @@ namespace SDDM {
         bool start();
         void stop();
 
-        QProcessEnvironment processEnvironment() const;
-        void setProcessEnvironment(const QProcessEnvironment &env);
-
         QString displayServerCommand() const;
         void setDisplayServerCommand(const QString &command);
 
         void setPath(const QString &path);
         QString path() const;
 
-        qint64 processId() const;
+        /*!
+         \brief Gets m_cachedProcessId
+         \return  The cached process ID
+        */
+        qint64 cachedProcessId();
+
 
     Q_SIGNALS:
         void finished(int exitCode);
+
+
+    protected:
+        void setupChildProcess() override;
 
     private:
         void setup();
 
         QString m_path { };
-        QProcess *m_process = nullptr;
-        XOrgUserHelper *m_xorgUser = nullptr;
-        WaylandHelper *m_wayland = nullptr;
         QString m_displayServerCmd;
+
+        /*!
+         Needed for getting the PID of a finished UserSession and calling HelperApp::utmpLogout
+        */
+        qint64 m_cachedProcessId = -1;
     };
 }
 

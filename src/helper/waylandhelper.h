@@ -35,13 +35,15 @@ public:
     void setEnvironment(const QProcessEnvironment &env);
 
     bool startCompositor(const QString &cmd);
-    void startGreeter(QProcess *process);
+    void startGreeter(const QString &cmd);
     void stop();
 
 Q_SIGNALS:
     void failed();
 
 private:
+    void startGreeter(QProcess *process);
+
     QProcessEnvironment m_environment;
     QProcess *m_serverProcess = nullptr;
     WaylandSocketWatcher * const m_watcher;
