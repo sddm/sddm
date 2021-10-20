@@ -67,7 +67,7 @@ namespace SDDM {
     }
 
     void HelperApp::setUp() {
-        QStringList args = QCoreApplication::arguments();
+        const QStringList args = QCoreApplication::arguments();
         QString server;
         int pos;
 
@@ -147,9 +147,9 @@ namespace SDDM {
             authenticated(QString());
 
             // write failed login to btmp
-            QProcessEnvironment env = m_session->processEnvironment();
-            QString displayId = env.value(QStringLiteral("DISPLAY"));
-            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            const QProcessEnvironment env = m_session->processEnvironment();
+            const QString displayId = env.value(QStringLiteral("DISPLAY"));
+            const QString vt = env.value(QStringLiteral("XDG_VTNR"));
             utmpLogin(vt, displayId, m_user, 0, false);
 
             exit(Auth::HELPER_AUTH_ERROR);
@@ -161,9 +161,9 @@ namespace SDDM {
             authenticated(QString());
 
             // write failed login to btmp
-            QProcessEnvironment env = m_session->processEnvironment();
-            QString displayId = env.value(QStringLiteral("DISPLAY"));
-            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            const QProcessEnvironment env = m_session->processEnvironment();
+            const QString displayId = env.value(QStringLiteral("DISPLAY"));
+            const QString vt = env.value(QStringLiteral("XDG_VTNR"));
             utmpLogin(vt, displayId, m_user, 0, false);
 
             exit(Auth::HELPER_AUTH_ERROR);
@@ -197,9 +197,9 @@ namespace SDDM {
             sessionOpened(true);
 
             // write successful login to utmp/wtmp
-            QProcessEnvironment env = m_session->processEnvironment();
-            QString displayId = env.value(QStringLiteral("DISPLAY"));
-            QString vt = env.value(QStringLiteral("XDG_VTNR"));
+            const QProcessEnvironment env = m_session->processEnvironment();
+            const QString displayId = env.value(QStringLiteral("DISPLAY"));
+            const QString vt = env.value(QStringLiteral("XDG_VTNR"));
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) != QLatin1String("greeter")) {
                 // cache pid for session end
                 m_session->setCachedProcessId(m_session->processId());
