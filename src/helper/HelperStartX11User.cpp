@@ -23,6 +23,7 @@
  * argument) and as soon as it's set up to launch a client (second argument)
  */
 
+#include <unistd.h>
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QProcess>
