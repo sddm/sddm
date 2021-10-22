@@ -176,7 +176,7 @@ namespace SDDM {
                 }
             }
 
-            VirtualTerminal::jumpToVt(vtNumber, true);
+            VirtualTerminal::jumpToVt(vtNumber, x11UserSession);
         }
 
 #ifdef Q_OS_LINUX
