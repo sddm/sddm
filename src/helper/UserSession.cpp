@@ -26,8 +26,6 @@
 #include "HelperApp.h"
 #include "VirtualTerminal.h"
 #include "XAuth.h"
-#include "xorguserhelper.h"
-#include "waylandhelper.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
