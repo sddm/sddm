@@ -8,6 +8,8 @@
 
 #include <QDebug>
 
+#include <unistd.h>
+
 class LogindPathInternal {
 public:
     LogindPathInternal();
@@ -46,17 +48,26 @@ LogindPathInternal::LogindPathInternal()
     qRegisterMetaType<UserInfoList>("UserInfoList");
     qDBusRegisterMetaType<UserInfoList>();
 
-    if (QDBusConnection::systemBus().interface()->isServiceRegistered(QStringLiteral("org.freedesktop.login1"))) {
-        qDebug() << "Logind interface found";
-        available = true;
-        serviceName = QStringLiteral("org.freedesktop.login1");
-        managerPath = QStringLiteral("/org/freedesktop/login1");
-        managerIfaceName = QStringLiteral("org.freedesktop.login1.Manager");
-        seatIfaceName = QStringLiteral("org.freedesktop.login1.Seat");
-        sessionIfaceName = QStringLiteral("org.freedesktop.login1.Session");
-        userIfaceName = QStringLiteral("org.freedesktop.login1.User");
-        return;
+#ifdef HAVE_SYSTEMD
+    // systemd-logind should be running, although because it takes a few moments to restart after
+    // systemctl isolate calls, it may not yet be running. Wait a few seconds for it, while blocking everything else.
+    int logind_wait_seconds = 50;
+    while (logind_wait_seconds--) {
+        if (QDBusConnection::systemBus().interface()->isServiceRegistered(QStringLiteral("org.freedesktop.login1"))) {
+            qDebug() << "Logind interface found";
+            available = true;
+            serviceName = QStringLiteral("org.freedesktop.login1");
+            managerPath = QStringLiteral("/org/freedesktop/login1");
+            managerIfaceName = QStringLiteral("org.freedesktop.login1.Manager");
+            seatIfaceName = QStringLiteral("org.freedesktop.login1.Seat");
+            sessionIfaceName = QStringLiteral("org.freedesktop.login1.Session");
+            userIfaceName = QStringLiteral("org.freedesktop.login1.User");
+            return;
+        }
+	qDebug() << "Sleeping for systemd-logind";
+	usleep(100000);
     }
+#endif
 
     if (QDBusConnection::systemBus().interface()->isServiceRegistered(QStringLiteral("org.freedesktop.ConsoleKit"))) {
         qDebug() << "Console kit interface found";
