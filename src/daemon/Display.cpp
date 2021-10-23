@@ -466,10 +466,6 @@ namespace SDDM {
         // greeter
         if (status != Auth::HELPER_AUTH_ERROR)
             stop();
-
-        // Start the greeter again as soon as the user session is closed
-        if (m_auth->user() != QLatin1String("sddm"))
-            m_greeter->start();
     }
 
     void Display::slotRequestChanged() {
