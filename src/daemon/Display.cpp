@@ -111,8 +111,8 @@ namespace SDDM {
         connect(m_socketServer, &SocketServer::login, this, &Display::login);
 
         // connect login result signals
-        connect(this, SIGNAL(loginFailed(QLocalSocket*)), m_socketServer, SLOT(loginFailed(QLocalSocket*)));
-        connect(this, SIGNAL(loginSucceeded(QLocalSocket*)), m_socketServer, SLOT(loginSucceeded(QLocalSocket*)));
+        connect(this, &Display::loginFailed, m_socketServer, &SocketServer::loginFailed);
+        connect(this, &Display::loginSucceeded, m_socketServer, &SocketServer::loginSucceeded);
 
         connect(m_greeter, &Greeter::failed,
                 QCoreApplication::instance(), [] {
