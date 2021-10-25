@@ -405,6 +405,7 @@ namespace SDDM {
         }
         m_auth->insertEnvironment(env);
 
+        m_greeter->stop();
         m_auth->start();
     }
 
