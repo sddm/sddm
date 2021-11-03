@@ -100,17 +100,18 @@ namespace SDDM {
 
     void UserSession::stop()
     {
-        terminate();
-        const bool isGreeter = processEnvironment().value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter");
+        if (state() != QProcess::NotRunning) {
+            terminate();
+            const bool isGreeter = processEnvironment().value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter");
 
-        // Wait longer for a session than a greeter
-        if (!waitForFinished(isGreeter ? 5000 : 60000)) {
-            kill();
-            if (!waitForFinished(5000)) {
-                qWarning() << "Could not fully finish the process" << program();
+            // Wait longer for a session than a greeter
+            if (!waitForFinished(isGreeter ? 5000 : 60000)) {
+                kill();
+                if (!waitForFinished(5000)) {
+                    qWarning() << "Could not fully finish the process" << program();
+                }
             }
         }
-
         Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
     }
 
