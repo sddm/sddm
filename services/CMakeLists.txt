@@ -1,3 +1,4 @@
+
 if(SYSTEMD_FOUND)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/sddm.service.in" "${CMAKE_CURRENT_BINARY_DIR}/sddm.service")
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sddm.service" DESTINATION "${SYSTEMD_SYSTEM_UNIT_DIR}")
@@ -13,6 +14,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/sddm-greeter.pam.in" "${CMAKE_CURREN
 if(EXISTS "/etc/debian_version")
     install(FILES debian.sddm-autologin.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-autologin)
     install(FILES debian.sddm-greeter.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-greeter)
+    install(FILES debian.sddm.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm)
 else()
     if(HAVE_PAM_FAILLOCK)
         install(FILES sddm-autologin.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-autologin)
