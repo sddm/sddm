@@ -32,6 +32,7 @@ namespace SDDM {
     int sigintFd[2];
     int sigtermFd[2];
     int sigusr1Fd[2];
+    int sigcustomFd[2];
 
     SignalHandler::SignalHandler(QObject *parent) : QObject(parent) {
         if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sighupFd))
@@ -57,6 +58,12 @@ namespace SDDM {
 
         snusr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
         connect(snusr1, &QSocketNotifier::activated, this, &SignalHandler::handleSigusr1);
+
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigcustomFd))
+            qCritical() << "Failed to create socket pair for custom signals handling.";
+
+        sncustom = new QSocketNotifier(sigcustomFd[1], QSocketNotifier::Read, this);
+        connect(sncustom, &QSocketNotifier::activated, this, &SignalHandler::handleSigCustom);
     }
 
     void SignalHandler::initialize() {
@@ -103,6 +110,20 @@ namespace SDDM {
         }
     }
 
+    void SignalHandler::addCustomSignal(int signal)
+    {
+        struct sigaction sigcustom = { };
+        sigcustom.sa_handler = SignalHandler::customSignalHandler;
+        sigemptyset(&sigcustom.sa_mask);
+        sigcustom.sa_flags = SA_RESTART;
+
+        if (sigaction(signal, &sigcustom, 0) > 0) {
+            qCritical() << "Failed to set up " << strsignal(signal) << " handler.";
+            return;
+        }
+    }
+
+
     void SignalHandler::ignoreSigusr1() {
         struct sigaction sigusr1 = { };
         sigusr1.sa_handler = SIG_IGN;
@@ -143,6 +164,12 @@ namespace SDDM {
         char a = 1;
         if (::write(sigusr1Fd[0], &a, sizeof(a)) == -1) {
             qCritical() << "Error writing to the SIGUSR1 handler";
+            return;
+        }
+    }
+    void SignalHandler::customSignalHandler(int signal) {
+        if (::write(sigcustomFd[0], &signal, sizeof(signal)) == -1) {
+            qCritical() << "Error writing to the " << strsignal(signal) << " handler";
             return;
         }
     }
@@ -234,4 +261,28 @@ namespace SDDM {
         // enable notifier
         snusr1->setEnabled(true);
     }
+
+    void SignalHandler::handleSigCustom() {
+        // disable notifier
+        sncustom->setEnabled(false);
+
+        // read from socket
+        int signal;
+        if (::read(sigcustomFd[1], &signal, sizeof(signal)) == -1) {
+            // something went wrong!
+            qCritical() << "Error reading from the socket";
+            return;
+        }
+
+        // log event
+        qWarning() << "Signal received: " << strsignal(signal);
+
+        // emit signal
+        emit customSignalReceived(signal);
+
+        // enable notifier
+        sncustom->setEnabled(true);
+    }
+
+
 }

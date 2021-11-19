@@ -30,7 +30,8 @@
 #include <QDebug>
 #include "xorguserhelper.h"
 #include "MessageHandler.h"
-#include "HelperSignalHandler.h"
+#include <signal.h>
+#include "SignalHandler.h"
 
 void X11UserHelperMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     SDDM::messageHandler(type, context, QStringLiteral("X11UserHelper: "), msg);
@@ -39,7 +40,10 @@ void X11UserHelperMessageHandler(QtMsgType type, const QMessageLogContext &conte
 int main(int argc, char** argv)
 {
     qInstallMessageHandler(X11UserHelperMessageHandler);
-    signal(SIGTERM, sigtermHandler);
+    SDDM::SignalHandler s;
+    QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, QCoreApplication::instance(), [] {
+        QCoreApplication::instance()->exit(-1);
+    });
 
     Q_ASSERT(::getuid() != 0);
     QCoreApplication app(argc, argv);

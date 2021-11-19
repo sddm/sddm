@@ -28,7 +28,8 @@
 #include <QTextStream>
 #include "waylandhelper.h"
 #include "MessageHandler.h"
-#include "HelperSignalHandler.h"
+#include <signal.h>
+#include "SignalHandler.h"
 
 void WaylandHelperMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     SDDM::messageHandler(type, context, QStringLiteral("WaylandHelper: "), msg);
@@ -37,7 +38,10 @@ void WaylandHelperMessageHandler(QtMsgType type, const QMessageLogContext &conte
 int main(int argc, char** argv)
 {
     qInstallMessageHandler(WaylandHelperMessageHandler);
-    signal(SIGTERM, sigtermHandler);
+    SDDM::SignalHandler s;
+    QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, QCoreApplication::instance(), [] {
+        QCoreApplication::instance()->exit(-1);
+    });
 
     Q_ASSERT(::getuid() != 0);
     QCoreApplication app(argc, argv);
