@@ -21,6 +21,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QSettings>
+#include <QLocale>
 
 #include "Configuration.h"
 #include "Session.h"
@@ -151,45 +153,59 @@ namespace SDDM {
 
         qDebug() << "Reading from" << m_fileName;
 
-        QFile file(m_fileName);
-        if (!file.open(QIODevice::ReadOnly))
-            return;
+        QSettings Settings(m_fileName, QSettings::IniFormat);
+        QStringList Locales;
+	Locales << QLocale().name() << QLocale().name().remove(QRegExp(QLatin1String("_.*")));
 
-        QString current_section;
+        if (Settings.status() != QSettings::NoError)
+        	return;
+ 
+        Settings.beginGroup(QLatin1String("Desktop Entry"));
 
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine();
+        QString Name = Settings.value(QLatin1String("Name"), QLatin1String("")).toString();
+        QString LocalizedName;
 
-            if (line.startsWith(QLatin1String("["))) {
-                // The section name ends before the last ] before the start of a comment
-                int end = line.lastIndexOf(QLatin1Char(']'), line.indexOf(QLatin1Char('#')));
-                if (end != -1)
-                    current_section = line.mid(1, end - 1);
-            }
+        for (QString locale : qAsConst(Locales)) {
+                LocalizedName = Settings.value(QLatin1String("Name") + QLatin1String("[") + locale + QLatin1String("]"), Name).toString();
 
-            if (current_section != QLatin1String("Desktop Entry"))
-                continue; // We are only interested in the "Desktop Entry" section
-
-            if (line.startsWith(QLatin1String("Name=")))
-                m_displayName = line.mid(5);
-            if (line.startsWith(QLatin1String("Comment=")))
-                m_comment = line.mid(8);
-            if (line.startsWith(QLatin1String("Exec=")))
-                m_exec = line.mid(5);
-            if (line.startsWith(QStringLiteral("TryExec=")))
-                m_tryExec = line.mid(8);
-            if (line.startsWith(QLatin1String("DesktopNames=")))
-                m_desktopNames = line.mid(13).replace(QLatin1Char(';'), QLatin1Char(':'));
-            if (line.startsWith(QLatin1String("Hidden=")))
-                m_isHidden = line.mid(7).toLower() == QLatin1String("true");
-            if (line.startsWith(QLatin1String("NoDisplay=")))
-                m_isNoDisplay = line.mid(10).toLower() == QLatin1String("true");
-            if (line.startsWith(QLatin1String("X-SDDM-Env=")))
-                m_additionalEnv = parseEnv(line.mid(strlen("X-SDDM-Env=")));
+                if (LocalizedName.compare(Name) == 0)
+                        continue;
+                else
+                        break;
         }
 
-        file.close();
+        if (type == WaylandSession)
+                if ((Name.endsWith(QLatin1String(" (Wayland)"))) ||
+                        (Name.compare(QLatin1String("Last used session")) == 0))
+                        m_displayName = QObject::tr("%1").arg(LocalizedName);
+                else
+                        m_displayName = QObject::tr("%1 (Wayland)").arg(LocalizedName);
+        else
+                m_displayName = LocalizedName;
+
+        QString Comment = Settings.value(QLatin1String("Comment"), QLatin1String("")).toString();
+        QString LocalizedComment;
+
+        for (QString locale : qAsConst(Locales)) {
+                LocalizedComment = Settings.value(QLatin1String("Comment") + QLatin1String("[") + locale + QLatin1String("]"), Comment).toString();
+ 
+                if (LocalizedComment.compare(Comment) == 0)
+                        continue;
+                 else
+                        break;
+        }
+ 
+        m_comment = QObject::tr("%1").arg(LocalizedComment);
+        m_exec = Settings.value(QLatin1String("Exec"), QLatin1String("")).toString();
+        m_tryExec = Settings.value(QLatin1String("TryExec"), QLatin1String("")).toString();
+        m_desktopNames = Settings.value(QLatin1String("DesktopNames"), QLatin1String("")).toString().replace(QLatin1Char(';'), QLatin1Char(':'));
+        QString Hidden = Settings.value(QLatin1String("Hidden"), QLatin1String("")).toString();
+        m_isHidden = Hidden.toLower() == QLatin1String("true");
+        QString NoDisplay = Settings.value(QLatin1String("NoDisplay"), QLatin1String("")).toString();
+        m_isNoDisplay = NoDisplay.toLower() == QLatin1String("true");
+        QString AdditionalEnv = Settings.value(QLatin1String("X-SDDM-Env="), QLatin1String(""));
+        m_additionalEnv = parseEnv(AdditionalEnv);
+        Settings.endGroup();
 
         m_type = type;
         m_valid = true;
