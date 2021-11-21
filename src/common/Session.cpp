@@ -21,6 +21,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QSettings>
+#include <QLocale>
+#include <QRegularExpression>
 
 #include "Configuration.h"
 #include "Session.h"
@@ -151,45 +154,39 @@ namespace SDDM {
 
         qDebug() << "Reading from" << m_fileName;
 
-        QFile file(m_fileName);
-        if (!file.open(QIODevice::ReadOnly))
-            return;
-
-        QString current_section;
-
-        QTextStream in(&file);
-        while (!in.atEnd()) {
-            QString line = in.readLine();
-
-            if (line.startsWith(QLatin1String("["))) {
-                // The section name ends before the last ] before the start of a comment
-                int end = line.lastIndexOf(QLatin1Char(']'), line.indexOf(QLatin1Char('#')));
-                if (end != -1)
-                    current_section = line.mid(1, end - 1);
-            }
-
-            if (current_section != QLatin1String("Desktop Entry"))
-                continue; // We are only interested in the "Desktop Entry" section
-
-            if (line.startsWith(QLatin1String("Name=")))
-                m_displayName = line.mid(5);
-            if (line.startsWith(QLatin1String("Comment=")))
-                m_comment = line.mid(8);
-            if (line.startsWith(QLatin1String("Exec=")))
-                m_exec = line.mid(5);
-            if (line.startsWith(QStringLiteral("TryExec=")))
-                m_tryExec = line.mid(8);
-            if (line.startsWith(QLatin1String("DesktopNames=")))
-                m_desktopNames = line.mid(13).replace(QLatin1Char(';'), QLatin1Char(':'));
-            if (line.startsWith(QLatin1String("Hidden=")))
-                m_isHidden = line.mid(7).toLower() == QLatin1String("true");
-            if (line.startsWith(QLatin1String("NoDisplay=")))
-                m_isNoDisplay = line.mid(10).toLower() == QLatin1String("true");
-            if (line.startsWith(QLatin1String("X-SDDM-Env=")))
-                m_additionalEnv = parseEnv(line.mid(strlen("X-SDDM-Env=")));
+        QSettings settings(m_fileName, QSettings::IniFormat);
+        QStringList locales = { QLocale().name() };
+        if (auto clean = QLocale().name().remove(QRegularExpression(QLatin1String("_.*"))); clean != locales.constFirst()) {
+            locales << clean;
         }
 
-        file.close();
+        if (settings.status() != QSettings::NoError)
+                return;
+
+        settings.beginGroup(QLatin1String("Desktop Entry"));
+
+        auto localizedValue = [&] (const QLatin1String &key) {
+            for (QString locale : qAsConst(locales)) {
+                QString localizedValue = settings.value(key + QLatin1Char('[') + locale + QLatin1Char(']'), QString()).toString();
+                if (!localizedValue.isEmpty()) {
+                    return localizedValue;
+                }
+            }
+            return settings.value(key).toString();
+        };
+
+        m_displayName = localizedValue(QLatin1String("Name"));
+        m_comment = localizedValue(QLatin1String("Comment"));
+        m_exec = settings.value(QLatin1String("Exec"), QString()).toString();
+        m_tryExec = settings.value(QLatin1String("TryExec"), QString()).toString();
+        m_desktopNames = settings.value(QLatin1String("DesktopNames"), QString()).toString().replace(QLatin1Char(';'), QLatin1Char(':'));
+        QString hidden = settings.value(QLatin1String("Hidden"), QString()).toString();
+        m_isHidden = hidden.toLower() == QLatin1String("true");
+        QString noDisplay = settings.value(QLatin1String("NoDisplay"), QString()).toString();
+        m_isNoDisplay = noDisplay.toLower() == QLatin1String("true");
+        QString additionalEnv = settings.value(QLatin1String("X-SDDM-Env"), QString()).toString();
+        m_additionalEnv = parseEnv(additionalEnv);
+        settings.endGroup();
 
         m_type = type;
         m_valid = true;
