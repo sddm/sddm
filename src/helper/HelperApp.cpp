@@ -26,6 +26,7 @@
 
 #include "MessageHandler.h"
 #include "VirtualTerminal.h"
+#include "SignalHandler.h"
 
 #include <QtCore/QTimer>
 #include <QtCore/QFile>
@@ -44,15 +45,6 @@
 #include <QByteArray>
 #include <signal.h>
 
-// ensure we exit gracefully and close the session if sigtermed (i.e restarting sddm)
-static void sigtermHandler(int signalNumber)
-{
-    Q_UNUSED(signalNumber)
-    if (qApp) {
-        qApp->exit(-1);
-    }
-}
-
 namespace SDDM {
     HelperApp::HelperApp(int& argc, char** argv)
             : QCoreApplication(argc, argv)
@@ -60,8 +52,10 @@ namespace SDDM {
             , m_session(new UserSession(this))
             , m_socket(new QLocalSocket(this)) {
         qInstallMessageHandler(HelperMessageHandler);
-
-        signal(SIGTERM, sigtermHandler);
+        SDDM::SignalHandler s;
+        QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, QCoreApplication::instance(), [] {
+            QCoreApplication::instance()->exit(-1);
+        });
 
         QTimer::singleShot(0, this, SLOT(setUp()));
     }
