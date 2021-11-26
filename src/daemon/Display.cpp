@@ -358,6 +358,12 @@ namespace SDDM {
         // last session later, in slotAuthenticationFinished()
         m_sessionName = session.fileName();
 
+        if (session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) {
+            // If it's an X11 display server, we'll have an (idling) Xorg process where
+            // m_terminalId is right now, we need to find another VT
+            m_terminalId = VirtualTerminal::setUpNewVt();
+        }
+
         // some information
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec() << "for VT" << m_terminalId;
 
