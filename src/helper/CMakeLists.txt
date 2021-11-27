@@ -11,7 +11,7 @@ set(HELPER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
     ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
-    ${CMAKE_SOURCE_DIR}/src/common/XAuth.h
+    ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
     Backend.cpp
     HelperApp.cpp
     UserSession.cpp
@@ -64,7 +64,7 @@ endif()
 
 install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
-add_executable(sddm-helper-start-wayland HelperStartWayland.cpp waylandsocketwatcher.cpp waylandhelper.cpp)
+add_executable(sddm-helper-start-wayland HelperStartWayland.cpp waylandsocketwatcher.cpp waylandhelper.cpp ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp)
 target_link_libraries(sddm-helper-start-wayland Qt5::Core)
 install(TARGETS sddm-helper-start-wayland RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
@@ -72,6 +72,7 @@ add_executable(sddm-helper-start-x11user HelperStartX11User.cpp xorguserhelper.c
                                                 ${CMAKE_SOURCE_DIR}/src/common/ConfigReader.cpp
                                                 ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
                                                 ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
+                                                ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
                                                 )
 target_link_libraries(sddm-helper-start-x11user Qt5::Core)
 install(TARGETS sddm-helper-start-x11user RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")

@@ -45,6 +45,7 @@ namespace SDDM {
         void newConnection();
         void readyRead();
 
+    public slots:
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
 
