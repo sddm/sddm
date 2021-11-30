@@ -441,7 +441,7 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
         env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_sessionTerminalId));
 #ifdef HAVE_SYSTEMD
-        env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
+        env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopSession());
 #endif
 
         if (session.xdgSessionType() == QLatin1String("x11")) {
