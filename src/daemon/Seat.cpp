@@ -29,6 +29,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QTimer>
+#include <QThread>
 
 #include <functional>
 
@@ -60,6 +61,7 @@ namespace SDDM {
     }
 
     void Seat::startDisplay(Display *display, int tryNr) {
+        Q_ASSERT(!QCoreApplication::instance()->thread()->isFinished());
         if (display->start())
             return;
 

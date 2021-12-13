@@ -84,9 +84,9 @@ namespace SDDM {
         // initialize signal signalHandler
         SignalHandler::initialize();
 
-        // quit when SIGINT, SIGTERM received
-        connect(m_signalHandler, &SignalHandler::sigintReceived, this, &DaemonApp::quit);
-        connect(m_signalHandler, &SignalHandler::sigtermReceived, this, &DaemonApp::quit);
+        // finish when SIGINT, SIGTERM received
+        connect(m_signalHandler, &SignalHandler::sigintReceived, this, &DaemonApp::finish);
+        connect(m_signalHandler, &SignalHandler::sigtermReceived, this, &DaemonApp::finish);
         // log message
         qDebug() << "Starting...";
 
@@ -98,6 +98,13 @@ namespace SDDM {
         return m_testing;
     }
 
+    void DaemonApp::finish() {
+        delete m_seatManager;
+        m_seatManager = nullptr;
+        delete m_displayManager;
+        m_displayManager = nullptr;
+        QCoreApplication::quit();
+    }
 
     QString DaemonApp::hostName() const {
         return QHostInfo::localHostName();
@@ -113,10 +120,6 @@ namespace SDDM {
 
     SeatManager *DaemonApp::seatManager() const {
         return m_seatManager;
-    }
-
-    SignalHandler *DaemonApp::signalHandler() const {
-        return m_signalHandler;
     }
 
     int DaemonApp::newSessionId() {

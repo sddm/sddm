@@ -47,13 +47,13 @@ namespace SDDM {
         DisplayManager *displayManager() const;
         PowerManager *powerManager() const;
         SeatManager *seatManager() const;
-        SignalHandler *signalHandler() const;
 
     public slots:
         int newSessionId();
 
     private:
         static DaemonApp *self;
+        void finish();
 
         int m_lastSessionId { 0 };
 
