@@ -315,6 +315,11 @@ namespace SDDM {
         }
     }
 
+    bool Greeter::isRunning() const {
+        return (m_process && m_process->state() == QProcess::Running)
+            || (m_auth->isActive());
+    }
+
     void Greeter::onReadyReadStandardError()
     {
         if (m_process) {

@@ -358,14 +358,14 @@ namespace SDDM {
         // last session later, in slotAuthenticationFinished()
         m_sessionName = session.fileName();
 
-        if (session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) {
-            // If it's an X11 display server, we'll have an (idling) Xorg process where
-            // m_terminalId is right now, we need to find another VT
-            m_terminalId = VirtualTerminal::setUpNewVt();
+        int terminalNewSession = m_terminalId;
+        if ((session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) || m_greeter->isRunning()) {
+            // Create a new VT when we need to have another compositor running
+            terminalNewSession = VirtualTerminal::setUpNewVt();
         }
 
         // some information
-        qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec() << "for VT" << m_terminalId;
+        qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec() << "for VT" << terminalNewSession;
 
         QProcessEnvironment env;
         env.insert(session.additionalEnv());
@@ -379,7 +379,7 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("user"));
         env.insert(QStringLiteral("XDG_SESSION_TYPE"), session.xdgSessionType());
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
-        env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_terminalId));
+        env.insert(QStringLiteral("XDG_VTNR"), QString::number(terminalNewSession));
 #ifdef HAVE_SYSTEMD
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
 #endif
@@ -397,8 +397,6 @@ namespace SDDM {
             m_auth->setSession(session.exec());
         }
         m_auth->insertEnvironment(env);
-
-        m_greeter->stop();
         m_auth->start();
     }
 
