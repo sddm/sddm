@@ -203,6 +203,13 @@ namespace SDDM {
                     // emit signal
                     emit loginFailed();
                 }
+                case DaemonMessages::InformationMessage: {
+                    QString message;
+                    input >> message;
+
+                    qDebug() << "Information Message received from daemon: " << message;
+                    emit informationMessage(message);
+                }
                 break;
                 default: {
                     // log message
