@@ -17,9 +17,6 @@ a combox etc.
 There are a few sample themes distributed with SDDM.
 They can be used as a starting point for new themes.
 
-SDDM is developed by volunteers, please consider [donating](https://www.bountysource.com/teams/sddm)
-money that can be used to support the features that you most desire.
-
 ## SCREENSHOTS
 
 ![sample screenshot](https://raw.github.com/sddm/sddm/master/src/greeter/theme/maui.jpg)
