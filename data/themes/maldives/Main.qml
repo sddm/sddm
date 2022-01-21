@@ -50,6 +50,10 @@ Rectangle {
             errorMessage.color = "red"
             errorMessage.text = textConstants.loginFailed
         }
+        onInformationMessage: {
+            errorMessage.color = "red"
+            errorMessage.text = message
+        }
     }
 
     Background {

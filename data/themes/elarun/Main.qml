@@ -41,6 +41,8 @@ Rectangle {
         target: sddm
         onLoginSucceeded: {
         }
+        onInformationMessage: {
+        }
         onLoginFailed: {
             pw_entry.text = ""
         }
