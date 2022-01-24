@@ -359,7 +359,7 @@ namespace SDDM {
         m_sessionName = session.fileName();
 
         int terminalNewSession = m_terminalId;
-        if ((session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) || m_greeter->isRunning()) {
+        if ((session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) || (m_greeter->isRunning() && m_displayServerType != X11DisplayServerType)) {
             // Create a new VT when we need to have another compositor running
             terminalNewSession = VirtualTerminal::setUpNewVt();
         }
