@@ -304,7 +304,7 @@ namespace SDDM {
         m_started = false;
 
         // log message
-        qDebug() << "Greeter stopped.";
+        qDebug() << "Greeter stopped." << status;
 
         // clean up
         m_auth->deleteLater();
