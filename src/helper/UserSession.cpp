@@ -206,8 +206,10 @@ namespace SDDM {
         if (bufsize == -1)
             bufsize = 16384;
         QScopedPointer<char, QScopedPointerPodDeleter> buffer(static_cast<char*>(malloc(bufsize)));
-        if (buffer.isNull())
+        if (buffer.isNull()) {
+            qCritical() << "Could not allocate buffer of size" << bufsize;
             exit(Auth::HELPER_OTHER_ERROR);
+        }
         int err = getpwnam_r(username.constData(), &pw, buffer.data(), bufsize, &rpw);
         if (rpw == NULL) {
             if (err == 0)
