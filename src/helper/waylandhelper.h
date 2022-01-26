@@ -42,10 +42,9 @@ Q_SIGNALS:
     void failed();
 
 private:
-    void startGreeter(QProcess *process);
-
     QProcessEnvironment m_environment;
     QProcess *m_serverProcess = nullptr;
+    QProcess *m_greeterProcess = nullptr;
     WaylandSocketWatcher * const m_watcher;
 
     bool startProcess(const QString &cmd, QProcess **p = nullptr);
