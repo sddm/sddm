@@ -472,6 +472,9 @@ namespace SDDM {
     }
 
     void Display::slotSessionStarted(bool success) {
-        qDebug() << "Session started";
+        qDebug() << "Session started" << success;
+        if (success) {
+            QTimer::singleShot(5000, m_greeter, &Greeter::stop);
+        }
     }
 }
