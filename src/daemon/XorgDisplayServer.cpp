@@ -96,6 +96,9 @@ namespace SDDM {
         // set process environment
         QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+        QString xcursorSize = mainConfig.Theme.CursorSize.get();
+        if (!xcursorSize.isEmpty())
+            env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
         process->setProcessEnvironment(env);
 
         //create pipe for communicating with X server
