@@ -434,18 +434,17 @@ namespace SDDM {
     }
 
     void Display::slotAuthInfo(const QString &message, Auth::Info info) {
-        // TODO: presentable to the user, eventually
-        Q_UNUSED(info);
-        qWarning() << "Authentication information:" << message;
+        qWarning() << "Authentication information:" << info << message;
+        m_socketServer->informationMessage(m_socket, message);
     }
 
     void Display::slotAuthError(const QString &message, Auth::Error error) {
-        // TODO: handle more errors
-        qWarning() << "Authentication error:" << message;
+        qWarning() << "Authentication error:" << error << message;
 
         if (!m_socket)
             return;
 
+        m_socketServer->informationMessage(m_socket, message);
         if (error == Auth::ERROR_AUTHENTICATION)
             emit loginFailed(m_socket);
     }

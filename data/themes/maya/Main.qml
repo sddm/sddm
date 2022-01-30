@@ -93,6 +93,15 @@ Rectangle {
 
       anim_failure.start()
     }
+    onInformationMessage: {
+      prompt_bg.color = failureText
+      prompt_txt.text = message
+
+      maya_busy.visible = false;
+      maya_busy_anim.stop()
+
+      anim_failure.start()
+    }
   }
 
 

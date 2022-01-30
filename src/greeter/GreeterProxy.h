@@ -71,6 +71,7 @@ namespace SDDM {
         void error();
 
     signals:
+        void informationMessage(const QString &message);
         void hostNameChanged(const QString &hostName);
         void canPowerOffChanged(bool canPowerOff);
         void canRebootChanged(bool canReboot);
