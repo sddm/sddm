@@ -41,7 +41,7 @@ public:
     explicit WaylandSocketWatcher(QObject *parent = nullptr);
 
     Status status() const;
-    QString socketPath() const;
+    QString socketName() const;
 
     void start();
     void stop();
@@ -54,7 +54,7 @@ Q_SIGNALS:
 private:
     Status m_status = Stopped;
     QDir m_runtimeDir;
-    QString m_socketPath;
+    QString m_socketName;
     QTimer m_timer;
     QPointer<QFileSystemWatcher> m_watcher;
 };

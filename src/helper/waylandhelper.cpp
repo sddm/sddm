@@ -119,7 +119,6 @@ void WaylandHelper::startGreeter(const QString &cmd)
     m_greeterProcess = new QProcess(this);
     m_greeterProcess->setProgram(args.takeFirst());
     m_greeterProcess->setArguments(args);
-    m_greeterProcess->setProcessEnvironment(m_environment);
     connect(m_greeterProcess, &QProcess::readyReadStandardError, this, [this] {
         qWarning() << m_greeterProcess->readAllStandardError();
     });
@@ -132,6 +131,8 @@ void WaylandHelper::startGreeter(const QString &cmd)
         QCoreApplication::instance()->quit();
     });
     if (m_watcher->status() == WaylandSocketWatcher::Started) {
+        m_environment.insert(QStringLiteral("WAYLAND_DISPLAY"), m_watcher->socketName());
+        m_greeterProcess->setProcessEnvironment(m_environment);
         m_greeterProcess->start();
     } else if (m_watcher->status() == WaylandSocketWatcher::Failed) {
         Q_EMIT failed();
@@ -139,6 +140,8 @@ void WaylandHelper::startGreeter(const QString &cmd)
         connect(m_watcher, &WaylandSocketWatcher::failed, this, &WaylandHelper::failed);
         connect(m_watcher, &WaylandSocketWatcher::started, this, [this] {
             m_watcher->stop();
+            m_environment.insert(QStringLiteral("WAYLAND_DISPLAY"), m_watcher->socketName());
+            m_greeterProcess->setProcessEnvironment(m_environment);
             m_greeterProcess->start();
         });
     }
