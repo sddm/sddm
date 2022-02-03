@@ -13,6 +13,8 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/ThemeMetadata.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
@@ -22,21 +24,24 @@ set(DAEMON_SOURCES
     DisplayManager.cpp
     DisplayServer.cpp
     LogindDBusTypes.cpp
-    XorgDisplayServer.cpp
     Greeter.cpp
     PowerManager.cpp
     Seat.cpp
     SeatManager.cpp
-    SignalHandler.cpp
     SocketServer.cpp
+    XorgDisplayServer.cpp
+    XorgUserDisplayServer.cpp
+    XorgUserDisplayServer.h
+    WaylandDisplayServer.cpp
+    WaylandDisplayServer.h
 )
 
 # Different implementations of the VT switching code
 # (where the FreeBSD version does nothing).
 if(${CMAKE_SYSTEM} MATCHES "FreeBSD")
-    list(APPEND DAEMON_SOURCES VirtualTerminal_FreeBSD.cpp)
+    list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal_FreeBSD.cpp)
 else()
-    list(APPEND DAEMON_SOURCES VirtualTerminal.cpp)
+    list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
 endif()
 
 qt5_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "DisplayManager.h" SDDM::DisplayManager)

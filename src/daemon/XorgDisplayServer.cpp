@@ -23,7 +23,6 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "Display.h"
-#include "SignalHandler.h"
 #include "Seat.h"
 
 #include <QDebug>
@@ -41,31 +40,9 @@
 
 namespace SDDM {
     XorgDisplayServer::XorgDisplayServer(Display *parent) : DisplayServer(parent) {
-        // get auth directory
-        QString authDir = QStringLiteral(RUNTIME_DIR);
-
-        // use "." as authdir in test mode
         if (daemonApp->testing())
-            authDir = QStringLiteral(".");
-
-        // create auth dir if not existing
-        QDir().mkpath(authDir);
-
-        // set auth path
-        m_authPath = QStringLiteral("%1/%2").arg(authDir).arg(QUuid::createUuid().toString());
-
-        // generate cookie
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, 15);
-
-        // resever 32 bytes
-        m_cookie.reserve(32);
-
-        // create a random hexadecimal number
-        const char *digits = "0123456789abcdef";
-        for (int i = 0; i < 32; ++i)
-            m_cookie[i] = digits[dis(gen)];
+            m_xauth.setAuthDirectory(QStringLiteral("."));
+        m_xauth.setup();
     }
 
     XorgDisplayServer::~XorgDisplayServer() {
@@ -76,47 +53,27 @@ namespace SDDM {
         return m_display;
     }
 
-    const QString &XorgDisplayServer::authPath() const {
-        return m_authPath;
+    QString XorgDisplayServer::authPath() const {
+        return m_xauth.authPath();
     }
 
     QString XorgDisplayServer::sessionType() const {
         return QStringLiteral("x11");
     }
 
-    const QString &XorgDisplayServer::cookie() const {
-        return m_cookie;
-    }
-
-    void XorgDisplayServer::addCookie(const QString &file) {
-        // log message
-        qDebug() << "Adding cookie to" << file;
-
-        // Touch file
-        QFile file_handler(file);
-        file_handler.open(QIODevice::Append);
-        file_handler.close();
-
-        QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
-
-        // execute xauth
-        FILE *fp = popen(qPrintable(cmd), "w");
-
-        // check file
-        if (!fp)
-            return;
-        fprintf(fp, "remove %s\n", qPrintable(m_display));
-        fprintf(fp, "add %s . %s\n", qPrintable(m_display), qPrintable(m_cookie));
-        fprintf(fp, "exit\n");
-
-        // close pipe
-        pclose(fp);
+    QString XorgDisplayServer::cookie() const {
+        return m_xauth.cookie();
     }
 
     bool XorgDisplayServer::start() {
         // check flag
         if (m_started)
             return false;
+
+        if (process) {
+            qCritical() << "Tried to start Xorg before previous instance exited";
+            return false;
+        }
 
         // create process
         process = new QProcess(this);
@@ -127,99 +84,105 @@ namespace SDDM {
         // log message
         qDebug() << "Display server starting...";
 
-        if (daemonApp->testing()) {
-            QStringList args;
-            QDir x11socketDir(QStringLiteral("/tmp/.X11-unix"));
-            int display = 100;
-            while (x11socketDir.exists(QStringLiteral("X%1").arg(display))) {
-                ++display;
-            }
-            m_display = QStringLiteral(":%1").arg(display);
-            args << m_display << QStringLiteral("-ac") << QStringLiteral("-br") << QStringLiteral("-noreset") << QStringLiteral("-screen") << QStringLiteral("800x600");
-            process->start(mainConfig.X11.XephyrPath.get(), args);
-
-
-            // wait for display server to start
-            if (!process->waitForStarted()) {
-                // log message
-                qCritical() << "Failed to start display server process.";
-
-                // return fail
-                return false;
-            }
-            emit started();
-        } else {
-            // set process environment
-            QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-            env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
-            process->setProcessEnvironment(env);
-
-            //create pipe for communicating with X server
-            //0 == read from X, 1== write to from X
-            int pipeFds[2];
-            if (pipe(pipeFds) != 0) {
-                qCritical("Could not create pipe to start X server");
-            }
-
-            // start display server
-            QStringList args = mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), QString::SkipEmptyParts);
-            args << QStringLiteral("-auth") << m_authPath
-                 << QStringLiteral("-background") << QStringLiteral("none")
-                 << QStringLiteral("-noreset")
-                 << QStringLiteral("-displayfd") << QString::number(pipeFds[1])
-                 << QStringLiteral("-seat") << displayPtr()->seat()->name();
-
-            if (displayPtr()->seat()->name() == QLatin1String("seat0")) {
-                args << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
-            }
-            qDebug() << "Running:"
-                     << qPrintable(mainConfig.X11.ServerPath.get())
-                     << qPrintable(args.join(QLatin1Char(' ')));
-            process->start(mainConfig.X11.ServerPath.get(), args);
-
-            // wait for display server to start
-            if (!process->waitForStarted()) {
-                // log message
-                qCritical() << "Failed to start display server process.";
-
-                // return fail
-                close(pipeFds[0]);
-                return false;
-            }
-
-            // close the other side of pipe in our process, otherwise reading
-            // from it may stuck even X server exit.
-            close(pipeFds[1]);
-
-            QFile readPipe;
-
-            if (!readPipe.open(pipeFds[0], QIODevice::ReadOnly)) {
-                qCritical("Failed to open pipe to start X Server");
-
-                close(pipeFds[0]);
-                return false;
-            }
-            QByteArray displayNumber = readPipe.readLine();
-            if (displayNumber.size() < 2) {
-                // X server gave nothing (or a whitespace).
-                qCritical("Failed to read display number from pipe");
-
-                close(pipeFds[0]);
-                return false;
-            }
-            displayNumber.prepend(QByteArray(":"));
-            displayNumber.remove(displayNumber.size() -1, 1); // trim trailing whitespace
-            m_display = QString::fromLocal8Bit(displayNumber);
-
-            // close our pipe
-            close(pipeFds[0]);
-
-            emit started();
+        // generate auth file.
+        // For the X server's copy, the display number doesn't matter.
+        // An empty file would result in no access control!
+        m_display = QStringLiteral(":0");
+        if(!m_xauth.addCookie(m_display)) {
+            qCritical() << "Failed to write xauth file";
+            return false;
         }
 
-        // generate auth file
-        addCookie(m_authPath);
-        changeOwner(m_authPath);
+        // set process environment
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+        QString xcursorSize = mainConfig.Theme.CursorSize.get();
+        if (!xcursorSize.isEmpty())
+            env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
+        process->setProcessEnvironment(env);
+
+        //create pipe for communicating with X server
+        //0 == read from X, 1== write to from X
+        int pipeFds[2];
+        if (pipe(pipeFds) != 0) {
+            qCritical("Could not create pipe to start X server");
+        }
+
+        // start display server
+        QStringList args;
+        if (!daemonApp->testing()) {
+            process->setProgram(mainConfig.X11.ServerPath.get());
+            args << mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), Qt::SkipEmptyParts)
+                 << QStringLiteral("-background") << QStringLiteral("none")
+                 << QStringLiteral("-seat") << displayPtr()->seat()->name()
+                 << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
+        } else {
+            process->setProgram(mainConfig.X11.XephyrPath.get());
+            args << QStringLiteral("-br")
+                 << QStringLiteral("-screen") << QStringLiteral("800x600");
+        }
+
+        args << QStringLiteral("-auth") << m_xauth.authPath()
+             << QStringLiteral("-noreset")
+             << QStringLiteral("-displayfd") << QString::number(pipeFds[1]);
+
+        process->setArguments(args);
+        qDebug() << "Running:"
+            << qPrintable(process->program())
+            << qPrintable(process->arguments().join(QLatin1Char(' ')));
+        process->start();
+
+        // wait for display server to start
+        if (!process->waitForStarted()) {
+            // log message
+            qCritical() << "Failed to start display server process.";
+
+            // return fail
+            close(pipeFds[0]);
+            return false;
+        }
+
+        // close the other side of pipe in our process, otherwise reading
+        // from it may stuck even X server exit.
+        close(pipeFds[1]);
+
+        QFile readPipe;
+
+        if (!readPipe.open(pipeFds[0], QIODevice::ReadOnly)) {
+            qCritical("Failed to open pipe to start X Server");
+
+            close(pipeFds[0]);
+            stop();
+            return false;
+        }
+        QByteArray displayNumber = readPipe.readLine();
+        if (displayNumber.size() < 2) {
+            // X server gave nothing (or a whitespace).
+            qCritical("Failed to read display number from pipe");
+
+            close(pipeFds[0]);
+            stop();
+            return false;
+        }
+        displayNumber.prepend(QByteArray(":"));
+        displayNumber.remove(displayNumber.size() -1, 1); // trim trailing whitespace
+        m_display = QString::fromLocal8Bit(displayNumber);
+
+        // close our pipe
+        close(pipeFds[0]);
+
+        // The file is also used by the greeter, which does care about the
+        // display number. Write the proper entry, if it's different.
+        if(m_display != QStringLiteral(":0")) {
+            if(!m_xauth.addCookie(m_display)) {
+                qCritical() << "Failed to write xauth file";
+                stop();
+                return false;
+            }
+        }
+        changeOwner(m_xauth.authPath());
+
+        emit started();
 
         // set flag
         m_started = true;
@@ -229,8 +192,7 @@ namespace SDDM {
     }
 
     void XorgDisplayServer::stop() {
-        // check flag
-        if (!m_started)
+        if (!process)
             return;
 
         // log message
@@ -245,6 +207,12 @@ namespace SDDM {
     }
 
     void XorgDisplayServer::finished() {
+        // clean up
+        if (process) {
+            process->deleteLater();
+            process = nullptr;
+        }
+
         // check flag
         if (!m_started)
             return;
@@ -255,7 +223,7 @@ namespace SDDM {
         // log message
         qDebug() << "Display server stopped.";
 
-        QString displayStopCommand = mainConfig.X11.DisplayStopCommand.get();
+        QStringList displayStopCommand = QProcess::splitCommand(mainConfig.X11.DisplayStopCommand.get());
 
         // create display setup script process
         QProcess *displayStopScript = new QProcess();
@@ -270,7 +238,8 @@ namespace SDDM {
 
         // start display stop script
         qDebug() << "Running display stop script " << displayStopCommand;
-        displayStopScript->start(displayStopCommand);
+        const auto program = displayStopCommand.takeFirst();
+        displayStopScript->start(program, displayStopCommand);
 
         // wait for finished
         if (!displayStopScript->waitForFinished(5000))
@@ -280,20 +249,14 @@ namespace SDDM {
         displayStopScript->deleteLater();
         displayStopScript = nullptr;
 
-        // clean up
-        process->deleteLater();
-        process = nullptr;
-
         // remove authority file
-        QFile::remove(m_authPath);
+        QFile::remove(m_xauth.authPath());
 
         // emit signal
         emit stopped();
     }
 
     void XorgDisplayServer::setupDisplay() {
-        QString displayCommand = mainConfig.X11.DisplayCommand.get();
-
         // create cursor setup process
         QProcess *setCursor = new QProcess();
         // create display setup script process
@@ -304,14 +267,14 @@ namespace SDDM {
         env.insert(QStringLiteral("DISPLAY"), m_display);
         env.insert(QStringLiteral("HOME"), QStringLiteral("/"));
         env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
-        env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+        env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
         env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
         setCursor->setProcessEnvironment(env);
         displayScript->setProcessEnvironment(env);
 
         qDebug() << "Setting default cursor";
-        setCursor->start(QStringLiteral("xsetroot -cursor_name left_ptr"));
+        setCursor->start(QStringLiteral("xsetroot"), { QStringLiteral("-cursor_name"), QStringLiteral("left_ptr") });
 
         // delete setCursor on finish
         connect(setCursor, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), setCursor, &QProcess::deleteLater);
@@ -323,8 +286,10 @@ namespace SDDM {
         }
 
         // start display setup script
-        qDebug() << "Running display setup script " << displayCommand;
-        displayScript->start(displayCommand);
+        qDebug() << "Running display setup script " << mainConfig.X11.DisplayCommand.get();
+        QStringList displayCommand = QProcess::splitCommand(mainConfig.X11.DisplayCommand.get());
+        const QString program = displayCommand.takeFirst();
+        displayScript->start(program, displayCommand);
 
         // delete displayScript on finish
         connect(displayScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayScript, &QProcess::deleteLater);

@@ -97,6 +97,7 @@ namespace SDDM {
         REQUEST,
         AUTHENTICATED,
         SESSION_STATUS,
+        DISPLAY_SERVER_STARTED,
         MSG_LAST,
     };
 
@@ -187,7 +188,7 @@ namespace SDDM {
     inline QDataStream& operator<<(QDataStream &s, const Request &m) {
         qint32 length = m.prompts.length();
         s << length;
-        Q_FOREACH(Prompt p, m.prompts) {
+        for(const Prompt &p : qAsConst(m.prompts)) {
             s << p;
         }
         return s;

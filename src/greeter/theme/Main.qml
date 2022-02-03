@@ -47,6 +47,10 @@ Rectangle {
             txtMessage.text = textConstants.loginFailed
             listView.currentItem.password = ""
         }
+
+        onInformationMessage: {
+            txtMessage.text = message
+        }
     }
 
     Background {

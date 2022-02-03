@@ -40,7 +40,6 @@ namespace SDDM {
     */
     class AuthPrompt : public QObject {
         Q_OBJECT
-        Q_ENUMS(Type)
         Q_PROPERTY(Type type READ type CONSTANT)
         Q_PROPERTY(QString message READ message CONSTANT)
         Q_PROPERTY(bool hidden READ hidden CONSTANT)
@@ -59,6 +58,7 @@ namespace SDDM {
             LOGIN_USER = 0x0080,      ///< On logging in: The username
             LOGIN_PASSWORD            ///< On logging in: The password
         };
+        Q_ENUM(Type)
         /**
         * @return the type of the prompt
         */

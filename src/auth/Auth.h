@@ -69,6 +69,7 @@ namespace SDDM {
             INFO_PASS_CHANGE_REQUIRED,
             _INFO_LAST
         };
+        Q_ENUM(Info)
 
         enum Error {
             ERROR_NONE = 0,
@@ -77,6 +78,7 @@ namespace SDDM {
             ERROR_INTERNAL,
             _ERROR_LAST
         };
+        Q_ENUM(Error)
 
         enum HelperExitStatus {
             HELPER_SUCCESS = 0,
@@ -84,6 +86,7 @@ namespace SDDM {
             HELPER_SESSION_ERROR,
             HELPER_OTHER_ERROR
         };
+        Q_ENUM(HelperExitStatus)
 
         static void registerTypes();
 
@@ -140,6 +143,12 @@ namespace SDDM {
         void setUser(const QString &user);
 
         /**
+         * Set the display server command to be started before the greeter.
+         * @param command Command of the display server to be started
+         */
+        void setDisplayServerCommand(const QString &command);
+
+        /**
         * Set the session to be started after authenticating.
         * @param path Path of the session executable to be started
         */
@@ -157,12 +166,18 @@ namespace SDDM {
         */
         void start();
 
+        /**
+         * Indicates that we do not need the process anymore.
+         */
+        void stop();
+
     Q_SIGNALS:
         void autologinChanged();
         void greeterChanged();
         void verboseChanged();
         void cookieChanged();
         void userChanged();
+        void displayServerCommandChanged();
         void sessionChanged();
         void requestChanged();
 
@@ -183,6 +198,13 @@ namespace SDDM {
         * @param success true if succeeded
         */
         void sessionStarted(bool success);
+
+        /**
+         * Emitted when the display server is ready.
+         *
+         * @param displayName display name
+         */
+        void displayServerReady(const QString &displayName);
 
         /**
         * Emitted when the helper quits, either after authentication or when the session ends.

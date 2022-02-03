@@ -41,6 +41,8 @@ Rectangle {
         target: sddm
         onLoginSucceeded: {
         }
+        onInformationMessage: {
+        }
         onLoginFailed: {
             pw_entry.text = ""
         }
@@ -152,7 +154,7 @@ Rectangle {
 
                     onClicked: sddm.login(user_entry.text, pw_entry.text, sessionIndex)
 
-                    KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session_button
+		    KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session
                 }
 
                 Item {
@@ -172,7 +174,7 @@ Rectangle {
                             source: "images/system_shutdown.png"
                             onClicked: sddm.powerOff()
 
-                            KeyNavigation.backtab: session_button; KeyNavigation.tab: reboot_button
+			    KeyNavigation.backtab: session; KeyNavigation.tab: reboot_button
                         }
 
                         ImageButton {

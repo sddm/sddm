@@ -46,7 +46,7 @@ namespace SDDM {
         connect(d->socket, &QLocalSocket::connected, this, &GreeterProxy::connected);
         connect(d->socket, &QLocalSocket::disconnected, this, &GreeterProxy::disconnected);
         connect(d->socket, &QLocalSocket::readyRead, this, &GreeterProxy::readyRead);
-        connect(d->socket, QOverload<QLocalSocket::LocalSocketError>::of(&QLocalSocket::error), this, &GreeterProxy::error);
+        connect(d->socket, &QLocalSocket::errorOccurred, this, &GreeterProxy::error);
 
         // connect to server
         d->socket->connectToServer(socket);
@@ -202,6 +202,13 @@ namespace SDDM {
 
                     // emit signal
                     emit loginFailed();
+                }
+                case DaemonMessages::InformationMessage: {
+                    QString message;
+                    input >> message;
+
+                    qDebug() << "Information Message received from daemon: " << message;
+                    emit informationMessage(message);
                 }
                 break;
                 default: {

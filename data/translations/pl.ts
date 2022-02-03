@@ -5,7 +5,7 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation>Przytrzymaj, aby zalogować się</translation>
+        <translation>Przytrzymaj, aby się zalogować</translation>
     </message>
 </context>
 <context>
@@ -50,6 +50,14 @@
         <translation>Wybierz konto i wprowadź hasło</translation>
     </message>
     <message>
+        <source>Enter your username</source>
+        <translation>Wpisz nazwę użytkownika</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>Wpisz hasło</translation>
+    </message>
+    <message>
         <source>Reboot</source>
         <translation>Uruchom ponownie</translation>
     </message>
@@ -62,7 +70,15 @@
         <translation>Wyłącz</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Suspend</source>
+        <translation>Uśpij</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>Zahibernuj</translation>
+    </message>
+    <message>
+        <source>Username</source>
         <translation>Nazwa użytkownika</translation>
     </message>
     <message>

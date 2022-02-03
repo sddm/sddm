@@ -17,21 +17,15 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#include <QDebug>
-#include <QString>
-
-#include "VirtualTerminal.h"
-
+#ifndef SDDM_VIRTUALTERMINAL_H
+#define SDDM_VIRTUALTERMINAL_H
 
 namespace SDDM {
     namespace VirtualTerminal {
-        int setUpNewVt() {
-            qDebug() << "New VT is unsupported on FreeBSD";
-            return -1;
-        }
-
-        void jumpToVt(int vt, bool vt_auto) {
-            qDebug() << "Jumping to VT" << vt << "is unsupported on FreeBSD";
-        }
+        int fetchAvailableVt();
+        int setUpNewVt();
+        void jumpToVt(int vt, bool vt_auto);
     }
 }
+
+#endif // SDDM_VIRTUALTERMINAL_H

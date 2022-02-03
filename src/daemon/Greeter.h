@@ -35,13 +35,16 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Greeter)
     public:
-        explicit Greeter(QObject *parent = 0);
+        explicit Greeter(Display *parent = 0);
         ~Greeter();
 
-        void setDisplay(Display *display);
         void setAuthPath(const QString &authPath);
         void setSocket(const QString &socket);
         void setTheme(const QString &theme);
+
+        QString displayServerCommand() const;
+        void setDisplayServerCommand(const QString &cmd);
+        bool isRunning() const;
 
     public slots:
         bool start();
@@ -51,19 +54,24 @@ namespace SDDM {
     private slots:
         void onRequestChanged();
         void onSessionStarted(bool success);
+        void onDisplayServerReady(const QString &displayName);
         void onHelperFinished(Auth::HelperExitStatus status);
         void onReadyReadStandardOutput();
         void onReadyReadStandardError();
         void authInfo(const QString &message, Auth::Info info);
         void authError(const QString &message, Auth::Error error);
 
+    signals:
+        void failed();
+
     private:
         bool m_started { false };
 
-        Display *m_display { nullptr };
+        Display * const m_display { nullptr };
         QString m_authPath;
         QString m_socket;
         QString m_themePath;
+        QString m_displayServerCmd;
         ThemeMetadata *m_metadata { nullptr };
         ThemeConfig *m_themeConfig { nullptr };
 

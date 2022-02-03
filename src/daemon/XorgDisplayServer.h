@@ -22,6 +22,7 @@
 #define SDDM_XORGDISPLAYSERVER_H
 
 #include "DisplayServer.h"
+#include "XAuth.h"
 
 class QProcess;
 
@@ -34,13 +35,11 @@ namespace SDDM {
         ~XorgDisplayServer();
 
         const QString &display() const;
-        const QString &authPath() const;
+        QString authPath() const;
 
         QString sessionType() const;
 
-        const QString &cookie() const;
-
-        void addCookie(const QString &file);
+        QString cookie() const;
 
     public slots:
         bool start();
@@ -49,8 +48,7 @@ namespace SDDM {
         void setupDisplay();
 
     private:
-        QString m_authPath;
-        QString m_cookie;
+        XAuth m_xauth;
 
         QProcess *process { nullptr };
 

@@ -62,7 +62,7 @@
         <translation>Seiska</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Kasutajanimi</translation>
     </message>
     <message>

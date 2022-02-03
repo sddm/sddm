@@ -23,6 +23,7 @@
 #define SDDM_DISPLAY_H
 
 #include <QObject>
+#include <QPointer>
 #include <QDir>
 
 #include "Auth.h"
@@ -41,10 +42,19 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(Display)
     public:
-        explicit Display(int terminalId, Seat *parent);
+        enum DisplayServerType {
+            X11DisplayServerType,
+            X11UserDisplayServerType,
+            WaylandDisplayServerType
+        };
+        Q_ENUM(DisplayServerType)
+
+        explicit Display(Seat *parent);
         ~Display();
 
-        QString displayId() const;
+        DisplayServerType displayServerType() const;
+        DisplayServer *displayServer() const;
+
         const int terminalId() const;
 
         const QString &name() const;
@@ -54,7 +64,7 @@ namespace SDDM {
         Seat *seat() const;
 
     public slots:
-        void start();
+        bool start();
         void stop();
 
         void login(QLocalSocket *socket,
@@ -76,12 +86,12 @@ namespace SDDM {
         void startAuth(const QString &user, const QString &password,
                        const Session &session);
 
+        DisplayServerType m_displayServerType = X11DisplayServerType;
+
         bool m_relogin { true };
         bool m_started { false };
 
-        int m_terminalId { 7 };
-
-        Session m_lastSession;
+        int m_terminalId = 0;
 
         QString m_passPhrase;
         QString m_sessionName;
@@ -91,7 +101,7 @@ namespace SDDM {
         DisplayServer *m_displayServer { nullptr };
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };
-        QLocalSocket *m_socket { nullptr };
+        QPointer<QLocalSocket> m_socket;
         Greeter *m_greeter { nullptr };
 
     private slots:

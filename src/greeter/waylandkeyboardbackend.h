@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2021 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -17,14 +17,27 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_VIRTUALTERMINAL_H
-#define SDDM_VIRTUALTERMINAL_H
+#ifndef WAYLANDKEYBOARDBACKEND_H
+#define WAYLANDKEYBOARDBACKEND_H
+
+#include "KeyboardBackend.h"
 
 namespace SDDM {
-    namespace VirtualTerminal {
-        int setUpNewVt();
-        void jumpToVt(int vt, bool vt_auto);
-    }
-}
 
-#endif // SDDM_VIRTUALTERMINAL_H
+class WaylandKeyboardBackend : public KeyboardBackend
+{
+public:
+    WaylandKeyboardBackend(KeyboardModelPrivate *kmp);
+    virtual ~WaylandKeyboardBackend();
+
+    void init() override;
+    void disconnect() override;
+    void sendChanges() override;
+    void dispatchEvents() override;
+
+    void connectEventsDispatcher(KeyboardModel *model) override;
+};
+
+} // namespace SDDM
+
+#endif // WAYLANDKEYBOARDBACKEND_H

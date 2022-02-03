@@ -99,7 +99,7 @@ namespace SDDM {
 
     QString Session::desktopSession() const
     {
-        return fileName().replace(s_entryExtention, QString());
+        return QFileInfo(m_fileName).completeBaseName();
     }
 
     QString Session::desktopNames() const
@@ -117,6 +117,10 @@ namespace SDDM {
         return m_isNoDisplay;
     }
 
+    QProcessEnvironment Session::additionalEnv() const {
+        return m_additionalEnv;
+    }
+
     void Session::setTo(Type type, const QString &_fileName)
     {
         QString fileName(_fileName);
@@ -130,13 +134,13 @@ namespace SDDM {
         m_desktopNames.clear();
 
         switch (type) {
-        case X11Session:
-            m_dir = QDir(mainConfig.X11.SessionDir.get());
-            m_xdgSessionType = QStringLiteral("x11");
-            break;
         case WaylandSession:
             m_dir = QDir(mainConfig.Wayland.SessionDir.get());
             m_xdgSessionType = QStringLiteral("wayland");
+            break;
+        case X11Session:
+            m_dir = QDir(mainConfig.X11.SessionDir.get());
+            m_xdgSessionType = QStringLiteral("x11");
             break;
         default:
             m_xdgSessionType.clear();
@@ -167,15 +171,8 @@ namespace SDDM {
             if (current_section != QLatin1String("Desktop Entry"))
                 continue; // We are only interested in the "Desktop Entry" section
 
-            if (line.startsWith(QLatin1String("Name="))) {
-                if (type == WaylandSession)
-                    if (line.mid(5).endsWith(QLatin1String(" (Wayland)")))
-                        m_displayName = QObject::tr("%1").arg(line.mid(5));
-                    else
-                        m_displayName = QObject::tr("%1 (Wayland)").arg(line.mid(5));
-                else
-                    m_displayName = line.mid(5);
-            }
+            if (line.startsWith(QLatin1String("Name=")))
+                m_displayName = line.mid(5);
             if (line.startsWith(QLatin1String("Comment=")))
                 m_comment = line.mid(8);
             if (line.startsWith(QLatin1String("Exec=")))
@@ -188,6 +185,8 @@ namespace SDDM {
                 m_isHidden = line.mid(7).toLower() == QLatin1String("true");
             if (line.startsWith(QLatin1String("NoDisplay=")))
                 m_isNoDisplay = line.mid(10).toLower() == QLatin1String("true");
+            if (line.startsWith(QLatin1String("X-SDDM-Env=")))
+                m_additionalEnv = parseEnv(line.mid(strlen("X-SDDM-Env=")));
         }
 
         file.close();
@@ -201,4 +200,22 @@ namespace SDDM {
         setTo(other.type(), other.fileName());
         return *this;
     }
+
+    QProcessEnvironment SDDM::Session::parseEnv(const QString &list)
+    {
+        QProcessEnvironment env;
+
+        const QVector<QStringRef> entryList = list.splitRef(QLatin1Char(','));
+        for (const auto &entry: entryList) {
+            int midPoint = entry.indexOf(QLatin1Char('='));
+            if (midPoint < 0) {
+                qWarning() << "Malformed entry in" << fileName() << ":" << entry;
+                continue;
+            }
+            env.insert(entry.left(midPoint).toString(), entry.mid(midPoint+1).toString());
+        }
+        return env;
+    }
+
+
 }

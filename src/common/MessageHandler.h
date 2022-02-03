@@ -24,7 +24,9 @@
 #include "Constants.h"
 
 #include <QDateTime>
+#include <QStandardPaths>
 #include <QFile>
+#include <QDir>
 
 #include <stdio.h>
 
@@ -40,6 +42,8 @@ namespace SDDM {
         switch (type) {
             case QtDebugMsg:
                 priority = LOG_DEBUG;
+            case QtInfoMsg:
+                priority = LOG_INFO;
             break;
             case QtWarningMsg:
                 priority = LOG_WARNING;
@@ -49,8 +53,6 @@ namespace SDDM {
             break;
             case QtFatalMsg:
                 priority = LOG_ALERT;
-            break;
-            default:
             break;
         }
 
@@ -71,6 +73,16 @@ namespace SDDM {
 
         // try to open file only if it's not already open
         if (!file.isOpen()) {
+            if (!file.open(QFile::Append | QFile::WriteOnly))
+                file.open(QFile::Truncate | QFile::WriteOnly);
+        }
+
+        // If we can't open the file, create it in a writable location
+        // It will look spmething like ~/.local/share/$appname/sddm.log
+        // or for the sddm user /var/lib/sddm/.local/share/$appname/sddm.log
+        if (!file.isOpen()) {
+            QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+            file.setFileName(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QLatin1String("/sddm.log"));
             if (!file.open(QFile::Append | QFile::WriteOnly))
                 file.open(QFile::Truncate | QFile::WriteOnly);
         }

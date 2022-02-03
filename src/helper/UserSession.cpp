@@ -19,9 +19,13 @@
  *
  */
 
+#include <QSocketNotifier>
+
 #include "Configuration.h"
 #include "UserSession.h"
 #include "HelperApp.h"
+#include "VirtualTerminal.h"
+#include "XAuth.h"
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -33,34 +37,92 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sched.h>
+#ifdef Q_OS_FREEBSD
+#include <login_cap.h>
+#endif
 
 namespace SDDM {
     UserSession::UserSession(HelperApp *parent)
-            : QProcess(parent) {
-    }
-
-    UserSession::~UserSession() {
-
+        : QProcess(parent)
+    {
+        connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &UserSession::finished);
     }
 
     bool UserSession::start() {
-        QProcessEnvironment env = qobject_cast<HelperApp*>(parent())->session()->processEnvironment();
+        auto helper = qobject_cast<HelperApp*>(parent());
+        QProcessEnvironment env = helper->session()->processEnvironment();
 
-        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
-            QProcess::start(m_path);
-        } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
-            const QString cmd = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
-            qInfo() << "Starting:" << cmd;
-            QProcess::start(cmd);
+        bool isWaylandGreeter = false;
+        if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
+            QString command;
+            if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
+                command = m_path;
+            } else {
+                command = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
+            }
+
+            qInfo() << "Starting X11 session:" << m_displayServerCmd << command;
+            if (m_displayServerCmd.isEmpty()) {
+                auto args = QProcess::splitCommand(command);
+                const auto program = args.takeFirst();
+                QProcess::start(program, args);
+            } else {
+                QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-x11user"), {m_displayServerCmd, command});
+            }
+
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
-            const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
-            qInfo() << "Starting:" << cmd;
-            QProcess::start(cmd);
+            if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
+                Q_ASSERT(!m_displayServerCmd.isEmpty());
+                QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-wayland"), {m_displayServerCmd, m_path});
+                isWaylandGreeter = true;
+            } else {
+                const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
+                qInfo() << "Starting Wayland user session:" << cmd;
+                QProcess::start(mainConfig.Wayland.SessionCommand.get(), QStringList{m_path});
+                closeWriteChannel();
+                closeReadChannel(QProcess::StandardOutput);
+            }
         } else {
             qCritical() << "Unable to run user session: unknown session type";
         }
 
-        return waitForStarted();
+        const bool started = waitForStarted();
+        m_cachedProcessId = processId();
+        if (started) {
+            return true;
+        } else if (isWaylandGreeter) {
+            // This is probably fine, we need the compositor to start first
+            return true;
+        }
+
+        return false;
+    }
+
+    void UserSession::stop()
+    {
+        if (state() != QProcess::NotRunning) {
+            terminate();
+            const bool isGreeter = processEnvironment().value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter");
+
+            // Wait longer for a session than a greeter
+            if (!waitForFinished(isGreeter ? 5000 : 60000)) {
+                kill();
+                if (!waitForFinished(5000)) {
+                    qWarning() << "Could not fully finish the process" << program();
+                }
+            }
+        }
+        Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
+    }
+
+    QString UserSession::displayServerCommand() const
+    {
+        return m_displayServerCmd;
+    }
+
+    void UserSession::setDisplayServerCommand(const QString &command)
+    {
+        m_displayServerCmd = command;
     }
 
     void UserSession::setPath(const QString& path) {
@@ -74,12 +136,17 @@ namespace SDDM {
     void UserSession::setupChildProcess() {
         // Session type
         QString sessionType = processEnvironment().value(QStringLiteral("XDG_SESSION_TYPE"));
+        QString sessionClass = processEnvironment().value(QStringLiteral("XDG_SESSION_CLASS"));
+        const bool hasDisplayServer = !m_displayServerCmd.isEmpty();
+        const bool x11UserSession = sessionType == QLatin1String("x11") && sessionClass == QLatin1String("user");
+        const bool waylandUserSession = sessionType == QLatin1String("wayland") && sessionClass == QLatin1String("user");
 
-        // For Wayland sessions we leak the VT into the session as stdin so
-        // that it stays open without races
-        if (sessionType == QLatin1String("wayland")) {
+        // When the display server is part of the session, we leak the VT into
+        // the session as stdin so that it stays open without races
+        if (hasDisplayServer || waylandUserSession) {
             // open VT and get the fd
-            QString ttyString = QStringLiteral("/dev/tty%1").arg(processEnvironment().value(QStringLiteral("XDG_VTNR")));
+            int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
+            QString ttyString = QStringLiteral("/dev/tty%1").arg(vtNumber);
             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
 
             // when this is true we'll take control of the tty
@@ -105,10 +172,13 @@ namespace SDDM {
             // take control of the tty
             if (takeControl) {
                 if (ioctl(STDIN_FILENO, TIOCSCTTY) < 0) {
-                    qCritical("Failed to take control of the tty: %s", strerror(errno));
+                    const auto error = strerror(errno);
+                    qCritical().nospace() << "Failed to take control of " << ttyString << " (" << QFileInfo(ttyString).owner() << "): " << error;
                     exit(Auth::HELPER_OTHER_ERROR);
                 }
             }
+
+            VirtualTerminal::jumpToVt(vtNumber, x11UserSession);
         }
 
 #ifdef Q_OS_LINUX
@@ -136,8 +206,10 @@ namespace SDDM {
         if (bufsize == -1)
             bufsize = 16384;
         QScopedPointer<char, QScopedPointerPodDeleter> buffer(static_cast<char*>(malloc(bufsize)));
-        if (buffer.isNull())
+        if (buffer.isNull()) {
+            qCritical() << "Could not allocate buffer of size" << bufsize;
             exit(Auth::HELPER_OTHER_ERROR);
+        }
         int err = getpwnam_r(username.constData(), &pw, buffer.data(), bufsize, &rpw);
         if (rpw == NULL) {
             if (err == 0)
@@ -146,10 +218,19 @@ namespace SDDM {
                 qCritical() << "getpwnam_r(" << username << ") failed with error: " << strerror(err);
             exit(Auth::HELPER_OTHER_ERROR);
         }
+#if defined(Q_OS_FREEBSD)
+        // execve() uses the environment prepared in Backend::openSession(),
+        // therefore environment variables which are set here are ignored.
+        if (setusercontext(NULL, &pw, pw.pw_uid, LOGIN_SETALL) != 0) {
+            qCritical() << "setusercontext(NULL, *, " << pw.pw_uid << ", LOGIN_SETALL) failed for user: " << username;
+            exit(Auth::HELPER_OTHER_ERROR);
+        }
+#else
         if (setgid(pw.pw_gid) != 0) {
             qCritical() << "setgid(" << pw.pw_gid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
+        qputenv("XDG_RUNTIME_DIR", QByteArrayLiteral("/run/user/") + QByteArray::number(pw.pw_uid));
 
 #ifdef USE_PAM
 
@@ -171,13 +252,13 @@ namespace SDDM {
         // fetch session's user's groups
         int n_user_groups = 0;
         gid_t *user_groups = NULL;
-        if (-1 == getgrouplist(username.constData(), pw.pw_gid,
+        if (-1 == getgrouplist(pw.pw_name, pw.pw_gid,
                                NULL, &n_user_groups)) {
             user_groups = new gid_t[n_user_groups];
-            if ((n_user_groups = getgrouplist(username.constData(),
+            if ((n_user_groups = getgrouplist(pw.pw_name,
                                               pw.pw_gid, user_groups,
                                               &n_user_groups)) == -1 ) {
-                qCritical() << "getgrouplist(" << username << ", " << pw.pw_gid
+                qCritical() << "getgrouplist(" << pw.pw_name << ", " << pw.pw_gid
                             << ") failed";
                 exit(Auth::HELPER_OTHER_ERROR);
             }
@@ -215,84 +296,48 @@ namespace SDDM {
             qCritical() << "setuid(" << pw.pw_uid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
+#endif /* Q_OS_FREEBSD */
         if (chdir(pw.pw_dir) != 0) {
             qCritical() << "chdir(" << pw.pw_dir << ") failed for user: " << username;
             qCritical() << "verify directory exist and has sufficient permissions";
             exit(Auth::HELPER_OTHER_ERROR);
         }
-        const QString homeDir = QString::fromLocal8Bit(pw.pw_dir);
 
-        //we cannot use setStandardError file as this code is run in the child process
-        //we want to redirect after we setuid so that the log file is owned by the user
+        if (sessionClass != QLatin1String("greeter")) {
+            //we cannot use setStandardError file as this code is run in the child process
+            //we want to redirect after we setuid so that the log file is owned by the user
 
-        // determine stderr log file based on session type
-        QString sessionLog = QStringLiteral("%1/%2")
-                .arg(homeDir)
-                .arg(sessionType == QLatin1String("x11")
-                     ? mainConfig.X11.SessionLogFile.get()
-                     : mainConfig.Wayland.SessionLogFile.get());
+            // determine stderr log file based on session type
+            QString sessionLog = QStringLiteral("%1/%2")
+                    .arg(QString::fromLocal8Bit(pw.pw_dir))
+                    .arg(sessionType == QLatin1String("x11")
+                         ? mainConfig.X11.SessionLogFile.get()
+                         : mainConfig.Wayland.SessionLogFile.get());
 
-        // create the path
-        QFileInfo finfo(sessionLog);
-        QDir().mkpath(finfo.absolutePath());
+            // create the path
+            QFileInfo finfo(sessionLog);
+            QDir().mkpath(finfo.absolutePath());
 
-        //swap the stderr pipe of this subprcess into a file
-        int fd = ::open(qPrintable(sessionLog), O_WRONLY | O_CREAT | O_TRUNC, 0600);
-        if (fd >= 0)
-        {
-            dup2 (fd, STDERR_FILENO);
-            ::close(fd);
+            setStandardErrorFile(sessionLog);
+            setStandardOutputFile(QProcess::nullDevice());
         } else {
-            qWarning() << "Could not open stderr to" << sessionLog;
-        }
-
-        //redirect any stdout to /dev/null
-        fd = ::open("/dev/null", O_WRONLY);
-        if (fd >= 0)
-        {
-            dup2 (fd, STDOUT_FILENO);
-            ::close(fd);
-        } else {
-            qWarning() << "Could not redirect stdout";
+            setProcessChannelMode(QProcess::ForwardedChannels);
         }
 
         // set X authority for X11 sessions only
-        if (sessionType != QLatin1String("x11"))
-            return;
-        QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
-        if (!cookie.isEmpty()) {
-            QString file = processEnvironment().value(QStringLiteral("XAUTHORITY"));
-            QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
-            qDebug() << "Adding cookie to" << file;
+        if (x11UserSession) {
+            QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
+            if (!cookie.isEmpty()) {
+                QString file = processEnvironment().value(QStringLiteral("XAUTHORITY"));
+                QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
 
+                // Create the path
+                QFileInfo finfo(file);
+                QDir().mkpath(finfo.absolutePath());
 
-            // create the path
-            QFileInfo finfo(file);
-            QDir().mkpath(finfo.absolutePath());
-
-            QFile file_handler(file);
-            file_handler.open(QIODevice::Append);
-            file_handler.close();
-
-            QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(file);
-
-            // execute xauth
-            FILE *fp = popen(qPrintable(cmd), "w");
-
-            // check file
-            if (!fp)
-                return;
-            fprintf(fp, "remove %s\n", qPrintable(display));
-            fprintf(fp, "add %s . %s\n", qPrintable(display), qPrintable(cookie));
-            fprintf(fp, "exit\n");
-
-            // close pipe
-            pclose(fp);
+                XAuth::addCookieToFile(display, file, cookie);
+            }
         }
-    }
-
-    void UserSession::setCachedProcessId(qint64 pid) {
-        m_cachedProcessId = pid;
     }
 
     qint64 UserSession::cachedProcessId() {

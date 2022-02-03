@@ -62,7 +62,7 @@
         <translation>Apaga</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>Usuari</translation>
     </message>
     <message>

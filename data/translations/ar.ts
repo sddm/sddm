@@ -62,7 +62,7 @@
         <translation>أطفئ</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>اسم المستخدم</translation>
     </message>
     <message>

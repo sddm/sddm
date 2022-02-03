@@ -65,7 +65,7 @@
         <translation>শাটডাউন</translation>
     </message>
     <message>
-        <source>User name</source>
+        <source>Username</source>
         <translation>ব্যবহারকারীর নাম</translation>
     </message>
     <message>

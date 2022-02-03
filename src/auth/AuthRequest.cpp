@@ -38,7 +38,7 @@ namespace SDDM {
             : QObject(parent) { }
 
     void AuthRequest::Private::responseChanged() {
-        Q_FOREACH(AuthPrompt *qap, prompts) {
+        for(const AuthPrompt *qap : qAsConst(prompts)) {
             if (qap->response().isEmpty())
                 return;
         }
@@ -54,7 +54,7 @@ namespace SDDM {
         QList<AuthPrompt*> promptsCopy(d->prompts);
         d->prompts.clear();
         if (request != nullptr) {
-            Q_FOREACH (const Prompt& p, request->prompts) {
+            for (const Prompt& p : qAsConst(request->prompts)) {
                 AuthPrompt *qap = new AuthPrompt(&p, this);
                 d->prompts << qap;
                 if (finishAutomatically())
@@ -73,7 +73,7 @@ namespace SDDM {
     }
 
     QQmlListProperty<AuthPrompt> AuthRequest::promptsDecl() {
-        return QQmlListProperty<AuthPrompt>(this, d->prompts);
+        return QQmlListProperty<AuthPrompt>(this, &d->prompts);
     }
 
     void AuthRequest::done() {
@@ -96,7 +96,7 @@ namespace SDDM {
 
     Request AuthRequest::request() const {
         Request r;
-        Q_FOREACH (const AuthPrompt* qap, d->prompts) {
+        for (const AuthPrompt* qap : qAsConst(d->prompts)) {
             Prompt p;
             p.hidden = qap->hidden();
             p.message = qap->message();
