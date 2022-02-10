@@ -81,9 +81,6 @@ namespace SDDM {
         // create signal handler
         m_signalHandler = new SignalHandler(this);
 
-        // initialize signal signalHandler
-        SignalHandler::initialize();
-
         // quit when SIGINT, SIGTERM received
         connect(m_signalHandler, &SignalHandler::sigintReceived, this, &DaemonApp::quit);
         connect(m_signalHandler, &SignalHandler::sigtermReceived, this, &DaemonApp::quit);
