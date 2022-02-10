@@ -119,7 +119,6 @@ namespace SDDM {
     }
 
     Display::~Display() {
-        disconnect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
         stop();
     }
 
@@ -245,7 +244,9 @@ namespace SDDM {
         // stop the greeter
         m_greeter->stop();
 
+        m_auth->blockSignals(true);
         m_auth->stop();
+        m_auth->blockSignals(false);
 
         // stop socket server
         m_socketServer->stop();
