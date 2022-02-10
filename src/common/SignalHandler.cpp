@@ -24,35 +24,34 @@
 
 #include <signal.h>
 #include <unistd.h>
+#include <mutex>
 
 #include <sys/socket.h>
 
 namespace SDDM {
+    std::once_flag signalsInitialized;
+
     int sigintFd[2];
     int sigtermFd[2];
     int sigcustomFd[2];
 
     SignalHandler::SignalHandler(QObject *parent) : QObject(parent) {
-        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigintFd))
-            qCritical() << "Failed to create socket pair for SIGINT handling.";
+        std::call_once(signalsInitialized, &initialize);
 
         snint = new QSocketNotifier(sigintFd[1], QSocketNotifier::Read, this);
         connect(snint, &QSocketNotifier::activated, this, &SignalHandler::handleSigint);
 
-        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigtermFd))
-            qCritical() << "Failed to create socket pair for SIGTERM handling.";
-
         snterm = new QSocketNotifier(sigtermFd[1], QSocketNotifier::Read, this);
         connect(snterm, &QSocketNotifier::activated, this, &SignalHandler::handleSigterm);
-
-        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigcustomFd))
-            qCritical() << "Failed to create socket pair for custom signals handling.";
 
         sncustom = new QSocketNotifier(sigcustomFd[1], QSocketNotifier::Read, this);
         connect(sncustom, &QSocketNotifier::activated, this, &SignalHandler::handleSigCustom);
     }
 
     void SignalHandler::initialize() {
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigintFd))
+            qCritical() << "Failed to create socket pair for SIGINT handling.";
+
         struct sigaction sigint = { };
         sigint.sa_handler = SignalHandler::intSignalHandler;
         sigemptyset(&sigint.sa_mask);
@@ -63,6 +62,9 @@ namespace SDDM {
             return;
         }
 
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigtermFd))
+            qCritical() << "Failed to create socket pair for SIGTERM handling.";
+
         struct sigaction sigterm = { };
         sigterm.sa_handler = SignalHandler::termSignalHandler;
         sigemptyset(&sigterm.sa_mask);
@@ -72,6 +74,9 @@ namespace SDDM {
             qCritical() << "Failed to set up SIGTERM handler.";
             return;
         }
+
+        if (::socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, sigcustomFd))
+            qCritical() << "Failed to create socket pair for custom signals handling.";
     }
 
     void SignalHandler::addCustomSignal(int signal)

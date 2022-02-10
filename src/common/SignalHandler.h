@@ -31,11 +31,6 @@ namespace SDDM {
     public:
         SignalHandler(QObject *parent = 0);
 
-        static void initialize();
-        static void intSignalHandler(int unused);
-        static void termSignalHandler(int unused);
-        static void customSignalHandler(int unused);
-
         void addCustomSignal(int signal);
 
     signals:
@@ -50,6 +45,11 @@ namespace SDDM {
         void handleSigCustom();
 
     private:
+        static void initialize();
+        static void intSignalHandler(int unused);
+        static void termSignalHandler(int unused);
+        static void customSignalHandler(int unused);
+
         QSocketNotifier *snint { nullptr };
         QSocketNotifier *snterm { nullptr };
         QSocketNotifier *sncustom { nullptr };
