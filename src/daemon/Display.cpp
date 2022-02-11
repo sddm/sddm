@@ -435,6 +435,10 @@ namespace SDDM {
 
     void Display::slotAuthInfo(const QString &message, Auth::Info info) {
         qWarning() << "Authentication information:" << info << message;
+
+        if (!m_socket)
+            return;
+
         m_socketServer->informationMessage(m_socket, message);
     }
 
