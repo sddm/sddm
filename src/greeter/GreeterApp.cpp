@@ -328,6 +328,7 @@ int main(int argc, char **argv)
     if (hiDpiEnabled) {
         qDebug() << "High-DPI autoscaling Enabled";
         QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        qputenv("QT_USE_PHYSICAL_DPI", "1");
     } else {
         qDebug() << "High-DPI autoscaling not Enabled";
     }
