@@ -41,6 +41,7 @@ int main(int argc, char** argv)
 {
     qInstallMessageHandler(X11UserHelperMessageHandler);
     SDDM::SignalHandler s;
+    SDDM::SignalHandler::initialize();
     QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, QCoreApplication::instance(), [] {
         QCoreApplication::instance()->exit(-1);
     });
