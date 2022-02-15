@@ -25,6 +25,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QDir>
+#include <QTimer>
 
 #include "Auth.h"
 #include "Session.h"
@@ -103,6 +104,7 @@ namespace SDDM {
         SocketServer *m_socketServer { nullptr };
         QPointer<QLocalSocket> m_socket;
         Greeter *m_greeter { nullptr };
+        QTimer *m_stopTimer { nullptr };
 
     private slots:
         void slotRequestChanged();

@@ -55,8 +55,14 @@ namespace SDDM {
         m_auth(new Auth(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
-        m_greeter(new Greeter(this)) {
+        m_greeter(new Greeter(this)),
+        m_stopTimer(new QTimer(this)) {
 
+        // When shutting down, sddm-helper can quit before we get a SIGTERM. We add some
+        // delay to avoid restarting display in that case.
+        m_stopTimer->setSingleShot(true);
+        m_stopTimer->setInterval(5000);
+        connect(m_stopTimer, &QTimer::timeout, this, &Display::stop);
 
         // Save display server type
         const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
@@ -456,8 +462,10 @@ namespace SDDM {
         // we want to avoid greeter from restarting when an authentication
         // error happens (in this case we want to show the message from the
         // greeter
-        if (status != Auth::HELPER_AUTH_ERROR)
+        if (status == Auth::HELPER_SUCCESS)
             stop();
+        else if (status != Auth::HELPER_AUTH_ERROR)
+            m_stopTimer->start();
     }
 
     void Display::slotRequestChanged() {
