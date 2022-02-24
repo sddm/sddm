@@ -24,6 +24,7 @@
 #include "Constants.h"
 #include "ScreenModel.h"
 #include "SessionModel.h"
+#include "SignalHandler.h"
 #include "ThemeConfig.h"
 #include "ThemeMetadata.h"
 #include "UserModel.h"
@@ -270,6 +271,9 @@ namespace SDDM {
         // Set session model on proxy
         m_proxy->setSessionModel(m_sessionModel);
 
+        // If the socket ends, bail. There is not much we can do.
+        connect(m_proxy, &GreeterProxy::socketDisconnected, qGuiApp, &QCoreApplication::quit);
+
         // Create views
         const QList<QScreen *> screens = qGuiApp->primaryScreen()->virtualSiblings();
         for (QScreen *screen : screens)
@@ -348,6 +352,10 @@ int main(int argc, char **argv)
         qputenv("QT_IM_MODULE", SDDM::mainConfig.InputMethod.get().toLocal8Bit().constData());
 
     QGuiApplication app(argc, argv);
+    SDDM::SignalHandler s;
+    QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
+        QCoreApplication::instance()->exit(-1);
+    });
 
     QCommandLineParser parser;
     parser.setApplicationDescription(TR("SDDM greeter"));
