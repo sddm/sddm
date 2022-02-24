@@ -79,6 +79,7 @@ namespace SDDM {
         void canHibernateChanged(bool canHibernate);
         void canHybridSleepChanged(bool canHybridSleep);
 
+        void socketDisconnected();
         void loginFailed();
         void loginSucceeded();
 

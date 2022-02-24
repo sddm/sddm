@@ -138,6 +138,8 @@ namespace SDDM {
     void GreeterProxy::disconnected() {
         // log disconnection
         qDebug() << "Disconnected from the daemon.";
+
+        Q_EMIT socketDisconnected();
     }
 
     void GreeterProxy::error() {
