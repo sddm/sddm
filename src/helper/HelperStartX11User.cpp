@@ -41,12 +41,12 @@ int main(int argc, char** argv)
 {
     qInstallMessageHandler(X11UserHelperMessageHandler);
     SDDM::SignalHandler s;
-    QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, QCoreApplication::instance(), [] {
+    QCoreApplication app(argc, argv);
+    QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
         QCoreApplication::instance()->exit(-1);
     });
 
     Q_ASSERT(::getuid() != 0);
-    QCoreApplication app(argc, argv);
     if (argc != 3) {
         QTextStream(stderr) << "Wrong number of arguments\n";
         return 33;
