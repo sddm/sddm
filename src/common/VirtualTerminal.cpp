@@ -211,11 +211,21 @@ out:
             if (!vt_auto)
                 handleVtSwitches(fd);
 
-            if (ioctl(fd, VT_ACTIVATE, vt) < 0)
-                qWarning("Couldn't initiate jump to VT %d: %s", vt, strerror(errno));
-            else if (ioctl(fd, VT_WAITACTIVE, vt) < 0)
-                qWarning("Couldn't finalize jump to VT %d: %s", vt, strerror(errno));
+            do {
+                errno = 0;
 
+                if (ioctl(fd, VT_ACTIVATE, vt) < 0) {
+                    if (errno == EINTR)
+                        continue;
+
+                    qWarning("Couldn't initiate jump to VT %d: %s", vt, strerror(errno));
+                    break;
+                }
+
+                if (ioctl(fd, VT_WAITACTIVE, vt) < 0 && errno != EINTR)
+                    qWarning("Couldn't finalize jump to VT %d: %s", vt, strerror(errno));
+
+            } while (errno == EINTR);
             close(activeVtFd);
             if (vtFd != -1)
                 close(vtFd);
