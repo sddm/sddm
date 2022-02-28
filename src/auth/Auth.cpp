@@ -260,6 +260,7 @@ namespace SDDM {
     }
 
     Auth::~Auth() {
+        stop();
         delete d;
     }
 
