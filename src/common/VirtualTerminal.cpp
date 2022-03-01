@@ -127,17 +127,26 @@ out:
                 close(fd);
             });
 
-            vt_stat vtState = { 0 };
-            if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
-                qCritical() << "Failed to get current VT:" << strerror(errno);
-
+            auto requestNewVt = [] (int fd) {
                 int vt = 0;
-                // If there's no current tty, request the next to open
                 if (ioctl(fd, VT_OPENQRY, &vt) < 0) {
                     qCritical() << "Failed to open new VT:" << strerror(errno);
                     return -1;
                 }
                 return vt;
+            };
+
+            vt_stat vtState = { 0 };
+            if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
+                qCritical() << "Failed to get current VT:" << strerror(errno);
+
+                // If there's no current tty, request the next to open
+                return requestNewVt(fd);
+            }
+
+            // If the active vt is already taken, find a new one
+            if (1 << vtState.v_active & vtState.v_state) {
+                return requestNewVt(fd);
             }
             return vtState.v_active;
         }
