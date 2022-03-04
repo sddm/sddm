@@ -126,7 +126,7 @@ namespace SDDM {
 #ifdef HAVE_JOURNALD
         // don't log to journald if running interactively, this is likely
         // the case when running sddm in test mode
-        static bool isInteractive = isatty(STDIN_FILENO);
+        static bool isInteractive = isatty(STDIN_FILENO) && qgetenv("USER") != "sddm";
         if (!isInteractive) {
             // log to journald
             journaldLogger(type, context, logMessage);
