@@ -60,8 +60,10 @@ void stopProcess(QProcess *process)
     if (process && process->state() != QProcess::NotRunning) {
         qInfo() << "Stopping..." << process->program();
         process->terminate();
-        if (!process->waitForFinished(5000))
+        if (!process->waitForFinished(5000)) {
             process->kill();
+            process->waitForFinished(25000);
+        }
         process->deleteLater();
         process = nullptr;
     }
