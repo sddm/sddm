@@ -318,10 +318,25 @@ namespace SDDM {
             QFileInfo finfo(sessionLog);
             QDir().mkpath(finfo.absolutePath());
 
-            setStandardErrorFile(sessionLog);
-            setStandardOutputFile(QProcess::nullDevice());
-        } else {
-            setProcessChannelMode(QProcess::ForwardedChannels);
+            //swap the stderr pipe of this subprcess into a file
+            int fd = ::open(qPrintable(sessionLog), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+            if (fd >= 0)
+            {
+                dup2 (fd, STDERR_FILENO);
+                ::close(fd);
+            } else {
+                qWarning() << "Could not open stderr to" << sessionLog;
+            }
+
+            //redirect any stdout to /dev/null
+            fd = ::open("/dev/null", O_WRONLY);
+            if (fd >= 0)
+            {
+                dup2 (fd, STDOUT_FILENO);
+                ::close(fd);
+            } else {
+                qWarning() << "Could not redirect stdout";
+            }
         }
 
         // set X authority for X11 sessions only
