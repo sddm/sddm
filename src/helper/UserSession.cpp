@@ -174,6 +174,15 @@ namespace SDDM {
                 if (ioctl(STDIN_FILENO, TIOCSCTTY) < 0) {
                     const auto error = strerror(errno);
                     qCritical().nospace() << "Failed to take control of " << ttyString << " (" << QFileInfo(ttyString).owner() << "): " << error;
+
+                    QProcess process;
+                    process.setProgram(QStringLiteral("fuser"));
+                    process.setArguments({ ttyString });
+                    process.start();
+                    bool b = process.waitForFinished();
+                    Q_ASSERT(b);
+                    qCritical() << ttyString << process.readAllStandardOutput();
+
                     exit(Auth::HELPER_OTHER_ERROR);
                 }
             }
