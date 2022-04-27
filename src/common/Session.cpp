@@ -136,13 +136,15 @@ namespace SDDM {
         m_valid = false;
         m_desktopNames.clear();
 
+        QStringList sessionDirs;
+
         switch (type) {
         case WaylandSession:
-            m_dir = QDir(mainConfig.Wayland.SessionDir.get());
+            sessionDirs = mainConfig.Wayland.SessionDir.get();
             m_xdgSessionType = QStringLiteral("wayland");
             break;
         case X11Session:
-            m_dir = QDir(mainConfig.X11.SessionDir.get());
+            sessionDirs = mainConfig.X11.SessionDir.get();
             m_xdgSessionType = QStringLiteral("x11");
             break;
         default:
@@ -150,9 +152,19 @@ namespace SDDM {
             break;
         }
 
-        m_fileName = m_dir.absoluteFilePath(fileName);
+        QFile file;
+        for (const auto &path: qAsConst(sessionDirs)) {
+            m_dir.setPath(path);
+            m_fileName = m_dir.absoluteFilePath(fileName);
 
-        qDebug() << "Reading from" << m_fileName;
+            qDebug() << "Reading from" << m_fileName;
+
+            file.setFileName(m_fileName);
+            if (file.open(QIODevice::ReadOnly))
+                break;
+        }
+        if (!file.isOpen())
+            return;
 
         QSettings settings(m_fileName, QSettings::IniFormat);
         QStringList locales = { QLocale().name() };

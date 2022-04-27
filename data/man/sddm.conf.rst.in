@@ -127,8 +127,8 @@ OPTIONS
 	Default value is "/usr/bin/xauth".
 
 `SessionDir=`
-	Path of the directory containing session files.
-	Default value is "/usr/share/xsessions".
+	Comma-separated list of directories containing session files.
+	Default value is "/usr/local/share/xsessions,/usr/share/xsessions".
 
 `SessionCommand=`
 	Path of script to execute when starting the user session. This script
@@ -174,8 +174,8 @@ OPTIONS
         Default value is "weston --shell=fullscreen-shell.so".
 
 `SessionDir=`
-	Path of the directory containing session files.
-	Default value is "/usr/share/wayland-sessions".
+	Comma-separated list of directories containing session files.
+	Default value is "/usr/local/share/wayland-sessions,/usr/share/wayland-sessions".
 
 `SessionCommand=`
 	Path of script to execute when starting the user session. This script

@@ -69,7 +69,8 @@ namespace SDDM {
             Entry(ServerArguments,     QString,     _S("-nolisten tcp"),                        _S("Arguments passed to the X server invocation"));
             Entry(XephyrPath,          QString,     _S("/usr/bin/Xephyr"),                      _S("Path to Xephyr binary"));
             Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Path to xauth binary"));
-            Entry(SessionDir,          QString,     _S("/usr/share/xsessions"),                 _S("Directory containing available X sessions"));
+            Entry(SessionDir,          QStringList, {_S("/usr/local/share/xsessions"),
+                                                     _S("/usr/share/xsessions")},               _S("Comma-separated list of directories containing available X sessions"));
             Entry(SessionCommand,      QString,     _S(SESSION_COMMAND),                        _S("Path to a script to execute when starting the desktop session"));
 	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/xorg-session.log"),   _S("Path to the user session log file"));
 	    Entry(UserAuthFile,        QString,     _S(".Xauthority"),                          _S("Path to the Xauthority file"));
@@ -80,7 +81,8 @@ namespace SDDM {
 
         Section(Wayland,
             Entry(CompositorCommand,   QString,     _S("weston --shell=fullscreen-shell.so"),   _S("Path of the Wayland compositor to execute when starting the greeter"));
-            Entry(SessionDir,          QString,     _S("/usr/share/wayland-sessions"),          _S("Directory containing available Wayland sessions"));
+            Entry(SessionDir,          QStringList, {_S("/usr/local/share/wayland-sessions"),
+                                                     _S("/usr/share/wayland-sessions")},        _S("Comma-separated list of directories containing available Wayland sessions"));
             Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                _S("Path to a script to execute when starting the desktop session"));
 	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/wayland-session.log"),_S("Path to the user session log file"));
             Entry(EnableHiDPI,         bool,        false,                                      _S("Enable Qt's automatic high-DPI scaling"));

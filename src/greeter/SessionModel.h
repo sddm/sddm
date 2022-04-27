@@ -58,7 +58,7 @@ namespace SDDM {
     private:
         SessionModelPrivate *d { nullptr };
 
-        void populate(Session::Type type, const QString &path);
+        void populate(Session::Type type, const QStringList &dirPaths);
     };
 }
 

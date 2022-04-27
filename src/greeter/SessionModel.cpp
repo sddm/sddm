@@ -64,8 +64,8 @@ namespace SDDM {
             populate(Session::X11Session, mainConfig.X11.SessionDir.get());
             endResetModel();
         });
-        watcher->addPath(mainConfig.Wayland.SessionDir.get());
-        watcher->addPath(mainConfig.X11.SessionDir.get());
+        watcher->addPaths(mainConfig.Wayland.SessionDir.get());
+        watcher->addPaths(mainConfig.X11.SessionDir.get());
     }
 
     SessionModel::~SessionModel() {
@@ -124,17 +124,17 @@ namespace SDDM {
         return QVariant();
     }
 
-    void SessionModel::populate(Session::Type type, const QString &path) {
+    void SessionModel::populate(Session::Type type, const QStringList &dirPaths) {
         // read session files
-        QDir dir(path);
-        dir.setNameFilters(QStringList() << QStringLiteral("*.desktop"));
-        dir.setFilter(QDir::Files);
+        QStringList sessions;
+        for (QDir dir: dirPaths) {
+            dir.setNameFilters(QStringList() << QStringLiteral("*.desktop"));
+            dir.setFilter(QDir::Files);
+            sessions += dir.entryList();
+        }
         // read session
-        const auto sessions = dir.entryList();
-        for(const QString &session : sessions) {
-            if (!dir.exists(session))
-                continue;
-
+        sessions.removeDuplicates();
+        for (auto& session : qAsConst(sessions)) {
             Session *si = new Session(type, session);
             bool execAllowed = true;
             QFileInfo fi(si->tryExec());
