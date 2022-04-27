@@ -345,12 +345,8 @@ namespace SDDM {
         return QString();
     }
 
-    bool Display::findSessionEntry(const QDir &dir, const QString &name) const {
-        // Given an absolute path: Check that it matches dir
+    bool Display::findSessionEntry(const QStringList &dirPaths, const QString &name) const {
         const QFileInfo fileInfo(name);
-        if (fileInfo.isAbsolute() && fileInfo.absolutePath() != dir.absolutePath())
-            return false;
-
         QString fileName = name;
 
         // append extension
@@ -358,7 +354,17 @@ namespace SDDM {
         if (!fileName.endsWith(extension))
             fileName += extension;
 
-        return dir.exists(fileName);
+        for (const auto &path: dirPaths) {
+            QDir dir = path;
+
+            // Given an absolute path: Check that it matches dir
+            if (fileInfo.isAbsolute() && fileInfo.absolutePath() != dir.absolutePath())
+                continue;
+
+            if (dir.exists(fileName))
+                return true;
+        }
+        return false;
     }
 
     void Display::startAuth(const QString &user, const QString &password, const Session &session) {

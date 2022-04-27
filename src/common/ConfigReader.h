@@ -51,8 +51,8 @@
         __VA_ARGS__ \
     }
 // entry wrapper
-#define Entry(name, type, default, description) \
-    SDDM::ConfigEntry<type> name { this, QStringLiteral(#name), (default), (description) }
+#define Entry(name, type, default, description, ...) \
+    SDDM::ConfigEntry<type> name { this, QStringLiteral(#name), default, description, __VA_ARGS__ }
 // section wrapper
 #define Section(name, ...) \
     class name : public SDDM::ConfigSection { \
