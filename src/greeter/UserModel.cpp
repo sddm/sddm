@@ -72,9 +72,24 @@ namespace SDDM {
         const QString iconURI = QStringLiteral("file://%1").arg(
                 QFile::exists(themeDefaultFace) ? themeDefaultFace : defaultFace);
 
-        bool lastUserFound = false;
-
         struct passwd *current_pw;
+
+        for (auto forced_user : mainConfig.Users.ForceUsers.get()) {
+            bool is_uid = false;
+            int uid = forced_user.toInt(&is_uid);
+            if (is_uid)
+                current_pw = getpwuid(uid);
+            else
+                current_pw = getpwnam(forced_user.toLocal8Bit().data());
+
+            if (current_pw == nullptr)
+                continue;
+
+            UserPtr user { new User(current_pw, iconURI) };
+            d->users << user;
+        }
+
+        bool lastUserFound = false;
         setpwent();
         while ((current_pw = getpwent()) != nullptr) {
 

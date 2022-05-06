@@ -209,6 +209,11 @@ OPTIONS
 	user interface.
 	Default value is @UID_MAX@
 
+`ForceUsers=`
+	Comma-separated list of Users or user IDs that should show up in the user
+	list even if they are not local users.
+	Default value is empty.
+
 `HideUsers=`
 	Comma-separated list of Users that shouldn't show up in the user list.
 	Default value is empty.
