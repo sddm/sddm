@@ -4,6 +4,7 @@ auth        required    pam_tally2.so file=/var/log/tallylog onerr=succeed
 auth        required    pam_shells.so
 auth        required    pam_nologin.so
 auth        required    pam_permit.so
+auth        optional    pam_sddm.so
 -auth       optional    pam_gnome_keyring.so
 -auth       optional    pam_kwallet5.so
 account     include     system-local-login

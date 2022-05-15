@@ -4,6 +4,10 @@
 auth    requisite       pam_nologin.so
 auth    required        pam_permit.so
 
+auth    optional        pam_sddm.so
+-auth   optional        pam_gnome_keyring.so
+-auth   optional        pam_kwallet5.so
+
 @include common-account
 
 # SELinux needs to be the first session rule.  This ensures that any
