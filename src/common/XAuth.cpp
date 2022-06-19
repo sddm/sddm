@@ -18,15 +18,20 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
+#include <limits.h>
 #include <QDebug>
 #include <QDir>
+#include <QString>
 #include <QUuid>
+#include <random>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <X11/Xauth.h>
 
 #include "Configuration.h"
 #include "Constants.h"
 #include "XAuth.h"
-
-#include <random>
 
 namespace SDDM {
 
@@ -55,7 +60,7 @@ QString XAuth::authPath() const
     return m_authPath;
 }
 
-QString XAuth::cookie() const
+QByteArray XAuth::cookie() const
 {
     return m_cookie;
 }
@@ -77,15 +82,14 @@ void XAuth::setup()
     // Generate cookie
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 15);
+    std::uniform_int_distribution<> dis(0, 0xFF);
 
-    // Reseve 32 bytes
-    m_cookie.reserve(32);
+    QByteArray m_cookie;
+    m_cookie.reserve(16);
 
     // Create a random hexadecimal number
-    const char *digits = "0123456789abcdef";
-    for (int i = 0; i < 32; ++i)
-        m_cookie[i] = QLatin1Char(digits[dis(gen)]);
+    for(int i = 0; i < 16; i++)
+        m_cookie[i] = dis(gen);
 }
 
 bool XAuth::addCookie(const QString &display)
@@ -99,29 +103,61 @@ bool XAuth::addCookie(const QString &display)
 }
 
 bool XAuth::addCookieToFile(const QString &display, const QString &fileName,
-                            const QString &cookie)
+                            const QByteArray &m_cookie)
 {
+
     qDebug() << "Adding cookie to" << fileName;
 
-    // Touch file
-    QFile file_handler(fileName);
-    file_handler.open(QIODevice::Append);
-    file_handler.close();
-
-    QString cmd = QStringLiteral("%1 -f %2 -q").arg(mainConfig.X11.XauthPath.get()).arg(fileName);
-
-    // Execute xauth
-    FILE *fp = ::popen(qPrintable(cmd), "w");
-
-    // Check file
-    if (!fp)
+    if(display.size() < 2 || display[0] != QLatin1Char(':') || m_cookie.size() != 16)
         return false;
-    fprintf(fp, "remove %s\n", qPrintable(display));
-    fprintf(fp, "add %s . %s\n", qPrintable(display), qPrintable(cookie));
-    fprintf(fp, "exit\n");
 
-    // Close pipe
-    return pclose(fp) == 0;
+    // The file needs 0600 permissions
+    int oldumask = umask(077);
+
+    // Truncate the file. We don't support merging like the xauth tool does.
+    FILE * const authFp = fopen(qPrintable(fileName), "wb");
+    umask(oldumask);
+    if (authFp == nullptr)
+        return false;
+
+    char localhost[HOST_NAME_MAX + 1] = "";
+    if (gethostname(localhost, HOST_NAME_MAX) < 0)
+        strcpy(localhost, "localhost");
+
+    ::Xauth auth = {};
+    char cookieName[] = "MIT-MAGIC-COOKIE-1";
+
+    // Skip the ':'
+    QByteArray displayNumberUtf8 = display.midRef(1).toUtf8();
+
+    auth.family = FamilyLocal;
+    auth.address = localhost;
+    auth.address_length = strlen(auth.address);
+    auth.number = displayNumberUtf8.data();
+    auth.number_length = displayNumberUtf8.size();
+    auth.name = cookieName;
+    auth.name_length = sizeof(cookieName) - 1;
+    auth.data = strdup(m_cookie.data());
+    auth.data_length = m_cookie.size();
+
+    if (XauWriteAuth(authFp, &auth) == 0) {
+        fclose(authFp);
+        return false;
+    }
+
+    // Write the same entry again, just with FamilyWild
+    auth.family = FamilyWild;
+    auth.address_length = 0;
+    if (XauWriteAuth(authFp, &auth) == 0) {
+        fclose(authFp);
+        return false;
+    }
+
+    bool success = fflush(authFp) != EOF;
+
+    fclose(authFp);
+
+    return success;
 }
 
 } // namespace SDDM

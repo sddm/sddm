@@ -249,7 +249,7 @@ namespace SDDM {
         str >> m >> env >> m_cookie;
         if (m != AUTHENTICATED) {
             env = QProcessEnvironment();
-            m_cookie = QString();
+            m_cookie = {};
             qCritical() << "Received a wrong opcode instead of AUTHENTICATED:" << m;
         }
         return env;
@@ -288,7 +288,7 @@ namespace SDDM {
         return m_user;
     }
 
-    const QString& HelperApp::cookie() const {
+    const QByteArray& HelperApp::cookie() const {
         return m_cookie;
     }
 
