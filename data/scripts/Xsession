@@ -60,6 +60,7 @@ OPTIONFILE=/etc/X11/Xsession.options
 USERXSESSION=$HOME/.xsession
 USERXSESSIONRC=$HOME/.xsessionrc
 ALTUSERXSESSION=$HOME/.Xsession
+ENVIRONMENT_DIR=$HOME/.config/environment.d
 
 if [ -d "$xsessionddir" ]; then
     for i in `ls $xsessionddir`; do
@@ -85,6 +86,16 @@ if [ -f "$USERXSESSIONRC" ]; then
 fi
 if [ -f "$USERXSESSION" ]; then
   . "$USERXSESSION"
+fi
+
+if [ -d "$ENVIRONMENT_DIR" ]; then
+  for i in `ls $ENVIRONMENT_DIR`; do
+    script="$ENVIRONMENT_DIR/$i"
+    echo "Loading environment variables $script"
+    if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\{1,\}$' > /dev/null; then
+      . "$script"
+    fi
+  done
 fi
 
 if [ -z "$*" ]; then
