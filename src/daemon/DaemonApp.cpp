@@ -34,6 +34,7 @@
 #include <QTimer>
 
 #include <iostream>
+#include <locale1_interface.h>
 
 namespace SDDM {
     DaemonApp *DaemonApp::self = nullptr;
@@ -118,6 +119,12 @@ namespace SDDM {
 
     int DaemonApp::newSessionId() {
         return m_lastSessionId++;
+    }
+
+    void DaemonApp::setKeyboardLayout(const QString &layout) {
+        OrgFreedesktopLocale1Interface locale1(QStringLiteral("org.freedesktop.locale1"), QStringLiteral("/org/freedesktop/locale1"),
+                                                   QDBusConnection::systemBus());
+        locale1.SetX11Keyboard(layout, {}, {}, {}, false, false);
     }
 }
 
