@@ -25,6 +25,7 @@
 #include <QGuiApplication>
 #include <QInputMethod>
 
+#include "GreeterProxy.h"
 #include "KeyboardModel.h"
 #include "KeyboardModel_p.h"
 #include "KeyboardLayout.h"
@@ -41,7 +42,6 @@ WaylandKeyboardBackend::WaylandKeyboardBackend(KeyboardModelPrivate *kmp)
 WaylandKeyboardBackend::~WaylandKeyboardBackend()
 {
 }
-
 
 QList<QObject *> parseRules(const QString &filename, int &current)
 {
@@ -99,6 +99,13 @@ void WaylandKeyboardBackend::disconnect()
 
 void WaylandKeyboardBackend::sendChanges()
 {
+    if (!d->m_proxy || !m_model) {
+        qWarning() << "KeyboardModel's proxy is not set";
+        return;
+    }
+
+    auto nextLayout = static_cast<KeyboardLayout *>(d->layouts[m_model->currentLayout()])->shortName();
+    d->m_proxy->sendKeyboardLayout(nextLayout);
 }
 
 void WaylandKeyboardBackend::dispatchEvents()
@@ -107,7 +114,7 @@ void WaylandKeyboardBackend::dispatchEvents()
 
 void WaylandKeyboardBackend::connectEventsDispatcher(KeyboardModel *model)
 {
-    Q_UNUSED(model);
+    m_model = model;
 }
 
 } // namespace SDDM

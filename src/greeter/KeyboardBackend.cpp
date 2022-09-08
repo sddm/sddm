@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2022 Aleix Pol Gonzalez <aleixpol@kde.org>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -17,42 +17,15 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_MESSAGES_H
-#define SDDM_MESSAGES_H
+#include "KeyboardBackend.h"
+#include "KeyboardModel_p.h"
 
-#include <QFlags>
+namespace SDDM
+{
 
-namespace SDDM {
-    enum class GreeterMessages {
-        Connect = 0,
-        Login,
-        PowerOff,
-        Reboot,
-        Suspend,
-        Hibernate,
-        HybridSleep,
-        KeyboardLayout,
-    };
-
-    enum class DaemonMessages {
-        HostName,
-        Capabilities,
-        LoginSucceeded,
-        LoginFailed,
-        InformationMessage,
-    };
-
-    enum Capability {
-        None = 0x0000,
-        PowerOff = 0x0001,
-        Reboot = 0x0002,
-        Suspend = 0x0004,
-        Hibernate = 0x0008,
-        HybridSleep = 0x0010
-    };
-
-    Q_DECLARE_FLAGS(Capabilities, Capability)
-    Q_DECLARE_OPERATORS_FOR_FLAGS(Capabilities)
+void KeyboardBackend::setProxy(GreeterProxy* proxy)
+{
+    d->m_proxy = proxy;
 }
 
-#endif // SDDM_MESSAGES_H
+}

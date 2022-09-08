@@ -1,0 +1,74 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+ <interface name="org.freedesktop.DBus.Peer">
+  <method name="Ping"/>
+  <method name="GetMachineId">
+   <arg type="s" name="machine_uuid" direction="out"/>
+  </method>
+ </interface>
+ <interface name="org.freedesktop.DBus.Introspectable">
+  <method name="Introspect">
+   <arg name="xml_data" type="s" direction="out"/>
+  </method>
+ </interface>
+ <interface name="org.freedesktop.DBus.Properties">
+  <method name="Get">
+   <arg name="interface_name" direction="in" type="s"/>
+   <arg name="property_name" direction="in" type="s"/>
+   <arg name="value" direction="out" type="v"/>
+  </method>
+  <method name="GetAll">
+   <arg name="interface_name" direction="in" type="s"/>
+   <arg name="props" direction="out" type="a{sv}"/>
+   <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap" />
+  </method>
+  <method name="Set">
+   <arg name="interface_name" direction="in" type="s"/>
+   <arg name="property_name" direction="in" type="s"/>
+   <arg name="value" direction="in" type="v"/>
+  </method>
+  <signal name="PropertiesChanged">
+   <arg type="s" name="interface_name"/>
+   <arg type="a{sv}" name="changed_properties"/>
+   <annotation name="org.qtproject.QtDBus.QtTypeName.Out1" value="QVariantMap" />
+   <arg type="as" name="invalidated_properties"/>
+  </signal>
+ </interface>
+
+
+ <interface name="org.freedesktop.locale1">
+  <property name="Locale" type="as" access="read">
+  </property>
+  <property name="X11Layout" type="s" access="read">
+  </property>
+  <property name="X11Model" type="s" access="read">
+  </property>
+  <property name="X11Variant" type="s" access="read">
+  </property>
+  <property name="X11Options" type="s" access="read">
+  </property>
+  <property name="VConsoleKeymap" type="s" access="read">
+  </property>
+  <property name="VConsoleKeymapToggle" type="s" access="read">
+  </property>
+  <method name="SetLocale">
+   <arg type="as" name="locale" direction="in"/>
+   <arg type="b" name="interactive" direction="in"/>
+  </method>
+  <method name="SetVConsoleKeyboard">
+   <arg type="s" name="keymap" direction="in"/>
+   <arg type="s" name="keymap_toggle" direction="in"/>
+   <arg type="b" name="convert" direction="in"/>
+   <arg type="b" name="interactive" direction="in"/>
+  </method>
+  <method name="SetX11Keyboard">
+   <arg type="s" name="layout" direction="in"/>
+   <arg type="s" name="model" direction="in"/>
+   <arg type="s" name="variant" direction="in"/>
+   <arg type="s" name="options" direction="in"/>
+   <arg type="b" name="convert" direction="in"/>
+   <arg type="b" name="interactive" direction="in"/>
+  </method>
+ </interface>
+</node>
