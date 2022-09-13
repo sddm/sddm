@@ -35,7 +35,7 @@ jobs:
       - name: Dependencies
         run: |
           set -x
-          zypper --non-interactive install python3-docutils
+          zypper --non-interactive install python38-docutils
       - name: Build
         run: |
           set -x
