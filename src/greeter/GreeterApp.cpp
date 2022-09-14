@@ -304,9 +304,7 @@ namespace SDDM {
 
 int main(int argc, char **argv)
 {
-    // Install message handler
-    qInstallMessageHandler(SDDM::GreeterMessageHandler);
-
+    bool testMode = false;
     // We set an attribute based on the platform we run on.
     // We only know the platform after we constructed QGuiApplication
     // though, so we need to find it out ourselves.
@@ -315,6 +313,7 @@ int main(int argc, char **argv)
         if(qstrcmp(argv[i], "-platform") == 0) {
             platform = QString::fromUtf8(argv[i + 1]);
         }
+        testMode |= qstrcmp(argv[i], "--test-mode") == 0;
     }
     if (platform.isEmpty()) {
         platform = QString::fromUtf8(qgetenv("QT_QPA_PLATFORM"));
@@ -322,6 +321,10 @@ int main(int argc, char **argv)
     if (platform.isEmpty()) {
         platform = QStringLiteral("xcb");
     }
+
+    // Install message handler
+    if (!testMode)
+        qInstallMessageHandler(SDDM::GreeterMessageHandler);
 
     // HiDPI
     bool hiDpiEnabled = false;
