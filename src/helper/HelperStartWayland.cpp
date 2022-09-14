@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <QCoreApplication>
 #include <QTextStream>
+#include <QDebug>
 #include "waylandhelper.h"
 #include "MessageHandler.h"
 #include <signal.h>
@@ -61,7 +62,10 @@ int main(int argc, char** argv)
         app.exit(2);
     });
 
-    helper.startCompositor(app.arguments()[1]);
+    if (!helper.startCompositor(app.arguments()[1])) {
+        qWarning() << "SDDM was unable to start" << app.arguments()[1];
+        return 3;
+    }
     helper.startGreeter(app.arguments()[2]);
     return app.exec();
 }
