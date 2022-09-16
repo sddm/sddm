@@ -50,6 +50,9 @@ int main(int argc, char** argv)
 
     using namespace SDDM;
     WaylandHelper helper;
+    QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
+        QCoreApplication::exit(0);
+    });
     QObject::connect(&app, &QCoreApplication::aboutToQuit, &helper, [&helper] {
         qDebug("quitting helper-start-wayland");
         helper.stop();
