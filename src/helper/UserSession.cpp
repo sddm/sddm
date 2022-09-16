@@ -116,8 +116,9 @@ namespace SDDM {
                     qWarning() << "Could not fully finish the process" << program();
                 }
             }
+        } else {
+            Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
         }
-        Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
     }
 
     QString UserSession::displayServerCommand() const
