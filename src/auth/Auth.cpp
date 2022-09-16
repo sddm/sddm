@@ -383,6 +383,10 @@ namespace SDDM {
     }
 
     void Auth::stop() {
+        if (d->child->state() == QProcess::NotRunning) {
+            return;
+        }
+
         d->child->terminate();
 
         // wait for finished
