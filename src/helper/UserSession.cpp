@@ -64,21 +64,26 @@ namespace SDDM {
             qInfo() << "Starting X11 session:" << m_displayServerCmd << command;
             if (m_displayServerCmd.isEmpty()) {
                 auto args = QProcess::splitCommand(command);
-                const auto program = args.takeFirst();
-                QProcess::start(program, args);
+                setProgram(args.takeFirst());
+                setArguments(args);
             } else {
-                QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-x11user"), {m_displayServerCmd, command});
+                setProgram(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-x11user"));
+                setArguments({m_displayServerCmd, command});
             }
+            QProcess::start();
 
         } else if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("wayland")) {
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
                 Q_ASSERT(!m_displayServerCmd.isEmpty());
-                QProcess::start(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-wayland"), {m_displayServerCmd, m_path});
+                setProgram(QStringLiteral(LIBEXEC_INSTALL_DIR "/sddm-helper-start-wayland"));
+                setArguments({m_displayServerCmd, m_path});
+                QProcess::start();
                 isWaylandGreeter = true;
             } else {
-                const QString cmd = QStringLiteral("%1 %2").arg(mainConfig.Wayland.SessionCommand.get()).arg(m_path);
-                qInfo() << "Starting Wayland user session:" << cmd;
-                QProcess::start(mainConfig.Wayland.SessionCommand.get(), QStringList{m_path});
+                setProgram(mainConfig.Wayland.SessionCommand.get());
+                setArguments(QStringList{m_path});
+                qInfo() << "Starting Wayland user session:" << program() << m_path;
+                QProcess::start();
                 closeWriteChannel();
                 closeReadChannel(QProcess::StandardOutput);
             }
