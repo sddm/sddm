@@ -323,14 +323,14 @@ namespace SDDM {
     void Greeter::onReadyReadStandardError()
     {
         if (m_process) {
-            qDebug() << "Greeter errors:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardError()));
+            qDebug() << "Greeter errors:" << m_process->readAllStandardError().constData();
         }
     }
 
     void Greeter::onReadyReadStandardOutput()
     {
         if (m_process) {
-            qDebug() << "Greeter output:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardOutput()));
+            qDebug() << "Greeter output:" << m_process->readAllStandardOutput().constData();
         }
     }
 
