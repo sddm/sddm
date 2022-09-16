@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     using namespace SDDM;
     XOrgUserHelper helper;
     QObject::connect(&app, &QCoreApplication::aboutToQuit, &helper, [&helper] {
-        qDebug("quitting helper-start-wayland");
+        qDebug("quitting helper-start-x11");
         helper.stop();
     });
     QObject::connect(&helper, &XOrgUserHelper::displayChanged, &app, [&helper, &app] {
