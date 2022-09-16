@@ -40,6 +40,10 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <linux/vt.h>
+
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusReply>
@@ -51,6 +55,35 @@
 
 
 namespace SDDM {
+    bool isTtyInUse(const QString &desiredTty) {
+        if (Logind::isAvailable()) {
+            OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+            auto reply = manager.ListSessions();
+            reply.waitForFinished();
+
+            const auto info = reply.value();
+            for(const SessionInfo &s : info) {
+                OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
+                if (desiredTty == session.tTY() && session.state() != QLatin1String("closing")) {
+                    qDebug() << "tty" << desiredTty << "already in use by" << session.user().path << session.state()
+                                      << session.display() << session.desktop() << session.vTNr();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    int fetchAvailableVt() {
+        const auto vt = VirtualTerminal::currentVt();
+        if (vt > 0) {
+            if (!isTtyInUse(QStringLiteral("tty%1").arg(vt))) {
+                return vt;
+            }
+        }
+        return VirtualTerminal::setUpNewVt();
+    }
+
     Display::Display(Seat *parent) : QObject(parent),
         m_auth(new Auth(this)),
         m_seat(parent),
@@ -62,10 +95,10 @@ namespace SDDM {
         const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
         if (displayServerType == QStringLiteral("x11-user")) {
             m_displayServerType = X11UserDisplayServerType;
-            m_terminalId = VirtualTerminal::fetchAvailableVt();
+            m_terminalId = fetchAvailableVt();
         } else if (displayServerType == QStringLiteral("wayland")) {
             m_displayServerType = WaylandDisplayServerType;
-            m_terminalId = VirtualTerminal::fetchAvailableVt();
+            m_terminalId = fetchAvailableVt();
         } else {
             if (displayServerType != QLatin1String("x11")) {
                 qWarning("\"%s\" is an invalid value for General.DisplayServer: fall back to \"x11\"",

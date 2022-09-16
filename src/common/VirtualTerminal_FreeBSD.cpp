@@ -35,10 +35,9 @@ namespace SDDM {
         static char ttyvX[] = "/dev/ttyvX";
         static const char ttyvs[] = "0123456789ab";
 
-        int setUpNewVt() {
-            // there is no way to create VTs on FreeBSD, so
-            // just try to fetch any available
-            return fetchAvailableVt();
+        int currentVt()
+        {
+            return -1;
         }
 
         void jumpToVt(int vt, bool vt_auto) {
@@ -64,7 +63,7 @@ namespace SDDM {
             }
         }
 
-        int fetchAvailableVt() {
+        int setUpNewVt() {
             int fd = ::open("/dev/console", O_RDONLY);
             if(fd == -1) {
                 qWarning() << "Failed to open /dev/console: " << strerror(errno);
