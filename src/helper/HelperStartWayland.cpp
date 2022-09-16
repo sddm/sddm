@@ -39,11 +39,8 @@ void WaylandHelperMessageHandler(QtMsgType type, const QMessageLogContext &conte
 int main(int argc, char** argv)
 {
     qInstallMessageHandler(WaylandHelperMessageHandler);
-    SDDM::SignalHandler s;
     QCoreApplication app(argc, argv);
-    QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
-        QCoreApplication::instance()->exit(-1);
-    });
+    SDDM::SignalHandler s;
 
     Q_ASSERT(::getuid() != 0);
     if (argc != 3) {
