@@ -86,8 +86,10 @@ void XOrgUserHelper::stop()
     if (m_serverProcess) {
         qInfo("Stopping server...");
         m_serverProcess->terminate();
-        if (!m_serverProcess->waitForFinished(5000))
+        if (!m_serverProcess->waitForFinished(5000)) {
             m_serverProcess->kill();
+            m_serverProcess->waitForFinished(25000);
+        }
         m_serverProcess->deleteLater();
         m_serverProcess = nullptr;
 

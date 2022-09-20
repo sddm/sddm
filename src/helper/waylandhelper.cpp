@@ -57,11 +57,13 @@ bool WaylandHelper::startCompositor(const QString &cmd)
 
 void stopProcess(QProcess *process)
 {
-    if (process) {
+    if (process && process->state() != QProcess::NotRunning) {
         qInfo() << "Stopping..." << process->program();
         process->terminate();
-        if (!process->waitForFinished(5000))
+        if (!process->waitForFinished(5000)) {
             process->kill();
+            process->waitForFinished(25000);
+        }
         process->deleteLater();
         process = nullptr;
     }
@@ -124,7 +126,11 @@ void WaylandHelper::startGreeter(const QString &cmd)
     connect(m_greeterProcess, &QProcess::readyReadStandardOutput, this, [this] {
         qInfo() << m_greeterProcess->readAllStandardOutput();
     });
-
+    connect(m_greeterProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            m_greeterProcess, [](int exitCode, QProcess::ExitStatus exitStatus) {
+        qDebug() << "wayland greeter finished" << exitCode << exitStatus;
+        QCoreApplication::instance()->quit();
+    });
     if (m_watcher->status() == WaylandSocketWatcher::Started) {
         m_greeterProcess->start();
     } else if (m_watcher->status() == WaylandSocketWatcher::Failed) {
