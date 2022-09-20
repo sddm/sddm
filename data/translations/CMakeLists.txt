@@ -17,6 +17,7 @@ set(TRANSLATION_FILES
     is.ts
     it.ts
     ja.ts
+    ka.ts
     kk.ts
     ko.ts
     lt.ts

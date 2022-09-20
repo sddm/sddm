@@ -22,20 +22,19 @@ jobs:
           - gcc
           - clang
         container:
-          #- suse-qt512
-          - suse-qt515
+          - ci-suse-qt515
         pam:
           - ON
           - OFF
     runs-on: ubuntu-latest
     container:
-      image: liridev/${{ matrix.container }}
+      image: kdeorg/${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
       - name: Dependencies
         run: |
           set -x
-          zypper --non-interactive install python3-docutils
+          zypper --non-interactive install python3-docutils extra-cmake-modules sudo
       - name: Build
         run: |
           set -x
