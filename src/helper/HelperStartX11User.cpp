@@ -40,8 +40,8 @@ void X11UserHelperMessageHandler(QtMsgType type, const QMessageLogContext &conte
 int main(int argc, char** argv)
 {
     qInstallMessageHandler(X11UserHelperMessageHandler);
-    SDDM::SignalHandler s;
     QCoreApplication app(argc, argv);
+    SDDM::SignalHandler s;
     QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
         QCoreApplication::instance()->exit(-1);
     });
