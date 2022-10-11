@@ -42,7 +42,6 @@
 
 #include <sys/ioctl.h>
 #include <fcntl.h>
-#include <linux/vt.h>
 
 #include <QDBusConnection>
 #include <QDBusMessage>
