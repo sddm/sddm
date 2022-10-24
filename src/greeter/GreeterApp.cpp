@@ -349,6 +349,8 @@ int main(int argc, char **argv)
     // crash handler which we don't want counterintuitively setting this env
     // disables that handler
     qputenv("KDE_DEBUG", "1");
+    // Qt internally may load the xdg portal system early on, prevent this, we do not have a functional session running.
+    qputenv("QT_NO_XDG_DESKTOP_PORTAL", "1");
 
     // Qt IM module
     if (!SDDM::mainConfig.InputMethod.get().isEmpty())
