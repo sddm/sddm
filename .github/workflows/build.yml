@@ -21,20 +21,21 @@ jobs:
         compiler:
           - gcc
           - clang
-        container:
-          - ci-suse-qt515
         pam:
           - ON
           - OFF
     runs-on: ubuntu-latest
     container:
-      image: kdeorg/${{ matrix.container }}
+      image: ubuntu:22.10
     steps:
       - uses: actions/checkout@v3
       - name: Dependencies
         run: |
           set -x
-          zypper --non-interactive install python3-docutils extra-cmake-modules sudo
+          sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
+          apt update
+          DEBIAN_FRONTEND=noninteractive apt build-dep sddm -y
+          DEBIAN_FRONTEND=noninteractive apt install clang clazy sudo -y
       - name: Build
         run: |
           set -x
@@ -47,7 +48,6 @@ jobs:
           fi
           cmake .. \
             -DBUILD_MAN_PAGES:BOOL=ON \
-            -DENABLE_PAM:BOOL=${{ matrix.pam }} \
-            -DLOGIN_DEFS_PATH:path="/usr/etc/login.defs"
+            -DENABLE_PAM:BOOL=${{ matrix.pam }}
           make -j $(getconf _NPROCESSORS_ONLN)
           sudo make install
