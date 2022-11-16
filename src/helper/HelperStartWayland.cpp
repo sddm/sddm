@@ -30,6 +30,7 @@
 #include "waylandhelper.h"
 #include "MessageHandler.h"
 #include <signal.h>
+#include "Auth.h"
 #include "SignalHandler.h"
 
 void WaylandHelperMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
@@ -40,15 +41,15 @@ int main(int argc, char** argv)
 {
     qInstallMessageHandler(WaylandHelperMessageHandler);
     QCoreApplication app(argc, argv);
+    using namespace SDDM;
     SDDM::SignalHandler s;
 
     Q_ASSERT(::getuid() != 0);
     if (argc != 3) {
         QTextStream(stderr) << "Wrong number of arguments\n";
-        return 1;
+        return Auth::HELPER_OTHER_ERROR;
     }
 
-    using namespace SDDM;
     WaylandHelper helper;
     QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
         QCoreApplication::exit(0);
@@ -59,12 +60,12 @@ int main(int argc, char** argv)
     });
     QObject::connect(&helper, &WaylandHelper::failed, &app, [&app] {
         QTextStream(stderr) << "Failed to start wayland session" << Qt::endl;
-        app.exit(2);
+        app.exit(Auth::HELPER_SESSION_ERROR);
     });
 
     if (!helper.startCompositor(app.arguments()[1])) {
         qWarning() << "SDDM was unable to start" << app.arguments()[1];
-        return 3;
+        return Auth::HELPER_DISPLAYSERVER_ERROR;
     }
     helper.startGreeter(app.arguments()[2]);
     return app.exec();

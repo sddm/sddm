@@ -30,6 +30,8 @@
 
 #include <stdio.h>
 
+#undef HAVE_JOURNALD
+
 #ifdef HAVE_JOURNALD
 #include <systemd/sd-journal.h>
 #include <unistd.h>
