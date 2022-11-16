@@ -54,12 +54,7 @@ namespace SDDM {
 
         bool isWaylandGreeter = false;
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
-            QString command;
-            if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
-                command = m_path;
-            } else {
-                command = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
-            }
+            const QString command = QStringLiteral("%1 \"%2\"").arg(mainConfig.X11.SessionCommand.get()).arg(m_path);
 
             qInfo() << "Starting X11 session:" << m_displayServerCmd << command;
             if (m_displayServerCmd.isEmpty()) {
