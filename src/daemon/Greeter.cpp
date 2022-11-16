@@ -310,6 +310,10 @@ namespace SDDM {
         m_auth->deleteLater();
         m_auth = nullptr;
 
+        if (status == Auth::HELPER_DISPLAYSERVER_ERROR) {
+            Q_EMIT displayServerFailed();
+        }
+
         if (status == Auth::HELPER_SESSION_ERROR) {
             Q_EMIT failed();
         }

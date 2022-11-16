@@ -83,40 +83,45 @@ namespace SDDM {
         return VirtualTerminal::setUpNewVt();
     }
 
-    Display::Display(Seat *parent) : QObject(parent),
-        m_auth(new Auth(this)),
-        m_seat(parent),
-        m_socketServer(new SocketServer(this)),
-        m_greeter(new Greeter(this)) {
-
-
-        // Save display server type
+    Display::DisplayServerType Display::defaultDisplayServerType()
+    {
         const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
+        DisplayServerType ret;
         if (displayServerType == QStringLiteral("x11-user")) {
-            m_displayServerType = X11UserDisplayServerType;
-            m_terminalId = fetchAvailableVt();
+            ret = X11UserDisplayServerType;
         } else if (displayServerType == QStringLiteral("wayland")) {
-            m_displayServerType = WaylandDisplayServerType;
-            m_terminalId = fetchAvailableVt();
+            ret = WaylandDisplayServerType;
         } else {
             if (displayServerType != QLatin1String("x11")) {
                 qWarning("\"%s\" is an invalid value for General.DisplayServer: fall back to \"x11\"",
-                     qPrintable(displayServerType));
+                    qPrintable(displayServerType));
             }
-            m_terminalId = VirtualTerminal::setUpNewVt();
-            m_displayServerType = X11DisplayServerType;
+            ret = X11DisplayServerType;
         }
+        return ret;
+    }
 
+    Display::Display(Seat *parent, DisplayServerType serverType)
+        : QObject(parent),
+        m_displayServerType(serverType),
+        m_auth(new Auth(this)),
+        m_seat(parent),
+        m_socketServer(new SocketServer(this)),
+        m_greeter(new Greeter(this))
+    {
         // Create display server
         switch (m_displayServerType) {
         case X11DisplayServerType:
+            m_terminalId = VirtualTerminal::setUpNewVt();
             m_displayServer = new XorgDisplayServer(this);
             break;
         case X11UserDisplayServerType:
+            m_terminalId = fetchAvailableVt();
             m_displayServer = new XorgUserDisplayServer(this);
             m_greeter->setDisplayServerCommand(XorgUserDisplayServer::command(this));
             break;
         case WaylandDisplayServerType:
+            m_terminalId = fetchAvailableVt();
             m_displayServer = new WaylandDisplayServer(this);
             m_greeter->setDisplayServerCommand(mainConfig.Wayland.CompositorCommand.get());
             break;
@@ -148,6 +153,7 @@ namespace SDDM {
                 QCoreApplication::instance(), [] {
                     QCoreApplication::instance()->exit(23);
                 });
+        connect(m_greeter, &Greeter::displayServerFailed, this, &Display::displayServerFailed);
     }
 
     Display::~Display() {
