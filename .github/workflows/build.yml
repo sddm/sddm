@@ -24,18 +24,16 @@ jobs:
         pam:
           - ON
           - OFF
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:22.10
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Dependencies
         run: |
           set -x
-          sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
-          apt update
-          DEBIAN_FRONTEND=noninteractive apt build-dep sddm -y
-          DEBIAN_FRONTEND=noninteractive apt install clang clazy sudo -y
+          sudo sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
+          sudo apt-get update -y
+          DEBIAN_FRONTEND=noninteractive sudo apt-get build-dep sddm -y
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install clang clazy sudo -y
       - name: Build
         run: |
           set -x
