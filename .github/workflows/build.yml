@@ -31,9 +31,9 @@ jobs:
         run: |
           set -x
           sudo sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
-          apt update
-          DEBIAN_FRONTEND=noninteractive apt build-dep sddm -y
-          DEBIAN_FRONTEND=noninteractive apt install clang clazy sudo -y
+          sudo apt-get update -y
+          DEBIAN_FRONTEND=noninteractive sudo apt-get build-dep sddm -y
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install clang clazy sudo -y
       - name: Build
         run: |
           set -x
