@@ -30,7 +30,7 @@ jobs:
       - name: Dependencies
         run: |
           set -x
-          sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
+          sudo sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
           apt update
           DEBIAN_FRONTEND=noninteractive apt build-dep sddm -y
           DEBIAN_FRONTEND=noninteractive apt install clang clazy sudo -y
