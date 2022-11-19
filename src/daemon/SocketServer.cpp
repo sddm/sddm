@@ -109,83 +109,98 @@ namespace SDDM {
         // input stream
         QDataStream input(socket);
 
-        // read message
-        quint32 message;
-        input >> message;
+        // Qt's QLocalSocket::readyRead is not designed to be called at every socket.write(), 
+        // so we need to use a loop to read all the signals.
+        while(socket->bytesAvailable()) {
+            // read message
+            quint32 message;
+            input >> message;
 
-        switch (GreeterMessages(message)) {
-            case GreeterMessages::Connect: {
-                // log message
-                qDebug() << "Message received from greeter: Connect";
+            switch (GreeterMessages(message)) {
+                case GreeterMessages::Connect: {
+                    // log message
+                    qDebug() << "Message received from greeter: Connect";
 
-                // send capabilities
-                SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(daemonApp->powerManager()->capabilities());
+                    // send capabilities
+                    SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(daemonApp->powerManager()->capabilities());
 
-                // send host name
-                SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
+                    // send host name
+                    SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
 
-                // emit signal
-                emit connected();
-            }
-            break;
-            case GreeterMessages::Login: {
-                // log message
-                qDebug() << "Message received from greeter: Login";
+                    // emit signal
+                    emit connected();
+                }
+                break;
+                case GreeterMessages::Login: {
+                    // log message
+                    qDebug() << "Message received from greeter: Login";
 
-                // read username, pasword etc.
-                QString user, password, filename;
-                Session session;
-                input >> user >> password >> session;
+                    // read username, pasword etc.
+                    QString user, password, filename;
+                    Session session;
+                    input >> user >> password >> session;
 
-                // emit signal
-                emit login(socket, user, password, session);
-            }
-            break;
-            case GreeterMessages::PowerOff: {
-                // log message
-                qDebug() << "Message received from greeter: PowerOff";
+                    // emit signal
+                    emit login(socket, user, password, session);
+                }
+                break;
+                case GreeterMessages::PowerOff: {
+                    // log message
+                    qDebug() << "Message received from greeter: PowerOff";
 
-                // power off
-                daemonApp->powerManager()->powerOff();
-            }
-            break;
-            case GreeterMessages::Reboot: {
-                // log message
-                qDebug() << "Message received from greeter: Reboot";
+                    // power off
+                    daemonApp->powerManager()->powerOff();
+                }
+                break;
+                case GreeterMessages::Reboot: {
+                    // log message
+                    qDebug() << "Message received from greeter: Reboot";
 
-                // reboot
-                daemonApp->powerManager()->reboot();
-            }
-            break;
-            case GreeterMessages::Suspend: {
-                // log message
-                qDebug() << "Message received from greeter: Suspend";
+                    // reboot
+                    daemonApp->powerManager()->reboot();
+                }
+                break;
+                case GreeterMessages::Suspend: {
+                    // log message
+                    qDebug() << "Message received from greeter: Suspend";
 
-                // suspend
-                daemonApp->powerManager()->suspend();
-            }
-            break;
-            case GreeterMessages::Hibernate: {
-                // log message
-                qDebug() << "Message received from greeter: Hibernate";
+                    // suspend
+                    daemonApp->powerManager()->suspend();
+                }
+                break;
+                case GreeterMessages::Hibernate: {
+                    // log message
+                    qDebug() << "Message received from greeter: Hibernate";
 
-                // hibernate
-                daemonApp->powerManager()->hibernate();
-            }
-            break;
-            case GreeterMessages::HybridSleep: {
-                // log message
-                qDebug() << "Message received from greeter: HybridSleep";
+                    // hibernate
+                    daemonApp->powerManager()->hibernate();
+                }
+                break;
+                case GreeterMessages::HybridSleep: {
+                    // log message
+                    qDebug() << "Message received from greeter: HybridSleep";
 
-                // hybrid sleep
-                daemonApp->powerManager()->hybridSleep();
-            }
-            break;
-            default: {
-                // log message
-                qWarning() << "Unknown message" << message;
+                    // hybrid sleep
+                    daemonApp->powerManager()->hybridSleep();
+                }
+                break;
+                case GreeterMessages::KeyboardLayout: {
+                    qDebug() << "Message received from greeter: Keyboard Layout switch";
+
+                    // read username, pasword etc.
+                    QString layout;
+                    input >> layout;
+
+                    daemonApp->setKeyboardLayout(layout);
+                }
+                break;
+                default: {
+                    // log message
+                    qWarning() << "Unknown message" << message;
+                }
             }
         }
+
     }
 
     void SocketServer::loginFailed(QLocalSocket *socket) {

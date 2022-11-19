@@ -40,8 +40,8 @@ void X11UserHelperMessageHandler(QtMsgType type, const QMessageLogContext &conte
 int main(int argc, char** argv)
 {
     qInstallMessageHandler(X11UserHelperMessageHandler);
-    SDDM::SignalHandler s;
     QCoreApplication app(argc, argv);
+    SDDM::SignalHandler s;
     QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
         QCoreApplication::instance()->exit(-1);
     });
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
     using namespace SDDM;
     XOrgUserHelper helper;
     QObject::connect(&app, &QCoreApplication::aboutToQuit, &helper, [&helper] {
-        qDebug("quitting helper-start-wayland");
+        qDebug("quitting helper-start-x11");
         helper.stop();
     });
     QObject::connect(&helper, &XOrgUserHelper::displayChanged, &app, [&helper, &app] {

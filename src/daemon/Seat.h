@@ -22,6 +22,7 @@
 
 #include <QObject>
 #include <QVector>
+#include "Display.h"
 
 namespace SDDM {
     class Display;
@@ -33,9 +34,9 @@ namespace SDDM {
         explicit Seat(const QString &name, QObject *parent = 0);
 
         const QString &name() const;
+        void createDisplay(Display::DisplayServerType serverType);
 
     public slots:
-        void createDisplay();
         void removeDisplay(SDDM::Display* display);
 
     private slots:

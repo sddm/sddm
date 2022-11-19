@@ -245,6 +245,7 @@ namespace SDDM {
     {
         // Connect to the daemon
         m_proxy = new GreeterProxy(m_socket);
+        m_keyboard->setProxy(m_proxy);
         if (!m_testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
             QCoreApplication::exit(EXIT_FAILURE);
@@ -304,9 +305,7 @@ namespace SDDM {
 
 int main(int argc, char **argv)
 {
-    // Install message handler
-    qInstallMessageHandler(SDDM::GreeterMessageHandler);
-
+    bool testMode = false;
     // We set an attribute based on the platform we run on.
     // We only know the platform after we constructed QGuiApplication
     // though, so we need to find it out ourselves.
@@ -315,6 +314,7 @@ int main(int argc, char **argv)
         if(qstrcmp(argv[i], "-platform") == 0) {
             platform = QString::fromUtf8(argv[i + 1]);
         }
+        testMode |= qstrcmp(argv[i], "--test-mode") == 0;
     }
     if (platform.isEmpty()) {
         platform = QString::fromUtf8(qgetenv("QT_QPA_PLATFORM"));
@@ -322,6 +322,10 @@ int main(int argc, char **argv)
     if (platform.isEmpty()) {
         platform = QStringLiteral("xcb");
     }
+
+    // Install message handler
+    if (!testMode)
+        qInstallMessageHandler(SDDM::GreeterMessageHandler);
 
     // HiDPI
     bool hiDpiEnabled = false;
@@ -346,6 +350,8 @@ int main(int argc, char **argv)
     // crash handler which we don't want counterintuitively setting this env
     // disables that handler
     qputenv("KDE_DEBUG", "1");
+    // Qt internally may load the xdg portal system early on, prevent this, we do not have a functional session running.
+    qputenv("QT_NO_XDG_DESKTOP_PORTAL", "1");
 
     // Qt IM module
     if (!SDDM::mainConfig.InputMethod.get().isEmpty())

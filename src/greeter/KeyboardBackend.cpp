@@ -1,5 +1,5 @@
 /***************************************************************************
-* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2022 Aleix Pol Gonzalez <aleixpol@kde.org>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#ifndef SDDM_VIRTUALTERMINAL_H
-#define SDDM_VIRTUALTERMINAL_H
+#include "KeyboardBackend.h"
+#include "KeyboardModel_p.h"
 
-namespace SDDM {
-    namespace VirtualTerminal {
-        int currentVt();
-        int setUpNewVt();
-        void jumpToVt(int vt, bool vt_auto);
-    }
+namespace SDDM
+{
+
+void KeyboardBackend::setProxy(GreeterProxy* proxy)
+{
+    d->m_proxy = proxy;
 }
 
-#endif // SDDM_VIRTUALTERMINAL_H
+}

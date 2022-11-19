@@ -30,7 +30,8 @@ namespace SDDM {
         Reboot,
         Suspend,
         Hibernate,
-        HybridSleep
+        HybridSleep,
+        KeyboardLayout,
     };
 
     enum class DaemonMessages {

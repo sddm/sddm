@@ -19,6 +19,7 @@
 
 #include "SignalHandler.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QSocketNotifier>
 
@@ -37,6 +38,9 @@ namespace SDDM {
 
     SignalHandler::SignalHandler(QObject *parent) : QObject(parent) {
         std::call_once(signalsInitialized, &initialize);
+
+        // If it's done before creating the QCoreApplication, it just will not work
+        Q_ASSERT(QCoreApplication::instance());
 
         snint = new QSocketNotifier(sigintFd[1], QSocketNotifier::Read, this);
         connect(snint, &QSocketNotifier::activated, this, &SignalHandler::handleSigint);

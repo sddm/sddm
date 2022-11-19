@@ -22,6 +22,7 @@
 
 #include "Configuration.h"
 
+#include <QFileInfo>
 #include <QVector>
 #include <QProcessEnvironment>
 #include <QFileSystemWatcher>
@@ -40,19 +41,26 @@ namespace SDDM {
     };
 
     SessionModel::SessionModel(QObject *parent) : QAbstractListModel(parent), d(new SessionModelPrivate()) {
+        // Check for flag to show Wayland sessions
+        bool dri_active = QFileInfo::exists(QStringLiteral("/dev/dri"));
+
         // initial population
         beginResetModel();
-        populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+        if (dri_active)
+            populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
         populate(Session::X11Session, mainConfig.X11.SessionDir.get());
         endResetModel();
 
         // refresh everytime a file is changed, added or removed
         QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
         connect(watcher, &QFileSystemWatcher::directoryChanged, [this](const QString &path) {
+            // Recheck for flag to show Wayland sessions
+            bool dri_active = QFileInfo::exists(QStringLiteral("/dev/dri"));
             beginResetModel();
             d->sessions.clear();
             d->displayNames.clear();
-            populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
+            if (dri_active)
+                populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
             populate(Session::X11Session, mainConfig.X11.SessionDir.get());
             endResetModel();
         });

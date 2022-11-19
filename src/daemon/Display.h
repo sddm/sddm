@@ -49,7 +49,8 @@ namespace SDDM {
         };
         Q_ENUM(DisplayServerType)
 
-        explicit Display(Seat *parent);
+        static DisplayServerType defaultDisplayServerType();
+        explicit Display(Seat *parent, DisplayServerType serverType);
         ~Display();
 
         DisplayServerType displayServerType() const;
@@ -75,6 +76,7 @@ namespace SDDM {
 
     signals:
         void stopped();
+        void displayServerFailed();
 
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);

@@ -31,6 +31,7 @@
 #include <linux/kd.h>
 #include <sys/ioctl.h>
 #include <qscopeguard.h>
+#include <QFileInfo>
 
 #define RELEASE_DISPLAY_SIGNAL (SIGRTMAX)
 #define ACQUIRE_DISPLAY_SIGNAL (SIGRTMAX - 1)
@@ -116,8 +117,8 @@ out:
                 qDebug() << "VT mode didn't need to be fixed";
         }
 
-        int fetchAvailableVt() {
-            // open VT master
+        int currentVt()
+        {
             int fd = open("/dev/tty0", O_RDWR | O_NOCTTY);
             if (fd < 0) {
                 qCritical() << "Failed to open VT master:" << strerror(errno);
@@ -129,18 +130,11 @@ out:
 
             vt_stat vtState = { 0 };
             if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
-                qCritical() << "Failed to get current VT:" << strerror(errno);
-
-                int vt = 0;
-                // If there's no current tty, request the next to open
-                if (ioctl(fd, VT_OPENQRY, &vt) < 0) {
-                    qCritical() << "Failed to open new VT:" << strerror(errno);
-                    return -1;
-                }
-                return vt;
+                return -1;
             }
             return vtState.v_active;
         }
+
 
         int setUpNewVt() {
             // open VT master

@@ -310,6 +310,10 @@ namespace SDDM {
         m_auth->deleteLater();
         m_auth = nullptr;
 
+        if (status == Auth::HELPER_DISPLAYSERVER_ERROR) {
+            Q_EMIT displayServerFailed();
+        }
+
         if (status == Auth::HELPER_SESSION_ERROR) {
             Q_EMIT failed();
         }
@@ -323,14 +327,14 @@ namespace SDDM {
     void Greeter::onReadyReadStandardError()
     {
         if (m_process) {
-            qDebug() << "Greeter errors:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardError()));
+            qDebug() << "Greeter errors:" << m_process->readAllStandardError().constData();
         }
     }
 
     void Greeter::onReadyReadStandardOutput()
     {
         if (m_process) {
-            qDebug() << "Greeter output:" << qPrintable(QString::fromLocal8Bit(m_process->readAllStandardOutput()));
+            qDebug() << "Greeter output:" << m_process->readAllStandardOutput().constData();
         }
     }
 

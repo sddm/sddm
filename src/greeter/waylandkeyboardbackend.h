@@ -22,6 +22,8 @@
 
 #include "KeyboardBackend.h"
 
+class GreeterProxy;
+
 namespace SDDM {
 
 class WaylandKeyboardBackend : public KeyboardBackend
@@ -36,6 +38,9 @@ public:
     void dispatchEvents() override;
 
     void connectEventsDispatcher(KeyboardModel *model) override;
+
+private:
+    KeyboardModel *m_model = nullptr;
 };
 
 } // namespace SDDM

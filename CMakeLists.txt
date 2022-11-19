@@ -35,6 +35,9 @@ option(ENABLE_PAM "Enable PAM support" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # ECM
 find_package(ECM 1.4.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH};${ECM_MODULE_PATH}")

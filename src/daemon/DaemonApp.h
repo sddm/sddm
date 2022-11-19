@@ -49,6 +49,8 @@ namespace SDDM {
         SeatManager *seatManager() const;
         SignalHandler *signalHandler() const;
 
+        void setKeyboardLayout(const QString &layout);
+
     public slots:
         int newSessionId();
 
