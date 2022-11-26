@@ -152,7 +152,7 @@ namespace SDDM {
         if (hasDisplayServer || waylandUserSession) {
             // open VT and get the fd
             int vtNumber = processEnvironment().value(QStringLiteral("XDG_VTNR")).toInt();
-            QString ttyString = QStringLiteral("/dev/tty%1").arg(vtNumber);
+            QString ttyString = VirtualTerminal::path(vtNumber);
             int vtFd = ::open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
 
             // when this is true we'll take control of the tty
