@@ -20,8 +20,11 @@
 #ifndef SDDM_VIRTUALTERMINAL_H
 #define SDDM_VIRTUALTERMINAL_H
 
+#include <QString>
+
 namespace SDDM {
     namespace VirtualTerminal {
+        QString path(int vt);
         int currentVt();
         int setUpNewVt();
         void jumpToVt(int vt, bool vt_auto);

@@ -27,8 +27,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#ifdef __FreeBSD__
+#include <sys/consio.h>
+#else
 #include <linux/vt.h>
 #include <linux/kd.h>
+#endif
 #include <sys/ioctl.h>
 #include <qscopeguard.h>
 #include <QFileInfo>
@@ -38,14 +42,47 @@
 
 namespace SDDM {
     namespace VirtualTerminal {
+#ifdef __FreeBSD__
+        static const char *defaultVtPath = "/dev/ttyv0";
+
+        QString path(int vt) {
+            char c = (vt <= 10 ? '0' : 'a') + (vt - 1);
+            return QStringLiteral("/dev/ttyv%1").arg(c);
+        }
+
+        int getVtActive(int fd) {
+            int vtActive = 0;
+            if (ioctl(fd, VT_GETACTIVE, &vtActive) < 0) {
+                qCritical() << "Failed to get current VT:" << strerror(errno);
+                return -1;
+            }
+            return vtActive;
+        }
+#else
+        static const char *defaultVtPath = "/dev/tty0";
+
+        QString path(int vt) {
+            return QStringLiteral("/dev/tty%1").arg(vt);
+        }
+
+        int getVtActive(int fd) {
+            vt_stat vtState = { 0 };
+            if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
+                qCritical() << "Failed to get current VT:" << strerror(errno);
+                return -1;
+            }
+            return vtState.v_active;
+        }
+#endif
+
         static void onAcquireDisplay(int signal) {
-            int fd = open("/dev/tty0", O_RDWR | O_NOCTTY);
+            int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             ioctl(fd, VT_RELDISP, VT_ACKACQ);
             close(fd);
         }
 
         static void onReleaseDisplay(int signal) {
-            int fd = open("/dev/tty0", O_RDWR | O_NOCTTY);
+            int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             ioctl(fd, VT_RELDISP, 1);
             close(fd);
         }
@@ -119,7 +156,7 @@ out:
 
         int currentVt()
         {
-            int fd = open("/dev/tty0", O_RDWR | O_NOCTTY);
+            int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             if (fd < 0) {
                 qCritical() << "Failed to open VT master:" << strerror(errno);
                 return -1;
@@ -128,17 +165,13 @@ out:
                 close(fd);
             });
 
-            vt_stat vtState = { 0 };
-            if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
-                return -1;
-            }
-            return vtState.v_active;
+            return getVtActive(fd);
         }
 
 
         int setUpNewVt() {
             // open VT master
-            int fd = open("/dev/tty0", O_RDWR | O_NOCTTY);
+            int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             if (fd < 0) {
                 qCritical() << "Failed to open VT master:" << strerror(errno);
                 return -1;
@@ -155,14 +188,9 @@ out:
 
             // fallback to active VT
             if (vt <= 0) {
-                vt_stat vtState = { 0 };
-                if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
-                    qCritical() << "Failed to get current VT:" << strerror(errno);
-                    return -1;
-                }
-
-                qWarning() << "New VT" << vt << "is not valid, fall back to" << vtState.v_active;
-                return vtState.v_active;
+                int vtActive = getVtActive(fd);
+                qWarning() << "New VT" << vt << "is not valid, fall back to" << vtActive;
+                return vtActive;
             }
 
             return vt;
@@ -173,9 +201,9 @@ out:
 
             int fd;
 
-            int activeVtFd = open("/dev/tty0", O_RDWR | O_NOCTTY);
+            int activeVtFd = open(defaultVtPath, O_RDWR | O_NOCTTY);
 
-            QString ttyString = QStringLiteral("/dev/tty%1").arg(vt);
+            QString ttyString = path(vt);
             int vtFd = open(qPrintable(ttyString), O_RDWR | O_NOCTTY);
             if (vtFd != -1) {
                 fd = vtFd;
@@ -195,7 +223,7 @@ out:
                 fixVtMode(activeVtFd, vt_auto);
             } else {
                 qWarning("Failed to open %s: %s", qPrintable(ttyString), strerror(errno));
-                qDebug("Using /dev/tty0 instead of %s!", qPrintable(ttyString));
+                qDebug("Using %s instead of %s!", defaultVtPath, qPrintable(ttyString));
                 fd = activeVtFd;
             }
 

@@ -23,6 +23,7 @@
 #include "HelperApp.h"
 #include "UserSession.h"
 #include "Auth.h"
+#include "VirtualTerminal.h"
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>
@@ -259,7 +260,7 @@ namespace SDDM {
                 m_pam->setItem(PAM_TTY, qPrintable(display));
             }
         } else {
-            QString tty = QStringLiteral("/dev/tty%1").arg(sessionEnv.value(QStringLiteral("XDG_VTNR")));
+            QString tty = VirtualTerminal::path(sessionEnv.value(QStringLiteral("XDG_VTNR")).toInt());
             m_pam->setItem(PAM_TTY, qPrintable(tty));
         }
 
