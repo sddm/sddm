@@ -180,7 +180,7 @@ namespace SDDM {
                 if (ioctl(STDIN_FILENO, TIOCSCTTY) < 0) {
                     const auto error = strerror(errno);
                     qCritical().nospace() << "Failed to take control of " << ttyString << " (" << QFileInfo(ttyString).owner() << "): " << error;
-                    exit(Auth::HELPER_OTHER_ERROR);
+                    exit(Auth::HELPER_TTY_ERROR);
                 }
             }
 

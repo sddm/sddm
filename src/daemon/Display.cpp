@@ -52,6 +52,8 @@
 #include "VirtualTerminal.h"
 #include "WaylandDisplayServer.h"
 
+static int s_ttyFailures = 0;
+
 
 namespace SDDM {
     bool isTtyInUse(const QString &desiredTty) {
@@ -149,10 +151,17 @@ namespace SDDM {
         connect(this, &Display::loginFailed, m_socketServer, &SocketServer::loginFailed);
         connect(this, &Display::loginSucceeded, m_socketServer, &SocketServer::loginSucceeded);
 
-        connect(m_greeter, &Greeter::failed,
-                QCoreApplication::instance(), [] {
-                    QCoreApplication::instance()->exit(23);
-                });
+        connect(m_greeter, &Greeter::failed, this, &Display::stop);
+        connect(m_greeter, &Greeter::ttyFailed, this, [this] {
+            ++s_ttyFailures;
+            if (s_ttyFailures > 5) {
+                QCoreApplication::exit(23);
+            }
+            // It might be the case that we are trying a tty that has been taken over by a
+            // different process. In such a case, switch back to the initial one and try again.
+            VirtualTerminal::jumpToVt(1, true);
+            stop();
+        });
         connect(m_greeter, &Greeter::displayServerFailed, this, &Display::displayServerFailed);
     }
 
