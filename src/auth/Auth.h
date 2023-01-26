@@ -86,6 +86,7 @@ namespace SDDM {
             HELPER_SESSION_ERROR,
             HELPER_OTHER_ERROR,
             HELPER_DISPLAYSERVER_ERROR,
+            HELPER_TTY_ERROR,
         };
         Q_ENUM(HelperExitStatus)
 

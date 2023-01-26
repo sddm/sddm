@@ -32,6 +32,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
+#include <VirtualTerminal.h>
 
 namespace SDDM {
     Greeter::Greeter(Display *parent)
@@ -312,9 +313,9 @@ namespace SDDM {
 
         if (status == Auth::HELPER_DISPLAYSERVER_ERROR) {
             Q_EMIT displayServerFailed();
-        }
-
-        if (status == Auth::HELPER_SESSION_ERROR) {
+        } else if (status == Auth::HELPER_TTY_ERROR) {
+            Q_EMIT ttyFailed();
+        } else if (status == Auth::HELPER_SESSION_ERROR) {
             Q_EMIT failed();
         }
     }

@@ -62,6 +62,7 @@ namespace SDDM {
         void authError(const QString &message, Auth::Error error);
 
     signals:
+        void ttyFailed();
         void failed();
         void displayServerFailed();
 
