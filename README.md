@@ -47,6 +47,17 @@ Distributions without pam and systemd will need to put the "sddm" user
 into the "video" group, otherwise errors regarding GL and drm devices
 might be experienced.
 
+## VIRTUAL TERMINALS
+
+SDDM is assumed to start at the tty specified by the cmake variable
+SDDM_INITIAL_VT which is an integer and defaults to 1.
+
+If SDDM_INITIAL_VT wasn't available, SDDM will use the next available one
+instead.
+
+You can override SDDM_INITIAL_VT if you want to have a different one if,
+for example, you were planning on using tty1 for something else.
+
 ## LICENSE
 
 Source code of SDDM is licensed under GNU GPL version 2 or later (at your choosing).

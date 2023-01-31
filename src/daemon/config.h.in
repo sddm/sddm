@@ -1,0 +1,2 @@
+#pragma once
+static const int SDDM_INITIAL_VT = @SDDM_INITIAL_VT@;
