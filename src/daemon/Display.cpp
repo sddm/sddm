@@ -51,9 +51,10 @@
 #include "Login1Session.h"
 #include "VirtualTerminal.h"
 #include "WaylandDisplayServer.h"
+#include "config.h"
 
 static int s_ttyFailures = 0;
-
+#define STRINGIFY(x) #x
 
 namespace SDDM {
     bool isTtyInUse(const QString &desiredTty) {
@@ -76,11 +77,12 @@ namespace SDDM {
     }
 
     int fetchAvailableVt() {
+        if (!isTtyInUse(QStringLiteral("tty" STRINGIFY(SDDM_INITIAL_VT)))) {
+            return SDDM_INITIAL_VT;
+        }
         const auto vt = VirtualTerminal::currentVt();
-        if (vt > 0) {
-            if (!isTtyInUse(QStringLiteral("tty%1").arg(vt))) {
-                return vt;
-            }
+        if (vt > 0 && !isTtyInUse(QStringLiteral("tty%1").arg(vt))) {
+            return vt;
         }
         return VirtualTerminal::setUpNewVt();
     }
@@ -159,7 +161,7 @@ namespace SDDM {
             }
             // It might be the case that we are trying a tty that has been taken over by a
             // different process. In such a case, switch back to the initial one and try again.
-            VirtualTerminal::jumpToVt(1, true);
+            VirtualTerminal::jumpToVt(SDDM_INITIAL_VT, true);
             stop();
         });
         connect(m_greeter, &Greeter::displayServerFailed, this, &Display::displayServerFailed);

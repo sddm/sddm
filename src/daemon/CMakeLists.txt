@@ -5,6 +5,7 @@ include_directories(
     "${LIBXCB_INCLUDE_DIR}"
 )
 
+configure_file(config.h.in config.h IMMEDIATE @ONLY)
 set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/Configuration.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SafeDataStream.cpp
