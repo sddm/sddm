@@ -31,6 +31,9 @@
 #include <QTimer>
 
 #include <functional>
+#include <optional>
+#include <Login1Manager.h>
+#include <Login1Session.h>
 
 namespace SDDM {
     Seat::Seat(const QString &name, QObject *parent) : QObject(parent), m_name(name) {
@@ -108,6 +111,14 @@ namespace SDDM {
 
     void Seat::displayStopped() {
         Display *display = qobject_cast<Display *>(sender());
+        OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+        std::optional<int> nextVt;
+        auto reusing = display->reuseSessionId();
+        if (manager.isValid() && !reusing.isEmpty()) {
+            auto sessionPath = manager.GetSession(reusing);
+            OrgFreedesktopLogin1SessionInterface sessionIface(Logind::serviceName(), sessionPath.value().path(), QDBusConnection::systemBus());
+            nextVt = QStringView(sessionIface.tTY()).mid(3).toInt(); // we need to convert ttyN to N
+        }
 
         // remove display
         removeDisplay(display);
@@ -120,10 +131,14 @@ namespace SDDM {
         // switch to last display in display vector.
         // Set vt_auto to true, so let the kernel handle the
         // vt switch automatically (VT_AUTO).
-        else {
+        else if (!nextVt) {
             int disp = m_displays.last()->terminalId();
             if (disp != -1)
-                VirtualTerminal::jumpToVt(disp, true);
+                nextVt = disp;
+        }
+
+        if (nextVt) {
+            VirtualTerminal::jumpToVt(*nextVt, true);
         }
     }
 }
