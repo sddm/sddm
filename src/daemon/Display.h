@@ -61,6 +61,7 @@ namespace SDDM {
         const QString &name() const;
 
         QString sessionType() const;
+        QString reuseSessionId() const { return m_reuseSessionId; }
 
         Seat *seat() const;
 
@@ -94,6 +95,7 @@ namespace SDDM {
         bool m_started { false };
 
         int m_terminalId = 0;
+        int m_sessionTerminalId = 0;
 
         QString m_passPhrase;
         QString m_sessionName;

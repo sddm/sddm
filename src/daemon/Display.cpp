@@ -67,7 +67,7 @@ namespace SDDM {
             for(const SessionInfo &s : info) {
                 OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
                 if (desiredTty == session.tTY() && session.state() != QLatin1String("closing")) {
-                    qDebug() << "tty" << desiredTty << "already in use by" << session.user().path << session.state()
+                    qDebug() << "tty" << desiredTty << "already in use by" << session.user().path.path() << session.state()
                                       << session.display() << session.desktop() << session.vTNr();
                     return true;
                 }
@@ -183,7 +183,7 @@ namespace SDDM {
     }
 
     const int Display::terminalId() const {
-        return m_terminalId;
+        return m_auth->isActive() ? m_sessionTerminalId : m_terminalId;
     }
 
     const QString &Display::name() const {
@@ -407,14 +407,14 @@ namespace SDDM {
         // last session later, in slotAuthenticationFinished()
         m_sessionName = session.fileName();
 
-        int terminalNewSession = m_terminalId;
+        int m_sessionTerminalId = m_terminalId;
         if ((session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) || (m_greeter->isRunning() && m_displayServerType != X11DisplayServerType)) {
             // Create a new VT when we need to have another compositor running
-            terminalNewSession = VirtualTerminal::setUpNewVt();
+            m_sessionTerminalId = VirtualTerminal::setUpNewVt();
         }
 
         // some information
-        qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec() << "for VT" << terminalNewSession;
+        qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec() << "for VT" << m_sessionTerminalId;
 
         QProcessEnvironment env;
         env.insert(session.additionalEnv());
@@ -428,7 +428,7 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("user"));
         env.insert(QStringLiteral("XDG_SESSION_TYPE"), session.xdgSessionType());
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
-        env.insert(QStringLiteral("XDG_VTNR"), QString::number(terminalNewSession));
+        env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_sessionTerminalId));
 #ifdef HAVE_SYSTEMD
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
 #endif
@@ -457,6 +457,7 @@ namespace SDDM {
                 OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
                 manager.UnlockSession(m_reuseSessionId);
                 manager.ActivateSession(m_reuseSessionId);
+                m_started = true;
             } else {
                 if (qobject_cast<XorgDisplayServer *>(m_displayServer))
                     m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
