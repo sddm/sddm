@@ -21,14 +21,26 @@
 #ifndef SDDM_THEMECONFIG_H
 #define SDDM_THEMECONFIG_H
 
-#include <QVariantMap>
+#include <QQmlPropertyMap>
 
 namespace SDDM {
-    class ThemeConfig : public QVariantMap {
+    class ThemeConfig : public QQmlPropertyMap {
+        Q_OBJECT
     public:
-        explicit ThemeConfig(const QString &path);
+        explicit ThemeConfig(const QString &path, QObject *parent = nullptr);
 
         void setTo(const QString &path);
+
+        // Also provide QVariantMap's value(key, default) method
+        using QQmlPropertyMap::value;
+        QVariant value(const QString &key, const QVariant &def);
+
+        // QSettings::IniFormat returns string types for basic
+        // types. Let the theme request specific conversions.
+        Q_INVOKABLE bool boolValue(const QString &key);
+        Q_INVOKABLE int intValue(const QString &key);
+        Q_INVOKABLE qreal realValue(const QString &key);
+        Q_INVOKABLE QString stringValue(const QString &key);
     };
 }
 
