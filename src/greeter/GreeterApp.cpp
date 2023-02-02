@@ -112,7 +112,7 @@ namespace SDDM {
         if (m_themeConfig)
             m_themeConfig->setTo(configFile);
         else
-            m_themeConfig = new ThemeConfig(configFile);
+            m_themeConfig = new ThemeConfig(configFile, this);
 
         const bool themeNeedsAllUsers = m_themeConfig->value(QStringLiteral("needsFullUserModel"), true).toBool();
         if(m_userModel && themeNeedsAllUsers && !m_userModel->containsAllUsers()) {
@@ -187,7 +187,7 @@ namespace SDDM {
         view->rootContext()->setContextProperty(QStringLiteral("sessionModel"), m_sessionModel);
         view->rootContext()->setContextProperty(QStringLiteral("screenModel"), screenModel);
         view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
-        view->rootContext()->setContextProperty(QStringLiteral("config"), *m_themeConfig);
+        view->rootContext()->setContextProperty(QStringLiteral("config"), m_themeConfig);
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
         view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
