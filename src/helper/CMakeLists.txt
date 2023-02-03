@@ -3,6 +3,7 @@ include(CheckLibraryExists)
 include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_SOURCE_DIR}/src/auth"
+    ${LIBXAU_INCLUDE_DIRS}
 )
 include_directories("${CMAKE_BINARY_DIR}/src/common")
 
@@ -37,7 +38,11 @@ else()
 endif()
 
 add_executable(sddm-helper ${HELPER_SOURCES})
-target_link_libraries(sddm-helper Qt5::Network Qt5::DBus Qt5::Qml)
+target_link_libraries(sddm-helper
+                      Qt5::Network
+                      Qt5::DBus
+                      Qt5::Qml
+                      ${LIBXAU_LIBRARIES})
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
     # On FreeBSD (possibly other BSDs as well), we want to use
     # setusercontext() to set up the login configuration from login.conf
@@ -68,7 +73,8 @@ add_executable(sddm-helper-start-x11user HelperStartX11User.cpp xorguserhelper.c
                                                 ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
                                                 ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
                                                 )
-target_link_libraries(sddm-helper-start-x11user Qt5::Core)
+target_link_libraries(sddm-helper-start-x11user Qt5::Core
+                                                ${LIBXAU_LIBRARIES})
 install(TARGETS sddm-helper-start-x11user RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 if(JOURNALD_FOUND)

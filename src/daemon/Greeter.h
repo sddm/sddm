@@ -38,7 +38,6 @@ namespace SDDM {
         explicit Greeter(Display *parent = 0);
         ~Greeter();
 
-        void setAuthPath(const QString &authPath);
         void setSocket(const QString &socket);
         void setTheme(const QString &theme);
 
@@ -70,7 +69,6 @@ namespace SDDM {
         bool m_started { false };
 
         Display * const m_display { nullptr };
-        QString m_authPath;
         QString m_socket;
         QString m_themePath;
         QString m_displayServerCmd;

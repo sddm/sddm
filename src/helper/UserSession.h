@@ -24,6 +24,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QProcess>
+#include <QtCore/QTemporaryFile>
 
 namespace SDDM {
     class HelperApp;
@@ -62,6 +63,7 @@ namespace SDDM {
         void setup();
 
         QString m_path { };
+        QTemporaryFile m_xauthFile;
         QString m_displayServerCmd;
 
         /*!
