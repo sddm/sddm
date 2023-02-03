@@ -236,7 +236,6 @@ namespace SDDM {
             qCritical() << "setgid(" << pw.pw_gid << ") failed for user: " << username;
             exit(Auth::HELPER_OTHER_ERROR);
         }
-        qputenv("XDG_RUNTIME_DIR", QByteArrayLiteral("/run/user/") + QByteArray::number(pw.pw_uid));
 
 #ifdef USE_PAM
 
