@@ -33,6 +33,11 @@ namespace SDDM {
     void ThemeConfig::setTo(const QString &path) {
         clear();
 
+        if (path.isNull()) {
+            qDebug() << "Loaded empty theme configuration";
+            return;
+        }
+
         qDebug() << "Loading theme configuration from" << path;
 
         QSettings settings(path, QSettings::IniFormat);
