@@ -22,6 +22,7 @@
 #include <QSocketNotifier>
 
 #include "Configuration.h"
+#include "Constants.h"
 #include "UserSession.h"
 #include "HelperApp.h"
 #include "VirtualTerminal.h"
@@ -50,9 +51,44 @@ namespace SDDM {
 
     bool UserSession::start() {
         auto helper = qobject_cast<HelperApp*>(parent());
-        QProcessEnvironment env = helper->session()->processEnvironment();
+        QProcessEnvironment env = processEnvironment();
 
         bool isWaylandGreeter = false;
+
+        // If the Xorg display server was already started, write the passed
+        // auth cookie to /tmp/xauth_XXXXXX. This is done in the parent process
+        // so that it can clean up the file on session end.
+        if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")
+            && m_displayServerCmd.isEmpty()) {
+            // Create the Xauthority file
+            QByteArray cookie = helper->cookie();
+            if (cookie.isEmpty()) {
+                qCritical() << "Can't start X11 session with empty auth cookie";
+                return false;
+            }
+
+            // Place it into /tmp, which is guaranteed to be read/writeable by
+            // everyone while having the sticky bit set to avoid messing with
+            // other's files.
+            m_xauthFile.setFileTemplate(QStringLiteral("/tmp/xauth_XXXXXX"));
+
+            if (!m_xauthFile.open()) {
+                qCritical() << "Could not create the Xauthority file";
+                return false;
+            }
+
+            QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
+
+            if (!XAuth::writeCookieToFile(display, m_xauthFile.fileName(), cookie)) {
+                qCritical() << "Failed to write the Xauthority file";
+                m_xauthFile.close();
+                return false;
+            }
+
+            env.insert(QStringLiteral("XAUTHORITY"), m_xauthFile.fileName());
+            setProcessEnvironment(env);
+        }
+
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
             QString command;
             if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
@@ -224,6 +260,13 @@ namespace SDDM {
                 qCritical() << "getpwnam_r(" << username << ") failed with error: " << strerror(err);
             exit(Auth::HELPER_OTHER_ERROR);
         }
+
+        const int xauthHandle = m_xauthFile.handle();
+        if (xauthHandle != -1 && fchown(xauthHandle, pw.pw_uid, pw.pw_gid) != 0) {
+            qCritical() << "fchown failed for" << m_xauthFile.fileName();
+            exit(Auth::HELPER_OTHER_ERROR);
+        }
+
 #if defined(Q_OS_FREEBSD)
         // execve() uses the environment prepared in Backend::openSession(),
         // therefore environment variables which are set here are ignored.
@@ -341,21 +384,6 @@ namespace SDDM {
                 ::close(fd);
             } else {
                 qWarning() << "Could not redirect stdout";
-            }
-        }
-
-        // set X authority for X11 sessions only
-        if (x11UserSession) {
-            QString cookie = qobject_cast<HelperApp*>(parent())->cookie();
-            if (!cookie.isEmpty()) {
-                QString file = processEnvironment().value(QStringLiteral("XAUTHORITY"));
-                QString display = processEnvironment().value(QStringLiteral("DISPLAY"));
-
-                // Create the path
-                QFileInfo finfo(file);
-                QDir().mkpath(finfo.absolutePath());
-
-                XAuth::addCookieToFile(display, file, cookie);
             }
         }
     }

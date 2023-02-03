@@ -34,6 +34,10 @@ Distributions without pam and systemd will need to put the **sddm** user
 into the **video** group, otherwise errors regarding GL and drm devices
 might be experienced.
 
+For X11 sessions, the cookie for X authorization is written into a
+temporary file `/tmp/xauth_XXXXXX`, owned and only accessible by the
+user.
+
 OPTIONS
 =======
 

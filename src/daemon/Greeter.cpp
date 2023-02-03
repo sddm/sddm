@@ -27,6 +27,7 @@
 #include "ThemeConfig.h"
 #include "ThemeMetadata.h"
 #include "Display.h"
+#include "XorgDisplayServer.h"
 #include "XorgUserDisplayServer.h"
 #include "WaylandDisplayServer.h"
 
@@ -48,10 +49,6 @@ namespace SDDM {
 
         delete m_metadata;
         delete m_themeConfig;
-    }
-
-    void Greeter::setAuthPath(const QString &authPath) {
-        m_authPath = authPath;
     }
 
     void Greeter::setSocket(const QString &socket) {
@@ -114,6 +111,8 @@ namespace SDDM {
             args << QLatin1String("-style") << style;
 
         Q_ASSERT(m_display);
+        auto *displayServer = m_display->displayServer();
+
         if (daemonApp->testing()) {
             // create process
             m_process = new QProcess(this);
@@ -133,7 +132,7 @@ namespace SDDM {
                 // set process environment
                 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
-                env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
+                env.insert(QStringLiteral("XAUTHORITY"), qobject_cast<XorgDisplayServer*>(displayServer)->authPath());
                 env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
                 if (!xcursorSize.isEmpty())
                     env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
@@ -204,8 +203,8 @@ namespace SDDM {
             env.insert(QStringLiteral("XDG_SESSION_TYPE"), m_display->sessionType());
             if (m_display->displayServerType() == Display::X11DisplayServerType) {
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
-                env.insert(QStringLiteral("XAUTHORITY"), m_authPath);
                 env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
+                m_auth->setCookie(qobject_cast<XorgDisplayServer*>(displayServer)->cookie());
             } else if (m_display->displayServerType() == Display::WaylandDisplayServerType) {
                 env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
                 env.insert(QStringLiteral("QT_WAYLAND_DISABLE_WINDOWDECORATION"), QStringLiteral("1"));

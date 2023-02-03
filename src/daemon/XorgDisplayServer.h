@@ -39,7 +39,7 @@ namespace SDDM {
 
         QString sessionType() const;
 
-        QString cookie() const;
+        const QByteArray cookie() const;
 
     public slots:
         bool start();

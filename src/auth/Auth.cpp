@@ -65,7 +65,7 @@ namespace SDDM {
         QString displayServerCmd;
         QString sessionPath { };
         QString user { };
-        QString cookie { };
+        QByteArray cookie { };
         bool autologin { false };
         bool greeter { false };
         QProcessEnvironment environment { };
@@ -279,7 +279,7 @@ namespace SDDM {
         return d->greeter;
     }
 
-    const QString& Auth::cookie() const {
+    const QByteArray& Auth::cookie() const {
         return d->cookie;
     }
 
@@ -311,7 +311,7 @@ namespace SDDM {
         d->environment.insert(key, value);
     }
 
-    void Auth::setCookie(const QString& cookie) {
+    void Auth::setCookie(const QByteArray& cookie) {
         if (cookie != d->cookie) {
             d->cookie = cookie;
             Q_EMIT cookieChanged();

@@ -68,12 +68,10 @@ namespace SDDM {
             Entry(ServerPath,          QString,     _S("/usr/bin/X"),                           _S("Path to X server binary"));
             Entry(ServerArguments,     QString,     _S("-nolisten tcp"),                        _S("Arguments passed to the X server invocation"));
             Entry(XephyrPath,          QString,     _S("/usr/bin/Xephyr"),                      _S("Path to Xephyr binary"));
-            Entry(XauthPath,           QString,     _S("/usr/bin/xauth"),                       _S("Path to xauth binary"));
             Entry(SessionDir,          QStringList, {_S("/usr/local/share/xsessions"),
                                                      _S("/usr/share/xsessions")},               _S("Comma-separated list of directories containing available X sessions"));
             Entry(SessionCommand,      QString,     _S(SESSION_COMMAND),                        _S("Path to a script to execute when starting the desktop session"));
-	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/xorg-session.log"),   _S("Path to the user session log file"));
-	    Entry(UserAuthFile,        QString,     _S(".Xauthority"),                          _S("Path to the Xauthority file"));
+            Entry(SessionLogFile,      QString,     _S(".local/share/sddm/xorg-session.log"),   _S("Path to the user session log file"));
             Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Path to a script to execute when starting the display server"));
             Entry(DisplayStopCommand,  QString,     _S(DATA_INSTALL_DIR "/scripts/Xstop"),      _S("Path to a script to execute when stopping the display server"));
             Entry(EnableHiDPI,         bool,        false,                                      _S("Enable Qt's automatic high-DPI scaling"));
@@ -84,7 +82,7 @@ namespace SDDM {
             Entry(SessionDir,          QStringList, {_S("/usr/local/share/wayland-sessions"),
                                                      _S("/usr/share/wayland-sessions")},        _S("Comma-separated list of directories containing available Wayland sessions"));
             Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                _S("Path to a script to execute when starting the desktop session"));
-	    Entry(SessionLogFile,      QString,     _S(".local/share/sddm/wayland-session.log"),_S("Path to the user session log file"));
+            Entry(SessionLogFile,      QString,     _S(".local/share/sddm/wayland-session.log"),_S("Path to the user session log file"));
             Entry(EnableHiDPI,         bool,        false,                                      _S("Enable Qt's automatic high-DPI scaling"));
         );
 
