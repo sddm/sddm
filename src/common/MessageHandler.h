@@ -71,27 +71,27 @@ namespace SDDM {
     static void standardLogger(QtMsgType type, const QString &msg) {
         static QFile file(QStringLiteral(LOG_FILE));
 
-        // try to open file only if it's not already open
-        if (!file.isOpen()) {
+        // Try to open the log file if we're not outputting to a terminal
+        if (!file.isOpen() && !isatty(STDERR_FILENO)) {
             if (!file.open(QFile::Append | QFile::WriteOnly))
                 file.open(QFile::Truncate | QFile::WriteOnly);
-        }
 
-        // If we can't open the file, create it in a writable location
-        // It will look spmething like ~/.local/share/$appname/sddm.log
-        // or for the sddm user /var/lib/sddm/.local/share/$appname/sddm.log
-        if (!file.isOpen()) {
-            QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
-            file.setFileName(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QLatin1String("/sddm.log"));
-            if (!file.open(QFile::Append | QFile::WriteOnly))
-                file.open(QFile::Truncate | QFile::WriteOnly);
+            // If we can't open the file, create it in a writable location
+            // It will look spmething like ~/.local/share/$appname/sddm.log
+            // or for the sddm user /var/lib/sddm/.local/share/$appname/sddm.log
+            if (!file.isOpen()) {
+                QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+                file.setFileName(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QLatin1String("/sddm.log"));
+                if (!file.open(QFile::Append | QFile::WriteOnly))
+                    file.open(QFile::Truncate | QFile::WriteOnly);
+            }
         }
 
         // create timestamp
         QString timestamp = QDateTime::currentDateTime().toString(QStringLiteral("hh:mm:ss.zzz"));
 
         // set log priority
-	QString logPriority = QStringLiteral("(II)");
+        QString logPriority = QStringLiteral("(II)");
         switch (type) {
             case QtDebugMsg:
             break;
@@ -114,8 +114,8 @@ namespace SDDM {
             file.write(logMessage.toLocal8Bit());
             file.flush();
         } else {
-            printf("%s", qPrintable(logMessage));
-            fflush(stdout);
+            fprintf(stderr, "%s", qPrintable(logMessage));
+            fflush(stderr);
         }
     }
 
@@ -126,7 +126,7 @@ namespace SDDM {
 #ifdef HAVE_JOURNALD
         // don't log to journald if running interactively, this is likely
         // the case when running sddm in test mode
-        static bool isInteractive = isatty(STDIN_FILENO) && qgetenv("USER") != "sddm";
+        static bool isInteractive = isatty(STDERR_FILENO) && qgetenv("USER") != "sddm";
         if (!isInteractive) {
             // log to journald
             journaldLogger(type, context, logMessage);
@@ -134,14 +134,14 @@ namespace SDDM {
             // prepend program name
             logMessage = prefix + msg;
 
-            // log to file or stdout
+            // log to file or stderr
             standardLogger(type, logMessage);
         }
 #else
         // prepend program name
         logMessage = prefix + msg;
 
-        // log to file or stdout
+        // log to file or stderr
         standardLogger(type, logMessage);
 #endif
     }
