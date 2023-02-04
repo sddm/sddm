@@ -127,7 +127,8 @@ namespace SDDM {
     void SessionModel::populate(Session::Type type, const QStringList &dirPaths) {
         // read session files
         QStringList sessions;
-        for (QDir dir: dirPaths) {
+        for (const auto &path: dirPaths) {
+            QDir dir = path;
             dir.setNameFilters(QStringList() << QStringLiteral("*.desktop"));
             dir.setFilter(QDir::Files);
             sessions += dir.entryList();
