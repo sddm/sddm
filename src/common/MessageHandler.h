@@ -114,36 +114,27 @@ namespace SDDM {
             file.write(logMessage.toLocal8Bit());
             file.flush();
         } else {
-            fprintf(stderr, "%s", qPrintable(logMessage));
+            fputs(qPrintable(logMessage), stderr);
             fflush(stderr);
         }
     }
 
     static void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &prefix, const QString &msg) {
-        // copy message to edit it
-        QString logMessage = msg;
-
 #ifdef HAVE_JOURNALD
         // don't log to journald if running interactively, this is likely
         // the case when running sddm in test mode
         static bool isInteractive = isatty(STDERR_FILENO) && qgetenv("USER") != "sddm";
         if (!isInteractive) {
             // log to journald
-            journaldLogger(type, context, logMessage);
-        } else {
-            // prepend program name
-            logMessage = prefix + msg;
-
-            // log to file or stderr
-            standardLogger(type, logMessage);
+            journaldLogger(type, context, msg);
+            return;
         }
-#else
+#endif
         // prepend program name
-        logMessage = prefix + msg;
+        QString logMessage = prefix + msg;
 
         // log to file or stderr
         standardLogger(type, logMessage);
-#endif
     }
 
     void DaemonMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
