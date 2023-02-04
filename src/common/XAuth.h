@@ -22,6 +22,7 @@
 #define SDDM_XAUTH_H
 
 #include <QString>
+#include <QTemporaryFile>
 
 namespace SDDM {
 
@@ -46,7 +47,7 @@ public:
 private:
     bool m_setup = false;
     QString m_authDir;
-    QString m_authPath;
+    QTemporaryFile m_authFile;
     QByteArray m_cookie;
 };
 

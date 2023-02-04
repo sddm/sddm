@@ -251,9 +251,6 @@ namespace SDDM {
         displayStopScript->deleteLater();
         displayStopScript = nullptr;
 
-        // remove authority file
-        QFile::remove(m_xauth.authPath());
-
         // emit signal
         emit stopped();
     }

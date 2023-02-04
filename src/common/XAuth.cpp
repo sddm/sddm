@@ -24,7 +24,6 @@
 #include <QDir>
 #include <QScopeGuard>
 #include <QString>
-#include <QUuid>
 #include <random>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -59,7 +58,7 @@ void XAuth::setAuthDirectory(const QString &path)
 
 QString XAuth::authPath() const
 {
-    return m_authPath;
+    return m_authFile.fileName();
 }
 
 QByteArray XAuth::cookie() const
@@ -78,8 +77,12 @@ void XAuth::setup()
     QDir().mkpath(m_authDir);
 
     // Set path
-    m_authPath = QStringLiteral("%1/%2").arg(m_authDir).arg(QUuid::createUuid().toString(QUuid::WithoutBraces));
-    qDebug() << "Xauthority path:" << m_authPath;
+    m_authFile.setFileTemplate(m_authDir + QStringLiteral("/xauth_XXXXXX"));
+    if(!m_authFile.open()) {
+        qFatal("Failed to create xauth file");
+    }
+
+    qDebug() << "Xauthority path:" << authPath();
 
     // Generate cookie
     std::random_device rd;
@@ -100,7 +103,7 @@ bool XAuth::addCookie(const QString &display)
         return false;
     }
 
-    return XAuth::writeCookieToFile(display, m_authPath, m_cookie);
+    return XAuth::writeCookieToFile(display, authPath(), m_cookie);
 }
 
 bool XAuth::writeCookieToFile(const QString &display, const QString &fileName,
