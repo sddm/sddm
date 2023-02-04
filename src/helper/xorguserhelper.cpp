@@ -236,9 +236,6 @@ void XOrgUserHelper::displayFinished()
             displayStopScript->kill();
         displayStopScript->deleteLater();
     }
-
-    // Remove xauthority file
-    QFile::remove(m_xauth.authPath());
 }
 
 } // namespace SDDM
