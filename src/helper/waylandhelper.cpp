@@ -39,16 +39,6 @@ WaylandHelper::WaylandHelper(QObject *parent)
 {
 }
 
-QProcessEnvironment WaylandHelper::environment() const
-{
-    return m_environment;
-}
-
-void WaylandHelper::setEnvironment(const QProcessEnvironment &env)
-{
-    m_environment = env;
-}
-
 bool WaylandHelper::startCompositor(const QString &cmd)
 {
     m_watcher->start();

@@ -31,9 +31,6 @@ class WaylandHelper : public QObject
 public:
     explicit WaylandHelper(QObject *parent = nullptr);
 
-    QProcessEnvironment environment() const;
-    void setEnvironment(const QProcessEnvironment &env);
-
     bool startCompositor(const QString &cmd);
     void startGreeter(const QString &cmd);
     void stop();
