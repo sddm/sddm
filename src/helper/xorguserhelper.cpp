@@ -32,27 +32,16 @@ namespace SDDM {
 
 XOrgUserHelper::XOrgUserHelper(QObject *parent)
     : QObject(parent)
-    , m_environment(QProcessEnvironment::systemEnvironment())
 {
 }
 
 QProcessEnvironment XOrgUserHelper::sessionEnvironment() const
 {
-    auto env = m_environment;
+    auto env = QProcessEnvironment::systemEnvironment();
     env.insert(QStringLiteral("DISPLAY"), m_display);
     env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
     env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
     return env;
-}
-
-QProcessEnvironment XOrgUserHelper::environment() const
-{
-    return m_environment;
-}
-
-void XOrgUserHelper::setEnvironment(const QProcessEnvironment &env)
-{
-    m_environment = env;
 }
 
 QString XOrgUserHelper::display() const
@@ -60,15 +49,10 @@ QString XOrgUserHelper::display() const
     return m_display;
 }
 
-QString XOrgUserHelper::xauthPath() const
-{
-    return m_xauth.authPath();
-}
-
 bool XOrgUserHelper::start(const QString &cmd)
 {
     // Create xauthority
-    m_xauth.setAuthDirectory(m_environment.value(QStringLiteral("XDG_RUNTIME_DIR")));
+    m_xauth.setAuthDirectory(qEnvironmentVariable("XDG_RUNTIME_DIR"));
     m_xauth.setup();
 
     // Start server process
@@ -155,7 +139,7 @@ bool XOrgUserHelper::startServer(const QString &cmd)
     // under Fedora and all distros that use their patch.
     // https://src.fedoraproject.org/rpms/xorg-x11-server/blob/rawhide/f/0001-Fedora-hack-Make-the-suid-root-wrapper-always-start-.patch
     // https://fedoraproject.org/wiki/Changes/XorgWithoutRootRights
-    QProcessEnvironment serverEnv = m_environment;
+    auto serverEnv = QProcessEnvironment::systemEnvironment();
     serverEnv.insert(QStringLiteral("XORG_RUN_AS_USER_OK"), QStringLiteral("1"));
 
     // Append xauth and display fd to the command

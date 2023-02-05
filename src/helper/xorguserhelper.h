@@ -33,15 +33,10 @@ class XOrgUserHelper : public QObject
 public:
     explicit XOrgUserHelper(QObject *parent = nullptr);
 
-    QProcessEnvironment environment() const;
-    void setEnvironment(const QProcessEnvironment &env);
-
-    /// @returns the same as @m environment plus the variables we need here
+    /// @returns the system environment plus the variables we need here
     QProcessEnvironment sessionEnvironment() const;
 
     QString display() const;
-
-    QString xauthPath() const;
 
     bool start(const QString &cmd);
     void stop();
@@ -52,7 +47,6 @@ Q_SIGNALS:
 private:
     QString m_display = QStringLiteral(":0");
     XAuth m_xauth;
-    QProcessEnvironment m_environment;
     QProcess *m_serverProcess = nullptr;
 
     bool startProcess(const QString &cmd, const QProcessEnvironment &env,
