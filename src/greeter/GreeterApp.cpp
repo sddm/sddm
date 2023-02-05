@@ -362,6 +362,9 @@ int main(int argc, char **argv)
     QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
         QCoreApplication::instance()->exit(-1);
     });
+    QObject::connect(&s, &SDDM::SignalHandler::sigintReceived, &app, [] {
+        QCoreApplication::instance()->exit(-1);
+    });
 
     QCommandLineParser parser;
     parser.setApplicationDescription(TR("SDDM greeter"));
