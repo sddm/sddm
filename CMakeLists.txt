@@ -139,8 +139,15 @@ if(SYSTEMD_FOUND)
     endif()
 
     if (NOT DEFINED SYSTEMD_SYSTEM_UNIT_DIR)
-        execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_SYSTEM_UNIT_DIR)
-        string(REGEX REPLACE "[ \t\n]+" "" SYSTEMD_SYSTEM_UNIT_DIR ${SYSTEMD_SYSTEM_UNIT_DIR})
+        pkg_get_variable(SYSTEMD_SYSTEM_UNIT_DIR systemd systemdsystemunitdir)
+    endif()
+
+    if (NOT DEFINED SYSTEMD_SYSUSERS_DIR)
+        pkg_get_variable(SYSTEMD_SYSUSERS_DIR systemd sysusersdir)
+    endif()
+
+    if (NOT DEFINED SYSTEMD_TMPFILES_DIR)
+        pkg_get_variable(SYSTEMD_TMPFILES_DIR systemd tmpfilesdir)
     endif()
 
     set(HALT_COMMAND "/usr/bin/systemctl poweroff")
