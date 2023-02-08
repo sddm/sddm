@@ -27,16 +27,17 @@
 #include "VirtualTerminal.h"
 #include "XAuth.h"
 
-#include <sys/types.h>
-#include <sys/ioctl.h>
+#include <QDBusInterface>
+#include <QDBusPendingReply>
 #include <errno.h>
-#include <string.h>
-#include <unistd.h>
-#include <pwd.h>
-#include <grp.h>
-#include <unistd.h>
 #include <fcntl.h>
+#include <grp.h>
+#include <pwd.h>
 #include <sched.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <unistd.h>
 #ifdef Q_OS_FREEBSD
 #include <login_cap.h>
 #endif
@@ -186,6 +187,16 @@ namespace SDDM {
 
             VirtualTerminal::jumpToVt(vtNumber, x11UserSession);
         }
+
+#ifdef HAVE_SYSTEMD
+        QDBusInterface systemd1Iface(
+            QStringLiteral("org.freedesktop.systemd1"),
+            QStringLiteral("/org/freedesktop/systemd1"),
+            QStringLiteral("org.freedesktop.DBus.Properties"),
+            QDBusConnection::systemBus(), this);
+
+        QDBusPendingReply<QVariant> environmentReply = systemd1Iface.asyncCall(QStringLiteral("Get"), QStringLiteral("org.freedesktop.systemd1.Manager"), QStringLiteral("Environment"));
+#endif
 
 #ifdef Q_OS_LINUX
         // enter Linux namespaces
@@ -358,6 +369,21 @@ namespace SDDM {
                 XAuth::addCookieToFile(display, file, cookie);
             }
         }
+
+#ifdef HAVE_SYSTEMD
+        environmentReply.waitForFinished();
+        if (environmentReply.isValid()) {
+            const QStringList envs = environmentReply.value().toStringList();
+            for (const QString &env : envs) {
+                const auto idx = env.indexOf(u'=');
+                Q_ASSERT(idx > 0);
+
+                qputenv(env.midRef(0, idx).toLocal8Bit().constData(), env.midRef(idx + 1).toLocal8Bit());
+            }
+        } else {
+            qWarning() << "Failed to get environment" << environmentReply.error();
+        }
+#endif
     }
 
     qint64 UserSession::cachedProcessId() {
