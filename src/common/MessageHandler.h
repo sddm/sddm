@@ -29,10 +29,10 @@
 #include <QDir>
 
 #include <stdio.h>
+#include <unistd.h>
 
 #ifdef HAVE_JOURNALD
 #include <systemd/sd-journal.h>
-#include <unistd.h>
 #endif
 
 namespace SDDM {
