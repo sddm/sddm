@@ -182,7 +182,7 @@ namespace SDDM {
         return m_displayServer;
     }
 
-    const int Display::terminalId() const {
+    int Display::terminalId() const {
         return m_auth->isActive() ? m_sessionTerminalId : m_terminalId;
     }
 

@@ -56,7 +56,7 @@ namespace SDDM {
         DisplayServerType displayServerType() const;
         DisplayServer *displayServer() const;
 
-        const int terminalId() const;
+        int terminalId() const;
 
         const QString &name() const;
 

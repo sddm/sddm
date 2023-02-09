@@ -170,7 +170,7 @@ namespace SDDM {
         return roleNames;
     }
 
-    const int UserModel::lastIndex() const {
+    int UserModel::lastIndex() const {
         return d->lastIndex;
     }
 

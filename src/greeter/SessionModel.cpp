@@ -85,7 +85,7 @@ namespace SDDM {
         return roleNames;
     }
 
-    const int SessionModel::lastIndex() const {
+    int SessionModel::lastIndex() const {
         return d->lastIndex;
     }
 

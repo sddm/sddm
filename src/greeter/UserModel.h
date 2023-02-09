@@ -50,7 +50,7 @@ namespace SDDM {
 
         QHash<int, QByteArray> roleNames() const override;
 
-        const int lastIndex() const;
+        int lastIndex() const;
         QString lastUser() const;
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
