@@ -34,6 +34,7 @@ option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(ENABLE_PAM "Enable PAM support" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
+option(SMOOTH_PLYMOUTH_TRANSITION "Experimental. Removes the black screen between the end of Plymouth and the start of SDDM." OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
