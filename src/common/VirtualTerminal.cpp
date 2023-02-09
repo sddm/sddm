@@ -210,7 +210,9 @@ out:
 
                 // Clear VT
                 static const char *clearEscapeSequence = "\33[H\33[2J";
-                write(vtFd, clearEscapeSequence, sizeof(clearEscapeSequence));
+                if (write(vtFd, clearEscapeSequence, sizeof(clearEscapeSequence)) == -1) {
+                    qWarning("Failed to clear VT %d: %s", vt, strerror(errno));
+                }
 
                 // set graphics mode to prevent flickering
                 if (ioctl(fd, KDSETMODE, KD_GRAPHICS) < 0)
