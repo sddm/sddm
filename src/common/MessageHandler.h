@@ -42,6 +42,7 @@ namespace SDDM {
         switch (type) {
             case QtDebugMsg:
                 priority = LOG_DEBUG;
+            break;
             case QtInfoMsg:
                 priority = LOG_INFO;
             break;
