@@ -75,13 +75,13 @@ namespace SDDM {
         }
 #endif
 
-        static void onAcquireDisplay(int signal) {
+        static void onAcquireDisplay([[maybe_unused]] int signal) {
             int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             ioctl(fd, VT_RELDISP, VT_ACKACQ);
             close(fd);
         }
 
-        static void onReleaseDisplay(int signal) {
+        static void onReleaseDisplay([[maybe_unused]] int signal) {
             int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             ioctl(fd, VT_RELDISP, 1);
             close(fd);

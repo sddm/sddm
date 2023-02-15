@@ -43,7 +43,7 @@ WaylandKeyboardBackend::~WaylandKeyboardBackend()
 {
 }
 
-QList<QObject *> parseRules(const QString &filename, int &current)
+QList<QObject *> parseRules(const QString &filename, [[maybe_unused]] int &current)
 {
     QFile file(filename);
     qDebug() << "Parsing xkb rules from" << file.fileName();

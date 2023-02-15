@@ -178,7 +178,7 @@ namespace SDDM {
         return stateConfig.Last.User.get();
     }
 
-    int UserModel::rowCount(const QModelIndex &parent) const {
+    int UserModel::rowCount([[maybe_unused]] const QModelIndex &parent) const {
         return d->users.length();
     }
 

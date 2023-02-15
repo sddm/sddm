@@ -34,7 +34,7 @@ namespace SDDM {
     class LogindSeat : public QObject {
     Q_OBJECT
     public:
-        LogindSeat(const QString &name, const QDBusObjectPath &objectPath, QObject *parent);
+        LogindSeat(const QString &name, const QDBusObjectPath &objectPath);
         QString name() const;
         bool canGraphical() const;
     Q_SIGNALS:
@@ -46,7 +46,7 @@ namespace SDDM {
         bool m_canGraphical;
     };
 
-    LogindSeat::LogindSeat(const QString& name, const QDBusObjectPath& objectPath, QObject* parent):
+    LogindSeat::LogindSeat(const QString& name, const QDBusObjectPath& objectPath):
         m_name(name),
         m_canGraphical(false)
     {
@@ -154,7 +154,7 @@ namespace SDDM {
 
     void SDDM::SeatManager::logindSeatAdded(const QString& name, const QDBusObjectPath& objectPath)
     {
-        auto logindSeat = new LogindSeat(name, objectPath, this);
+        auto logindSeat = new LogindSeat(name, objectPath);
         connect(logindSeat, &LogindSeat::canGraphicalChanged, this, [=]() {
             if (logindSeat->canGraphical()) {
                 createSeat(logindSeat->name());

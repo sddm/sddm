@@ -57,7 +57,7 @@ namespace SDDM {
         return QRect(QPoint(0, 0), d->screen->geometry().size());
     }
 
-    int ScreenModel::rowCount(const QModelIndex &parent) const {
+    int ScreenModel::rowCount([[maybe_unused]] const QModelIndex &parent) const {
         return 1;
     }
 
