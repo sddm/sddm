@@ -314,10 +314,9 @@ namespace SDDM {
     }
 
     void HelperApp::utmpLogin(const QString &vt, const QString &displayName, const QString &user, qint64 pid, bool authSuccessful) {
-        struct utmpx entry;
+        struct utmpx entry { };
         struct timeval tv;
 
-        entry = { 0 };
         entry.ut_type = USER_PROCESS;
         entry.ut_pid = pid;
 
@@ -368,10 +367,9 @@ namespace SDDM {
     }
 
     void HelperApp::utmpLogout(const QString &vt, const QString &displayName, qint64 pid) {
-        struct utmpx entry;
+        struct utmpx entry { };
         struct timeval tv;
 
-        entry = { 0 };
         entry.ut_type = DEAD_PROCESS;
         entry.ut_pid = pid;
 
