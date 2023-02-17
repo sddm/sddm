@@ -33,11 +33,11 @@ QTextStream &operator>>(QTextStream &str, QStringList &list)  {
 
     QString line = str.readLine();
 
-    const auto strings = line.splitRef(QLatin1Char(','));
-    for (const QStringRef &s : strings) {
-        QStringRef trimmed = s.trimmed();
+    const auto strings = line.split(QLatin1Char(','));
+    for (const auto &s : strings) {
+        auto trimmed = s.trimmed();
         if (!trimmed.isEmpty())
-            list.append(trimmed.toString());
+            list.append(trimmed);
     }
 
     return str;
@@ -50,7 +50,7 @@ QTextStream &operator<<(QTextStream &str, const QStringList &list) {
 
 QTextStream &operator>>(QTextStream &str, bool &val) {
     QString line = str.readLine();
-    val = (0 == QStringRef(&line).trimmed().compare(QLatin1String("true"), Qt::CaseInsensitive));
+    val = (0 == line.trimmed().compare(QLatin1String("true"), Qt::CaseInsensitive));
     return str;
 }
 
@@ -196,10 +196,9 @@ namespace SDDM {
         if (!in.open(QIODevice::ReadOnly))
             return;
         while (!in.atEnd()) {
-            QString line = QString::fromUtf8(in.readLine());
-            QStringRef lineRef = QStringRef(&line).trimmed();
+            QString line = QString::fromUtf8(in.readLine()).trimmed();
             // get rid of comments first
-            lineRef = lineRef.left(lineRef.indexOf(QLatin1Char('#'))).trimmed();
+            line = line.left(line.indexOf(QLatin1Char('#'))).trimmed();
 
             // In version 0.14.0, these sections were renamed
             if (currentSection == QStringLiteral("XDisplay"))
@@ -208,21 +207,21 @@ namespace SDDM {
                 currentSection = QStringLiteral("Wayland");
 
             // value assignment
-            int separatorPosition = lineRef.indexOf(QLatin1Char('='));
+            int separatorPosition = line.indexOf(QLatin1Char('='));
             if (separatorPosition >= 0) {
-                QString name = lineRef.left(separatorPosition).trimmed().toString();
-                QStringRef value = lineRef.mid(separatorPosition + 1).trimmed();
+                QString name = line.left(separatorPosition).trimmed();
+                auto value = line.mid(separatorPosition + 1).trimmed();
 
                 auto sectionIterator = m_sections.constFind(currentSection);
                 if (sectionIterator != m_sections.constEnd() && sectionIterator.value()->entry(name))
-                    sectionIterator.value()->entry(name)->setValue(value.toString());
+                    sectionIterator.value()->entry(name)->setValue(value);
                 else
                     // if we don't have such member in the config, nag about it
                     m_unusedVariables = true;
             }
             // section start
-            else if (lineRef.startsWith(QLatin1Char('[')) && lineRef.endsWith(QLatin1Char(']')))
-                currentSection = lineRef.mid(1, lineRef.length() - 2).toString();
+            else if (line.startsWith(QLatin1Char('[')) && line.endsWith(QLatin1Char(']')))
+                currentSection = line.mid(1, line.length() - 2);
         }
     }
 
@@ -285,16 +284,16 @@ namespace SDDM {
         while (!file.atEnd()) {
             const QString line = QString::fromUtf8(file.readLine());
             // get rid of comments first
-            QStringRef trimmedLine = line.leftRef(line.indexOf(QLatin1Char('#'))).trimmed();
-            QStringRef comment;
+            auto trimmedLine = line.left(line.indexOf(QLatin1Char('#'))).trimmed();
+            QString comment;
             if (line.indexOf(QLatin1Char('#')) >= 0)
-                comment = line.midRef(line.indexOf(QLatin1Char('#'))).trimmed();
+                comment = line.mid(line.indexOf(QLatin1Char('#'))).trimmed();
 
             // value assignment
             int separatorPosition = trimmedLine.indexOf(QLatin1Char('='));
             if (separatorPosition >= 0) {
-                QString name = trimmedLine.left(separatorPosition).trimmed().toString();
-                QStringRef value = trimmedLine.mid(separatorPosition + 1).trimmed();
+                QString name = trimmedLine.left(separatorPosition).trimmed();
+                auto value = trimmedLine.mid(separatorPosition + 1).trimmed();
 
                 if (currentSection && currentSection->entry(name)) {
                     // this monstrous condition checks the parameters if only one entry/section should be saved
@@ -302,7 +301,7 @@ namespace SDDM {
                         (!entry && section && section->name() == currentSection->name()) ||
                         value != currentSection->entry(name)->value()) {
                         changed = true;
-                        writeSectionData(QStringLiteral("%1=%2 %3\n").arg(name).arg(currentSection->entry(name)->value()).arg(comment.toString()));
+                        writeSectionData(QStringLiteral("%1=%2 %3\n").arg(name).arg(currentSection->entry(name)->value()).arg(comment));
                     }
                     else
                         writeSectionData(line);
@@ -311,13 +310,13 @@ namespace SDDM {
                 else {
                     if (currentSection)
                         m_unusedVariables = true;
-                    writeSectionData(QStringLiteral("%1 %2\n").arg(trimmedLine.toString()).arg(QStringLiteral(UNUSED_VARIABLE_COMMENT)));
+                    writeSectionData(QStringLiteral("%1 %2\n").arg(trimmedLine).arg(QStringLiteral(UNUSED_VARIABLE_COMMENT)));
                 }
             }
 
             // section start
             else if (trimmedLine.startsWith(QLatin1Char('[')) && trimmedLine.endsWith(QLatin1Char(']'))) {
-                const QString name = trimmedLine.mid(1, trimmedLine.length() - 2).toString();
+                const QString name = trimmedLine.mid(1, trimmedLine.length() - 2);
                 auto sectionIterator = m_sections.constFind(name);
                 if (sectionIterator != m_sections.constEnd()) {
                     currentSection = sectionIterator.value();

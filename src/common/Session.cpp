@@ -214,14 +214,14 @@ namespace SDDM {
     {
         QProcessEnvironment env;
 
-        const QVector<QStringRef> entryList = list.splitRef(QLatin1Char(','), Qt::SkipEmptyParts);
+        const QVector<QString> entryList = list.split(QLatin1Char(','), Qt::SkipEmptyParts);
         for (const auto &entry: entryList) {
             int midPoint = entry.indexOf(QLatin1Char('='));
             if (midPoint < 0) {
                 qWarning() << "Malformed entry in" << fileName() << ":" << entry;
                 continue;
             }
-            env.insert(entry.left(midPoint).toString(), entry.mid(midPoint+1).toString());
+            env.insert(entry.left(midPoint), entry.mid(midPoint+1));
         }
         return env;
     }

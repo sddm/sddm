@@ -137,7 +137,7 @@ bool XAuth::writeCookieToFile(const QString &display, const QString &fileName,
     char cookieName[] = "MIT-MAGIC-COOKIE-1";
 
     // Skip the ':'
-    QByteArray displayNumberUtf8 = display.midRef(1).toUtf8();
+    QByteArray displayNumberUtf8 = display.mid(1).toUtf8();
 
     auth.family = FamilyLocal;
     auth.address = localhost;
