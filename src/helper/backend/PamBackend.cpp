@@ -27,6 +27,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>
+#include <QtCore/QRegularExpression>
 
 #include <stdlib.h>
 
@@ -59,14 +60,14 @@ namespace SDDM {
     AuthPrompt::Type PamData::detectPrompt(const struct pam_message* msg) const {
         if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
             QString message = QString::fromLocal8Bit(msg->msg);
-            if (message.indexOf(QRegExp(QStringLiteral("\\bpassword\\b"), Qt::CaseInsensitive)) >= 0) {
-                if (message.indexOf(QRegExp(QStringLiteral("\\b(re-?(enter|type)|again|confirm|repeat)\\b"), Qt::CaseInsensitive)) >= 0) {
+            if ((QRegularExpression(QStringLiteral("\\bpassword\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
+                if ((QRegularExpression(QStringLiteral("\\b(re-?(enter|type)|again|confirm|repeat)\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
                     return AuthPrompt::CHANGE_REPEAT;
                 }
-                else if (message.indexOf(QRegExp(QStringLiteral("\\bnew\\b"), Qt::CaseInsensitive)) >= 0) {
+                else if ((QRegularExpression(QStringLiteral("\\bnew\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
                     return AuthPrompt::CHANGE_NEW;
                 }
-                else if (message.indexOf(QRegExp(QStringLiteral("\\b(old|current)\\b"), Qt::CaseInsensitive)) >= 0) {
+                else if ((QRegularExpression(QStringLiteral("\\b(old|current)\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
                     return AuthPrompt::CHANGE_CURRENT;
                 }
                 else {
@@ -154,7 +155,7 @@ namespace SDDM {
     }
 
     Auth::Info PamData::handleInfo(const struct pam_message* msg, bool predict) {
-        if (QString::fromLocal8Bit(msg->msg).indexOf(QRegExp(QStringLiteral("^Changing password for [^ ]+$")))) {
+        if ((QRegularExpression(QStringLiteral("^Changing password for [^ ]+$"))).match(QString::fromLocal8Bit(msg->msg)).hasMatch()) {
             if (predict)
                 m_currentRequest = Request(changePassRequest);
             return Auth::INFO_PASS_CHANGE_REQUIRED;
