@@ -63,9 +63,9 @@ qt5_add_dbus_interface(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.f
 
 add_executable(sddm ${DAEMON_SOURCES})
 target_link_libraries(sddm
-                      Qt5::DBus
-                      Qt5::Network
-                      Qt5::Qml
+                      Qt6::DBus
+                      Qt6::Network
+                      Qt6::Qml
                       ${LIBXAU_LINK_LIBRARIES}
                       ${LIBXCB_LIBRARIES})
 if(PAM_FOUND)

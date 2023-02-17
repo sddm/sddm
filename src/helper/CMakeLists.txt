@@ -39,9 +39,9 @@ endif()
 
 add_executable(sddm-helper ${HELPER_SOURCES})
 target_link_libraries(sddm-helper
-                      Qt5::Network
-                      Qt5::DBus
-                      Qt5::Qml
+                      Qt6::Network
+                      Qt6::DBus
+                      Qt6::Qml
                       ${LIBXAU_LINK_LIBRARIES})
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "FreeBSD")
     # On FreeBSD (possibly other BSDs as well), we want to use
@@ -64,7 +64,7 @@ endif()
 install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 add_executable(sddm-helper-start-wayland HelperStartWayland.cpp waylandsocketwatcher.cpp waylandhelper.cpp ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp)
-target_link_libraries(sddm-helper-start-wayland Qt5::Core)
+target_link_libraries(sddm-helper-start-wayland Qt6::Core)
 install(TARGETS sddm-helper-start-wayland RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 add_executable(sddm-helper-start-x11user HelperStartX11User.cpp xorguserhelper.cpp
@@ -73,7 +73,7 @@ add_executable(sddm-helper-start-x11user HelperStartX11User.cpp xorguserhelper.c
                                                 ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
                                                 ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
                                                 )
-target_link_libraries(sddm-helper-start-x11user Qt5::Core
+target_link_libraries(sddm-helper-start-x11user Qt6::Core
                                                 ${LIBXAU_LINK_LIBRARIES})
 install(TARGETS sddm-helper-start-x11user RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
