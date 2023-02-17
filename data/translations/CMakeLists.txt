@@ -43,7 +43,7 @@ set(TRANSLATION_FILES
     zh_TW.ts
 )
 
-qt5_add_translation(QM_FILES ${TRANSLATION_FILES})
+qt_add_translation(QM_FILES ${TRANSLATION_FILES})
 
 install(FILES ${QM_FILES} DESTINATION "${COMPONENTS_TRANSLATION_DIR}")
 
