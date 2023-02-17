@@ -19,6 +19,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QObject>
+#include <QtCore/QRegularExpression>
 
 #include "KeyboardModel.h"
 #include "KeyboardModel_p.h"
@@ -267,8 +268,7 @@ namespace SDDM {
     }
 
     QList<QString> XcbKeyboardBackend::parseShortNames(QString text) {
-        QRegExp re(QStringLiteral(R"(\+([a-z]+))"));
-        re.setCaseSensitivity(Qt::CaseInsensitive);
+        QRegularExpression re(QStringLiteral(R"(\+([a-z]+))"), QRegularExpression::CaseInsensitiveOption);
 
         QList<QString> res;
         QSet<QString> blackList; // blacklist wrong tokens
@@ -276,10 +276,11 @@ namespace SDDM {
 
         // Loop through matched substrings
         int pos = 0;
-        while ((pos = re.indexIn(text, pos)) != -1) {
-            if (!blackList.contains(re.cap(1)))
-                res << re.cap(1);
-            pos += re.matchedLength();
+        QRegularExpressionMatch match;
+        while ((match = re.match(text, pos)).hasMatch()) {
+            if (!blackList.contains(match.captured(1)))
+                res << match.captured(1);
+            pos += match.capturedLength();
         }
         return res;
     }
