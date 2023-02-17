@@ -21,6 +21,7 @@
 #include "SafeDataStream.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QIODevice>
 
 namespace SDDM {
     SafeDataStream::SafeDataStream(QIODevice* device)

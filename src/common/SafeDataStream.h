@@ -21,7 +21,9 @@
 #ifndef SAFEDATASTREAM_H
 #define SAFEDATASTREAM_H
 
+#include <QtCore/QByteArray>
 #include <QtCore/QDataStream>
+#include <QtCore/QIODevice>
 
 namespace SDDM {
     class SafeDataStream : public QDataStream {
