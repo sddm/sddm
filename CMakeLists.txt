@@ -97,7 +97,7 @@ find_package(XCB REQUIRED)
 find_package(XKB REQUIRED)
 
 # Qt 6
-find_package(Qt6 5.15.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
+find_package(Qt6 6.4.2 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
 
 # find qt6 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt6::qmake LOCATION)
