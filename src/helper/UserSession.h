@@ -55,12 +55,11 @@ namespace SDDM {
     Q_SIGNALS:
         void finished(int exitCode);
 
-
-    protected:
-        void setupChildProcess() override;
-
     private:
         void setup();
+
+        // Don't call it directly, it will be invoked by the child process only
+        void childModifier();
 
         QString m_path { };
         QTemporaryFile m_xauthFile;
