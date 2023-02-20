@@ -228,7 +228,7 @@ namespace SDDM {
 
         // show
         qDebug() << "Adding view for" << screen->name() << screen->geometry();
-        view->show();
+        view->showFullScreen();
 
         // activate windows for the primary screen to give focus to text fields
         if (QGuiApplication::primaryScreen() == screen)
