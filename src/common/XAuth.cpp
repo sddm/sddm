@@ -116,17 +116,22 @@ bool XAuth::writeCookieToFile(const QString &display, const QString &fileName,
 
     qDebug() << "Writing cookie to" << fileName;
 
-    if(display.size() < 2 || display[0] != QLatin1Char(':') || cookie.size() != 16)
+    if(display.size() < 2 || display[0] != QLatin1Char(':') || cookie.size() != 16) {
+        qWarning().nospace() << "Unexpected DISPLAY='" << display << "' or cookie.size() = " << cookie.size();
         return false;
+    }
 
     // The file needs 0600 permissions
     const int oldumask = umask(077);
 
     // Truncate the file. We don't support merging like the xauth tool does.
     FILE * const authFp = fopen(qPrintable(fileName), "wb");
+    auto error = errno;
     umask(oldumask);
-    if (authFp == nullptr)
+    if (authFp == nullptr) {
+        qWarning().nospace() << "fopen() failed with errno=" << error;
         return false;
+    }
 
     auto fileCloser = qScopeGuard([authFp]{ fclose(authFp); });
     char localhost[HOST_NAME_MAX + 1] = "";
@@ -149,18 +154,27 @@ bool XAuth::writeCookieToFile(const QString &display, const QString &fileName,
     auth.data = cookie.data();
     auth.data_length = cookie.size();
 
+    errno = 0;
     if (XauWriteAuth(authFp, &auth) == 0) {
+        qWarning().nospace() << "XauWriteAuth(FamilyLocal) failed with errno=" << errno;
         return false;
     }
 
     // Write the same entry again, just with FamilyWild
     auth.family = FamilyWild;
     auth.address_length = 0;
+    errno = 0;
     if (XauWriteAuth(authFp, &auth) == 0) {
+        qWarning().nospace() << "XauWriteAuth(FamilyWild) failed with errno=" << errno;
         return false;
     }
 
-    return fflush(authFp) != EOF;
+    if (fflush(authFp) != 0) {
+        qWarning().nospace() << "fflush() failed with errno=" << errno;
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace SDDM
