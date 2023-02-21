@@ -93,11 +93,12 @@ void XAuth::setup()
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 0xFF);
 
+    m_cookie.truncate(0);
     m_cookie.reserve(16);
 
     // Create a random hexadecimal number
     for(int i = 0; i < 16; i++)
-        m_cookie[i] = dis(gen);
+        m_cookie.append(dis(gen));
 }
 
 bool XAuth::addCookie(const QString &display)
