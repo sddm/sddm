@@ -57,8 +57,8 @@ namespace SDDM {
         return QRect(QPoint(0, 0), d->screen->geometry().size());
     }
 
-    int ScreenModel::rowCount([[maybe_unused]] const QModelIndex &parent) const {
-        return 1;
+    int ScreenModel::rowCount(const QModelIndex &parent) const {
+        return parent.isValid() ? 0 : 1;
     }
 
     QVariant ScreenModel::data(const QModelIndex &index, int role) const {

@@ -53,7 +53,7 @@ namespace SDDM {
 
         // refresh everytime a file is changed, added or removed
         QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
-        connect(watcher, &QFileSystemWatcher::directoryChanged, [this]([[maybe_unused]] const QString &path) {
+        connect(watcher, &QFileSystemWatcher::directoryChanged, [this]() {
             // Recheck for flag to show Wayland sessions
             bool dri_active = QFileInfo::exists(QStringLiteral("/dev/dri"));
             beginResetModel();
@@ -89,8 +89,8 @@ namespace SDDM {
         return d->lastIndex;
     }
 
-    int SessionModel::rowCount([[maybe_unused]] const QModelIndex &parent) const {
-        return d->sessions.length();
+    int SessionModel::rowCount(const QModelIndex &parent) const {
+        return parent.isValid() ? 0 : d->sessions.length();
     }
 
     QVariant SessionModel::data(const QModelIndex &index, int role) const {

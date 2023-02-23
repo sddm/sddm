@@ -178,8 +178,8 @@ namespace SDDM {
         return stateConfig.Last.User.get();
     }
 
-    int UserModel::rowCount([[maybe_unused]] const QModelIndex &parent) const {
-        return d->users.length();
+    int UserModel::rowCount(const QModelIndex &parent) const {
+        return parent.isValid() ? 0 : d->users.length();
     }
 
     QVariant UserModel::data(const QModelIndex &index, int role) const {
