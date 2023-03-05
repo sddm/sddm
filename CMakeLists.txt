@@ -185,12 +185,18 @@ if (NOT ELOGIND_FOUND AND NOT SYSTEMD_FOUND)
     set(REBOOT_COMMAND "/sbin/shutdown -r now")
 endif()
 
+if (SYSTEMD_FOUND)
+    set(RUNTIME_DIR_DEFAULT "/run/sddm")
+else()
+    set(RUNTIME_DIR_DEFAULT "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run/sddm")
+endif()
+
 
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
 set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_SYSCONFDIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")
-set(RUNTIME_DIR                 "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run/sddm"      CACHE PATH      "Runtime data storage directory")
+set(RUNTIME_DIR                 "${RUNTIME_DIR_DEFAULT}"                            CACHE PATH      "Runtime data storage directory")
 set(QML_INSTALL_DIR             "${QT_IMPORTS_DIR}"                                 CACHE PATH      "QML component installation directory")
 
 set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"              CACHE PATH      "Script to execute when starting the X11 desktop session")
