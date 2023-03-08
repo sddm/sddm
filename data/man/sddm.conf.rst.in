@@ -159,7 +159,7 @@ OPTIONS
 `EnableHiDPI=`
 	Enables Qt's automatic HiDPI scaling.
 	Can be either "true" or "false".
-	Default value is "false".
+	Default value is "true".
 
 The `XauthPath=` option is no longer necessary, libxau is used instead.
 
@@ -189,7 +189,7 @@ The `UserAuthFile=` option was removed, the file is always created as
 `EnableHiDPI=`
 	Enables Qt's automatic HiDPI scaling.
 	Can be either "true" or "false".
-	Default value is "false".
+	Default value is "true".
 
 [Users] section:
 
