@@ -17,23 +17,42 @@ jobs:
   build:
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     strategy:
+      fail-fast: false
       matrix:
+        container-image:
+          - "quay.io/fedora/fedora:rawhide"
+          - "quay.io/centos/centos:stream9"
+          - "registry.opensuse.org/opensuse/tumbleweed-dnf"
+          - "docker.io/library/ubuntu:22.04"
         compiler:
           - gcc
           - clang
         pam:
           - ON
           - OFF
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+
+    container:
+      image: ${{ matrix.container-image }}
+
     steps:
       - uses: actions/checkout@v3
-      - name: Dependencies
+      - name: Dependencies (rpm-type)
+        if: ${{ contains(matrix.container-image, 'fedora') || contains(matrix.container-image, 'centos') || contains(matrix.container-image, 'opensuse') }}
         run: |
           set -x
-          sudo sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
-          sudo apt-get update -y
-          DEBIAN_FRONTEND=noninteractive sudo apt-get build-dep sddm -y
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install clang clazy sudo qml-module-qttest -y
+          dnf --assumeyes install dnf-plugins-core
+          if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes config-manager --set-enabled crb && dnf --assumeyes install epel-release; fi
+          dnf --assumeyes builddep sddm
+          dnf --assumeyes install clang clazy
+      - name: Dependencies (deb-type)
+        if: ${{ contains(matrix.container-image, 'ubuntu') }}
+        run: |
+          set -x
+          sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
+          apt-get update -y
+          DEBIAN_FRONTEND=noninteractive apt-get build-dep sddm -y
+          DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qml-module-qttest -y
       - name: Build
         run: |
           set -x
@@ -44,11 +63,17 @@ jobs:
             #export CXX=clang++
             export CXX=clazy
           fi
+          if [ -f "/usr/etc/login.defs" ]; then
+            export LOGIN_DEFS_PATH="/usr/etc/login.defs"
+          else
+            export LOGIN_DEFS_PATH="/etc/login.defs"
+          fi
           cmake .. \
             -DBUILD_MAN_PAGES:BOOL=ON \
-            -DENABLE_PAM:BOOL=${{ matrix.pam }}
+            -DENABLE_PAM:BOOL=${{ matrix.pam }} \
+            -DLOGIN_DEFS_PATH:PATH="${LOGIN_DEFS_PATH}"
           make -j $(getconf _NPROCESSORS_ONLN)
-          sudo make install
+          make install
       - name: Test
         env:
           CTEST_OUTPUT_ON_FAILURE: "1"
