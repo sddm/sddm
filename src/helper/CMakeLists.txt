@@ -20,22 +20,11 @@ set(HELPER_SOURCES
 
 list(APPEND HELPER_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
 
-if(PAM_FOUND)
-    set(HELPER_SOURCES
-        ${HELPER_SOURCES}
-        backend/PamHandle.cpp
-        backend/PamBackend.cpp
-    )
-else()
-    set(HELPER_SOURCES
-        ${HELPER_SOURCES}
-        backend/PasswdBackend.cpp
-    )
-
-   if(HAVE_GETSPNAM)
-       add_definitions(-DHAVE_GETSPNAM=1)
-   endif()
-endif()
+set(HELPER_SOURCES
+    ${HELPER_SOURCES}
+    backend/PamHandle.cpp
+    backend/PamBackend.cpp
+)
 
 add_executable(sddm-helper ${HELPER_SOURCES})
 target_link_libraries(sddm-helper

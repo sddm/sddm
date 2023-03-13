@@ -18,7 +18,7 @@
  *
  */
 
-#if !defined(PAMBACKEND_H) && defined(USE_PAM)
+#if !defined(PAMBACKEND_H)
 #define PAMBACKEND_H
 
 #include "Constants.h"
