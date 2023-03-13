@@ -27,9 +27,6 @@ jobs:
         compiler:
           - gcc
           - clang
-        pam:
-          - ON
-          - OFF
     runs-on: ubuntu-latest
 
     container:
@@ -70,7 +67,6 @@ jobs:
           fi
           cmake .. \
             -DBUILD_MAN_PAGES:BOOL=ON \
-            -DENABLE_PAM:BOOL=${{ matrix.pam }} \
             -DLOGIN_DEFS_PATH:PATH="${LOGIN_DEFS_PATH}"
           make -j $(getconf _NPROCESSORS_ONLN)
           make install

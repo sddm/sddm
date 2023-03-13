@@ -26,7 +26,6 @@ add_custom_target(dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 # Options
 option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
-option(ENABLE_PAM "Enable PAM support" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
 
@@ -74,18 +73,7 @@ include(FeatureSummary)
 find_package(PkgConfig)
 
 # PAM
-if(ENABLE_PAM)
-    find_package(PAM REQUIRED)
-
-    if(PAM_FOUND)
-        add_definitions(-DUSE_PAM)
-    endif()
-endif()
-add_feature_info("PAM" PAM_FOUND "PAM support")
-
-# getspnam and shadow(5) support
-include(CheckFunctionExists)
-check_function_exists(getspnam HAVE_GETSPNAM)
+find_package(PAM REQUIRED)
 
 # XAU
 pkg_check_modules(LIBXAU REQUIRED "xau")

@@ -280,8 +280,6 @@ namespace SDDM {
             exit(Auth::HELPER_OTHER_ERROR);
         }
 
-#ifdef USE_PAM
-
         // fetch ambient groups from PAM's environment;
         // these are set by modules such as pam_groups.so
         int n_pam_groups = getgroups(0, NULL);
@@ -330,15 +328,6 @@ namespace SDDM {
         }
         delete[] pam_groups;
         delete[] user_groups;
-
-#else
-
-        if (initgroups(pw.pw_name, pw.pw_gid) != 0) {
-            qCritical() << "initgroups(" << pw.pw_name << ", " << pw.pw_gid << ") failed for user: " << username;
-            exit(Auth::HELPER_OTHER_ERROR);
-        }
-
-#endif /* USE_PAM */
 
         if (setuid(pw.pw_uid) != 0) {
             qCritical() << "setuid(" << pw.pw_uid << ") failed for user: " << username;

@@ -22,7 +22,6 @@
 #include "HelperApp.h"
 
 #include "backend/PamBackend.h"
-#include "backend/PasswdBackend.h"
 #include "Configuration.h"
 #include "UserSession.h"
 
@@ -43,11 +42,7 @@ namespace SDDM {
 
     Backend *Backend::get(HelperApp* parent)
     {
-    #ifdef USE_PAM
         return new PamBackend(parent);
-    #else
-        return new PasswdBackend(parent);
-    #endif
     }
 
     void Backend::setAutologin(bool on) {
