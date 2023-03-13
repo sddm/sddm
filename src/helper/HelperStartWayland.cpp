@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     Q_ASSERT(::getuid() != 0);
     if (argc != 3) {
         QTextStream(stderr) << "Wrong number of arguments\n";
-        return Auth::HELPER_OTHER_ERROR;
+        return AuthEnums::HELPER_OTHER_ERROR;
     }
 
     WaylandHelper helper;
@@ -60,12 +60,12 @@ int main(int argc, char** argv)
     });
     QObject::connect(&helper, &WaylandHelper::failed, &app, [&app] {
         QTextStream(stderr) << "Failed to start wayland session" << Qt::endl;
-        app.exit(Auth::HELPER_SESSION_ERROR);
+        app.exit(AuthEnums::HELPER_SESSION_ERROR);
     });
 
     if (!helper.startCompositor(app.arguments()[1])) {
         qWarning() << "SDDM was unable to start" << app.arguments()[1];
-        return Auth::HELPER_DISPLAYSERVER_ERROR;
+        return AuthEnums::HELPER_DISPLAYSERVER_ERROR;
     }
     helper.startGreeter(app.arguments()[2]);
     return app.exec();

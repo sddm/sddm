@@ -72,6 +72,8 @@ namespace SDDM {
         void login(QLocalSocket *socket,
                    const QString &user, const QString &password,
                    const Session &session);
+        void setPamResponse(const QString &password);
+        void cancelPamConv();
         bool attemptAutologin();
         void displayServerStarted();
 
@@ -79,8 +81,10 @@ namespace SDDM {
         void stopped();
         void displayServerFailed();
 
-        void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
+        void loginFailed(QLocalSocket *socket, const QString &message, int result);
+        void pamConvMsg(QLocalSocket *socket, const QString &message, int result);
+        void pamRequest(QLocalSocket *socket, const AuthRequest * const request);
 
     private:
         QString findGreeterTheme() const;
@@ -93,6 +97,7 @@ namespace SDDM {
 
         bool m_relogin { true };
         bool m_started { false };
+        bool m_failed { false };
 
         int m_terminalId = 0;
         int m_sessionTerminalId = 0;
@@ -112,9 +117,10 @@ namespace SDDM {
         void slotRequestChanged();
         void slotAuthenticationFinished(const QString &user, bool success);
         void slotSessionStarted(bool success);
-        void slotHelperFinished(Auth::HelperExitStatus status);
-        void slotAuthInfo(const QString &message, Auth::Info info);
-        void slotAuthError(const QString &message, Auth::Error error);
+        void slotHelperFinished(AuthEnums::HelperExitStatus status);
+        void slotAuthInfo(const QString &message, AuthEnums::Info info, int result);
+        void slotAuthError(const QString &message, AuthEnums::Error error, int result);
+        void slotGreeterStopped();
     };
 }
 

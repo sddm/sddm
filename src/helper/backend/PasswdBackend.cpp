@@ -20,7 +20,8 @@
 
 #include "PasswdBackend.h"
 
-#include "AuthMessages.h"
+#include "AuthEnums.h"
+#include "AuthBase.h"
 #include "HelperApp.h"
 
 #include <QtCore/QDebug>
@@ -55,7 +56,9 @@ namespace SDDM {
             r.prompts << Prompt(AuthPrompt::LOGIN_USER, QStringLiteral("Login"), false);
         r.prompts << Prompt(AuthPrompt::LOGIN_PASSWORD, QStringLiteral("Password"), true);
 
-        Request response = m_app->request(r);
+        bool canceled = false;
+        Request response = m_app->request(r,canceled);
+        if(canceled==true) return false; // canceled in greeter
         for(const Prompt &p : qAsConst(response.prompts)) {
             switch (p.type) {
                 case AuthPrompt::LOGIN_USER:
@@ -71,7 +74,7 @@ namespace SDDM {
 
         struct passwd *pw = getpwnam(qPrintable(m_user));
         if (!pw) {
-            m_app->error(QStringLiteral("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
+            m_app->error(QStringLiteral("Wrong user/password combination"), AuthEnums::ERROR_AUTHENTICATION, 0);
             return false;
         }
         const char *system_passwd = pw->pw_passwd;
@@ -94,7 +97,7 @@ namespace SDDM {
             return true;
         }
 
-        m_app->error(QStringLiteral("Wrong user/password combination"), Auth::ERROR_AUTHENTICATION);
+        m_app->error(QStringLiteral("Wrong user/password combination"), AuthEnums::ERROR_AUTHENTICATION, 0);
         return false;
     }
 
