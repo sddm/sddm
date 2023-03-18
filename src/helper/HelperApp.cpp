@@ -168,6 +168,8 @@ namespace SDDM {
         QProcessEnvironment env = authenticated(m_user);
 
         if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
+            // Qt internally may load the xdg portal system early on, prevent this, we do not have a functional session running.
+            env.insert(QStringLiteral("QT_NO_XDG_DESKTOP_PORTAL"), QStringLiteral("1"));
             for (const auto &entry : mainConfig.GreeterEnvironment.get()) {
                 const int index = entry.indexOf(QLatin1Char('='));
                 if (index < 0) {
