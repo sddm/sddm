@@ -410,7 +410,7 @@ namespace SDDM {
         // last session later, in slotAuthenticationFinished()
         m_sessionName = session.fileName();
 
-        int m_sessionTerminalId = m_terminalId;
+        m_sessionTerminalId = m_terminalId;
         if ((session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) || (m_greeter->isRunning() && m_displayServerType != X11DisplayServerType)) {
             // Create a new VT when we need to have another compositor running
             m_sessionTerminalId = VirtualTerminal::setUpNewVt();
