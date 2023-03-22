@@ -61,7 +61,7 @@ namespace SDDM {
             Entry(DisableAvatarsThreshold,int,      7,                                          _S("Number of users to use as threshold\n"
                                                                                                    "above which avatars are disabled\n"
                                                                                                    "unless explicitly enabled with EnableAvatars"));
-        );
+        )
 
         // TODO: Not absolutely sure if everything belongs here. Xsessions, VT and probably some more seem universal
         Section(X11,
@@ -75,7 +75,7 @@ namespace SDDM {
             Entry(DisplayCommand,      QString,     _S(DATA_INSTALL_DIR "/scripts/Xsetup"),     _S("Path to a script to execute when starting the display server"));
             Entry(DisplayStopCommand,  QString,     _S(DATA_INSTALL_DIR "/scripts/Xstop"),      _S("Path to a script to execute when stopping the display server"));
             Entry(EnableHiDPI,         bool,        true,                                      _S("Enable Qt's automatic high-DPI scaling"));
-        );
+        )
 
         Section(Wayland,
             Entry(CompositorCommand,   QString,     _S("weston --shell=fullscreen-shell.so"),   _S("Path of the Wayland compositor to execute when starting the greeter"));
@@ -84,7 +84,7 @@ namespace SDDM {
             Entry(SessionCommand,      QString,     _S(WAYLAND_SESSION_COMMAND),                _S("Path to a script to execute when starting the desktop session"));
             Entry(SessionLogFile,      QString,     _S(".local/share/sddm/wayland-session.log"),_S("Path to the user session log file"));
             Entry(EnableHiDPI,         bool,        true,                                       _S("Enable Qt's automatic high-DPI scaling"));
-        );
+        )
 
         Section(Users,
             Entry(DefaultPath,         QString,     _S("/usr/local/bin:/usr/bin:/bin"),         _S("Default $PATH for logged in users"));
@@ -97,13 +97,13 @@ namespace SDDM {
             Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
 
             Entry(ReuseSession,        bool,        true,                                       _S("When logging in as the same user twice, restore the original session, rather than create a new one"));
-        );
+        )
 
         Section(Autologin,
             Entry(User,                QString,     QString(),                                  _S("Username for autologin session"));
             Entry(Session,             QString,     QString(),                                  _S("Name of session file for autologin session (if empty try last logged in)"));
             Entry(Relogin,             bool,        false,                                      _S("Whether sddm should automatically log back into sessions when they exit"));
-        );
+        )
     );
 
     Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? QString::fromLocal8Bit(tmp->pw_dir) : QStringLiteral(STATE_DIR);}().append(QStringLiteral("/state.conf")), QString(), QString(),
@@ -112,7 +112,7 @@ namespace SDDM {
                                                                                                    "This session will be preselected when the login screen appears."));
             Entry(User,            QString,     QString(),                                      _S("Name of the last logged-in user.\n"
                                                                                                    "This user will be preselected when the login screen appears"));
-        );
+        )
     );
 
     extern MainConfig mainConfig;

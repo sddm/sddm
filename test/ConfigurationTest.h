@@ -53,7 +53,7 @@ Config (TestConfig, CONF_FILE, CONF_DIR, SYS_CONF_DIR,
         Entry(       Int,             int,                      TEST_INT_1, _S("Test Integer Description"));
         Entry(StringList,     QStringList,  QStringList(TEST_STRINGLIST_1), _S("Test StringList Description"));
         Entry(   Boolean,            bool,                     TEST_BOOL_1, _S("Test Boolean Description"));
-    );
+    )
 );
 
 inline QTextStream& operator>>(QTextStream &str, TestConfig::CustomType &state) {
