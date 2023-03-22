@@ -45,6 +45,8 @@ WaylandKeyboardBackend::~WaylandKeyboardBackend()
 
 QList<QObject *> parseRules(const QString &filename, int &current)
 {
+    // FIXME: https://github.com/sddm/sddm/pull/1664#discussion_r1115361314
+    current = 0;
     QFile file(filename);
     qDebug() << "Parsing xkb rules from" << file.fileName();
     if (!file.open(QFile::ReadOnly | QFile::Text)) {

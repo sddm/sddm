@@ -66,7 +66,7 @@ namespace SDDM {
         }
 
         int getVtActive(int fd) {
-            vt_stat vtState = { 0 };
+            vt_stat vtState { };
             if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
                 qCritical() << "Failed to get current VT:" << strerror(errno);
                 return -1;
@@ -75,20 +75,20 @@ namespace SDDM {
         }
 #endif
 
-        static void onAcquireDisplay(int signal) {
+        static void onAcquireDisplay([[maybe_unused]] int signal) {
             int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             ioctl(fd, VT_RELDISP, VT_ACKACQ);
             close(fd);
         }
 
-        static void onReleaseDisplay(int signal) {
+        static void onReleaseDisplay([[maybe_unused]] int signal) {
             int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
             ioctl(fd, VT_RELDISP, 1);
             close(fd);
         }
 
         static bool handleVtSwitches(int fd) {
-            vt_mode setModeRequest = { 0 };
+            vt_mode setModeRequest { };
             bool ok = true;
 
             setModeRequest.mode = VT_PROCESS;
@@ -107,7 +107,7 @@ namespace SDDM {
         }
 
         static void fixVtMode(int fd, bool vt_auto) {
-            vt_mode getmodeReply = { 0 };
+            vt_mode getmodeReply { };
             int kernelDisplayMode = 0;
             bool modeFixed = false;
             bool ok = true;

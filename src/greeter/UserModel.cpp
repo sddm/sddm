@@ -170,7 +170,7 @@ namespace SDDM {
         return roleNames;
     }
 
-    const int UserModel::lastIndex() const {
+    int UserModel::lastIndex() const {
         return d->lastIndex;
     }
 
@@ -179,7 +179,7 @@ namespace SDDM {
     }
 
     int UserModel::rowCount(const QModelIndex &parent) const {
-        return d->users.length();
+        return parent.isValid() ? 0 : d->users.length();
     }
 
     QVariant UserModel::data(const QModelIndex &index, int role) const {

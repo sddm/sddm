@@ -182,7 +182,7 @@ namespace SDDM {
         return m_displayServer;
     }
 
-    const int Display::terminalId() const {
+    int Display::terminalId() const {
         return m_auth->isActive() ? m_sessionTerminalId : m_terminalId;
     }
 
@@ -454,7 +454,7 @@ namespace SDDM {
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
         if (success) {
-            qDebug() << "Authenticated successfully";
+            qDebug() << "Authentication for user " << user << " successful";
 
             if (!m_reuseSessionId.isNull()) {
                 OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
@@ -480,7 +480,7 @@ namespace SDDM {
             if (m_socket)
                 emit loginSucceeded(m_socket);
         } else if (m_socket) {
-            qDebug() << "Authentication failure";
+            qDebug() << "Authentication for user " << user << " failed";
             emit loginFailed(m_socket);
         }
         m_socket = nullptr;

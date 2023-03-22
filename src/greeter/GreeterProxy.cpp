@@ -209,6 +209,7 @@ namespace SDDM {
                     // emit signal
                     emit loginFailed();
                 }
+                break;
                 case DaemonMessages::InformationMessage: {
                     QString message;
                     input >> message;

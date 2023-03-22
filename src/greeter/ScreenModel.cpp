@@ -58,7 +58,7 @@ namespace SDDM {
     }
 
     int ScreenModel::rowCount(const QModelIndex &parent) const {
-        return 1;
+        return parent.isValid() ? 0 : 1;
     }
 
     QVariant ScreenModel::data(const QModelIndex &index, int role) const {
