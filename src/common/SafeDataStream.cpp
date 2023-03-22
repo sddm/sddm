@@ -34,7 +34,7 @@ namespace SDDM {
             qCritical() << " Auth: SafeDataStream: Could not write any data";
             return;
         }
-        m_device->write((const char*) &length, sizeof(length));
+        m_device->write(reinterpret_cast<const char*>(&length), sizeof(length));
         while (writtenTotal != length) {
             qint64 written = m_device->write(m_data.mid(writtenTotal));
             if (written < 0 || !m_device->isOpen()) {
@@ -57,7 +57,7 @@ namespace SDDM {
         }
         if (!m_device->bytesAvailable())
             m_device->waitForReadyRead(-1);
-        m_device->read((char*) &length, sizeof(length));
+        m_device->read(reinterpret_cast<char*>(&length), sizeof(length));
 
         if (length < 0)
             return;

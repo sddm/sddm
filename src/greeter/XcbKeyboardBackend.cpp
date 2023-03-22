@@ -289,7 +289,7 @@ namespace SDDM {
         while (xcb_generic_event_t *event = xcb_poll_for_event(m_conn)) {
             // Check event types
             if (event->response_type != 0 && event->pad0 == XCB_XKB_STATE_NOTIFY) {
-                xcb_xkb_state_notify_event_t *e = (xcb_xkb_state_notify_event_t *)event;
+                xcb_xkb_state_notify_event_t *e = reinterpret_cast<xcb_xkb_state_notify_event_t *>(event);
 
                 // Update state
                 d->capslock.enabled = e->lockedMods & d->capslock.mask;
