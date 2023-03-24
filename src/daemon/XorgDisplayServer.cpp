@@ -269,6 +269,9 @@ namespace SDDM {
         env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
         env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
         env.insert(QStringLiteral("XCURSOR_THEME"), mainConfig.Theme.CursorTheme.get());
+        QString xcursorSize = mainConfig.Theme.CursorSize.get();
+        if (!xcursorSize.isEmpty())
+            env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
         setCursor->setProcessEnvironment(env);
         displayScript->setProcessEnvironment(env);
 
