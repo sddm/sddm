@@ -153,64 +153,66 @@ namespace SDDM {
         Auth *auth = qobject_cast<Auth*>(parent());
         Msg m = MSG_UNKNOWN;
         SafeDataStream str(socket);
-        str.receive();
-        str >> m;
-        switch (m) {
-            case ERROR: {
-                QString message;
-                Error type = ERROR_NONE;
-                str >> message >> type;
-                Q_EMIT auth->error(message, type);
-                break;
-            }
-            case INFO: {
-                QString message;
-                Info type = INFO_NONE;
-                str >> message >> type;
-                Q_EMIT auth->info(message, type);
-                break;
-            }
-            case REQUEST: {
-                Request r;
-                str >> r;
-                request->setRequest(&r);
-                break;
-            }
-            case AUTHENTICATED: {
-                QString user;
-                str >> user;
-                if (!user.isEmpty()) {
-                    auth->setUser(user);
-                    Q_EMIT auth->authentication(user, true);
+        while (socket->bytesAvailable() > 0) {
+            str.receive();
+            str >> m;
+            switch (m) {
+                case ERROR: {
+                    QString message;
+                    Error type = ERROR_NONE;
+                    str >> message >> type;
+                    Q_EMIT auth->error(message, type);
+                    break;
+                }
+                case INFO: {
+                    QString message;
+                    Info type = INFO_NONE;
+                    str >> message >> type;
+                    Q_EMIT auth->info(message, type);
+                    break;
+                }
+                case REQUEST: {
+                    Request r;
+                    str >> r;
+                    request->setRequest(&r);
+                    break;
+                }
+                case AUTHENTICATED: {
+                    QString user;
+                    str >> user;
+                    if (!user.isEmpty()) {
+                        auth->setUser(user);
+                        Q_EMIT auth->authentication(user, true);
+                        str.reset();
+                        str << AUTHENTICATED << environment << cookie;
+                        str.send();
+                    }
+                    else {
+                        Q_EMIT auth->authentication(user, false);
+                    }
+                    break;
+                }
+                case SESSION_STATUS: {
+                    bool status;
+                    str >> status;
+                    Q_EMIT auth->sessionStarted(status);
                     str.reset();
-                    str << AUTHENTICATED << environment << cookie;
+                    str << SESSION_STATUS;
                     str.send();
+                    break;
                 }
-                else {
-                    Q_EMIT auth->authentication(user, false);
+                case DISPLAY_SERVER_STARTED: {
+                    QString displayName;
+                    str >> displayName;
+                    Q_EMIT auth->displayServerReady(displayName);
+                    str.reset();
+                    str << DISPLAY_SERVER_STARTED;
+                    str.send();
+                    break;
                 }
-                break;
-            }
-            case SESSION_STATUS: {
-                bool status;
-                str >> status;
-                Q_EMIT auth->sessionStarted(status);
-                str.reset();
-                str << SESSION_STATUS;
-                str.send();
-                break;
-            }
-        case DISPLAY_SERVER_STARTED: {
-                QString displayName;
-                str >> displayName;
-                Q_EMIT auth->displayServerReady(displayName);
-                str.reset();
-                str << DISPLAY_SERVER_STARTED;
-                str.send();
-                break;
-            }
-            default: {
-                Q_EMIT auth->error(QStringLiteral("Auth: Unexpected value received: %1").arg(m), ERROR_INTERNAL);
+                default: {
+                    Q_EMIT auth->error(QStringLiteral("Auth: Unexpected value received: %1").arg(m), ERROR_INTERNAL);
+                }
             }
         }
     }
