@@ -251,17 +251,17 @@ namespace SDDM {
         QProcessEnvironment sessionEnv = m_app->session()->processEnvironment();
         const auto sessionType = sessionEnv.value(QStringLiteral("XDG_SESSION_TYPE"));
         const auto sessionClass = sessionEnv.value(QStringLiteral("XDG_SESSION_CLASS"));
+        QString tty = VirtualTerminal::path(sessionEnv.value(QStringLiteral("XDG_VTNR")).toInt());
+        m_pam->setItem(PAM_TTY, qPrintable(tty));
         if (sessionType == QLatin1String("x11") && (sessionClass == QLatin1String("user") || !m_displayServer)) {
             QString display = sessionEnv.value(QStringLiteral("DISPLAY"));
             if (!display.isEmpty()) {
 #ifdef PAM_XDISPLAY
                 m_pam->setItem(PAM_XDISPLAY, qPrintable(display));
-#endif
+#else
                 m_pam->setItem(PAM_TTY, qPrintable(display));
+#endif
             }
-        } else {
-            QString tty = VirtualTerminal::path(sessionEnv.value(QStringLiteral("XDG_VTNR")).toInt());
-            m_pam->setItem(PAM_TTY, qPrintable(tty));
         }
 
         if (!m_pam->putEnv(sessionEnv)) {
