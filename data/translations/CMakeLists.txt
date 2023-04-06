@@ -10,6 +10,7 @@ set(TRANSLATION_FILES
     eu.ts
     fi.ts
     fr.ts
+    gl.ts
     hi_IN.ts
     he.ts
     hu.ts
