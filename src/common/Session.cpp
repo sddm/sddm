@@ -170,7 +170,9 @@ namespace SDDM {
             return;
 
         QSettings settings(m_fileName, QSettings::IniFormat);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         settings.setIniCodec("UTF-8");
+#endif
         QStringList locales = { QLocale().name() };
         if (auto clean = QLocale().name().remove(QRegularExpression(QLatin1String("_.*"))); clean != locales.constFirst()) {
             locales << clean;
