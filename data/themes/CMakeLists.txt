@@ -8,7 +8,7 @@ foreach(THEME ${THEMES})
 
     set_source_files_properties(${TRANSLATION_SOURCES} PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/${TRANSLATIONS_DIR}")
 
-    qt5_add_translation(QM_FILES "${TRANSLATION_SOURCES}")
+    qt_add_translation(QM_FILES "${TRANSLATION_SOURCES}")
 
     install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes" PATTERN "${THEME}/*.ts"
             EXCLUDE PATTERN "${THEME}/.gitattributes"

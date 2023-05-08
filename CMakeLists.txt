@@ -28,6 +28,7 @@ option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
+option(BUILD_WITH_QT6 "Build with Qt 6" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -84,11 +85,19 @@ find_package(XCB REQUIRED)
 # XKB
 find_package(XKB REQUIRED)
 
-# Qt 5
-find_package(Qt5 5.15.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
+# Qt
+if(BUILD_WITH_QT6)
+    set(QT_MAJOR_VERSION 6)
+    message(STATUS "Building Qt 6 version")
+else()
+    set(QT_MAJOR_VERSION 5)
+    message(STATUS "Building Qt 5 version")
+endif()
+
+find_package(Qt${QT_MAJOR_VERSION} 5.15.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
 
 # find qt5 imports dir
-get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
+get_target_property(QMAKE_EXECUTABLE Qt${QT_MAJOR_VERSION}::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
     exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
 endif()
