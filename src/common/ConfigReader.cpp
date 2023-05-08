@@ -27,19 +27,19 @@
 #include <QtCore/QMap>
 #include <QtCore/QBuffer>
 #include <QtCore/QFileInfo>
+#include <QtCore/QtGlobal>
+#include <QtCore/QStringView>
 
 QTextStream &operator>>(QTextStream &str, QStringList &list)  {
     list.clear();
 
     QString line = str.readLine();
-
-    const auto strings = line.splitRef(QLatin1Char(','));
-    for (const QStringRef &s : strings) {
-        QStringRef trimmed = s.trimmed();
+    const auto strings = QStringView{line}.split(u',');
+    for (const QStringView &s : strings) {
+        QStringView trimmed = s.trimmed();
         if (!trimmed.isEmpty())
             list.append(trimmed.toString());
     }
-
     return str;
 }
 
@@ -50,7 +50,7 @@ QTextStream &operator<<(QTextStream &str, const QStringList &list) {
 
 QTextStream &operator>>(QTextStream &str, bool &val) {
     QString line = str.readLine();
-    val = (0 == QStringRef(&line).trimmed().compare(QLatin1String("true"), Qt::CaseInsensitive));
+    val = (0 == QStringView(line).trimmed().compare(QLatin1String("true"), Qt::CaseInsensitive));
     return str;
 }
 
@@ -197,7 +197,7 @@ namespace SDDM {
             return;
         while (!in.atEnd()) {
             QString line = QString::fromUtf8(in.readLine());
-            QStringRef lineRef = QStringRef(&line).trimmed();
+            QStringView lineRef = QStringView(line).trimmed();
             // get rid of comments first
             lineRef = lineRef.left(lineRef.indexOf(QLatin1Char('#'))).trimmed();
 
@@ -211,7 +211,7 @@ namespace SDDM {
             int separatorPosition = lineRef.indexOf(QLatin1Char('='));
             if (separatorPosition >= 0) {
                 QString name = lineRef.left(separatorPosition).trimmed().toString();
-                QStringRef value = lineRef.mid(separatorPosition + 1).trimmed();
+                QStringView value = lineRef.mid(separatorPosition + 1).trimmed();
 
                 auto sectionIterator = m_sections.constFind(currentSection);
                 if (sectionIterator != m_sections.constEnd() && sectionIterator.value()->entry(name))
@@ -285,16 +285,16 @@ namespace SDDM {
         while (!file.atEnd()) {
             const QString line = QString::fromUtf8(file.readLine());
             // get rid of comments first
-            QStringRef trimmedLine = line.leftRef(line.indexOf(QLatin1Char('#'))).trimmed();
-            QStringRef comment;
+            QStringView trimmedLine = QStringView{line}.left(line.indexOf(QLatin1Char('#'))).trimmed();
+            QStringView comment;
             if (line.indexOf(QLatin1Char('#')) >= 0)
-                comment = line.midRef(line.indexOf(QLatin1Char('#'))).trimmed();
+                comment = QStringView{line}.mid(line.indexOf(QLatin1Char('#'))).trimmed();
 
             // value assignment
             int separatorPosition = trimmedLine.indexOf(QLatin1Char('='));
             if (separatorPosition >= 0) {
                 QString name = trimmedLine.left(separatorPosition).trimmed().toString();
-                QStringRef value = trimmedLine.mid(separatorPosition + 1).trimmed();
+                QStringView value = trimmedLine.mid(separatorPosition + 1).trimmed();
 
                 if (currentSection && currentSection->entry(name)) {
                     // this monstrous condition checks the parameters if only one entry/section should be saved

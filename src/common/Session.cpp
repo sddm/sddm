@@ -24,6 +24,9 @@
 #include <QSettings>
 #include <QLocale>
 #include <QRegularExpression>
+#include <QtGlobal>
+#include <QtCore/QtGlobal>
+#include <QtCore/QStringView>
 
 #include "Configuration.h"
 #include "Session.h"
@@ -214,8 +217,7 @@ namespace SDDM {
     QProcessEnvironment SDDM::Session::parseEnv(const QString &list)
     {
         QProcessEnvironment env;
-
-        const QVector<QStringRef> entryList = list.splitRef(QLatin1Char(','), Qt::SkipEmptyParts);
+        const auto entryList = QStringView{list}.split(u',');
         for (const auto &entry: entryList) {
             int midPoint = entry.indexOf(QLatin1Char('='));
             if (midPoint < 0) {
