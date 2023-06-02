@@ -51,7 +51,7 @@ jobs:
           dnf --assumeyes install dnf-plugins-core
           if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes config-manager --set-enabled crb && dnf --assumeyes install epel-release; fi
           dnf --assumeyes builddep sddm
-          dnf --assumeyes install clang clazy
+          dnf --assumeyes --allowerasing --nobest install clang clazy
       - name: Dependencies (deb-type)
         if: ${{ contains(matrix.container-image, 'ubuntu') }}
         run: |
