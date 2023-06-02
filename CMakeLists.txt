@@ -99,7 +99,7 @@ find_package(Qt${QT_MAJOR_VERSION} 5.15.0 CONFIG REQUIRED Core DBus Gui Qml Quic
 # find qt5 imports dir
 get_target_property(QMAKE_EXECUTABLE Qt${QT_MAJOR_VERSION}::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
-    exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_QML" RETURN_VALUE return_code OUTPUT_VARIABLE QT_IMPORTS_DIR)
+    execute_process(COMMAND ${QMAKE_EXECUTABLE} -query QT_INSTALL_QML OUTPUT_VARIABLE QT_IMPORTS_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 # Uninstall target
