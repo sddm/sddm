@@ -219,7 +219,7 @@ namespace SDDM {
     QProcessEnvironment SDDM::Session::parseEnv(const QString &list)
     {
         QProcessEnvironment env;
-        const auto entryList = QStringView{list}.split(u',');
+        const auto entryList = QStringView{list}.split(u',', Qt::SkipEmptyParts);
         for (const auto &entry: entryList) {
             int midPoint = entry.indexOf(QLatin1Char('='));
             if (midPoint < 0) {
