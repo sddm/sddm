@@ -20,10 +20,7 @@
 #ifndef KEYBOARDBACKEND_H
 #define KEYBOARDBACKEND_H
 
-#include <QObject>
-
 namespace SDDM {
-    class GreeterProxy;
     class KeyboardModel;
     class KeyboardModelPrivate;
 
@@ -32,7 +29,6 @@ namespace SDDM {
         KeyboardBackend(KeyboardModelPrivate *kmp) : d(kmp) {}
 
         virtual ~KeyboardBackend() {}
-        void setProxy(GreeterProxy *proxy);
 
         virtual void init() = 0;
         virtual void disconnect() = 0;

@@ -23,8 +23,6 @@
 #include <QtCore/QObject>
 
 namespace SDDM {
-    class GreeterProxy;
-
     struct Indicator {
         bool enabled { false };
         uint8_t mask { 0 };
@@ -41,7 +39,6 @@ namespace SDDM {
         // Layouts
         int layout_id { 0 };
         QList<QObject*> layouts;
-        GreeterProxy *m_proxy = nullptr;
     };
 }
 

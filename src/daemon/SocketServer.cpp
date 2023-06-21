@@ -179,19 +179,8 @@ namespace SDDM {
                 case GreeterMessages::HybridSleep: {
                     // log message
                     qDebug() << "Message received from greeter: HybridSleep";
-
                     // hybrid sleep
                     daemonApp->powerManager()->hybridSleep();
-                }
-                break;
-                case GreeterMessages::KeyboardLayout: {
-                    qDebug() << "Message received from greeter: Keyboard Layout switch";
-
-                    // read username, pasword etc.
-                    QString layout;
-                    input >> layout;
-
-                    daemonApp->setKeyboardLayout(layout);
                 }
                 break;
                 default: {

@@ -61,7 +61,6 @@ namespace SDDM {
         void suspend();
         void hibernate();
         void hybridSleep();
-        void sendKeyboardLayout(const QString &layout);
 
         void login(const QString &user, const QString &password, const int sessionIndex) const;
 

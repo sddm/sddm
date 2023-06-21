@@ -245,7 +245,6 @@ namespace SDDM {
     {
         // Connect to the daemon
         m_proxy = new GreeterProxy(m_socket);
-        m_keyboard->setProxy(m_proxy);
         if (!m_testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
             QCoreApplication::exit(EXIT_FAILURE);
