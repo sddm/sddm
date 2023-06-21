@@ -25,7 +25,6 @@
 #include <QString>
 
 namespace SDDM {
-    class GreeterProxy;
     class KeyboardModelPrivate;
     class KeyboardBackend;
 
@@ -46,8 +45,6 @@ namespace SDDM {
     public:
         KeyboardModel();
         virtual ~KeyboardModel();
-
-        void setProxy(GreeterProxy *proxy);
 
     signals:
         void numLockStateChanged();

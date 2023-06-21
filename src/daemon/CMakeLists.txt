@@ -43,8 +43,6 @@ list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
 qt_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.xml"          "DisplayManager.h" SDDM::DisplayManager)
 qt_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Seat.xml"     "DisplayManager.h" SDDM::DisplayManagerSeat)
 qt_add_dbus_adaptor(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.DisplayManager.Session.xml"  "DisplayManager.h" SDDM::DisplayManagerSession)
-qt_add_dbus_interface(DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.locale1.xml locale1_interface)
-
 
 set_source_files_properties("${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Manager.xml" PROPERTIES
    INCLUDE "LogindDBusTypes.h"

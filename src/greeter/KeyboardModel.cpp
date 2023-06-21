@@ -33,11 +33,12 @@ namespace SDDM {
     KeyboardModel::KeyboardModel() : d(new KeyboardModelPrivate) {
         if (QGuiApplication::platformName() == QLatin1String("xcb")) {
             m_backend = new XcbKeyboardBackend(d);
+            m_backend->init();
+            m_backend->connectEventsDispatcher(this);
         } else if (QGuiApplication::platformName().contains(QLatin1String("wayland"))) {
             m_backend = new WaylandKeyboardBackend(d);
+            m_backend->init();
         }
-        m_backend->init();
-        m_backend->connectEventsDispatcher(this);
     }
 
     KeyboardModel::~KeyboardModel() {
@@ -55,12 +56,6 @@ namespace SDDM {
     bool KeyboardModel::numLockState() const {
         return d->numlock.enabled;
     }
-
-    void KeyboardModel::setProxy(SDDM::GreeterProxy* proxy)
-    {
-        m_backend->setProxy(proxy);
-    }
-
 
     void KeyboardModel::setNumLockState(bool state) {
         if (d->numlock.enabled != state) {
