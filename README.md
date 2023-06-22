@@ -2,7 +2,8 @@
 
 [![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg "IRC Freenode")](https://webchat.freenode.net/?channels=sddm)
 
-SDDM is a modern display manager for X11 and Wayland aiming to be fast, simple and beautiful.
+SDDM is a modern display manager for X11 and Wayland sessions aiming to
+be fast, simple and beautiful.
 It uses modern technologies like QtQuick, which in turn gives the designer the ability to
 create smooth, animated user interfaces.
 
