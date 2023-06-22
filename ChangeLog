@@ -4,6 +4,33 @@
     - Bug fixes
     * Others
 
+## 0.20.0 - 2023-06-23
+----------------------
+    + Initial Qt6 support (Will break themes which rely on Qt 5)
+    + **Experimental** support for running the greeter with Wayland
+    + Enable HiDPI scaling by default
+    + Support for running X11 display server without root privileges
+    + Greeter: Support setting environment variables
+    + Allow additional env vars to be defined in session files (#1370)
+    + Make accountsservice data directory overridable via CMake
+    + Add support for X11 cursor size configuration
+    + Search XDG Base Directories for session files
+    + Display information and errors from PAM in the greeter (#1486)
+    * Remove the Passwd backend, make PAM mandatory
+    * Bump minimum CMake version to 3.4
+    * Introduce SDDM_INITIAL_VT as the TTY to reach out to
+    * Set XCURSOR_SIZE in XorgDisplayServer::start
+    * Make it possible to start ConsoleKit D-Bus service during SDDM startup
+    * pam: Do not use tally2 if faillock is present
+    * Bump to Qt 5.15, port away from deprecated APIs
+    * remove `-logfile` arg that causes server to fail
+    - Set RUNTIME_DIR to /run/sddm when using systemd to follow FHS 3.0
+    - Use avatars in FacesDir first and if not found search other locations
+    - Switch to using libxau with `FamilyWild` (#1230)
+    - New interface to access config values from themes (#1097)
+    - Session names are translated now (#1645)
+    - Many more bugfixes
+
 ## 0.19.0 - 2020-11-02
 ----------------------
     * Don't disable authentication in --test-mode
