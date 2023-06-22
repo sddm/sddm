@@ -42,7 +42,7 @@ OPTIONS
 
 	* `x11`: X server running as root.
 	* `x11-user`: X server running as unprivileged user.
-	* `wayland`: Wayland compositor as unprivileged user.
+	* `wayland`: Wayland compositor as unprivileged user. (Experimental)
 
 	Default value is "x11".
 	For `x11-user` you might need to configure Xorg.wrap(1).

@@ -39,7 +39,7 @@ namespace SDDM {
         //  Name                   Type         Default value                                   Description
         // TODO: Change default to x11-user in a future release
         Entry(DisplayServer,       QString,     _S("x11"),                                      _S("Which display server should be used.\n"
-                                                                                                   "Valid values are: x11, x11-user, wayland."));
+                                                                                                   "Valid values are: x11, x11-user, wayland. Wayland support is experimental"));
         Entry(HaltCommand,         QString,     _S(HALT_COMMAND),                               _S("Halt command"));
         Entry(RebootCommand,       QString,     _S(REBOOT_COMMAND),                             _S("Reboot command"));
         Entry(Numlock,             NumState,    NUM_NONE,                                       _S("Initial NumLock state. Can be on, off or none.\n"
