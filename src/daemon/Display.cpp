@@ -339,11 +339,12 @@ namespace SDDM {
         if (themeName.isEmpty())
             return QString();
 
-        QDir dir(mainConfig.Theme.ThemeDir.get());
-
-        // return the default theme if it exists
-        if (dir.exists(themeName))
-            return dir.absoluteFilePath(themeName);
+        // return the configured theme if it exists
+        for (const auto& themeDir: mainConfig.Theme.ThemeDir.get()) {
+            QDir dir(themeDir);
+            if (dir.exists(themeName))
+                return dir.absoluteFilePath(themeName);
+        }
 
         // otherwise use the embedded theme
         qWarning() << "The configured theme" << themeName << "doesn't exist, using the embedded theme instead";
