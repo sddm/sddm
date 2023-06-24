@@ -59,6 +59,7 @@ namespace SDDM {
         SessionModelPrivate *d { nullptr };
 
         void populate(Session::Type type, const QStringList &dirPaths);
+        void selectDefaultSession();
     };
 }
 
