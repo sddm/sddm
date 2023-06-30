@@ -351,8 +351,14 @@ int main(int argc, char **argv)
     qputenv("KDE_DEBUG", "1");
 
     // Qt IM module
-    if (!SDDM::mainConfig.InputMethod.get().isEmpty())
-        qputenv("QT_IM_MODULE", SDDM::mainConfig.InputMethod.get().toLocal8Bit().constData());
+    QString inputMethod = SDDM::mainConfig.InputMethod.get();
+    // Using qtvirtualkeyboard as IM on wayland doesn't really work,
+    // it has to be done by the compositor instead.
+    if (platform.startsWith(QStringLiteral("wayland")) && inputMethod == QStringLiteral("qtvirtualkeyboard"))
+        inputMethod = QString{};
+
+    if (!inputMethod.isEmpty())
+        qputenv("QT_IM_MODULE", inputMethod.toLocal8Bit());
 
     QGuiApplication app(argc, argv);
     SDDM::SignalHandler s;
