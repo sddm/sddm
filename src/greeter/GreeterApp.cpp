@@ -319,7 +319,7 @@ int main(int argc, char **argv)
         platform = QString::fromUtf8(qgetenv("QT_QPA_PLATFORM"));
     }
     if (platform.isEmpty()) {
-        platform = QStringLiteral("xcb");
+        platform = qEnvironmentVariableIsSet("WAYLAND_DISPLAY") ? QStringLiteral("wayland") : QStringLiteral("xcb");
     }
 
     // Install message handler
