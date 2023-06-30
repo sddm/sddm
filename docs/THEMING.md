@@ -21,6 +21,10 @@ We provide a proxy object, called as `sddm` to the themes as a context property.
 
 **hostName:** Holds the name of the host computer.
 
+**hostOsName:** Holds the operating system product name. "unknown", if not a recognised OS.
+
+**hostOsVersion:** Holds the operating system version. "unknown", if not a recognised OS.
+
 **canPowerOff:** true, if we can power off the machine; false, otherwise
 
 **canReboot:** true, if we can reboot the machine; false, otherwise
