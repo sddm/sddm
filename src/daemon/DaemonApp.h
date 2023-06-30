@@ -44,6 +44,8 @@ namespace SDDM {
         bool first { true };
 
         QString hostName() const;
+	QString hostOsName() const;
+	QString hostOsVersion() const;
         DisplayManager *displayManager() const;
         PowerManager *powerManager() const;
         SeatManager *seatManager() const;

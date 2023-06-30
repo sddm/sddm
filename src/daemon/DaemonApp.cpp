@@ -31,6 +31,7 @@
 #include <QDBusConnectionInterface>
 #include <QDebug>
 #include <QHostInfo>
+#include <QSysInfo>
 #include <QTimer>
 
 #include <iostream>
@@ -98,6 +99,14 @@ namespace SDDM {
 
     QString DaemonApp::hostName() const {
         return QHostInfo::localHostName();
+    }
+
+    QString DaemonApp::hostOsName() const {
+        return QSysInfo::productType();
+    }
+
+    QString DaemonApp::hostOsVersion() const {
+        return QSysInfo::productVersion();
     }
 
     DisplayManager *DaemonApp::displayManager() const {

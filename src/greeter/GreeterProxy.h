@@ -33,6 +33,8 @@ namespace SDDM {
         Q_DISABLE_COPY(GreeterProxy)
 
         Q_PROPERTY(QString  hostName        READ hostName       NOTIFY hostNameChanged)
+        Q_PROPERTY(QString  hostOsName      READ hostOsName     NOTIFY hostOsNameChanged)
+        Q_PROPERTY(QString  hostOsVersion   READ hostOsVersion  NOTIFY hostOsVersionChanged)
         Q_PROPERTY(bool     canPowerOff     READ canPowerOff    NOTIFY canPowerOffChanged)
         Q_PROPERTY(bool     canReboot       READ canReboot      NOTIFY canRebootChanged)
         Q_PROPERTY(bool     canSuspend      READ canSuspend     NOTIFY canSuspendChanged)
@@ -44,6 +46,8 @@ namespace SDDM {
         ~GreeterProxy();
 
         const QString &hostName() const;
+	const QString &hostOsName() const;
+	const QString &hostOsVersion() const;
 
         bool canPowerOff() const;
         bool canReboot() const;
@@ -73,6 +77,8 @@ namespace SDDM {
     signals:
         void informationMessage(const QString &message);
         void hostNameChanged(const QString &hostName);
+        void hostOsNameChanged(const QString &hostOsName);
+        void hostOsVersionChanged(const QString &hostOsVersion);
         void canPowerOffChanged(bool canPowerOff);
         void canRebootChanged(bool canReboot);
         void canSuspendChanged(bool canSuspend);
