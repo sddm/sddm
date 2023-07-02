@@ -198,6 +198,9 @@ set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"           
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations"                  CACHE PATH      "Components translations directory")
 set(SDDM_INITIAL_VT             "1"                                                 CACHE STRING    "Initial tty to use")
 
+# Default settings
+set(CURRENT_THEME               ""                                                  CACHE STRING    "Default theme")
+set(INPUT_METHOD                "qtvirtualkeyboard"                                 CACHE STRING    "Default input method")
 
 # Autodetect UID_MIN and UID_MAX from /etc/login.defs
 if(NOT DEFINED LOGIN_DEFS_PATH)
