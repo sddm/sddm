@@ -167,19 +167,6 @@ namespace SDDM {
         m_user = m_backend->userName();
         QProcessEnvironment env = authenticated(m_user);
 
-        if (env.value(QStringLiteral("XDG_SESSION_CLASS")) == QLatin1String("greeter")) {
-            // Qt internally may load the xdg portal system early on, prevent this, we do not have a functional session running.
-            env.insert(QStringLiteral("QT_NO_XDG_DESKTOP_PORTAL"), QStringLiteral("1"));
-            for (const auto &entry : mainConfig.GreeterEnvironment.get()) {
-                const int index = entry.indexOf(QLatin1Char('='));
-                if (index < 0) {
-                    qWarning() << "Malformed environment variable" << entry;
-                    continue;
-                }
-                env.insert(entry.left(index), entry.mid(index + 1));
-            }
-        }
-
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
             m_session->setProcessEnvironment(env);
