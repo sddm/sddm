@@ -8,6 +8,7 @@ set(TRANSLATION_FILES
     es.ts
     et.ts
     eu.ts
+    fa.ts
     fi.ts
     fr.ts
     gl.ts
