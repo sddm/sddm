@@ -44,8 +44,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Dependencies (rpm-type)
-        if: ${{ contains(matrix.container-image, 'fedora') || contains(matrix.container-image, 'centos') || contains(matrix.container-image, 'opensuse') }}
+      - name: Dependencies (Fedora Rawhide)
+        if: ${{ contains(matrix.container-image, 'rawhide') }}
+        run: |
+          set -x
+          dnf --assumeyes install dnf-plugins-core
+          dnf --assumeyes builddep sddm
+          dnf --assumeyes --no-best install clang clazy
+      - name: Dependencies (CentOS, openSUSE)
+        if: ${{ contains(matrix.container-image, 'centos') || contains(matrix.container-image, 'opensuse') }}
         run: |
           set -x
           dnf --assumeyes install dnf-plugins-core
