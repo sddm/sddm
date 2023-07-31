@@ -220,11 +220,20 @@ namespace SDDM {
             return false;
         }
 
+        const QString username = mainConfig.Autologin.User.get();
+
+        // check if the user even exists
+        struct passwd *pw = getpwnam(qPrintable(username));
+        if (!pw) {
+            qCritical() << "Failed to find the autologin user:" << username;
+            return false;
+        }
+
         Session session;
         session.setTo(sessionType, autologinSession);
 
         m_auth->setAutologin(true);
-        startAuth(mainConfig.Autologin.User.get(), QString(), session);
+        startAuth(username, QString(), session);
 
         return true;
     }
