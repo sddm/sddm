@@ -220,22 +220,44 @@ namespace SDDM {
             return false;
         }
 
-        const QString username = mainConfig.Autologin.User.get();
-
-        // check if the user even exists
-        struct passwd *pw = getpwnam(qPrintable(username));
-        if (!pw) {
-            qCritical() << "Failed to find the autologin user:" << username;
-            return false;
-        }
-
         Session session;
         session.setTo(sessionType, autologinSession);
 
         m_auth->setAutologin(true);
-        startAuth(username, QString(), session);
+        const bool result = startAuth(mainConfig.Autologin.User.get(), QString(), session);
 
-        return true;
+        if (!result)
+            m_auth->setAutologin(false);
+
+        return result;
+    }
+
+    void Display::startSocketServerAndGreeter() {
+        // start socket server
+        m_socketServer->start(m_displayServer->display());
+
+        if (!daemonApp->testing()) {
+            // change the owner and group of the socket to avoid permission denied errors
+            struct passwd *pw = getpwnam("sddm");
+            if (pw) {
+                if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
+                    qWarning() << "Failed to change owner of the socket";
+                    return;
+                }
+            }
+        }
+
+        m_greeter->setSocket(m_socketServer->socketAddress());
+        m_greeter->setTheme(findGreeterTheme());
+
+        // start greeter
+        m_greeter->start();
+
+        // reset first flag
+        daemonApp->first = false;
+
+        // set flags
+        m_started = true;
     }
 
     void Display::displayServerStarted() {
@@ -265,31 +287,7 @@ namespace SDDM {
             }
         }
 
-        // start socket server
-        m_socketServer->start(m_displayServer->display());
-
-        if (!daemonApp->testing()) {
-            // change the owner and group of the socket to avoid permission denied errors
-            struct passwd *pw = getpwnam("sddm");
-            if (pw) {
-                if (chown(qPrintable(m_socketServer->socketAddress()), pw->pw_uid, pw->pw_gid) == -1) {
-                    qWarning() << "Failed to change owner of the socket";
-                    return;
-                }
-            }
-        }
-
-        m_greeter->setSocket(m_socketServer->socketAddress());
-        m_greeter->setTheme(findGreeterTheme());
-
-        // start greeter
-        m_greeter->start();
-
-        // reset first flag
-        daemonApp->first = false;
-
-        // set flags
-        m_started = true;
+        startSocketServerAndGreeter();
     }
 
     void Display::stop() {
@@ -374,11 +372,11 @@ namespace SDDM {
         return false;
     }
 
-    void Display::startAuth(const QString &user, const QString &password, const Session &session) {
+    bool Display::startAuth(const QString &user, const QString &password, const Session &session) {
 
         if (m_auth->isActive()) {
             qWarning() << "Existing authentication ongoing, aborting";
-            return;
+            return false;
         }
 
         m_passPhrase = password;
@@ -386,15 +384,21 @@ namespace SDDM {
         // sanity check
         if (!session.isValid()) {
             qCritical() << "Invalid session" << session.fileName();
-            return;
+            return false;
         }
         if (session.xdgSessionType().isEmpty()) {
             qCritical() << "Failed to find XDG session type for session" << session.fileName();
-            return;
+            return false;
         }
         if (session.exec().isEmpty()) {
             qCritical() << "Failed to find command for session" << session.fileName();
-            return;
+            return false;
+        }
+        // check if the user even exists
+        struct passwd *pw = getpwnam(qPrintable(user));
+        if (!pw) {
+            qCritical() << "Failed to find the autologin user" << user;
+            return false;
         }
 
         m_reuseSessionId = QString();
@@ -460,6 +464,8 @@ namespace SDDM {
         }
         m_auth->insertEnvironment(env);
         m_auth->start();
+
+        return true;
     }
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
@@ -507,6 +513,13 @@ namespace SDDM {
 
     void Display::slotAuthError(const QString &message, Auth::Error error) {
         qWarning() << "Authentication error:" << error << message;
+
+        if (m_auth->autologin()) {
+            qWarning() << "Autologin auth failed!";
+            m_auth->setAutologin(false);
+            startSocketServerAndGreeter();
+            return;
+        }
 
         if (!m_socket)
             return;

@@ -86,8 +86,10 @@ namespace SDDM {
         QString findGreeterTheme() const;
         bool findSessionEntry(const QStringList &dirPaths, const QString &name) const;
 
-        void startAuth(const QString &user, const QString &password,
+        bool startAuth(const QString &user, const QString &password,
                        const Session &session);
+
+        void startSocketServerAndGreeter();
 
         DisplayServerType m_displayServerType = X11DisplayServerType;
 
