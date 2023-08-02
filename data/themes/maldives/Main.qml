@@ -127,7 +127,11 @@ Rectangle {
 
                         Keys.onPressed: {
                             if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                sddm.login(name.text, password.text, sessionIndex)
+                                sddm.login({
+                                    user: name.text,
+                                    password: password.text,
+                                    sessionIndex: sessionIndex
+                                })
                                 event.accepted = true
                             }
                         }
@@ -154,7 +158,11 @@ Rectangle {
 
                         Keys.onPressed: {
                             if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                sddm.login(name.text, password.text, sessionIndex)
+                                sddm.login({
+                                    user: name.text,
+                                    password: password.text,
+                                    sessionIndex: sessionIndex
+                                })
                                 event.accepted = true
                             }
                         }
@@ -243,7 +251,11 @@ Rectangle {
                         text: textConstants.login
                         width: parent.btnWidth
 
-                        onClicked: sddm.login(name.text, password.text, sessionIndex)
+                        onClicked: sddm.login({
+                                    user: name.text,
+                                    password: password.text,
+                                    sessionIndex: sessionIndex
+                                })
 
                         KeyNavigation.backtab: layoutBox; KeyNavigation.tab: shutdownButton
                     }

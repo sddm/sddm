@@ -70,8 +70,7 @@ namespace SDDM {
         void stop();
 
         void login(QLocalSocket *socket,
-                   const QString &user, const QString &password,
-                   const Session &session);
+                   const QVariantMap &args);
         bool attemptAutologin();
         void displayServerStarted();
 

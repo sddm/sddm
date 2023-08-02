@@ -1,5 +1,7 @@
 /***************************************************************************
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2023 Serenity Cybersecurity, LLC <license@futurecrew.ru>
+*                    Author: Gleb Popov <arrowd@FreeBSD.org>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -62,6 +64,8 @@ namespace SDDM {
         void hibernate();
         void hybridSleep();
 
+        void login(QVariantMap args) const;
+        // compatibility slot for old themes
         void login(const QString &user, const QString &password, const int sessionIndex) const;
 
     private slots:

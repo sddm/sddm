@@ -89,19 +89,6 @@ namespace SDDM {
 
         friend class SessionModel;
     };
-
-    inline QDataStream &operator<<(QDataStream &stream, const Session &session) {
-        stream << quint32(session.type()) << session.fileName();
-        return stream;
-    }
-
-    inline QDataStream &operator>>(QDataStream &stream, Session &session) {
-        quint32 type;
-        QString fileName;
-        stream >> type >> fileName;
-        session.setTo(static_cast<Session::Type>(type), fileName);
-        return stream;
-    }
 }
 
 #endif // SDDM_SESSION_H

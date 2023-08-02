@@ -88,7 +88,11 @@ Rectangle {
                 focus: (listView.currentIndex === index) ? true : false
                 state: (listView.currentIndex === index) ? "active" : ""
 
-                onLogin: sddm.login(model.name, password, sessionIndex);
+                onLogin: sddm.login({
+                    user: model.name,
+                    password: password,
+                    sessionIndex: sessionIndex
+                });
 
                 MouseArea {
                     anchors.fill: parent

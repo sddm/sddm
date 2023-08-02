@@ -52,8 +52,7 @@ namespace SDDM {
 
     signals:
         void login(QLocalSocket *socket,
-                   const QString &user, const QString &password,
-                   const Session &session);
+                   const QVariantMap &args);
         void connected();
 
     private:

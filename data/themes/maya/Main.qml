@@ -111,7 +111,11 @@ Rectangle {
     maya_busy.visible = true;
     maya_busy_anim.start()
 
-    sddm.login(maya_username.text, maya_password.text, maya_session.index);
+    sddm.login({
+      user: maya_username.text,
+      password: maya_password.text,
+      sessionIndex: maya_session.index
+    });
   }
 
 

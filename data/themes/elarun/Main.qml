@@ -136,7 +136,11 @@ Rectangle {
 
                             Keys.onPressed: {
                                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                    sddm.login(user_entry.text, pw_entry.text, sessionIndex)
+                                    sddm.login({
+                                        user: user_entry.text,
+                                        password: pw_entry.text,
+                                        sessionIndex: sessionIndex
+                                    })
                                     event.accepted = true
                                 }
                             }
@@ -152,7 +156,11 @@ Rectangle {
 
                     source: "images/login_normal.png"
 
-                    onClicked: sddm.login(user_entry.text, pw_entry.text, sessionIndex)
+                    onClicked: sddm.login({
+                                    user: user_entry.text,
+                                    password: pw_entry.text,
+                                    sessionIndex: sessionIndex
+                                })
 
 		    KeyNavigation.backtab: pw_entry; KeyNavigation.tab: session
                 }

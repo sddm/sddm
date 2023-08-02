@@ -1,6 +1,8 @@
 /***************************************************************************
-* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 * Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+* Copyright (c) 2015 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
+* Copyright (c) 2023 Serenity Cybersecurity, LLC <license@futurecrew.ru>
+*                    Author: Gleb Popov <arrowd@FreeBSD.org>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -108,23 +110,26 @@ namespace SDDM {
         SocketWriter(d->socket) << quint32(GreeterMessages::HybridSleep);
     }
 
-    void GreeterProxy::login(const QString &user, const QString &password, const int sessionIndex) const {
-        if (!d->sessionModel) {
-            // log error
-            qCritical() << "Session model is not set.";
-
-            // return
-            return;
-        }
-
+    void GreeterProxy::login(QVariantMap args) const {
+        int sessionIndex = args[QStringLiteral("sessionIndex")].toInt(); // this will default to 0 if not set
         // get model index
         QModelIndex index = d->sessionModel->index(sessionIndex, 0);
 
-        // send command to the daemon
-        Session::Type type = static_cast<Session::Type>(d->sessionModel->data(index, SessionModel::TypeRole).toInt());
-        QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
-        Session session(type, name);
-        SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
+        // these will default to UnknownSession and "", so no checks needed either
+        args[QStringLiteral("sessionType")] = d->sessionModel->data(index, SessionModel::TypeRole).toInt();
+        args[QStringLiteral("sessionName")] = d->sessionModel->data(index, SessionModel::FileRole).toString();
+
+        SocketWriter(d->socket) << quint32(GreeterMessages::Login) << args;
+    }
+
+    // compatibility slot for old themes
+    void GreeterProxy::login(const QString &user, const QString &password, const int sessionIndex) const {
+        QVariantMap args;
+        args[QStringLiteral("user")] = user;
+        args[QStringLiteral("password")] = password;
+        args[QStringLiteral("sessionIndex")] = sessionIndex;
+
+        login(args);
     }
 
     void GreeterProxy::connected() {

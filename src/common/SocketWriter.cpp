@@ -44,8 +44,8 @@ namespace SDDM {
         return *this;
     }
 
-    SocketWriter &SocketWriter::operator << (const Session &s) {
-        *output << s;
+    SocketWriter &SocketWriter::operator << (const QVariantMap &m) {
+        *output << m;
 
         return *this;
     }

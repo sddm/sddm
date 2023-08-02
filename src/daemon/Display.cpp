@@ -309,9 +309,11 @@ namespace SDDM {
     }
 
     void Display::login(QLocalSocket *socket,
-                        const QString &user, const QString &password,
-                        const Session &session) {
+                        const QVariantMap &args) {
         m_socket = socket;
+
+        QString user = args[QStringLiteral("user")].toString();
+        QString password = args[QStringLiteral("password")].toString();
 
         //the SDDM user has special privileges that skip password checking so that we can load the greeter
         //block ever trying to log in as the SDDM user
@@ -319,6 +321,10 @@ namespace SDDM {
             emit loginFailed(m_socket);
             return;
         }
+
+        Session::Type sessionType = static_cast<Session::Type>(args[QStringLiteral("sessionType")].toInt());
+        QString sessionName = args[QStringLiteral("sessionName")].toString();
+        Session session(sessionType, sessionName);
 
         // authenticate
         startAuth(user, password, session);
