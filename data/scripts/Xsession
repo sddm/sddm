@@ -5,39 +5,34 @@
 # This file is extracted from kde-workspace (kdm/kfrontend/genkdmconf.c)
 # Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
 
-# Note that the respective logout scripts are not sourced.
-case $SHELL in
-  */bash)
-    [ -z "$BASH" ] && exec $SHELL --login $0 "$@"
-    shopt -q login_shell || exec $SHELL --login $0 "$@"
-    set +o posix
-    ;;
-  */zsh)
-    [ -z "$ZSH_NAME" ] && exec $SHELL --login $0 "$@"
-    [[ -o login ]] || exec $SHELL --login $0 "$@"
-    emulate -R sh
-    ;;
-  */csh|*/tcsh)
-    # [t]cshrc is always sourced automatically.
-    # Note that sourcing csh.login after .cshrc is non-standard.
-    xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
-    $SHELL -c "if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) source ~/.login; /bin/sh -c 'export -p' >! $xsess_tmp"
-    . $xsess_tmp
-    rm -f $xsess_tmp
-    ;;
-  */fish)
-    [ -f /etc/profile ] && . /etc/profile
-    [ -f $HOME/.profile ] && . $HOME/.profile
-    xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
-    $SHELL --login -c "/bin/sh -c 'export -p' > $xsess_tmp"
-    . $xsess_tmp
-    rm -f $xsess_tmp
-    ;;
-  *) # Plain sh, ksh, and anything we do not know.
-    [ -f /etc/profile ] && . /etc/profile
-    [ -f $HOME/.profile ] && . $HOME/.profile
-    ;;
-esac
+# Import the login environment for some shells by starting them as login shell
+# and executing this script. Inside, SDDM_XSESSION_PROFILE_READ will be set and
+# it continues below.
+if [ -z "$SDDM_XSESSION_PROFILE_READ" ]; then
+  export SDDM_XSESSION_PROFILE_READ=1
+
+  case $SHELL in
+    */bash|*/zsh)
+      exec $SHELL --login -c 'exec "$@"' - $0 "$@"
+      ;;
+    */csh|*/tcsh)
+      exec $SHELL -c 'if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) source ~/.login; exec $argv' $0 "$@"
+      ;;
+    */fish)
+      [ -f /etc/profile ] && . /etc/profile
+      [ -f $HOME/.profile ] && . $HOME/.profile
+      exec $SHELL --login -c 'exec $argv' $0 "$@"
+      ;;
+    *) # Plain sh, ksh, and anything we do not know.
+      [ -f /etc/profile ] && . /etc/profile
+      [ -f $HOME/.profile ] && . $HOME/.profile
+      exec $0 "$@"
+      ;;
+  esac
+
+  exit 1
+fi
+unset SDDM_XSESSION_PROFILE_READ
 
 [ -f /etc/xprofile ] && . /etc/xprofile
 [ -f /usr/local/etc/xprofile ] && . /usr/local/etc/xprofile
@@ -89,6 +84,10 @@ fi
 
 if [ -z "$*" ]; then
     exec xmessage -center -buttons OK:0 -default OK "Sorry, $DESKTOP_SESSION is no valid session."
-else
-    exec $@
+    exit 1
 fi
+
+# Note: This script is called with the whole session commandline as a single first argument.
+# To run it properly, word splitting has to be performed by the shell, i.e. $@ or $0 without quotes.
+exec $@
+exit 1
