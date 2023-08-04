@@ -5,45 +5,28 @@
 # This file is extracted from kde-workspace (kdm/kfrontend/genkdmconf.c)
 # Copyright (C) 2001-2005 Oswald Buddenhagen <ossi@kde.org>
 
+# Note: This script is called with the whole session commandline as a single first argument.
+# To run it properly, word splitting has to be performed by the shell, i.e. $@ or $0 without quotes.
+
 # Note that the respective logout scripts are not sourced.
 
-# Backup the user shell setting into SDDM specific variable
-SDDM_USER_SHELL=$SHELL
-
 case $SHELL in
-  */bash)
-    [ -z "$BASH" ] && exec $SHELL --login $0 "$@"
-    shopt -q login_shell || exec $SHELL --login $0 "$@"
-    set +o posix
-    ;;
-  */zsh)
-    [ -z "$ZSH_NAME" ] && exec $SHELL --login $0 "$@"
-    [[ -o login ]] || exec $SHELL --login $0 "$@"
-    emulate -R sh
+  */bash|*/zsh)
+    exec $SHELL --login -c 'exec "$@"' - $@
     ;;
   */csh|*/tcsh)
-    # [t]cshrc is always sourced automatically.
-    # Note that sourcing csh.login after .cshrc is non-standard.
-    wlsess_tmp=`mktemp /tmp/wlsess-env-XXXXXX`
-    $SHELL -c "if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) source ~/.login; /bin/sh -c 'export -p' >! $wlsess_tmp"
-    . $wlsess_tmp
-    rm -f $wlsess_tmp
+    exec $SHELL -c 'if (-f /etc/csh.login) source /etc/csh.login; if (-f ~/.login) source ~/.login; exec $argv' $@
     ;;
   */fish)
     [ -f /etc/profile ] && . /etc/profile
     [ -f $HOME/.profile ] && . $HOME/.profile
-    xsess_tmp=`mktemp /tmp/xsess-env-XXXXXX`
-    $SHELL --login -c "/bin/sh -c 'export -p' > $xsess_tmp"
-    . $xsess_tmp
-    rm -f $xsess_tmp
+    exec $SHELL --login -c 'exec $argv' $@
     ;;
   *) # Plain sh, ksh, and anything we do not know.
     [ -f /etc/profile ] && . /etc/profile
     [ -f $HOME/.profile ] && . $HOME/.profile
+    exec $@
     ;;
 esac
 
-# Restore user shell setting that may have been clobbered by setting environment
-export SHELL=$SDDM_USER_SHELL
-
-exec $@
+exit 1
