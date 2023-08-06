@@ -224,12 +224,7 @@ namespace SDDM {
         session.setTo(sessionType, autologinSession);
 
         m_auth->setAutologin(true);
-        const bool result = startAuth(mainConfig.Autologin.User.get(), QString(), session);
-
-        if (!result)
-            m_auth->setAutologin(false);
-
-        return result;
+        return startAuth(mainConfig.Autologin.User.get(), QString(), session);
     }
 
     void Display::startSocketServerAndGreeter() {
@@ -260,6 +255,12 @@ namespace SDDM {
         m_started = true;
     }
 
+    void Display::handleAutologinFailure() {
+        qWarning() << "Autologin failed!";
+        m_auth->setAutologin(false);
+        startSocketServerAndGreeter();
+    }
+
     void Display::displayServerStarted() {
         // check flag
         if (m_started)
@@ -279,12 +280,11 @@ namespace SDDM {
             // set flags
             m_started = true;
 
-            bool success = attemptAutologin();
-            if (success) {
-                return;
-            } else {
-                qWarning() << "Autologin failed!";
-            }
+            const bool autologinStarted = attemptAutologin();
+            if (!autologinStarted)
+                handleAutologinFailure();
+
+            return;
         }
 
         startSocketServerAndGreeter();
@@ -515,9 +515,7 @@ namespace SDDM {
         qWarning() << "Authentication error:" << error << message;
 
         if (m_auth->autologin()) {
-            qWarning() << "Autologin auth failed!";
-            m_auth->setAutologin(false);
-            startSocketServerAndGreeter();
+            handleAutologinFailure();
             return;
         }
 

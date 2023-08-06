@@ -90,6 +90,7 @@ namespace SDDM {
                        const Session &session);
 
         void startSocketServerAndGreeter();
+        void handleAutologinFailure();
 
         DisplayServerType m_displayServerType = X11DisplayServerType;
 
