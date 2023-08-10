@@ -202,11 +202,9 @@ namespace SDDM {
         return m_started || m_displayServer->start();
     }
 
-    bool Display::attemptAutologin() {
+    bool Display::attemptAutologin(QString &autologinSession, QString &autologinUserSession) {
         Session::Type sessionType = Session::X11Session;
 
-        // determine session type
-        QString autologinSession = mainConfig.Autologin.Session.get();
         // not configured: try last successful logged in
         if (autologinSession.isEmpty()) {
             autologinSession = stateConfig.Last.Session.get();
@@ -224,7 +222,7 @@ namespace SDDM {
         session.setTo(sessionType, autologinSession);
 
         m_auth->setAutologin(true);
-        startAuth(mainConfig.Autologin.User.get(), QString(), session);
+        startAuth(autologinUserSession, QString(), session);
 
         return true;
     }
@@ -240,15 +238,47 @@ namespace SDDM {
         // log message
         qDebug() << "Display server started.";
 
-        if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
-            !mainConfig.Autologin.User.get().isEmpty()) {
-            // reset first flag
-            daemonApp->first = false;
+        bool relogin = false;
+        QString seatName = seat()->name();
+        QString user;
+        QString session;
+        int seatListIndex = mainConfig.Autologin.SeatName.get().indexOf(seatName);
+        if ( seatListIndex < 0 ) {
+            if ((seatName == QLatin1String("seat0")) &&
+                (mainConfig.Autologin.SeatName.get().isEmpty()) ) {
+                // sddm configuration without autologin ??
+                if (!mainConfig.Autologin.Relogin.get().isEmpty()) {
+                    relogin = mainConfig.Autologin.Relogin.get().at(0) == QLatin1String("true");
+                }
+                if (!mainConfig.Autologin.User.get().isEmpty()) {
+                    user = mainConfig.Autologin.User.get().at(0);
+                }
+                if (!mainConfig.Autologin.Session.get().isEmpty()) {
+                    session = mainConfig.Autologin.Session.get().at(0);
+                }
+            } else {
+                qDebug() << "Seat not configured for autologin : "<<seatName;
+            }
+        } else {
+            int listSize = mainConfig.Autologin.SeatName.get().size();
+            if ( (listSize !=  mainConfig.Autologin.Session.get().size()) ||
+                 (listSize !=  mainConfig.Autologin.Relogin.get().size()) ||
+                 (listSize !=  mainConfig.Autologin.User.get().size())) {
+                qFatal("All autologin parameters should have the same size");
+            }
+            relogin = mainConfig.Autologin.Relogin.get().at(seatListIndex) == QLatin1String("true");
+            user = mainConfig.Autologin.User.get().at(seatListIndex);
+            session = mainConfig.Autologin.Session.get().at(seatListIndex);
+            qDebug() << "Autologin for " << user << " ,session : " << session << " ,relogin :" << relogin;
+        }
+
+        if ((daemonApp->isFirstSeatRun(seatName) || relogin ) &&
+            !user.isEmpty()) {
 
             // set flags
             m_started = true;
 
-            bool success = attemptAutologin();
+            bool success = attemptAutologin(session, user);
             if (success) {
                 return;
             } else {
@@ -275,9 +305,6 @@ namespace SDDM {
 
         // start greeter
         m_greeter->start();
-
-        // reset first flag
-        daemonApp->first = false;
 
         // set flags
         m_started = true;
