@@ -397,7 +397,7 @@ namespace SDDM {
         // check if the user even exists
         struct passwd *pw = getpwnam(qPrintable(user));
         if (!pw) {
-            qCritical() << "Failed to find the autologin user" << user;
+            qCritical() << "Failed to find the user" << user;
             return false;
         }
 
