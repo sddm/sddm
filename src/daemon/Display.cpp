@@ -394,12 +394,6 @@ namespace SDDM {
             qCritical() << "Failed to find command for session" << session.fileName();
             return false;
         }
-        // check if the user even exists
-        struct passwd *pw = getpwnam(qPrintable(user));
-        if (!pw) {
-            qCritical() << "Failed to find the user" << user;
-            return false;
-        }
 
         m_reuseSessionId = QString();
 
