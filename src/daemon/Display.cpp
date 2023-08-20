@@ -224,38 +224,10 @@ namespace SDDM {
         session.setTo(sessionType, autologinSession);
 
         m_auth->setAutologin(true);
-        startAuth(mainConfig.Autologin.User.get(), QString(), session);
-
-        return true;
+        return startAuth(mainConfig.Autologin.User.get(), QString(), session);
     }
 
-    void Display::displayServerStarted() {
-        // check flag
-        if (m_started)
-            return;
-
-        // setup display
-        m_displayServer->setupDisplay();
-
-        // log message
-        qDebug() << "Display server started.";
-
-        if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
-            !mainConfig.Autologin.User.get().isEmpty()) {
-            // reset first flag
-            daemonApp->first = false;
-
-            // set flags
-            m_started = true;
-
-            bool success = attemptAutologin();
-            if (success) {
-                return;
-            } else {
-                qWarning() << "Autologin failed!";
-            }
-        }
-
+    void Display::startSocketServerAndGreeter() {
         // start socket server
         m_socketServer->start(m_displayServer->display());
 
@@ -281,6 +253,41 @@ namespace SDDM {
 
         // set flags
         m_started = true;
+    }
+
+    void Display::handleAutologinFailure() {
+        qWarning() << "Autologin failed!";
+        m_auth->setAutologin(false);
+        startSocketServerAndGreeter();
+    }
+
+    void Display::displayServerStarted() {
+        // check flag
+        if (m_started)
+            return;
+
+        // setup display
+        m_displayServer->setupDisplay();
+
+        // log message
+        qDebug() << "Display server started.";
+
+        if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
+            !mainConfig.Autologin.User.get().isEmpty()) {
+            // reset first flag
+            daemonApp->first = false;
+
+            // set flags
+            m_started = true;
+
+            const bool autologinStarted = attemptAutologin();
+            if (!autologinStarted)
+                handleAutologinFailure();
+
+            return;
+        }
+
+        startSocketServerAndGreeter();
     }
 
     void Display::stop() {
@@ -365,11 +372,11 @@ namespace SDDM {
         return false;
     }
 
-    void Display::startAuth(const QString &user, const QString &password, const Session &session) {
+    bool Display::startAuth(const QString &user, const QString &password, const Session &session) {
 
         if (m_auth->isActive()) {
             qWarning() << "Existing authentication ongoing, aborting";
-            return;
+            return false;
         }
 
         m_passPhrase = password;
@@ -377,15 +384,15 @@ namespace SDDM {
         // sanity check
         if (!session.isValid()) {
             qCritical() << "Invalid session" << session.fileName();
-            return;
+            return false;
         }
         if (session.xdgSessionType().isEmpty()) {
             qCritical() << "Failed to find XDG session type for session" << session.fileName();
-            return;
+            return false;
         }
         if (session.exec().isEmpty()) {
             qCritical() << "Failed to find command for session" << session.fileName();
-            return;
+            return false;
         }
 
         m_reuseSessionId = QString();
@@ -451,6 +458,8 @@ namespace SDDM {
         }
         m_auth->insertEnvironment(env);
         m_auth->start();
+
+        return true;
     }
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
@@ -498,6 +507,11 @@ namespace SDDM {
 
     void Display::slotAuthError(const QString &message, Auth::Error error) {
         qWarning() << "Authentication error:" << error << message;
+
+        if (m_auth->autologin()) {
+            handleAutologinFailure();
+            return;
+        }
 
         if (!m_socket)
             return;
