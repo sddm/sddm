@@ -34,6 +34,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(SessionModel)
         Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
+        Q_PROPERTY(int count READ rowCount CONSTANT)
     public:
         enum SessionRole {
             DirectoryRole = Qt::UserRole + 1,
