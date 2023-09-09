@@ -20,6 +20,8 @@ option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
 option(BUILD_WITH_QT6 "Build with Qt 6" OFF)
 option(INSTALL_PAM_CONFIGURATION "Install PAM configuration files" ON)
+option(BUILD_GREETER_QT5 "Build Qt 5 greeter if Qt 6 is used" ON)
+option(BUILD_GREETER_QT6 "Build Qt 6 greeter if Qt 5 is used" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -73,23 +75,6 @@ find_package(XCB REQUIRED)
 
 # XKB
 find_package(XKB REQUIRED)
-
-# Qt
-if(BUILD_WITH_QT6)
-    set(QT_MAJOR_VERSION 6)
-    message(STATUS "Building Qt 6 version")
-else()
-    set(QT_MAJOR_VERSION 5)
-    message(STATUS "Building Qt 5 version")
-endif()
-
-find_package(Qt${QT_MAJOR_VERSION} 5.15.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
-
-# find qt5 imports dir
-get_target_property(QMAKE_EXECUTABLE Qt${QT_MAJOR_VERSION}::qmake LOCATION)
-if(NOT QT_IMPORTS_DIR)
-    execute_process(COMMAND ${QMAKE_EXECUTABLE} -query QT_INSTALL_QML OUTPUT_VARIABLE QT_IMPORTS_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif()
 
 # systemd
 if(NOT NO_SYSTEMD AND NOT USE_ELOGIND)
@@ -169,13 +154,11 @@ else()
     set(RUNTIME_DIR_DEFAULT "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run/sddm")
 endif()
 
-
 # Set constants
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
 set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")
 set(RUNTIME_DIR                 "${RUNTIME_DIR_DEFAULT}"                            CACHE PATH      "Runtime data storage directory")
-set(QML_INSTALL_DIR             "${QT_IMPORTS_DIR}"                                 CACHE PATH      "QML component installation directory")
 
 set(SESSION_COMMAND             "${DATA_INSTALL_DIR}/scripts/Xsession"              CACHE PATH      "Script to execute when starting the X11 desktop session")
 set(WAYLAND_SESSION_COMMAND     "${DATA_INSTALL_DIR}/scripts/wayland-session"       CACHE PATH      "Script to execute when starting the Wayland desktop session")
@@ -186,7 +169,6 @@ set(ACCOUNTSSERVICE_DATA_DIR    "/var/lib/AccountsService"                      
 set(SYSTEM_CONFIG_DIR           "${CMAKE_INSTALL_PREFIX}/lib/sddm/sddm.conf.d"      CACHE PATH      "Path of the system sddm config directory")
 set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
-set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations-qt${QT_MAJOR_VERSION}" CACHE PATH      "Components translations directory")
 set(SDDM_INITIAL_VT             "1"                                                 CACHE STRING    "Initial tty to use")
 
 
@@ -221,13 +203,65 @@ if(NOT DEFINED UID_MAX)
     endif()
 endif()
 
+enable_testing()
+
+# Build the greeter for non-main Qt versions.
+# Need to do this before the versionless imports by the find_package(Qt...) below.
+if(BUILD_WITH_QT6 AND BUILD_GREETER_QT5)
+block(SCOPE_FOR VARIABLES)
+    set(QT_MAJOR_VERSION 5)
+    set(QT_NO_CREATE_VERSIONLESS_TARGETS ON)
+    set(QT_NO_CREATE_VERSIONLESS_FUNCTIONS ON)
+
+    find_package(Qt${QT_MAJOR_VERSION} CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
+
+    add_subdirectory(components components-qt${QT_MAJOR_VERSION})
+    add_subdirectory(data/translations translations-qt${QT_MAJOR_VERSION})
+    add_subdirectory(src/greeter greeter-qt${QT_MAJOR_VERSION})
+    add_subdirectory(test test-qt${QT_MAJOR_VERSION})
+endblock()
+endif()
+
+if(NOT BUILD_WITH_QT6 AND BUILD_GREETER_QT6)
+block(SCOPE_FOR VARIABLES)
+    set(QT_MAJOR_VERSION 6)
+    set(QT_NO_CREATE_VERSIONLESS_TARGETS ON)
+    set(QT_NO_CREATE_VERSIONLESS_FUNCTIONS ON)
+
+    find_package(Qt${QT_MAJOR_VERSION} CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
+
+    # https://bugreports.qt.io/browse/QTBUG-114706
+    add_library(Qt::Core ALIAS Qt6::Core)
+    add_library(Qt::Gui ALIAS Qt6::Gui)
+    add_library(Qt::Network ALIAS Qt6::Network)
+    add_library(Qt::OpenGL ALIAS Qt6::OpenGL)
+    add_library(Qt::Test ALIAS Qt6::Test)
+
+    add_subdirectory(components components-qt${QT_MAJOR_VERSION})
+    add_subdirectory(data/translations translations-qt${QT_MAJOR_VERSION})
+    add_subdirectory(src/greeter greeter-qt${QT_MAJOR_VERSION})
+    add_subdirectory(test test-qt${QT_MAJOR_VERSION})
+endblock()
+endif()
+
+# Qt
+if(BUILD_WITH_QT6)
+    set(QT_MAJOR_VERSION 6)
+    message(STATUS "Building Qt 6 version")
+else()
+    set(QT_MAJOR_VERSION 5)
+    message(STATUS "Building Qt 5 version")
+endif()
+
+find_package(Qt${QT_MAJOR_VERSION} 5.15.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
+
 # Add subdirectories
 add_subdirectory(components)
 add_subdirectory(data)
+add_subdirectory(data/translations)
 add_subdirectory(services)
 add_subdirectory(src)
 
-enable_testing()
 add_subdirectory(test)
 
 # Display feature summary

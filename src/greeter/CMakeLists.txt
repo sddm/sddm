@@ -37,19 +37,26 @@ set(GREETER_SOURCES
 
 configure_file("theme.qrc" "theme.qrc")
 
-qt_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
+if(QT_MAJOR_VERSION EQUAL "5")
+    qt5_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
+elseif(QT_MAJOR_VERSION EQUAL "6")
+    qt6_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
+endif()
 
 add_executable(${GREETER_TARGET} ${GREETER_SOURCES} ${RESOURCES})
 target_link_libraries(${GREETER_TARGET}
                       Qt${QT_MAJOR_VERSION}::Quick
                       ${LIBXCB_LIBRARIES}
                       ${LIBXKB_LIBRARIES})
+target_compile_definitions(${GREETER_TARGET} PRIVATE
+                           "-DIMPORTS_INSTALL_DIR=\"${QML_INSTALL_DIR}\""
+                           "-DCOMPONENTS_TRANSLATION_DIR=\"${COMPONENTS_TRANSLATION_DIR}\"")
 
 if(JOURNALD_FOUND)
     target_link_libraries(${GREETER_TARGET} ${JOURNALD_LIBRARIES})
 endif()
 
 # Translations
-add_dependencies(${GREETER_TARGET} components-translation themes-translation)
+add_dependencies(${GREETER_TARGET} components-translation-qt${QT_MAJOR_VERSION} themes-translation)
 
 install(TARGETS ${GREETER_TARGET} DESTINATION "${CMAKE_INSTALL_BINDIR}")
