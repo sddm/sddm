@@ -36,6 +36,7 @@ namespace SDDM {
         const QString &mainScript() const;
         const QString &configFile() const;
         const QString &translationsDirectory() const;
+        int qtVersion() const;
 
         void setTo(const QString &path);
 

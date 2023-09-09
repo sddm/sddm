@@ -80,10 +80,25 @@ namespace SDDM {
         m_displayServerCmd = cmd;
     }
 
+    QString Greeter::greeterPathForQt(int qtVersion)
+    {
+        const QString suffix = qtVersion == 5 ? QString() : QStringLiteral("-qt%1").arg(qtVersion);
+        return QStringLiteral(BIN_INSTALL_DIR "/sddm-greeter%1").arg(suffix);
+    }
+
     bool Greeter::start() {
         // check flag
         if (m_started)
             return false;
+
+        // If no theme is given, use the default theme of the default greeter version
+        const int themeQtVersion = m_themePath.isEmpty() ? (QT_VERSION >> 16) : m_metadata->qtVersion();
+        QString greeterPath = greeterPathForQt(themeQtVersion);
+        if (!QFileInfo(greeterPath).isExecutable()) {
+            qWarning() << "The theme at" << m_themePath << "requires missing" << greeterPath << ". Using fallback theme.";
+            setTheme(QString());
+            greeterPath = greeterPathForQt(QT_VERSION >> 16);
+        }
 
         // themes
         QString xcursorTheme = mainConfig.Theme.CursorTheme.get();
@@ -139,7 +154,7 @@ namespace SDDM {
                 m_process->setProcessEnvironment(env);
             }
             // Greeter command
-            m_process->start(QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR)), args);
+            m_process->start(greeterPath, args);
 
             //if we fail to start bail immediately, and don't block in waitForStarted
             if (m_process->state() == QProcess::NotRunning) {
@@ -173,8 +188,7 @@ namespace SDDM {
 
             // command
             QStringList cmd;
-            cmd << QStringLiteral("%1/sddm-greeter").arg(QStringLiteral(BIN_INSTALL_DIR))
-                << args;
+            cmd << greeterPath << args;
 
             // greeter environment
             QProcessEnvironment env;
