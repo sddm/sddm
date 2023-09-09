@@ -79,6 +79,7 @@ namespace SDDM {
         QProcess *m_process { nullptr };
 
         static void insertEnvironmentList(QStringList names, QProcessEnvironment sourceEnv, QProcessEnvironment &targetEnv);
+        static QString greeterPathForQt(int qtVersion);
     };
 }
 
