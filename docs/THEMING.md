@@ -64,10 +64,14 @@ The model also provides, a `primary` property pointing to the index of the prima
 For each session, the model provides `file`, `name`, `exec` and `comment` properties.
 Also there is a `lastIndex` property, pointing to the last session the user successfully logged in.
 
+In SDDM 0.21+ there is a `count` property that provides count of available sessions.
+
 **userModel:** This is list model. Contains information about the users available on the system. This information is gathered by reading the user database provided by `getpwent()`. To prevent system users polluting the user model we only show users with user ids greater than a certain threshold. This threshold is adjustable through the config file and called `MinimumUid`.
 
 For each user the model provides `name`, `realName`, `homeDir` and `icon` properties.
 This model also has a `lastIndex` property holding the index of the last user successfully logged in, and a `lastUser` property containing the name of the last user successfully logged in.
+
+There is a `count` property that provides count of available users.
 
 ## Testing
 
