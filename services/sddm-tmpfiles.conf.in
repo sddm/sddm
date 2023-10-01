@@ -6,3 +6,9 @@ d	${RUNTIME_DIR}	0711	root	root
 r!	/tmp/sddm-auth*
 # xauth files passed to user sessions
 r!	/tmp/xauth_*
+# "r!" above means to remove the files if existent (r), but only at boot (!).
+# tmpfiles.d/tmp.conf declares a periodic cleanup of old /tmp/ files, which
+# would ordinarily result in the deletion of our xauth files. To prevent that
+# from happening, explicitly tag these as X (ignore).
+X	/tmp/sddm-auth*
+X	/tmp/xauth_*
