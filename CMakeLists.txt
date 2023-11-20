@@ -73,6 +73,9 @@ find_package(XCB REQUIRED)
 # XKB
 find_package(XKB REQUIRED)
 
+# LayerShell integration
+find_package(LayerShellQt REQUIRED)
+
 # Qt
 if(BUILD_WITH_QT6)
     set(QT_MAJOR_VERSION 6)

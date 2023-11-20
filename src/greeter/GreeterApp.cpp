@@ -45,6 +45,8 @@
 #include <QVersionNumber>
 #include <QSurfaceFormat>
 
+#include <LayerShellQt/Window>
+
 #include <iostream>
 
 #define TR(x) QT_TRANSLATE_NOOP("Command line parser", QStringLiteral(x))
@@ -151,6 +153,10 @@ namespace SDDM {
         //view->setGeometry(QRect(QPoint(0, 0), screen->geometry().size()));
         view->setGeometry(screen->geometry());
         view->setFlags(Qt::FramelessWindowHint);
+        if (auto layerWindow = LayerShellQt::Window::get(view)) {
+            layerWindow->setKeyboardInteractivity(LayerShellQt::Window::KeyboardInteractivityExclusive);
+        }
+
         m_views.append(view);
 
         // remove the view when the screen is removed, but we
