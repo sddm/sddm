@@ -51,7 +51,7 @@ jobs:
           dnf --assumeyes install dnf-plugins-core
           if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes config-manager --set-enabled crb && dnf --assumeyes install epel-release; fi
           dnf --assumeyes builddep sddm
-          dnf --assumeyes --allowerasing --nobest install clang clazy
+          dnf --assumeyes --allowerasing --nobest install clang clazy layer-shell-qt-devel
       - name: Dependencies (deb-type)
         if: ${{ contains(matrix.container-image, 'ubuntu') }}
         run: |
@@ -62,7 +62,7 @@ jobs:
           if [ "${{ matrix.qt }}" = "qt6" ]; then
             DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-declarative-dev qml6-module-qtqml-workerscript qml6-module-qtquick-window -y
           else
-            DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qml-module-qttest -y
+            DEBIAN_FRONTEND=noninteractive apt-get install clang clazy liblayershellqtinterface-dev qml-module-qttest -y
           fi
       - name: Build
         run: |
