@@ -502,6 +502,11 @@ namespace SDDM {
     }
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
+        if (m_auth->autologin() && !success) {
+            handleAutologinFailure();
+            return;
+        }
+
         if (success) {
             qDebug() << "Authentication for user " << user << " successful";
 
@@ -546,11 +551,6 @@ namespace SDDM {
 
     void Display::slotAuthError(const QString &message, Auth::Error error) {
         qWarning() << "Authentication error:" << error << message;
-
-        if (m_auth->autologin()) {
-            handleAutologinFailure();
-            return;
-        }
 
         if (!m_socket)
             return;
