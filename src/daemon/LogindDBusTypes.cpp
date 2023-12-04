@@ -18,6 +18,7 @@ public:
     QString sessionIfaceName;
     QString seatIfaceName;
     QString userIfaceName;
+    QString newSeatSignalName;
 };
 
 LogindPathInternal::LogindPathInternal()
@@ -55,11 +56,12 @@ LogindPathInternal::LogindPathInternal()
         seatIfaceName = QStringLiteral("org.freedesktop.login1.Seat");
         sessionIfaceName = QStringLiteral("org.freedesktop.login1.Session");
         userIfaceName = QStringLiteral("org.freedesktop.login1.User");
+        newSeatSignalName = QStringLiteral("SeatNew");
         return;
     }
 
     if (QDBusConnection::systemBus().interface()->isServiceRegistered(QStringLiteral("org.freedesktop.ConsoleKit"))) {
-        qDebug() << "Console kit interface found";
+        qDebug() << "ConsoleKit interface found";
         available = true;
         serviceName = QStringLiteral("org.freedesktop.ConsoleKit");
         managerPath = QStringLiteral("/org/freedesktop/ConsoleKit/Manager");
@@ -67,6 +69,7 @@ LogindPathInternal::LogindPathInternal()
         seatIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.Seat");
         sessionIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.Session");
         userIfaceName = QStringLiteral("org.freedesktop.ConsoleKit.User");
+        newSeatSignalName = QStringLiteral("SeatAdded");
         return;
     }
     qDebug() << "No session manager found";
@@ -108,4 +111,9 @@ QString Logind::sessionIfaceName()
 QString Logind::userIfaceName()
 {
     return s_instance->userIfaceName;
+}
+
+QString Logind::newSeatSignalName()
+{
+    return s_instance->newSeatSignalName;
 }
