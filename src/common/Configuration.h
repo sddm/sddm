@@ -104,6 +104,11 @@ namespace SDDM {
             Entry(Session,             QString,     QString(),                                  _S("Name of session file for autologin session (if empty try last logged in)"));
             Entry(Relogin,             bool,        false,                                      _S("Whether sddm should automatically log back into sessions when they exit"));
         );
+
+        Section(Fingerprintlogin,
+            Entry(User,                QString,     QString(),                                  _S("Username for default user"));
+            Entry(Session,             QString,     QString(),                                  _S("Name of session file for fingerprint login session (if empty try last logged in)"));
+        );
     );
 
     Config(StateConfig, []()->QString{auto tmp = getpwnam("sddm"); return tmp ? QString::fromLocal8Bit(tmp->pw_dir) : QStringLiteral(STATE_DIR);}().append(QStringLiteral("/state.conf")), QString(), QString(),

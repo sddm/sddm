@@ -246,6 +246,18 @@ The `UserAuthFile=` option was removed, the file is always created as
 	only the first time.
 	Default value is false.
 
+[Fingerprintlogin] section:
+
+`User=`
+	Name of the user who uses fingerprint login when the
+	system starts first time.
+	Default value is empty.
+
+`Session=`
+	Name of the session to automatically log in when the
+	system starts first time.
+	Default value is empty.
+
 SEE ALSO
 ========
 
