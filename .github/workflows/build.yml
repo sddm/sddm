@@ -51,6 +51,7 @@ jobs:
           dnf --assumeyes install dnf-plugins-core
           if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes config-manager --set-enabled crb && dnf --assumeyes install epel-release; fi
           dnf --assumeyes builddep sddm
+          if [ "${{ matrix.qt }}" = "qt5" ] && [[ "${{ matrix.container-image }}" =~ "fedora" ]]; then dnf --assumeyes install qt5-qtbase-devel qt5-qtdeclarative-devel qt5-qttools-devel; fi
           dnf --assumeyes --allowerasing --nobest install clang clazy
       - name: Dependencies (deb-type)
         if: ${{ contains(matrix.container-image, 'ubuntu') }}
