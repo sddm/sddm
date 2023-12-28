@@ -19,6 +19,7 @@ option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
 option(BUILD_WITH_QT6 "Build with Qt 6" OFF)
+option(INSTALL_PAM_CONFIGURATION "Install PAM configuration files" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
