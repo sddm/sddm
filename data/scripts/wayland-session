@@ -37,6 +37,14 @@ case $SHELL in
     . $xsess_tmp
     rm -f $xsess_tmp
     ;;
+  */nu)
+    [ -f /etc/profile ] && . /etc/profile
+    [ -f $HOME/.profile ] && . $HOME/.profile
+    wlsess_tmp=`mktemp /tmp/wlsess-env-XXXXXX`
+    $SHELL --login -c "/bin/sh -c 'export -p'" > $wlsess_tmp
+    . $wlsess_tmp
+    rm -f $wlsess_tmp
+    ;;
   *) # Plain sh, ksh, and anything we do not know.
     [ -f /etc/profile ] && . /etc/profile
     [ -f $HOME/.profile ] && . $HOME/.profile
