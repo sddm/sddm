@@ -14,17 +14,7 @@ on:
       - reopened
       - edited
 
-env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
-# No longer works as of 2020-11-03 due to npm 7.0.3 -> 7.0.7
-#  wip:
-#    if: "!contains(github.event.head_commit.message, 'ci skip') && github.event_name == 'pull_request'"
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Work in progress
-#        uses: wip/action@master
   qml:
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     runs-on: ubuntu-latest
@@ -33,4 +23,6 @@ jobs:
         with:
           fetch-depth: 1
       - name: Validate QML and JavaScript files
-        uses: liri-infra/qmllint-action@master
+        uses: liri-infra/qmllint-action@8bfbc8ec90b2f48147db9b47403448eda7b20a31
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
