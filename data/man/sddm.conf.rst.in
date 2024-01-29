@@ -170,7 +170,7 @@ The `UserAuthFile=` option was removed, the file is always created as
 
 `CompositorCommand=`
         Path of the compositor to execute when starting the greeter.
-        Default value is "weston --shell=fullscreen-shell.so".
+        Default value is "weston --shell=kiosk".
 
 `SessionDir=`
 	Comma-separated list of directories containing session files.

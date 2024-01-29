@@ -221,7 +221,7 @@ namespace SDDM {
                 m_auth->setCookie(qobject_cast<XorgDisplayServer*>(displayServer)->cookie());
             } else if (m_display->displayServerType() == Display::WaylandDisplayServerType) {
                 env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
-                env.insert(QStringLiteral("QT_WAYLAND_SHELL_INTEGRATION"), QStringLiteral("fullscreen-shell-v1"));
+                env.insert(QStringLiteral("QT_WAYLAND_SHELL_INTEGRATION"), QStringLiteral("xdg-shell"));
             }
             m_auth->insertEnvironment(env);
 
