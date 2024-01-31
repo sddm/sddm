@@ -270,6 +270,8 @@ Rectangle {
                 height: parent.height
                 anchors.verticalCenter: parent.verticalCenter
 
+                visible: layoutBox.visible
+
                 text: textConstants.layout
                 font.pixelSize: 14
                 verticalAlignment: Text.AlignVCenter
@@ -280,6 +282,8 @@ Rectangle {
                 width: 90
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: 14
+
+                visible: keyboard.enabled && keyboard.layouts.length > 0
 
                 arrowIcon: "angle-down.png"
 
