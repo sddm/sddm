@@ -35,6 +35,7 @@ namespace SDDM {
 
         const QString &name() const;
         void createDisplay(Display::DisplayServerType serverType);
+        bool canTTY();
 
     public slots:
         void removeDisplay(SDDM::Display* display);

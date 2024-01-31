@@ -32,8 +32,10 @@
 
 #include <functional>
 #include <optional>
+#include <unistd.h>
 #include <Login1Manager.h>
 #include <Login1Session.h>
+#include <Login1Seat.h>
 
 namespace SDDM {
     Seat::Seat(const QString &name, QObject *parent) : QObject(parent), m_name(name) {
@@ -140,5 +142,17 @@ namespace SDDM {
         if (nextVt) {
             VirtualTerminal::jumpToVt(*nextVt, true);
         }
+    }
+
+    bool Seat::canTTY() {
+        OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+        if (manager.isValid()) {
+            auto seatPath = manager.GetSeat(m_name);
+            OrgFreedesktopLogin1SeatInterface seatIface(Logind::serviceName(), seatPath.value().path(), QDBusConnection::systemBus());
+            if (seatIface.property("CanTTY").isValid())
+                return seatIface.canTTY();
+        }
+
+        return m_name.compare(QStringLiteral("seat0"), Qt::CaseInsensitive) == 0 && access(VirtualTerminal::defaultVtPath, F_OK) == 0;
     }
 }
