@@ -239,6 +239,8 @@ Rectangle {
         width   : spUnit * 2
         height  : parent.height
 
+        visible : keyboard.enabled && keyboard.layouts.length > 0
+
         color       : primaryHue1
         borderColor : primaryHue3
         focusColor  : accentLight
@@ -260,6 +262,8 @@ Rectangle {
         height  : parent.height
 
         text    : textConstants.layout
+
+        visible : maya_layout.visible
 
         color   : normalText
 

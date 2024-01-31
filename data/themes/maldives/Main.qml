@@ -201,6 +201,8 @@ Rectangle {
                         spacing : 4
                         anchors.bottom: parent.bottom
 
+                        visible: keyboard.enabled && keyboard.layouts.length > 0
+
                         Text {
                             id: lblLayout
                             width: parent.width
