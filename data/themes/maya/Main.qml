@@ -251,7 +251,7 @@ Rectangle {
         font.family     : opensans_cond_light.name
         font.pixelSize  : spFontNormal
 
-        arrowIcon: "images/ic_arrow_drop_down_white_24px.svg"
+        arrowIcon: Qt.resolvedUrl("images/ic_arrow_drop_down_white_24px.svg")
         arrowColor: primaryHue3
 
         KeyNavigation.tab     : maya_username
@@ -296,7 +296,7 @@ Rectangle {
         font.family     : opensans_cond_light.name
         font.pixelSize  : spFontNormal
 
-        arrowIcon: "images/ic_arrow_drop_down_white_24px.svg"
+        arrowIcon: Qt.resolvedUrl("images/ic_arrow_drop_down_white_24px.svg")
         arrowColor: primaryHue3
 
         KeyNavigation.tab     : maya_layout
@@ -355,7 +355,7 @@ Rectangle {
         label       : textConstants.shutdown
         labelColor  : normalText
 
-        icon        : "images/ic_power_settings_new_white_24px.svg"
+        icon        : Qt.resolvedUrl("images/ic_power_settings_new_white_24px.svg")
         iconColor   : accentShade
 
         hoverIconColor  : powerColor
@@ -381,7 +381,7 @@ Rectangle {
         label       : textConstants.reboot
         labelColor  : normalText
 
-        icon        : "images/ic_refresh_white_24px.svg"
+        icon        : Qt.resolvedUrl("images/ic_refresh_white_24px.svg")
         iconColor   : accentLight
 
         hoverIconColor  : rebootColor
@@ -492,7 +492,7 @@ Rectangle {
         hoverColor  : accentLight
         textColor   : normalText
 
-        image       : "images/ic_warning_white_24px.svg"
+        image       : Qt.resolvedUrl("images/ic_warning_white_24px.svg")
 
         tooltipEnabled  : true
         tooltipText     : textConstants.capslockWarning

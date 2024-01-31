@@ -58,11 +58,12 @@ Rectangle {
 
     Background {
         anchors.fill: parent
-        source: config.background
+        source: Qt.resolvedUrl(config.background)
         fillMode: Image.PreserveAspectCrop
         onStatusChanged: {
-            if (status == Image.Error && source != config.defaultBackground) {
-                source = config.defaultBackground
+            var defaultBackground = Qt.resolvedUrl(config.defaultBackground)
+            if (status == Image.Error && source != defaultBackground) {
+                source = defaultBackground
             }
         }
     }
@@ -87,7 +88,7 @@ Rectangle {
             width: Math.max(320, mainColumn.implicitWidth + 50)
             height: Math.max(320, mainColumn.implicitHeight + 50)
 
-            source: "rectangle.png"
+            source: Qt.resolvedUrl("rectangle.png")
 
             Column {
                 id: mainColumn
@@ -186,7 +187,7 @@ Rectangle {
                             width: parent.width; height: 30
                             font.pixelSize: 14
 
-                            arrowIcon: "angle-down.png"
+                            arrowIcon: Qt.resolvedUrl("angle-down.png")
 
                             model: sessionModel
                             index: sessionModel.lastIndex
@@ -217,7 +218,7 @@ Rectangle {
                             width: parent.width; height: 30
                             font.pixelSize: 14
 
-                            arrowIcon: "angle-down.png"
+                            arrowIcon: Qt.resolvedUrl("angle-down.png")
 
                             KeyNavigation.backtab: session; KeyNavigation.tab: loginButton
                         }

@@ -50,11 +50,12 @@ Rectangle {
 
     Background {
         anchors.fill: parent
-        source: config.background
+        source: Qt.resolvedUrl(config.background)
         fillMode: Image.PreserveAspectCrop
         onStatusChanged: {
-            if (status == Image.Error && source != config.defaultBackground) {
-                source = config.defaultBackground
+            var defaultBackground = Qt.resolvedUrl(config.defaultBackground)
+            if (status == Image.Error && source != defaultBackground) {
+                source = defaultBackground
             }
         }
     }
@@ -72,12 +73,12 @@ Rectangle {
 
             Image {
                 anchors.fill: parent
-                source: "images/rectangle.png"
+                source: Qt.resolvedUrl("images/rectangle.png")
             }
 
             Image {
                 anchors.fill: parent
-                source: "images/rectangle_overlay.png"
+                source: Qt.resolvedUrl("images/rectangle_overlay.png")
                 opacity: 0.1
             }
 
@@ -103,7 +104,7 @@ Rectangle {
                     anchors.centerIn: parent
 
                     Row {
-                        Image { source: "images/user_icon.png" }
+                        Image { source: Qt.resolvedUrl("images/user_icon.png") }
 
                         TextBox {
                             id: user_entry
@@ -121,7 +122,7 @@ Rectangle {
 
                     Row {
 
-                        Image { source: "images/lock.png" }
+                        Image { source: Qt.resolvedUrl("images/lock.png") }
 
                         PasswordBox {
                             id: pw_entry
@@ -150,7 +151,7 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.margins: 20
 
-                    source: "images/login_normal.png"
+                    source: Qt.resolvedUrl("images/login_normal.png")
 
                     onClicked: sddm.login(user_entry.text, pw_entry.text, sessionIndex)
 
@@ -171,7 +172,7 @@ Rectangle {
 
                         ImageButton {
                             id: system_button
-                            source: "images/system_shutdown.png"
+                            source: Qt.resolvedUrl("images/system_shutdown.png")
                             onClicked: sddm.powerOff()
 
 			    KeyNavigation.backtab: session; KeyNavigation.tab: reboot_button
@@ -179,7 +180,7 @@ Rectangle {
 
                         ImageButton {
                             id: reboot_button
-                            source: "images/system_reboot.png"
+                            source: Qt.resolvedUrl("images/system_reboot.png")
                             onClicked: sddm.reboot()
 
                             KeyNavigation.backtab: system_button; KeyNavigation.tab: suspend_button
@@ -187,7 +188,7 @@ Rectangle {
 
                         ImageButton {
                             id: suspend_button
-                            source: "images/system_suspend.png"
+                            source: Qt.resolvedUrl("images/system_suspend.png")
                             visible: sddm.canSuspend
                             onClicked: sddm.suspend()
 
@@ -196,7 +197,7 @@ Rectangle {
 
                         ImageButton {
                             id: hibernate_button
-                            source: "images/system_hibernate.png"
+                            source: Qt.resolvedUrl("images/system_hibernate.png")
                             visible: sddm.canHibernate
                             onClicked: sddm.hibernate()
 
@@ -256,7 +257,7 @@ Rectangle {
                 width: 245
                 anchors.verticalCenter: parent.verticalCenter
 
-                arrowIcon: "angle-down.png"
+                arrowIcon: Qt.resolvedUrl("angle-down.png")
 
                 model: sessionModel
                 index: sessionModel.lastIndex
@@ -285,7 +286,7 @@ Rectangle {
 
                 visible: keyboard.enabled && keyboard.layouts.length > 0
 
-                arrowIcon: "angle-down.png"
+                arrowIcon: Qt.resolvedUrl("angle-down.png")
 
                 KeyNavigation.backtab: session; KeyNavigation.tab: user_entry
             }

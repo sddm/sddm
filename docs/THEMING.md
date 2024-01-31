@@ -8,7 +8,7 @@ We also provide models containing information about the screens, available sessi
 
     ComboBox {
     	id: session
-    	arrowIcon: "angle-down.png"
+    	arrowIcon: Qt.resolvedPath("angle-down.png")
     	model: sessionModel
     	index: sessionModel.lastIndex
     }
