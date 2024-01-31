@@ -95,6 +95,7 @@ void WaylandKeyboardBackend::init()
     // TODO: We can't actually switch keyboard layout yet, so don't populate a list of layouts
     // so that themes can know to not show the option to change layout
     // d->layouts = parseRules(QStringLiteral("/usr/share/X11/xkb/rules/evdev.xml"), d->layout_id);
+    d->enabled = false;
 }
 
 void WaylandKeyboardBackend::disconnect()
