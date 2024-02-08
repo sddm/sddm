@@ -33,7 +33,7 @@
    <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
   </property>
   <property name="Sessions" type="a(so)" access="read">
-   <annotation name="org.qtproject.QtDBus.QtTypeName" value="QList<NamedSessionPath>"/>
+   <annotation name="org.qtproject.QtDBus.QtTypeName" value="QList&lt;NamedSessionPath&gt;"/>
   </property>
   <property name="IdleHint" type="b" access="read">
   </property>
