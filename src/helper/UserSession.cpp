@@ -202,7 +202,7 @@ namespace SDDM {
             // when this is true we'll take control of the tty
             bool takeControl = false;
 
-            if (vtFd > 0) {
+            if (vtNumber > 0 && vtFd > 0) {
                 dup2(vtFd, STDIN_FILENO);
                 ::close(vtFd);
                 takeControl = true;
@@ -228,7 +228,8 @@ namespace SDDM {
                 }
             }
 
-            VirtualTerminal::jumpToVt(vtNumber, x11UserSession);
+            if (vtNumber > 0)
+                VirtualTerminal::jumpToVt(vtNumber, x11UserSession);
         }
 
 #ifdef Q_OS_LINUX
