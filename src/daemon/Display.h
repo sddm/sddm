@@ -97,7 +97,7 @@ namespace SDDM {
         bool m_relogin { true };
         bool m_started { false };
 
-        int m_terminalId = 0;
+        int m_terminalId = -1;
         int m_sessionTerminalId = 0;
 
         QString m_passPhrase;
