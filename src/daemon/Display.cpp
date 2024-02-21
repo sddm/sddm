@@ -116,16 +116,22 @@ namespace SDDM {
         // Create display server
         switch (m_displayServerType) {
         case X11DisplayServerType:
-            m_terminalId = VirtualTerminal::setUpNewVt();
+            if (seat()->canTTY()) {
+                m_terminalId = VirtualTerminal::setUpNewVt();
+            }
             m_displayServer = new XorgDisplayServer(this);
             break;
         case X11UserDisplayServerType:
-            m_terminalId = fetchAvailableVt();
+            if (seat()->canTTY()) {
+                m_terminalId = fetchAvailableVt();
+            }
             m_displayServer = new XorgUserDisplayServer(this);
             m_greeter->setDisplayServerCommand(XorgUserDisplayServer::command(this));
             break;
         case WaylandDisplayServerType:
-            m_terminalId = fetchAvailableVt();
+            if (seat()->canTTY()) {
+                m_terminalId = fetchAvailableVt();
+            }
             m_displayServer = new WaylandDisplayServer(this);
             m_greeter->setDisplayServerCommand(mainConfig.Wayland.CompositorCommand.get());
             break;
@@ -421,7 +427,9 @@ namespace SDDM {
         m_sessionTerminalId = m_terminalId;
         if ((session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) || (m_greeter->isRunning() && m_displayServerType != X11DisplayServerType)) {
             // Create a new VT when we need to have another compositor running
-            m_sessionTerminalId = VirtualTerminal::setUpNewVt();
+            if (seat()->canTTY()) {
+                m_sessionTerminalId = VirtualTerminal::setUpNewVt();
+            }
         }
 
         // some information
@@ -439,7 +447,8 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("user"));
         env.insert(QStringLiteral("XDG_SESSION_TYPE"), session.xdgSessionType());
         env.insert(QStringLiteral("XDG_SEAT"), seat()->name());
-        env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_sessionTerminalId));
+        if (m_sessionTerminalId > 0)
+            env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_sessionTerminalId));
 #ifdef HAVE_SYSTEMD
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
 #endif
