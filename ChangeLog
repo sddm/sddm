@@ -4,6 +4,21 @@
     - Bug fixes
     * Others
 
+## 0.21.0
+----------------------
+    + sddm-greeter can now be built for both Qt5 and Qt6
+    + Themes can now declare their Qt version compatibility to control which greeter gets used
+    + New CMake option INSTALL_PAM_CONFIGURATION (defaults to ON)
+    + Bulgarian translation added
+    * DBus policy files are now installed in /usr rather than /etc
+    * Do not show keyboard layouts on wayland as switching is not implemented
+    * Switch the default commandline for Weston to use the kiosk shell (available in 9.0+)
+    - Fix building with Qt 6.7
+    - Handle autologin failure by falling back to the greeter (#1775)
+    - Fix session names containing ',' (#1745)
+    - Don't let tmpfiles delete x11 auth files for very long running sessions
+    - Many improvements for the **experimental** wayland support
+
 ## 0.20.0 - 2023-06-23
 ----------------------
     + Initial Qt6 support (Will break themes which rely on Qt 5)
