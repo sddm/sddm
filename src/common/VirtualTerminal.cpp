@@ -43,7 +43,7 @@
 namespace SDDM {
     namespace VirtualTerminal {
 #ifdef __FreeBSD__
-        static const char *defaultVtPath = "/dev/ttyv0";
+        const char *defaultVtPath = "/dev/ttyv0";
 
         QString path(int vt) {
             char c = (vt <= 10 ? '0' : 'a') + (vt - 1);
@@ -59,7 +59,7 @@ namespace SDDM {
             return vtActive;
         }
 #else
-        static const char *defaultVtPath = "/dev/tty0";
+        const char *defaultVtPath = "/dev/tty0";
 
         QString path(int vt) {
             return QStringLiteral("/dev/tty%1").arg(vt);

@@ -24,6 +24,8 @@
 
 namespace SDDM {
     namespace VirtualTerminal {
+        extern const char *defaultVtPath;
+
         QString path(int vt);
         int currentVt();
         int setUpNewVt();
