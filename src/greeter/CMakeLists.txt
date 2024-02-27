@@ -36,6 +36,7 @@ set(GREETER_SOURCES
 )
 
 configure_file("theme.qrc" "theme.qrc")
+configure_file("theme/metadata.desktop.in" "theme/metadata.desktop" @ONLY)
 
 qt_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
 

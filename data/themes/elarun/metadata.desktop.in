@@ -46,4 +46,4 @@ TranslationsDirectory=translations
 Theme-Id=elarun
 Theme-API=2.0
 Website=https://github.com/sddm/sddm
-
+QtVersion=@QT_MAJOR_VERSION@
