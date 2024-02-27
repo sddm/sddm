@@ -30,12 +30,16 @@ ComboBox {
     model: keyboard.layouts
     index: keyboard.currentLayout
 
-    onValueChanged: keyboard.currentLayout = id
+    function onValueChanged(id) {
+        keyboard.currentLayout = id
+    }
 
     Connections {
         target: keyboard
 
-        onCurrentLayoutChanged: combo.index = keyboard.currentLayout
+        function onCurrentLayoutChanged() {
+            combo.index = keyboard.currentLayout
+        }
     }
 
     rowDelegate: Rectangle {

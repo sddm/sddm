@@ -134,7 +134,7 @@ FocusScope {
         }
     }
 
-    Keys.onPressed: {
+    Keys.onPressed: function (event) {
         if (event.key === Qt.Key_Up) {
             listView.decrementCurrentIndex()
         } else if (event.key === Qt.Key_Down) {

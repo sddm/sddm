@@ -40,17 +40,16 @@ Rectangle {
     Connections {
         target: sddm
 
-        onLoginSucceeded: {
+        function onLoginSucceeded() {
             errorMessage.color = "steelblue"
             errorMessage.text = textConstants.loginSucceeded
         }
-
-        onLoginFailed: {
+        function onLoginFailed() {
             password.text = ""
             errorMessage.color = "red"
             errorMessage.text = textConstants.loginFailed
         }
-        onInformationMessage: {
+        function onInformationMessage(message) {
             errorMessage.color = "red"
             errorMessage.text = message
         }
@@ -126,7 +125,7 @@ Rectangle {
 
                         KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password
 
-                        Keys.onPressed: {
+                        Keys.onPressed: function (event) {
                             if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 sddm.login(name.text, password.text, sessionIndex)
                                 event.accepted = true
@@ -153,7 +152,7 @@ Rectangle {
 
                         KeyNavigation.backtab: name; KeyNavigation.tab: session
 
-                        Keys.onPressed: {
+                        Keys.onPressed: function (event) {
                             if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 sddm.login(name.text, password.text, sessionIndex)
                                 event.accepted = true

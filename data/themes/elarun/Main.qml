@@ -39,11 +39,11 @@ Rectangle {
 
     Connections {
         target: sddm
-        onLoginSucceeded: {
+        function onLoginSucceeded() {
         }
-        onInformationMessage: {
+        function onInformationMessage(message) {
         }
-        onLoginFailed: {
+        function onLoginFailed() {
             pw_entry.text = ""
         }
     }
@@ -135,7 +135,7 @@ Rectangle {
 
                             KeyNavigation.backtab: user_entry; KeyNavigation.tab: login_button
 
-                            Keys.onPressed: {
+                            Keys.onPressed: function (event) {
                                 if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                     sddm.login(user_entry.text, pw_entry.text, sessionIndex)
                                     event.accepted = true
