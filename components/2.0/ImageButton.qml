@@ -53,7 +53,9 @@ Image {
         }
     ]
 
-    Behavior on opacity { NumberAnimation { duration: 200 } }
+    transitions: Transition {
+        NumberAnimation { property: "opacity"; duration: 200 }
+    }
 
     clip: true
     smooth: true

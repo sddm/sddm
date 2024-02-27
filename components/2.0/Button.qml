@@ -67,7 +67,9 @@ Rectangle {
         }
     ]
 
-    Behavior on color { NumberAnimation { duration: 200 } }
+    transitions: Transition {
+        ColorAnimation { duration: 200 }
+    }
 
     clip: true
     smooth: true
