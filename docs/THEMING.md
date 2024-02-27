@@ -13,6 +13,8 @@ We also provide models containing information about the screens, available sessi
     	index: sessionModel.lastIndex
     }
 
+Themes are run by a Qt 5 built sddm-greeter, unless the `QtVersion` property in metadata.desktop specifies a different version, such as `QtVersion=6` for using `sddm-greeter-qt6`.
+
 ## Proxy Object
 
 We provide a proxy object, called as `sddm` to the themes as a context property. This object holds some useful properties about the host system. It also acts as a proxy between the greeter and the daemon. All of the methods called on this object will be transferred to the daemon through a local socket to be executed there.
