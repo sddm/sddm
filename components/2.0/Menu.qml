@@ -34,14 +34,16 @@ Rectangle {
     property alias model: menuList.model
     property alias index: menuList.currentIndex
 
-    Behavior on height { NumberAnimation { duration: 100 } }
-
     states: [
         State {
             name: "visible";
             PropertyChanges { target: menu; height: itemHeight * menuList.count }
         }
     ]
+
+    transitions: Transition {
+        NumberAnimation { property: "height"; duration: 100 }
+    }
 
     Component {
         id: listViewItem

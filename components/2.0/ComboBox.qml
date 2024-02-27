@@ -70,8 +70,6 @@ FocusScope {
         border.color: container.borderColor
         border.width: container.borderWidth
 
-        Behavior on border.color { ColorAnimation { duration: 100 } }
-
         states: [
             State {
                 name: "hover"; when: mouseArea.containsMouse
@@ -82,6 +80,10 @@ FocusScope {
                 PropertyChanges { target: main; border.width: container.borderWidth; border.color: container.focusColor }
             }
         ]
+
+        transitions: Transition {
+            ColorAnimation { property: "border.color"; duration: 100 }
+        }
     }
 
     Loader {
@@ -157,8 +159,6 @@ FocusScope {
 
         clip: true
 
-        Behavior on height { NumberAnimation { duration: 100 } }
-
         Component {
             id: myDelegate
 
@@ -214,6 +214,10 @@ FocusScope {
                 PropertyChanges { target: dropDown; height: (container.height - 2*container.borderWidth) * listView.count + container.borderWidth}
             }
         ]
+
+        transitions: Transition {
+            NumberAnimation { property: "height"; duration: 100 }
+        }
     }
 
     function toggle() {
