@@ -60,10 +60,9 @@ jobs:
           sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
           apt-get update -y
           DEBIAN_FRONTEND=noninteractive apt-get build-dep sddm -y
+          DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qml-module-qttest -y
           if [ "${{ matrix.qt }}" = "qt6" ]; then
-            DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-declarative-dev qml6-module-qtqml-workerscript qml6-module-qtquick-window -y
-          else
-            DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qml-module-qttest -y
+            DEBIAN_FRONTEND=noninteractive apt-get install qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-declarative-dev qml6-module-qtqml-workerscript qml6-module-qtquick-window -y
           fi
       - name: Build
         run: |

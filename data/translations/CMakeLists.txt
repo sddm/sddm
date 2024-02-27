@@ -1,3 +1,6 @@
+set(COMPONENTS_TRANSLATION_DIR "${DATA_INSTALL_DIR}/translations-qt${QT_MAJOR_VERSION}")
+set(COMPONENTS_TRANSLATION_DIR "${COMPONENTS_TRANSLATION_DIR}" PARENT_SCOPE)
+
 set(TRANSLATION_FILES
     ar.ts
     bg.ts
@@ -45,8 +48,12 @@ set(TRANSLATION_FILES
     zh_TW.ts
 )
 
-qt_add_translation(QM_FILES ${TRANSLATION_FILES})
+if(QT_MAJOR_VERSION EQUAL "5")
+    qt5_add_translation(QM_FILES ${TRANSLATION_FILES})
+elseif(QT_MAJOR_VERSION EQUAL "6")
+    qt6_add_translation(QM_FILES ${TRANSLATION_FILES})
+endif()
 
 install(FILES ${QM_FILES} DESTINATION "${COMPONENTS_TRANSLATION_DIR}")
 
-add_custom_target(components-translation DEPENDS ${QM_FILES})
+add_custom_target(components-translation-qt${QT_MAJOR_VERSION} DEPENDS ${QM_FILES})
