@@ -10,9 +10,15 @@ foreach(THEME ${THEMES})
 
     qt_add_translation(QM_FILES "${TRANSLATION_SOURCES}")
 
-    install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes" PATTERN "${THEME}/*.ts"
-            EXCLUDE PATTERN "${THEME}/.gitattributes"
-            EXCLUDE)
+    configure_file("${THEME}/metadata.desktop.in" "${THEME}/metadata.desktop" @ONLY)
+
+    install(DIRECTORY "${THEME}" DESTINATION "${DATA_INSTALL_DIR}/themes"
+            PATTERN "${THEME}/*.in" EXCLUDE
+            PATTERN "${THEME}/*.ts" EXCLUDE
+            PATTERN "${THEME}/.gitattributes" EXCLUDE)
+
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${THEME}/metadata.desktop"
+            DESTINATION "${DATA_INSTALL_DIR}/themes/${THEME}/")
 
     list(APPEND THEMES_QM_FILES ${QM_FILES})
 endforeach(THEME)

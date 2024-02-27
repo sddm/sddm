@@ -14,3 +14,4 @@ TranslationsDirectory=translations
 Email=abdurrahmanavci@gmail.com
 Theme-Id=maui
 Theme-API=2.0
+QtVersion=@QT_MAJOR_VERSION@

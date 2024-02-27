@@ -14,3 +14,4 @@ TranslationsDirectory=translations
 Email=spremi@ymail.com
 Theme-Id=maya
 Theme-API=2.0
+QtVersion=@QT_MAJOR_VERSION@
