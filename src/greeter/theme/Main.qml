@@ -40,15 +40,15 @@ Rectangle {
 
     Connections {
         target: sddm
-        onLoginSucceeded: {
+        function onLoginSucceeded() {
         }
 
-        onLoginFailed: {
+        function onLoginFailed() {
             txtMessage.text = textConstants.loginFailed
             listView.currentItem.password = ""
         }
 
-        onInformationMessage: {
+        function onInformationMessage(message) {
             txtMessage.text = message
         }
     }

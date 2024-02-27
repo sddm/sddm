@@ -75,7 +75,7 @@ Rectangle {
   Connections {
     target: sddm
 
-    onLoginSucceeded: {
+    function onLoginSucceeded() {
       prompt_bg.color = successText
       prompt_txt.text = textConstants.loginSucceeded
 
@@ -84,7 +84,7 @@ Rectangle {
 
       anim_success.start()
     }
-    onLoginFailed: {
+    function onLoginFailed() {
       prompt_bg.color = failureText
       prompt_txt.text = textConstants.loginFailed
 
@@ -93,7 +93,7 @@ Rectangle {
 
       anim_failure.start()
     }
-    onInformationMessage: {
+    function onInformationMessage(message) {
       prompt_bg.color = failureText
       prompt_txt.text = message
 
@@ -505,7 +505,7 @@ Rectangle {
         KeyNavigation.tab     : maya_login
         KeyNavigation.backtab : maya_username
 
-        Keys.onPressed: {
+        Keys.onPressed: function (event) {
           if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
             maya_root.tryLogin()
 
@@ -546,7 +546,7 @@ Rectangle {
 
         onClicked: maya_root.tryLogin()
 
-        Keys.onPressed: {
+        Keys.onPressed: function (event) {
           if ((event.key === Qt.Key_Return) || (event.key === Qt.Key_Enter)) {
             maya_root.tryLogin()
 
