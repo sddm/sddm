@@ -36,11 +36,15 @@ namespace SDDM {
         Q_PROPERTY(int disableAvatarsThreshold READ disableAvatarsThreshold CONSTANT)
         Q_PROPERTY(bool containsAllUsers READ containsAllUsers CONSTANT)
     public:
+        Q_INVOKABLE void add(QString username, QString defaultFace);
+
         enum UserRoles {
             NameRole = Qt::UserRole + 1,
             RealNameRole,
             HomeDirRole,
             IconRole,
+            //UidRole,
+            //GidRole,
             NeedsPasswordRole
         };
         Q_ENUM(UserRoles)

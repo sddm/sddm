@@ -93,6 +93,7 @@ namespace SDDM {
             Entry(HideUsers,           QStringList, QStringList(),                              _S("Comma-separated list of users that should not be listed"));
             Entry(HideShells,          QStringList, QStringList(),                              _S("Comma-separated list of shells.\n"
                                                                                                    "Users with these shells as their default won't be listed"));
+            Entry(ShowSavedLogins,     bool,        false,                                      _S("Save users which logged in and display them in greeter"));
             Entry(RememberLastUser,    bool,        true,                                       _S("Remember the last successfully logged in user"));
             Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
 
