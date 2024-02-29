@@ -10,6 +10,7 @@ StartLimitBurst=2
 [Service]
 ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sddm
 Restart=always
+KeyringMode=inherit
 
 [Install]
 Alias=display-manager.service

@@ -4,6 +4,7 @@ auth        required    pam_faillock.so preauth
 auth        required    pam_shells.so
 auth        required    pam_nologin.so
 auth        required    pam_permit.so
+auth        optional    pam_sddm.so
 -auth       optional    pam_gnome_keyring.so
 -auth       optional    pam_kwallet5.so
 account     include     system-local-login
