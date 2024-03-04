@@ -231,8 +231,7 @@ namespace SDDM {
         view->showFullScreen();
 
         // activate windows for the primary screen to give focus to text fields
-        if (QGuiApplication::primaryScreen() == screen)
-            view->requestActivate();
+        activatePrimary();
     }
 
     void GreeterApp::removeViewForScreen(QQuickView *view) {
@@ -290,6 +289,7 @@ namespace SDDM {
         // activate and give focus to the window assigned to the primary screen
         for (QQuickView *view : qAsConst(m_views)) {
             if (view->screen() == QGuiApplication::primaryScreen()) {
+                view->raise();
                 view->requestActivate();
                 break;
             }
