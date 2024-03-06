@@ -59,7 +59,23 @@ namespace SDDM {
         connect(&m_idleTimer, &QTimer::timeout, this, [this] { idleChanged(true); });
         m_idleTimer.setInterval(5*1000);
         m_idleTimer.setSingleShot(true);
+    }
+
+    IdleMonitor::~IdleMonitor()
+    {
+        disarm();
+    }
+
+    void IdleMonitor::arm()
+    {
         m_idleTimer.start();
+    }
+
+    void IdleMonitor::disarm()
+    {
+        m_idleTimer.stop();
+        if (m_isIdle)
+            idleChanged(false);
     }
 
     bool IdleMonitor::eventFilter(QObject *obj, QEvent *ev)
@@ -214,11 +230,14 @@ namespace SDDM {
 
         // Track input events
         view->installEventFilter(m_idleMonitor);
+        m_idleMonitor->arm();
 
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
         connect(m_proxy, &GreeterProxy::loginSucceeded, view, &QQuickView::close);
+        // TODO: Necessary? ~IdleMonitor should run in that case.
+        // connect(m_proxy, &GreeterProxy::loginSucceeded, m_idleMonitor, &IdleMonitor::disarm);
 
         // we used to have only one window as big as the virtual desktop,
         // QML took care of creating an item for each screen by iterating on

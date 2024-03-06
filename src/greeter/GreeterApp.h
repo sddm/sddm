@@ -45,6 +45,11 @@ namespace SDDM {
         Q_DISABLE_COPY(IdleMonitor)
     public:
         IdleMonitor(QObject *parent);
+        ~IdleMonitor();
+
+    public Q_SLOTS:
+        void arm(); // Start idle tracking
+        void disarm(); // Set IdleHint to false and stop idle tracking
 
     protected:
         bool eventFilter(QObject *obj, QEvent *ev) override;
