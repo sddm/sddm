@@ -188,6 +188,13 @@ set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"           
 set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations-qt${QT_MAJOR_VERSION}" CACHE PATH      "Components translations directory")
 set(SDDM_INITIAL_VT             "1"                                                 CACHE STRING    "Initial tty to use")
 
+# Intentionally does not use CMAKE_INSTAL_PREFIX, just like SessionDir in the Configuration.h
+set(DEFAULT_THEME_DIRS "/usr/local/share/sddm/themes" "/usr/share/sddm/themes")
+if (NOT "${DATA_INSTALL_DIR}/themes" IN_LIST DEFAULT_THEME_DIRS)
+    list(APPEND DEFAULT_THEME_DIRS "${DATA_INSTALL_DIR}/themes")
+endif()
+string(REPLACE ";" "," DEFAULT_THEME_DIRS "${DEFAULT_THEME_DIRS}")
+set(THEME_DIRS                  "${DEFAULT_THEME_DIRS}"                             CACHE STRING    "Default theme search directories (comma-separated)")
 
 # Autodetect UID_MIN and UID_MAX from /etc/login.defs
 if(NOT DEFINED LOGIN_DEFS_PATH)
