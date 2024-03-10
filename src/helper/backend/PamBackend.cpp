@@ -292,7 +292,7 @@ namespace SDDM {
     }
 
     QString PamBackend::userName() {
-        return QString::fromLocal8Bit((const char*) m_pam->getItem(PAM_USER));
+        return QString::fromLocal8Bit(static_cast<const char*>( m_pam->getItem(PAM_USER)));
     }
 
     int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {
@@ -335,7 +335,7 @@ namespace SDDM {
             }
         }
 
-        *resp = (struct pam_response *) calloc(n, sizeof(struct pam_response));
+        *resp = static_cast<struct pam_response *>(calloc(n, sizeof(struct pam_response)));
         if (!*resp) {
             return PAM_BUF_ERR;
         }
@@ -343,7 +343,7 @@ namespace SDDM {
         for (int i = 0; i < n; i++) {
             QByteArray response = m_data->getResponse(msg[i]);
 
-            resp[i]->resp = (char *) malloc(response.length() + 1);
+            resp[i]->resp = static_cast<char *>( malloc(response.length() + 1));
             // on error, get rid of everything
             if (!resp[i]->resp) {
                 for (int j = 0; j < i; j++) {

@@ -230,7 +230,7 @@ namespace SDDM {
         else
             qWarning("Auth: sddm-helper exited with %d", exitCode);
 
-        Q_EMIT qobject_cast<Auth*>(parent())->finished((Auth::HelperExitStatus)exitCode);
+        Q_EMIT qobject_cast<Auth*>(parent())->finished(static_cast<Auth::HelperExitStatus>(exitCode));
     }
 
     void Auth::Private::childError(QProcess::ProcessError error) {
