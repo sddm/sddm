@@ -35,6 +35,8 @@ namespace SDDM {
 
     enum class DaemonMessages {
         HostName,
+	HostOsName,
+	HostOsVersion,
         Capabilities,
         LoginSucceeded,
         LoginFailed,

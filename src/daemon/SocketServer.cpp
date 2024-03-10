@@ -127,6 +127,12 @@ namespace SDDM {
                     // send host name
                     SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
 
+                    // send os name
+                    SocketWriter(socket) << quint32(DaemonMessages::HostOsName) << daemonApp->hostOsName();
+
+                    // send os version
+                    SocketWriter(socket) << quint32(DaemonMessages::HostOsVersion) << daemonApp->hostOsVersion();
+
                     // emit signal
                     emit connected();
                 }

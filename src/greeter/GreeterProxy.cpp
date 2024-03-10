@@ -33,6 +33,8 @@ namespace SDDM {
         SessionModel *sessionModel { nullptr };
         QLocalSocket *socket { nullptr };
         QString hostName;
+	QString hostOsName;
+	QString hostOsVersion;
         bool canPowerOff { false };
         bool canReboot { false };
         bool canSuspend { false };
@@ -58,6 +60,14 @@ namespace SDDM {
 
     const QString &GreeterProxy::hostName() const {
         return d->hostName;
+    }
+
+    const QString &GreeterProxy::hostOsName() const {
+        return d->hostOsName;
+    }
+
+    const QString &GreeterProxy::hostOsVersion() const {
+        return d->hostOsVersion;
     }
 
     void GreeterProxy::setSessionModel(SessionModel *model) {
@@ -188,6 +198,28 @@ namespace SDDM {
 
                     // emit signal
                     emit hostNameChanged(d->hostName);
+                }
+                break;
+                case DaemonMessages::HostOsName: {
+                    // log message
+                    qDebug() << "Message received from daemon: HostOsName";
+
+                    // read os name
+                    input >> d->hostOsName;
+
+                    // emit signal
+                    emit hostOsNameChanged(d->hostOsName);
+                }
+                break;
+                case DaemonMessages::HostOsVersion: {
+                    // log message
+                    qDebug() << "Message received from daemon: HostOsVersion";
+
+                    // read os version
+                    input >> d->hostOsVersion;
+
+                    // emit signal
+                    emit hostOsVersionChanged(d->hostOsVersion);
                 }
                 break;
                 case DaemonMessages::LoginSucceeded: {
