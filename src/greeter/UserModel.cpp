@@ -175,7 +175,11 @@ namespace SDDM {
     }
 
     QString UserModel::lastUser() const {
-        return stateConfig.Last.User.get();
+        if (mainConfig.Users.RememberLastUser.get()) {
+            return stateConfig.Last.User.get();
+        } else {
+            return QString();
+        }
     }
 
     int UserModel::rowCount(const QModelIndex &parent) const {
