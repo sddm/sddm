@@ -113,34 +113,23 @@ namespace SDDM {
 
     void Seat::displayStopped() {
         Display *display = qobject_cast<Display *>(sender());
-        OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
-        std::optional<int> nextVt;
-        auto reusing = display->reuseSessionId();
-        if (manager.isValid() && !reusing.isEmpty()) {
-            auto sessionPath = manager.GetSession(reusing);
-            OrgFreedesktopLogin1SessionInterface sessionIface(Logind::serviceName(), sessionPath.value().path(), QDBusConnection::systemBus());
-            nextVt = QStringView(sessionIface.tTY()).mid(3).toInt(); // we need to convert ttyN to N
-        }
 
         // remove display
         removeDisplay(display);
 
-        // restart otherwise
-        if (m_displays.isEmpty()) {
-            createDisplay(Display::defaultDisplayServerType());
-        }
+        // If the display ended up reusing a session, it already jumped to it.
+        if (!display->reuseSessionId().isEmpty())
+            return;
+
         // If there is still a session running on some display,
         // switch to last display in display vector.
-        // Set vt_auto to true, so let the kernel handle the
-        // vt switch automatically (VT_AUTO).
-        else if (!nextVt) {
-            int disp = m_displays.last()->terminalId();
-            if (disp != -1)
-                nextVt = disp;
-        }
-
-        if (nextVt) {
-            VirtualTerminal::jumpToVt(*nextVt, true);
+        if (!m_displays.isEmpty() && m_displays.constLast()->terminalId() > 0) {
+            // Set vt_auto to true, so let the kernel handle the
+            // vt switch automatically (VT_AUTO).
+            VirtualTerminal::jumpToVt(m_displays.constLast()->terminalId(), true);
+        } else {
+            // restart otherwise
+            createDisplay(Display::defaultDisplayServerType());
         }
     }
 
