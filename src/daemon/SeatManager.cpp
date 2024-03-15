@@ -26,6 +26,9 @@
 #include <QDBusMessage>
 #include <QDBusPendingReply>
 #include <QDBusContext>
+#include <QDebug>
+#include <QFileInfo>
+#include <QTimer>
 
 #include "LogindDBusTypes.h"
 
@@ -115,6 +118,8 @@ namespace SDDM {
 
         QDBusConnection::systemBus().connect(Logind::serviceName(), Logind::managerPath(), Logind::managerIfaceName(), QStringLiteral("SeatNew"), this, SLOT(logindSeatAdded(QString,QDBusObjectPath)));
         QDBusConnection::systemBus().connect(Logind::serviceName(), Logind::managerPath(), Logind::managerIfaceName(), QStringLiteral("SeatRemoved"), this, SLOT(logindSeatRemoved(QString,QDBusObjectPath)));
+
+	QTimer::singleShot(5000, this, &SeatManager::checkSeat);
     }
 
     void SeatManager::createSeat(const QString &name) {
@@ -150,6 +155,23 @@ namespace SDDM {
 
         // switch to greeter
         m_seats.value(name)->createDisplay(Display::defaultDisplayServerType());
+    }
+
+    // this is a bit hacky, but linux DRM drivers
+    // won't initially be available so there is a race
+    // between determing if a efifb/etc graphical object
+    // is the only graphics on the machine, or a DRM driver
+    // will take over the display. So we will hang out for a few
+    // seconds and if none of the seats are declared cangraphical
+    // its possible the only graphics on the machine don't have
+    // a drm driver.
+    void SeatManager::checkSeat(void) {
+        if (m_seats.isEmpty()) {
+	     //if (QFileInfo::exists(QStringLiteral("/dev/fb0"))) {
+                 qWarning() << "No graphical seats found, attempt to start one on the main console anyway...";
+                 createSeat(QStringLiteral("seat0"));
+	     //}
+        }
     }
 
     void SDDM::SeatManager::logindSeatAdded(const QString& name, const QDBusObjectPath& objectPath)
