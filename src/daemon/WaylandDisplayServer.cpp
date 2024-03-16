@@ -41,6 +41,10 @@ void WaylandDisplayServer::setDisplayName(const QString &displayName)
     m_display = displayName;
 }
 
+QString WaylandDisplayServer::getCommand(Display *) const {
+    return QStringLiteral();
+}
+
 bool WaylandDisplayServer::start()
 {
     // Check flag

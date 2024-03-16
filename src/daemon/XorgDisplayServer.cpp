@@ -70,6 +70,10 @@ namespace SDDM {
         return m_xauth.cookie();
     }
 
+    QString XorgDisplayServer::getCommand(Display *) const {
+        return QStringLiteral();
+    }
+
     bool XorgDisplayServer::start() {
         // check flag
         if (m_started)
