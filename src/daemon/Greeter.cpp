@@ -27,7 +27,7 @@
 #include "ThemeConfig.h"
 #include "ThemeMetadata.h"
 #include "Display.h"
-#include "XorgDisplayServer.h"
+#include "DisplayServer.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -145,7 +145,7 @@ namespace SDDM {
                 // set process environment
                 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
-                env.insert(QStringLiteral("XAUTHORITY"), qobject_cast<XorgDisplayServer*>(displayServer)->authPath());
+                env.insert(QStringLiteral("XAUTHORITY"), displayServer->authPath());
                 env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
                 if (!xcursorSize.isEmpty())
                     env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);

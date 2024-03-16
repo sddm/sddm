@@ -49,6 +49,10 @@ QByteArray WaylandDisplayServer::getCookie() const {
     return {};
 }
 
+QString WaylandDisplayServer::authPath() const {
+    return {};
+}
+
 bool WaylandDisplayServer::start()
 {
     // Check flag

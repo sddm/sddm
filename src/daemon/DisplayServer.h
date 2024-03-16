@@ -46,6 +46,8 @@ namespace SDDM {
 
         virtual QByteArray getCookie() const = 0;
 
+        virtual QString authPath() const = 0;
+
     public slots:
         virtual bool start() = 0;
         virtual void stop() = 0;

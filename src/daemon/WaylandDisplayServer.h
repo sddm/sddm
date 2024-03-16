@@ -40,6 +40,8 @@ public:
 
     QByteArray getCookie() const override;
 
+    QString authPath() const override;
+
 public Q_SLOTS:
     bool start();
     void stop();

@@ -71,6 +71,10 @@ QByteArray XorgUserDisplayServer::getCookie() const {
     return {};
 }
 
+QString XorgUserDisplayServer::authPath() const {
+    return {};
+}
+
 bool XorgUserDisplayServer::start()
 {
     // Check flag
