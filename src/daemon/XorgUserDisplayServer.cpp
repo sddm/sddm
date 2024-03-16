@@ -67,6 +67,10 @@ QString XorgUserDisplayServer::getCommand(Display *display) const
     return args.join(QLatin1Char(' '));
 }
 
+QByteArray XorgUserDisplayServer::getCookie() const {
+    return {};
+}
+
 bool XorgUserDisplayServer::start()
 {
     // Check flag

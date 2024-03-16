@@ -44,6 +44,8 @@ namespace SDDM {
 
         virtual QString getCommand(Display *display) const = 0;
 
+        virtual QByteArray getCookie() const = 0;
+
     public slots:
         virtual bool start() = 0;
         virtual void stop() = 0;

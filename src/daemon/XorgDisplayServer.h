@@ -42,7 +42,7 @@ namespace SDDM {
 
         QString sessionType() const;
 
-        const QByteArray cookie() const;
+        QByteArray getCookie() const override;
 
         QString getCommand(Display *) const override;
 

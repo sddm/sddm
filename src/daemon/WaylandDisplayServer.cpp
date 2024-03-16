@@ -45,6 +45,10 @@ QString WaylandDisplayServer::getCommand(Display *) const {
     return QStringLiteral();
 }
 
+QByteArray WaylandDisplayServer::getCookie() const {
+    return {};
+}
+
 bool WaylandDisplayServer::start()
 {
     // Check flag
