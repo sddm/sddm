@@ -38,7 +38,7 @@ namespace SDDM {
 
         void setDisplayName(const QString &displayName);
 
-        QString authPath() const;
+        QString authPath() const override;
 
         QString sessionType() const;
 
