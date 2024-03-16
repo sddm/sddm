@@ -53,6 +53,11 @@ namespace SDDM {
         return m_display;
     }
 
+    void XorgDisplayServer::setDisplayName(const QString &)
+    {
+        // Intentional noop
+    }
+
     QString XorgDisplayServer::authPath() const {
         return m_xauth.authPath();
     }

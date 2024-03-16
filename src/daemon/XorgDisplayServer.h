@@ -35,6 +35,9 @@ namespace SDDM {
         ~XorgDisplayServer();
 
         const QString &display() const;
+
+        void setDisplayName(const QString &displayName);
+
         QString authPath() const;
 
         QString sessionType() const;
