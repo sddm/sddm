@@ -216,7 +216,8 @@ namespace SDDM {
             if (m_display->displayServerType() == Display::X11DisplayServerType) {
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
                 env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
-                m_auth->setCookie(qobject_cast<XorgDisplayServer*>(displayServer)->cookie());
+                const QByteArray cookie = displayServer->getCookie();
+                m_auth->setCookie(cookie);
             } else if (m_display->displayServerType() == Display::WaylandDisplayServerType) {
                 env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
                 env.insert(QStringLiteral("QT_WAYLAND_SHELL_INTEGRATION"), QStringLiteral("xdg-shell"));

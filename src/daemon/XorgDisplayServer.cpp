@@ -66,7 +66,7 @@ namespace SDDM {
         return QStringLiteral("x11");
     }
 
-    const QByteArray XorgDisplayServer::cookie() const {
+    QByteArray XorgDisplayServer::getCookie() const {
         return m_xauth.cookie();
     }
 

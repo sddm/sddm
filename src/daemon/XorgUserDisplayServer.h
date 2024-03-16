@@ -41,6 +41,8 @@ public:
 
     QString getCommand(Display *display) const override;
 
+    QByteArray getCookie() const override;
+
 public Q_SLOTS:
     bool start();
     void stop();

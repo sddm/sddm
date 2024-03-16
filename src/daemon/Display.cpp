@@ -483,8 +483,10 @@ namespace SDDM {
                 manager.ActivateSession(m_reuseSessionId);
                 m_started = true;
             } else {
-                if (qobject_cast<XorgDisplayServer *>(m_displayServer))
-                    m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+                if (m_displayServerType == X11DisplayServerType) {
+                    const QByteArray cookie = m_displayServer->getCookie();
+                    m_auth->setCookie(cookie);
+                }
             }
 
             // save last user and last session
