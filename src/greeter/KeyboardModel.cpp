@@ -23,7 +23,9 @@
 #include "KeyboardModel.h"
 #include "KeyboardModel_p.h"
 #include "waylandkeyboardbackend.h"
+#if BUILD_WITH_X11 == 1
 #include "XcbKeyboardBackend.h"
+#endif
 
 namespace SDDM {
     /**********************************************/
@@ -32,9 +34,13 @@ namespace SDDM {
 
     KeyboardModel::KeyboardModel() : d(new KeyboardModelPrivate) {
         if (QGuiApplication::platformName() == QLatin1String("xcb")) {
+#if BUILD_WITH_X11 == 1
             m_backend = new XcbKeyboardBackend(d);
             m_backend->init();
             m_backend->connectEventsDispatcher(this);
+#else
+            qWarning("Xcb backend is not supported in this build. Continuing anyway.");
+#endif
         } else if (QGuiApplication::platformName().contains(QLatin1String("wayland"))) {
             m_backend = new WaylandKeyboardBackend(d);
             m_backend->init();

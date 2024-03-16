@@ -24,8 +24,10 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
+#if BUILD_WITH_X11 == 1
 #include "XorgDisplayServer.h"
 #include "XorgUserDisplayServer.h"
+#endif
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -113,8 +115,10 @@ namespace SDDM {
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this))
     {
+
         // Create display server
         switch (m_displayServerType) {
+#if BUILD_WITH_X11 == 1
         case X11DisplayServerType:
             if (seat()->canTTY()) {
                 m_terminalId = VirtualTerminal::setUpNewVt();
@@ -126,8 +130,16 @@ namespace SDDM {
                 m_terminalId = fetchAvailableVt();
             }
             m_displayServer = new XorgUserDisplayServer(this);
-            m_greeter->setDisplayServerCommand(XorgUserDisplayServer::command(this));
+            m_greeter->setDisplayServerCommand(m_displayServer->getCommand(this));
             break;
+#else
+        case X11DisplayServerType:
+        case X11UserDisplayServerType:
+            // Reset type to Wayland and fall through to initialization
+            qWarning() << "Built without X11 support. Trying Wayland display server.";
+            m_displayServerType = WaylandDisplayServerType;
+            [[fallthrough]];
+#endif
         case WaylandDisplayServerType:
             if (seat()->canTTY()) {
                 m_terminalId = fetchAvailableVt();
@@ -453,14 +465,11 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
 #endif
 
-        if (session.xdgSessionType() == QLatin1String("x11")) {
-          if (m_displayServerType == X11DisplayServerType)
+        if (session.xdgSessionType() == QLatin1String("x11") && m_displayServerType == X11DisplayServerType) {
             env.insert(QStringLiteral("DISPLAY"), name());
-          else
-            m_auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
         } else {
-            m_auth->setDisplayServerCommand(QStringLiteral());
-	}
+            m_auth->setDisplayServerCommand(m_displayServer->getCommand(this));
+        }
         m_auth->setUser(user);
         if (m_reuseSessionId.isNull()) {
             m_auth->setSession(session.exec());
@@ -486,8 +495,10 @@ namespace SDDM {
                 manager.ActivateSession(m_reuseSessionId);
                 m_started = true;
             } else {
-                if (qobject_cast<XorgDisplayServer *>(m_displayServer))
-                    m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+                if (m_displayServerType == X11DisplayServerType) {
+                    const QByteArray cookie = m_displayServer->getCookie();
+                    m_auth->setCookie(cookie);
+                }
             }
 
             // save last user and last session
