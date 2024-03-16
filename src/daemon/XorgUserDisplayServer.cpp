@@ -45,7 +45,7 @@ void XorgUserDisplayServer::setDisplayName(const QString &displayName)
     m_display = displayName;
 }
 
-QString XorgUserDisplayServer::command(Display *display)
+QString XorgUserDisplayServer::getCommand(Display *display) const
 {
     QStringList args;
 

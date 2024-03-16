@@ -36,6 +36,8 @@ public:
 
     void setDisplayName(const QString &displayName);
 
+    QString getCommand(Display *display) const override;
+
 public Q_SLOTS:
     bool start();
     void stop();

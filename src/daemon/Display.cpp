@@ -453,14 +453,11 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
 #endif
 
-        if (session.xdgSessionType() == QLatin1String("x11")) {
-          if (m_displayServerType == X11DisplayServerType)
+        if (session.xdgSessionType() == QLatin1String("x11") && m_displayServerType == X11DisplayServerType) {
             env.insert(QStringLiteral("DISPLAY"), name());
-          else
-            m_auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
         } else {
-            m_auth->setDisplayServerCommand(QStringLiteral());
-	}
+            m_auth->setDisplayServerCommand(m_displayServer->getCommand(this));
+        }
         m_auth->setUser(user);
         if (m_reuseSessionId.isNull()) {
             m_auth->setSession(session.exec());
