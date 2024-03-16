@@ -19,6 +19,7 @@ option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
 option(BUILD_WITH_QT6 "Build with Qt 6" OFF)
+option(BUILD_WITH_X11 "Build with X11 support" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -65,10 +66,14 @@ find_package(PkgConfig)
 find_package(PAM REQUIRED)
 
 # XAU
-pkg_check_modules(LIBXAU REQUIRED "xau")
+if(BUILD_WITH_X11)
+    pkg_check_modules(LIBXAU REQUIRED "xau")
+endif ()
 
 # XCB
-find_package(XCB REQUIRED)
+if(BUILD_WITH_X11)
+    find_package(XCB REQUIRED)
+endif ()
 
 # XKB
 find_package(XKB REQUIRED)
@@ -167,6 +172,13 @@ if (SYSTEMD_FOUND)
 else()
     set(RUNTIME_DIR_DEFAULT "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/run/sddm")
 endif()
+
+# x11
+if(BUILD_WITH_X11)
+    add_definitions(-DBUILD_WITH_X11=1)
+else ()
+    add_definitions(-DBUILD_WITH_X11=0)
+endif ()
 
 
 # Set constants

@@ -24,8 +24,10 @@
 #include "Configuration.h"
 #include "DaemonApp.h"
 #include "DisplayManager.h"
+#if BUILD_WITH_X11 == 1
 #include "XorgDisplayServer.h"
 #include "XorgUserDisplayServer.h"
+#endif
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
@@ -113,8 +115,10 @@ namespace SDDM {
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this))
     {
+
         // Create display server
         switch (m_displayServerType) {
+#if BUILD_WITH_X11 == 1
         case X11DisplayServerType:
             if (seat()->canTTY()) {
                 m_terminalId = VirtualTerminal::setUpNewVt();
@@ -126,8 +130,16 @@ namespace SDDM {
                 m_terminalId = fetchAvailableVt();
             }
             m_displayServer = new XorgUserDisplayServer(this);
-            m_greeter->setDisplayServerCommand(XorgUserDisplayServer::command(this));
+            m_greeter->setDisplayServerCommand(m_displayServer->getCommand(this));
             break;
+#else
+        case X11DisplayServerType:
+        case X11UserDisplayServerType:
+            // Reset type to Wayland and fall through to initialization
+            qWarning() << "Built without X11 support. Trying Wayland display server.";
+            m_displayServerType = WaylandDisplayServerType;
+            [[fallthrough]];
+#endif
         case WaylandDisplayServerType:
             if (seat()->canTTY()) {
                 m_terminalId = fetchAvailableVt();
