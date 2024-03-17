@@ -51,42 +51,11 @@
 #include "Login1Session.h"
 #include "VirtualTerminal.h"
 #include "WaylandDisplayServer.h"
-#include "config.h"
 
 static int s_ttyFailures = 0;
 #define STRINGIFY(x) #x
 
 namespace SDDM {
-    bool isTtyInUse(const QString &desiredTty) {
-        if (Logind::isAvailable()) {
-            OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
-            auto reply = manager.ListSessions();
-            reply.waitForFinished();
-
-            const auto info = reply.value();
-            for(const SessionInfo &s : info) {
-                OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
-                if (desiredTty == session.tTY() && session.state() != QLatin1String("closing")) {
-                    qDebug() << "tty" << desiredTty << "already in use by" << session.user().path.path() << session.state()
-                                      << session.display() << session.desktop() << session.vTNr();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    int fetchAvailableVt() {
-        if (!isTtyInUse(QStringLiteral("tty" STRINGIFY(SDDM_INITIAL_VT)))) {
-            return SDDM_INITIAL_VT;
-        }
-        const auto vt = VirtualTerminal::currentVt();
-        if (vt > 0 && !isTtyInUse(QStringLiteral("tty%1").arg(vt))) {
-            return vt;
-        }
-        return VirtualTerminal::setUpNewVt();
-    }
-
     Display::DisplayServerType Display::defaultDisplayServerType()
     {
         const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
@@ -123,14 +92,14 @@ namespace SDDM {
             break;
         case X11UserDisplayServerType:
             if (seat()->canTTY()) {
-                m_terminalId = fetchAvailableVt();
+                m_terminalId = VirtualTerminal::setUpNewVt();
             }
             m_displayServer = new XorgUserDisplayServer(this);
             m_greeter->setDisplayServerCommand(XorgUserDisplayServer::command(this));
             break;
         case WaylandDisplayServerType:
             if (seat()->canTTY()) {
-                m_terminalId = fetchAvailableVt();
+                m_terminalId = VirtualTerminal::setUpNewVt();
             }
             m_displayServer = new WaylandDisplayServer(this);
             m_greeter->setDisplayServerCommand(mainConfig.Wayland.CompositorCommand.get());
@@ -166,8 +135,7 @@ namespace SDDM {
                 QCoreApplication::exit(23);
             }
             // It might be the case that we are trying a tty that has been taken over by a
-            // different process. In such a case, switch back to the initial one and try again.
-            VirtualTerminal::jumpToVt(SDDM_INITIAL_VT, true);
+            // different process. In such a case, try again.
             stop();
         });
         connect(m_greeter, &Greeter::displayServerFailed, this, &Display::displayServerFailed);
