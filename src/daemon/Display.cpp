@@ -57,36 +57,6 @@ static int s_ttyFailures = 0;
 #define STRINGIFY(x) #x
 
 namespace SDDM {
-    bool isTtyInUse(const QString &desiredTty) {
-        if (Logind::isAvailable()) {
-            OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
-            auto reply = manager.ListSessions();
-            reply.waitForFinished();
-
-            const auto info = reply.value();
-            for(const SessionInfo &s : info) {
-                OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
-                if (desiredTty == session.tTY() && session.state() != QLatin1String("closing")) {
-                    qDebug() << "tty" << desiredTty << "already in use by" << session.user().path.path() << session.state()
-                                      << session.display() << session.desktop() << session.vTNr();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    int fetchAvailableVt() {
-        if (!isTtyInUse(QStringLiteral("tty" STRINGIFY(SDDM_INITIAL_VT)))) {
-            return SDDM_INITIAL_VT;
-        }
-        const auto vt = VirtualTerminal::currentVt();
-        if (vt > 0 && !isTtyInUse(QStringLiteral("tty%1").arg(vt))) {
-            return vt;
-        }
-        return VirtualTerminal::setUpNewVt();
-    }
-
     Display::DisplayServerType Display::defaultDisplayServerType()
     {
         const QString &displayServerType = mainConfig.DisplayServer.get().toLower();
@@ -123,14 +93,14 @@ namespace SDDM {
             break;
         case X11UserDisplayServerType:
             if (seat()->canTTY()) {
-                m_terminalId = fetchAvailableVt();
+                m_terminalId = VirtualTerminal::setUpNewVt();
             }
             m_displayServer = new XorgUserDisplayServer(this);
             m_greeter->setDisplayServerCommand(XorgUserDisplayServer::command(this));
             break;
         case WaylandDisplayServerType:
             if (seat()->canTTY()) {
-                m_terminalId = fetchAvailableVt();
+                m_terminalId = VirtualTerminal::setUpNewVt();
             }
             m_displayServer = new WaylandDisplayServer(this);
             m_greeter->setDisplayServerCommand(mainConfig.Wayland.CompositorCommand.get());
