@@ -209,8 +209,8 @@ out:
                 fd = vtFd;
 
                 // Clear VT
-                static const char *clearEscapeSequence = "\33[H\33[2J";
-                if (write(vtFd, clearEscapeSequence, sizeof(clearEscapeSequence)) == -1) {
+                static const char clearEscapeSequence[] = "\33[H\33[2J";
+                if (write(vtFd, clearEscapeSequence, sizeof(clearEscapeSequence) - 1) == -1) {
                     qWarning("Failed to clear VT %d: %s", vt, strerror(errno));
                 }
 
