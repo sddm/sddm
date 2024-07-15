@@ -231,6 +231,18 @@ namespace SDDM {
 
         m_started = true;
 
+        // Handle autologin early, unless it needs the display server to be up
+        // (rootful X + X11 autologin session).
+        if (m_autologinSession.isValid()
+            && !(m_displayServerType == X11DisplayServerType
+                 && m_autologinSession.type() == Session::X11Session)) {
+            m_auth->setAutologin(true);
+            if (startAuth(mainConfig.Autologin.User.get(), QString(), m_autologinSession))
+                return true;
+            else
+                return handleAutologinFailure();
+         }
+
         return m_displayServer->start();
     }
 
@@ -256,10 +268,17 @@ namespace SDDM {
         m_greeter->start();
     }
 
-    void Display::handleAutologinFailure() {
+    bool Display::handleAutologinFailure() {
         qWarning() << "Autologin failed!";
         m_auth->setAutologin(false);
-        startSocketServerAndGreeter();
+        // For late autologin handling only the greeter needs to be started.
+        if (m_displayServerType == X11DisplayServerType
+            && m_autologinSession.type() == Session::X11Session) {
+            startSocketServerAndGreeter();
+            return true;
+        } else {
+            return m_displayServer->start();
+        }
     }
 
     void Display::displayServerStarted() {
@@ -269,7 +288,11 @@ namespace SDDM {
         // log message
         qDebug() << "Display server started.";
 
-        if (m_autologinSession.isValid()) {
+        // Handle autologin late if it needs the display server to be up
+        // (rootful X + X11 autologin session).
+        if (m_autologinSession.isValid()
+            && (m_displayServerType == X11DisplayServerType
+                && m_autologinSession.type() == Session::X11Session)) {
             m_auth->setAutologin(true);
             if (!startAuth(mainConfig.Autologin.User.get(), QString(), m_autologinSession))
                 handleAutologinFailure();
