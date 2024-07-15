@@ -171,6 +171,27 @@ namespace SDDM {
             stop();
         });
         connect(m_greeter, &Greeter::displayServerFailed, this, &Display::displayServerFailed);
+
+        // Load autologin configuration (whether to autologin, user, session, session type)
+        if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
+            !mainConfig.Autologin.User.get().isEmpty()) {
+            // reset first flag
+            daemonApp->first = false;
+
+            // determine session type
+            QString autologinSession = mainConfig.Autologin.Session.get();
+            // not configured: try last successful logged in
+            if (autologinSession.isEmpty()) {
+                autologinSession = stateConfig.Last.Session.get();
+            }
+            if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
+                m_autologinSession.setTo(Session::WaylandSession, autologinSession);
+            } else if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
+                m_autologinSession.setTo(Session::X11Session, autologinSession);
+            } else {
+                qCritical() << "Unable to find autologin session entry" << autologinSession;
+            }
+        }
     }
 
     Display::~Display() {
@@ -213,31 +234,6 @@ namespace SDDM {
         return m_displayServer->start();
     }
 
-    bool Display::attemptAutologin() {
-        Session::Type sessionType = Session::X11Session;
-
-        // determine session type
-        QString autologinSession = mainConfig.Autologin.Session.get();
-        // not configured: try last successful logged in
-        if (autologinSession.isEmpty()) {
-            autologinSession = stateConfig.Last.Session.get();
-        }
-        if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
-            sessionType = Session::WaylandSession;
-        } else if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
-            sessionType = Session::X11Session;
-        } else {
-            qCritical() << "Unable to find autologin session entry" << autologinSession;
-            return false;
-        }
-
-        Session session;
-        session.setTo(sessionType, autologinSession);
-
-        m_auth->setAutologin(true);
-        return startAuth(mainConfig.Autologin.User.get(), QString(), session);
-    }
-
     void Display::startSocketServerAndGreeter() {
         // start socket server
         m_socketServer->start(m_displayServer->display());
@@ -276,13 +272,12 @@ namespace SDDM {
         // log message
         qDebug() << "Display server started.";
 
-        if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
-            !mainConfig.Autologin.User.get().isEmpty()) {
+        if (m_autologinSession.isValid()) {
             // reset first flag
             daemonApp->first = false;
 
-            const bool autologinStarted = attemptAutologin();
-            if (!autologinStarted)
+            m_auth->setAutologin(true);
+            if (!startAuth(mainConfig.Autologin.User.get(), QString(), m_autologinSession))
                 handleAutologinFailure();
 
             return;
