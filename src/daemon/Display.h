@@ -94,7 +94,6 @@ namespace SDDM {
 
         DisplayServerType m_displayServerType = X11DisplayServerType;
 
-        bool m_relogin { true };
         bool m_started { false };
 
         int m_terminalId = -1;
