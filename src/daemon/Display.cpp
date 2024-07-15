@@ -205,7 +205,12 @@ namespace SDDM {
     }
 
     bool Display::start() {
-        return m_started || m_displayServer->start();
+        if (m_started)
+            return true;
+
+        m_started = true;
+
+        return m_displayServer->start();
     }
 
     bool Display::attemptAutologin() {
@@ -256,9 +261,6 @@ namespace SDDM {
 
         // reset first flag
         daemonApp->first = false;
-
-        // set flags
-        m_started = true;
     }
 
     void Display::handleAutologinFailure() {
@@ -268,10 +270,6 @@ namespace SDDM {
     }
 
     void Display::displayServerStarted() {
-        // check flag
-        if (m_started)
-            return;
-
         // setup display
         m_displayServer->setupDisplay();
 
@@ -282,9 +280,6 @@ namespace SDDM {
             !mainConfig.Autologin.User.get().isEmpty()) {
             // reset first flag
             daemonApp->first = false;
-
-            // set flags
-            m_started = true;
 
             const bool autologinStarted = attemptAutologin();
             if (!autologinStarted)
@@ -484,7 +479,6 @@ namespace SDDM {
                 OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
                 manager.UnlockSession(m_reuseSessionId);
                 manager.ActivateSession(m_reuseSessionId);
-                m_started = true;
             } else {
                 if (qobject_cast<XorgDisplayServer *>(m_displayServer))
                     m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
