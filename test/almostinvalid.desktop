@@ -1,0 +1,7 @@
+[Desktop Entry] 
+Type=Application 
+Exec=/usr/sbin/startDE.sh
+TryExec=/usr/sbin/startDE.sh
+DesktopNames=SmartDeskSel
+Name=Smart DE change 
+Comment=Plasma for huesped and LXQt for other

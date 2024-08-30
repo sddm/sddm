@@ -59,6 +59,22 @@ private slots:
         QCOMPARE(session.isHidden(), false);
         QCOMPARE(session.isNoDisplay(), false);
     }
+    void testAlmostInvalid()
+    {
+        auto fileName = QFINDTESTDATA("almostinvalid.desktop");
+        SDDM::Session session(SDDM::Session::X11Session, fileName);
+        QVERIFY(session.isValid());
+        QCOMPARE(session.xdgSessionType(), QStringLiteral("x11"));
+        QCOMPARE(session.fileName(), fileName);
+        QCOMPARE(session.displayName(), QStringLiteral("Smart DE change "));
+        QCOMPARE(session.comment(), QStringLiteral("Plasma for huesped and LXQt for other"));
+        QCOMPARE(session.exec(), QStringLiteral("/usr/sbin/startDE.sh"));
+        QCOMPARE(session.tryExec(), QStringLiteral("/usr/sbin/startDE.sh"));
+        QCOMPARE(session.desktopSession(), QStringLiteral("almostinvalid"));
+        QCOMPARE(session.desktopNames(), QStringLiteral("SmartDeskSel"));
+        QCOMPARE(session.isHidden(), false);
+        QCOMPARE(session.isNoDisplay(), false);
+    }
 };
 
 QTEST_MAIN(SessionTest);

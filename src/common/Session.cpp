@@ -40,8 +40,12 @@ namespace SDDM {
     class DesktopFileFormat {
         static bool readFunc(QIODevice &device, QSettings::SettingsMap &map)
         {
+            QString filename = QStringLiteral("(unknown)");
+            if(QFile *file = qobject_cast<QFile*>(&device); file)
+                filename = file->fileName();
+
             QString currentSectionName;
-            while(!device.atEnd())
+            for(int lineNumber = 1; !device.atEnd(); lineNumber++)
             {
                 // Iterate each line, remove line terminators
                 const auto line = device.readLine().replace("\r", "").replace("\n", "");
@@ -50,8 +54,16 @@ namespace SDDM {
 
                 if(line.startsWith('[')) // Section header
                 {
-                    // Remove [ and ].
-                    currentSectionName = QString::fromUtf8(line.mid(1, line.length() - 2));
+                    const int endOfHeader = line.lastIndexOf(']');
+                    if(endOfHeader < 0)
+                    {
+                        qWarning() << QStringLiteral("%1:%2: Invalid section header").arg(filename).arg(lineNumber);
+                        return false;
+                    }
+                    if(endOfHeader != line.length() - 1)
+                        qWarning() << QStringLiteral("%1:%2: Section header does not end line with ]").arg(filename).arg(lineNumber);
+
+                    currentSectionName = QString::fromUtf8(line.mid(1, endOfHeader - 1));
                 }
                 else if(int equalsPos = line.indexOf('='); equalsPos > 0) // Key=Value
                 {
