@@ -5,7 +5,7 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation>יש ללחוץ כדי להתחבר</translation>
+        <translation>יש ללחוץ כדי להיכנס</translation>
     </message>
 </context>
 <context>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>יש לשים לב שמקש Caps Lock מופעל!</translation>
+        <translation>לתשומת ליבך, Caps Lock מופעל!</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -31,15 +31,15 @@
     </message>
     <message>
         <source>Login</source>
-        <translation>התחברות</translation>
+        <translation>כניסה</translation>
     </message>
     <message>
         <source>Login failed</source>
-        <translation>ההתחברות נכשלה</translation>
+        <translation>הכניסה נכשלה</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>ההתחברות הצליחה</translation>
+        <translation>הכניסה הצליחה</translation>
     </message>
     <message>
         <source>Password</source>
@@ -47,11 +47,11 @@
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>יש להזין את שם המשתמש ואת הסיסמה שלך</translation>
+        <translation>יש למלא את שם המשתמש ואת הסיסמה שלך</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation>אתחול</translation>
+        <translation>הפעלה מחדש</translation>
     </message>
     <message>
         <source>Session</source>
@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>יש לבחור את המשתמש שלך ולהזין את הסיסמה</translation>
+        <translation>יש לבחור את המשתמש שלך ולמלא את הסיסמה</translation>
     </message>
 </context>
 </TS>
