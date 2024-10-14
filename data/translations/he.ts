@@ -46,8 +46,36 @@
         <translation>סיסמה</translation>
     </message>
     <message>
+        <source>Password:</source>
+        <translation>סיסמה:</translation>
+    </message>
+    <message>
+        <source>Please enter a password!</source>
+        <translation>נא למלא סיסמה!</translation>
+    </message>
+    <message>
+        <source>Change password</source>
+        <translation>החלפת סיסמה</translation>
+    </message>
+    <message>
+        <source>Enter your username</source>
+        <translation>נא למלא את שם המשתמש שלך</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>נא למלא את הסיסמה שלך</translation>
+    </message>
+    <message>
         <source>Enter your username and password</source>
-        <translation>יש למלא את שם המשתמש ואת הסיסמה שלך</translation>
+        <translation>נא למלא את שם המשתמש ואת הסיסמה שלך</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>הצגת הסיסמה</translation>
+    </message>
+    <message>
+        <source>Hide password</source>
+        <translation>הסתרת הסיסמה</translation>
     </message>
     <message>
         <source>Reboot</source>
@@ -56,6 +84,22 @@
     <message>
         <source>Session</source>
         <translation>הפעלה</translation>
+    </message>
+    <message>
+        <source>Suspend</source>
+        <translation>השהיה</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>תרדמת</translation>
+    </message>
+    <message>
+        <source>Password change aborted because maximum tries reached</source>
+        <translation>החלפת הסיסמה בוטלה כי הגעת לכמות הניסיונות המרבית</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>סבב החלפת סיסמאות חדש! נא למלא את הסיסמה הנוכחית שוב!</translation>
     </message>
     <message>
         <source>Shutdown</source>
@@ -67,7 +111,7 @@
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>יש לבחור את המשתמש שלך ולמלא את הסיסמה</translation>
+        <translation>נא לבחור את המשתמש שלך ולמלא את הסיסמה</translation>
     </message>
 </context>
 </TS>
