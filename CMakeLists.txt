@@ -106,6 +106,12 @@ if(SYSTEMD_FOUND)
         pkg_check_modules(JOURNALD "libsystemd")
     endif()
 
+    if(${SYSTEMD_VERSION} VERSION_LESS 257)
+        set(SYSTEMD_SYSUSERS_FULLY_LOCKED " ")
+    else()
+        set(SYSTEMD_SYSUSERS_FULLY_LOCKED "!")
+    endif()
+
     if(ENABLE_JOURNALD)
         if(JOURNALD_FOUND)
             add_definitions(-DHAVE_JOURNALD)
