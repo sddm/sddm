@@ -27,7 +27,7 @@
         </message>
         <message>
             <source>Layout</source>
-            <translation>Diseño</translation>
+            <translation>Distribución</translation>
         </message>
         <message>
             <source>Login</source>
