@@ -23,7 +23,7 @@ jobs:
           - "quay.io/fedora/fedora:rawhide"
           - "registry.opensuse.org/opensuse/tumbleweed-dnf"
           - "docker.io/library/ubuntu:22.04"
-          - "docker.io/library/ubuntu:23.04"
+          - "docker.io/library/ubuntu:24.04"
         compiler:
           - gcc
           - clang
@@ -33,10 +33,10 @@ jobs:
           - container-image: "quay.io/centos/centos:stream9"
             compiler: gcc
             qt: "qt5"
-          - container-image: "docker.io/library/ubuntu:23.04"
+          - container-image: "docker.io/library/ubuntu:24.04"
             compiler: clang
             qt: "qt6"
-          - container-image: "docker.io/library/ubuntu:23.04"
+          - container-image: "docker.io/library/ubuntu:24.04"
             compiler: gcc
             qt: "qt6"
     runs-on: ubuntu-latest
@@ -60,6 +60,7 @@ jobs:
         run: |
           set -x
           sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
+          ! [ -e /etc/apt/sources.list.d/ubuntu.sources ] || sed -i '/^Types: deb/s/$/ deb-src/' /etc/apt/sources.list.d/ubuntu.sources
           apt-get update -y
           DEBIAN_FRONTEND=noninteractive apt-get build-dep sddm -y
           if [ "${{ matrix.qt }}" = "qt6" ]; then
