@@ -47,7 +47,7 @@
     </message>
     <message>
         <source>Please enter a password!</source>
-        <translation>請輸入密碼</translation>
+        <translation>請輸入密碼！</translation>
     </message>
     <message>
         <source>Change password</source>
@@ -95,7 +95,7 @@
     </message>
     <message>
         <source>Suspend</source>
-        <translation>掛起（到記憶體）</translation>
+        <translation>暫停</translation>
     </message>
     <message>
         <source>Hibernate</source>
@@ -111,11 +111,11 @@
     </message>
     <message>
         <source>Password change aborted because maximum tries reached</source>
-        <translation>達到最大嘗試次數，密碼更改已中止。</translation>
+        <translation>達到最大嘗試次數，密碼更改已中止</translation>
     </message>
     <message>
         <source>New password change round! Please input current password again!</source>
-        <translation>請再次輸入當前密碼！</translation>
+        <translation>請再次輸入目前的密碼！</translation>
     </message>
 </context>
 </TS>
