@@ -5,14 +5,14 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation type="unfinished"></translation>
+        <translation>押してログイン</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>%1 (Wayland)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Wayland)</translation>
     </message>
 </context>
 <context>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>注意: Caps ロックがオンになっています!</translation>
+        <translation>注意: Caps Lock が有効です!</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -68,6 +68,50 @@
     <message>
         <source>Select your user and enter password</source>
         <translation>ユーザ名を選び、パスワードを入力してください</translation>
+    </message>
+    <message>
+        <source>Please enter a password!</source>
+        <translation>パスワードを入力してください!</translation>
+    </message>
+    <message>
+        <source>Change password</source>
+        <translation>パスワードを変更</translation>
+    </message>
+    <message>
+        <source>Enter your username</source>
+        <translation>ユーザ名を入力</translation>
+    </message>
+    <message>
+        <source>Enter your password</source>
+        <translation>パスワードを入力</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>パスワード:</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>パスワードを表示する</translation>
+    </message>
+    <message>
+        <source>Hide password</source>
+        <translation>パスワードを隠す</translation>
+    </message>
+    <message>
+        <source>Suspend</source>
+        <translation>サスペンド</translation>
+    </message>
+    <message>
+        <source>Hibernate</source>
+        <translation>ハイバネート</translation>
+    </message>
+    <message>
+        <source>Password change aborted because maximum tries reached</source>
+        <translation>最大試行回数に達しましたため、パスワード変更は中止しました</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>新しいパスワード変更ラウンドです! 今のパスワードをもう一度入力してください!</translation>
     </message>
 </context>
 </TS>
