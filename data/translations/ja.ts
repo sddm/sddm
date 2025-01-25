@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>注意: Caps Lock が有効です!</translation>
+        <translation>注意: Caps Lock がオンになっています</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -71,7 +71,7 @@
     </message>
     <message>
         <source>Please enter a password!</source>
-        <translation>パスワードを入力してください!</translation>
+        <translation>パスワードを入力してください</translation>
     </message>
     <message>
         <source>Change password</source>
@@ -79,7 +79,7 @@
     </message>
     <message>
         <source>Enter your username</source>
-        <translation>ユーザ名を入力</translation>
+        <translation>ユーザー名を入力</translation>
     </message>
     <message>
         <source>Enter your password</source>
@@ -91,11 +91,11 @@
     </message>
     <message>
         <source>Show password</source>
-        <translation>パスワードを表示する</translation>
+        <translation>パスワードを表示</translation>
     </message>
     <message>
         <source>Hide password</source>
-        <translation>パスワードを隠す</translation>
+        <translation>パスワードを非表示</translation>
     </message>
     <message>
         <source>Suspend</source>
@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>Password change aborted because maximum tries reached</source>
-        <translation>最大試行回数に達しましたため、パスワード変更は中止しました</translation>
+        <translation>最大試行回数に達したため、パスワード変更は中止しました</translation>
     </message>
     <message>
         <source>New password change round! Please input current password again!</source>
