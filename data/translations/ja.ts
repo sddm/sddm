@@ -5,7 +5,7 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation>押してログイン</translation>
+        <translation>ここを押してログイン</translation>
     </message>
 </context>
 <context>
@@ -104,14 +104,6 @@
     <message>
         <source>Hibernate</source>
         <translation>ハイバネート</translation>
-    </message>
-    <message>
-        <source>Password change aborted because maximum tries reached</source>
-        <translation>最大試行回数に達したため、パスワード変更は中止しました</translation>
-    </message>
-    <message>
-        <source>New password change round! Please input current password again!</source>
-        <translation>新しいパスワード変更ラウンドです! 今のパスワードをもう一度入力してください!</translation>
     </message>
 </context>
 </TS>
