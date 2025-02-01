@@ -46,4 +46,15 @@ esac
 # Restore user shell setting that may have been clobbered by setting environment
 export SHELL=$SDDM_USER_SHELL
 
+ENVIRONMENT_DIR=$HOME/.config/environment.d
+if [ -d "$ENVIRONMENT_DIR" ]; then
+  for i in `ls $ENVIRONMENT_DIR`; do
+    script="$ENVIRONMENT_DIR/$i"
+    echo "Loading environment variables $script"
+    if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\{1,\}$' > /dev/null; then
+      . "$script"
+    fi
+  done
+fi
+
 exec $@
