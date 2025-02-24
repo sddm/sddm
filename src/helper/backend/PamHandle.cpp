@@ -89,7 +89,6 @@ namespace SDDM {
 
     bool PamHandle::authenticate(int flags) {
         qDebug() << "[PAM] Authenticating...";
-        pam_fail_delay(m_handle, 0);
         m_result = pam_authenticate(m_handle, flags | m_silent);
         if (m_result != PAM_SUCCESS) {
             qWarning() << "[PAM] authenticate:" << pam_strerror(m_handle, m_result);
