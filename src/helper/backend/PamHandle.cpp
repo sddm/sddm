@@ -23,6 +23,11 @@
 #include <QtCore/QDebug>
 
 namespace SDDM {
+
+    static void fail_delay(int, unsigned, void*) {
+
+    }
+
     bool PamHandle::putEnv(const QProcessEnvironment& env) {
         const auto envs = env.toStringList();
         for (const QString& s : envs) {
@@ -84,6 +89,7 @@ namespace SDDM {
 
     bool PamHandle::authenticate(int flags) {
         qDebug() << "[PAM] Authenticating...";
+        pam_fail_delay(m_handle, 0);
         m_result = pam_authenticate(m_handle, flags | m_silent);
         if (m_result != PAM_SUCCESS) {
             qWarning() << "[PAM] authenticate:" << pam_strerror(m_handle, m_result);
@@ -144,7 +150,7 @@ namespace SDDM {
         return c->converse(n, msg, resp);
     }
 
-    bool PamHandle::start(const QString &service, const QString &user) {
+    bool PamHandle::start(const QString &service, const QString &user, const bool requiresZeroDelayOnFailAuth) {
         if (user.isEmpty())
             m_result = pam_start(qPrintable(service), NULL, &m_conv, &m_handle);
         else
@@ -156,6 +162,15 @@ namespace SDDM {
         else {
             qDebug() << "[PAM] Starting...";
         }
+#ifdef PAM_FAIL_DELAY
+        qDebug() << "[PAM] requiresZeroDelayOnFailAuth:" << requiresZeroDelayOnFailAuth;
+        if (requiresZeroDelayOnFailAuth) {
+            setItem(PAM_FAIL_DELAY, reinterpret_cast< void* >(fail_delay));
+        }
+#else
+        Q_UNUSED(requiresZeroDelayOnFailAuth);
+        Q_UNUSED(fail_delay);
+#endif
         return true;
     }
 

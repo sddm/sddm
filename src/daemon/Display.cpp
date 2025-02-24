@@ -264,6 +264,8 @@ namespace SDDM {
         m_greeter->setSocket(m_socketServer->socketAddress());
         m_greeter->setTheme(findGreeterTheme());
 
+        m_auth->setRequiresZeroDelayOnFailAuth(m_greeter->requiresZeroDelayOnFailAuth());
+
         // start greeter
         m_greeter->start();
     }

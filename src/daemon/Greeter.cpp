@@ -68,6 +68,9 @@ namespace SDDM {
             QString configFile = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
             m_themeConfig->setTo(configFile);
         }
+        const bool themeRequiresZeroDelayOnFailAuth{m_themeConfig->value(QStringLiteral("requiresZeroDelayOnFailAuth"), false).toBool()};
+        qDebug() << "ThemeRequiresZeroDelayOnFailAuth:" << themeRequiresZeroDelayOnFailAuth;
+        m_requiresZeroDelayOnFailAuth = themeRequiresZeroDelayOnFailAuth;
     }
 
     QString Greeter::displayServerCommand() const
@@ -179,6 +182,7 @@ namespace SDDM {
             // authentication
             m_auth = new Auth(this);
             m_auth->setVerbose(true);
+            // m_auth->setRequiresZeroDelayOnFailAuth(m_requiresZeroDelayOnFailAuth); is probably not needed here
             connect(m_auth, &Auth::requestChanged, this, &Greeter::onRequestChanged);
             connect(m_auth, &Auth::sessionStarted, this, &Greeter::onSessionStarted);
             connect(m_auth, &Auth::displayServerReady, this, &Greeter::onDisplayServerReady);
@@ -335,6 +339,11 @@ namespace SDDM {
     bool Greeter::isRunning() const {
         return (m_process && m_process->state() == QProcess::Running)
             || (m_auth && m_auth->isActive());
+    }
+
+    bool Greeter::requiresZeroDelayOnFailAuth() const
+    {
+        return m_requiresZeroDelayOnFailAuth;
     }
 
     void Greeter::onReadyReadStandardError()

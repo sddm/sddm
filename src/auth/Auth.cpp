@@ -71,6 +71,7 @@ namespace SDDM {
         QProcessEnvironment environment { };
         qint64 id { 0 };
         static qint64 lastId;
+        bool requiresZeroDelayOnFailAuth { false };
     };
 
     qint64 Auth::Private::lastId = 1;
@@ -247,13 +248,14 @@ namespace SDDM {
     }
 
 
-    Auth::Auth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
+    Auth::Auth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose, const bool requiresZeroDelayOnFailAuth)
             : QObject(parent)
             , d(new Private(this)) {
         setUser(user);
         setAutologin(autologin);
         setSession(session);
         setVerbose(verbose);
+        setRequiresZeroDelayOnFailAuth(requiresZeroDelayOnFailAuth);
     }
 
     Auth::Auth(QObject* parent)
@@ -301,6 +303,11 @@ namespace SDDM {
         return d->request;
     }
 
+    bool Auth::requiresZeroDelayOnFailAuth() const
+    {
+        return d->requiresZeroDelayOnFailAuth;
+    }
+
     bool Auth::isActive() const {
         return d->child->state() != QProcess::NotRunning;
     }
@@ -318,6 +325,11 @@ namespace SDDM {
             d->cookie = cookie;
             Q_EMIT cookieChanged();
         }
+    }
+
+    void Auth::setRequiresZeroDelayOnFailAuth(const bool requiresZeroDelayOnFailAuth)
+    {
+        d->requiresZeroDelayOnFailAuth = requiresZeroDelayOnFailAuth;
     }
 
     void Auth::setUser(const QString &user) {
@@ -381,6 +393,9 @@ namespace SDDM {
             args << QStringLiteral("--display-server") << d->displayServerCmd;
         if (d->greeter)
             args << QStringLiteral("--greeter");
+        if (d->requiresZeroDelayOnFailAuth)
+            args << QStringLiteral("--zeroDelayOnFailAuth");
+
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);
     }
 
