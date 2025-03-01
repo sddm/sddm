@@ -38,6 +38,15 @@ namespace SDDM {
     Backend::Backend(HelperApp* parent)
             : QObject(parent)
             , m_app(parent) {
+
+        connect(this, &Backend::loginFailedDelayStarted, this, [this](const uint uSecDelay) noexcept -> void {
+            if (!m_app) {
+                qWarning() << "[Backend] Cannot handle loginFailedDelayStarted, as the HelperApp is a nullptr";
+                return;
+            }
+            m_app->loginFailedDelayStarted(uSecDelay);
+        });
+
     }
 
     Backend *Backend::get(HelperApp* parent)

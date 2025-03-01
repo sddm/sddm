@@ -81,6 +81,7 @@ namespace SDDM {
 
         void socketDisconnected();
         void loginFailed();
+        void loginFailedDelayStarted(const uint uSecDelay);
         void loginSucceeded();
 
     private:
