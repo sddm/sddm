@@ -1,6 +1,6 @@
 ## INTRODUCTION
 
-[![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg "IRC Freenode")](https://webchat.freenode.net/?channels=sddm)
+1[![IRC Network](https://img.shields.io/badge/irc-freenode-blue.svg "IRC Freenode")](https://webchat.freenode.net/?channels=sddm)
 
 SDDM is a modern display manager for X11 and Wayland sessions aiming to
 be fast, simple and beautiful.
