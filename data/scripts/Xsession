@@ -23,6 +23,11 @@ if [ -z "$SDDM_XSESSION_PROFILE_READ" ]; then
       [ -f $HOME/.profile ] && . $HOME/.profile
       exec $SHELL --login -c 'exec $argv' $0 "$@"
       ;;
+    */nu)
+      [ -f /etc/profile ] && . /etc/profile
+      [ -f $HOME/.profile ] && . $HOME/.profile
+      exec $SHELL --login -c "exec $0 '$@'"
+      ;;
     *) # Plain sh, ksh, and anything we do not know.
       [ -f /etc/profile ] && . /etc/profile
       [ -f $HOME/.profile ] && . $HOME/.profile
