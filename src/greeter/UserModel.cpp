@@ -183,7 +183,7 @@ namespace SDDM {
     }
 
     QVariant UserModel::data(const QModelIndex &index, int role) const {
-        if (index.row() < 0 || index.row() > d->users.count())
+        if (index.row() < 0 || index.row() >= d->users.count())
             return QVariant();
 
         // get user
