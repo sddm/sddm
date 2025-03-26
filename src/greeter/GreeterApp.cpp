@@ -288,7 +288,7 @@ namespace SDDM {
 
     void GreeterApp::activatePrimary() {
         // activate and give focus to the window assigned to the primary screen
-        for (QQuickView *view : qAsConst(m_views)) {
+        for (QQuickView *view : std::as_const(m_views)) {
             if (view->screen() == QGuiApplication::primaryScreen()) {
                 view->requestActivate();
                 break;

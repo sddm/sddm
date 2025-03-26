@@ -188,7 +188,7 @@ namespace SDDM {
     inline QDataStream& operator<<(QDataStream &s, const Request &m) {
         qint32 length = m.prompts.length();
         s << length;
-        for(const Prompt &p : qAsConst(m.prompts)) {
+        for(const Prompt &p : std::as_const(m.prompts)) {
             s << p;
         }
         return s;

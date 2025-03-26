@@ -182,7 +182,7 @@ namespace SDDM {
         }
         m_fileModificationTime = latestModificationTime;
 
-        for (const QString &filepath : qAsConst(files)) {
+        for (const QString &filepath : std::as_const(files)) {
             loadInternal(filepath);
         }
     }
@@ -245,14 +245,14 @@ namespace SDDM {
             if (entry && !entry->matchesDefault())
                 remainingEntries.insert(section, entry);
             else {
-                for (const ConfigEntryBase *b : qAsConst(section->entries()))
+                for (const ConfigEntryBase *b : std::as_const(section->entries()))
                     if (!b->matchesDefault())
                         remainingEntries.insert(section, b);
             }
         }
         else {
-            for (const ConfigSection *s : qAsConst(m_sections)) {
-                for (const ConfigEntryBase *b : qAsConst(s->entries()))
+            for (const ConfigSection *s : std::as_const(m_sections)) {
+                for (const ConfigEntryBase *b : std::as_const(s->entries()))
                     if (!b->matchesDefault())
                         remainingEntries.insert(s, b);
             }

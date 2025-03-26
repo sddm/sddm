@@ -135,7 +135,7 @@ namespace SDDM {
         }
         // read session
         sessions.removeDuplicates();
-        for (auto& session : qAsConst(sessions)) {
+        for (auto& session : std::as_const(sessions)) {
             Session *si = new Session(type, session);
             bool execAllowed = true;
             QFileInfo fi(si->tryExec());
