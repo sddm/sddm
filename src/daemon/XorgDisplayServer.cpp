@@ -265,12 +265,9 @@ namespace SDDM {
                       xcursorSize = mainConfig.Theme.CursorSize.get();
 
         // set process environment
-        QProcessEnvironment env;
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
         env.insert(QStringLiteral("DISPLAY"), m_display);
-        env.insert(QStringLiteral("HOME"), QStringLiteral("/"));
-        env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
         env.insert(QStringLiteral("XAUTHORITY"), m_xauth.authPath());
-        env.insert(QStringLiteral("SHELL"), QStringLiteral("/bin/sh"));
         if (!xcursorTheme.isEmpty())
             env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
         if (!xcursorSize.isEmpty())
