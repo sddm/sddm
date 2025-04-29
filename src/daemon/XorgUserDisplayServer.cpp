@@ -55,13 +55,13 @@ QString XorgUserDisplayServer::command(Display *display)
              << QStringLiteral("-screen") << QStringLiteral("800x600");
     } else {
         args << mainConfig.X11.ServerPath.get()
+             << QStringLiteral("-verbose") << QStringLiteral("3")
              << mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), Qt::SkipEmptyParts)
              << QStringLiteral("-background") << QStringLiteral("none")
              << QStringLiteral("-seat") << display->seat()->name()
              << QStringLiteral("-noreset")
              << QStringLiteral("-keeptty")
-             << QStringLiteral("-novtswitch")
-             << QStringLiteral("-verbose") << QStringLiteral("3");
+             << QStringLiteral("-novtswitch");
     }
 
     return args.join(QLatin1Char(' '));
