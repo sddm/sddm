@@ -215,7 +215,7 @@ void XOrgUserHelper::startDisplayCommand()
     qInfo("Setting default cursor...");
     QProcess *setCursor = nullptr;
     if (startProcess(QStringLiteral("xsetroot -cursor_name left_ptr"), env, &setCursor)) {
-        if (!setCursor->waitForFinished(1000)) {
+        if (!setCursor->waitForFinished(5000)) {
             qWarning() << "Could not setup default cursor";
             setCursor->kill();
         }
@@ -234,7 +234,7 @@ void XOrgUserHelper::startDisplayCommand()
             xrdbProcess.write(QStringLiteral("Xcursor.size: %1\n").arg(xcursorSize).toUtf8());
 
         xrdbProcess.closeWriteChannel();
-        if (!xrdbProcess.waitForFinished(1000)) {
+        if (!xrdbProcess.waitForFinished(5000)) {
             qDebug() << "Could not set Xcursor resources" << xrdbProcess.error();
             xrdbProcess.kill();
         }
