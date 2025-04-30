@@ -243,13 +243,12 @@ namespace SDDM {
         const auto program = displayStopCommand.takeFirst();
         displayStopScript->start(program, displayStopCommand);
 
+        // delete displayStopScript on finish
+        connect(displayStopScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayStopScript, &QProcess::deleteLater);
+
         // wait for finished
         if (!displayStopScript->waitForFinished(5000))
             displayStopScript->kill();
-
-        // clean up the script process
-        displayStopScript->deleteLater();
-        displayStopScript = nullptr;
 
         // emit signal
         emit stopped();
@@ -305,6 +304,7 @@ namespace SDDM {
             if (!xrdbProcess.waitForFinished(5000)) {
                 qDebug() << "Could not set Xcursor resources" << xrdbProcess.error();
                 xrdbProcess.kill();
+                xrdbProcess.waitForFinished(-1);
             }
         }
 

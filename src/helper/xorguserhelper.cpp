@@ -237,6 +237,7 @@ void XOrgUserHelper::startDisplayCommand()
         if (!xrdbProcess.waitForFinished(5000)) {
             qDebug() << "Could not set Xcursor resources" << xrdbProcess.error();
             xrdbProcess.kill();
+            xrdbProcess.waitForFinished(-1);
         }
     }
 
@@ -245,9 +246,10 @@ void XOrgUserHelper::startDisplayCommand()
     qInfo("Running display setup script: %s", qPrintable(cmd));
     QProcess *displayScript = nullptr;
     if (startProcess(cmd, env, &displayScript)) {
+        // delete displayScript on finish
+        connect(displayScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayScript, &QProcess::deleteLater);
         if (!displayScript->waitForFinished(30000))
             displayScript->kill();
-        displayScript->deleteLater();
     }
 }
 
@@ -257,9 +259,10 @@ void XOrgUserHelper::displayFinished()
     qInfo("Running display stop script: %s", qPrintable(cmd));
     QProcess *displayStopScript = nullptr;
     if (startProcess(cmd, sessionEnvironment(), &displayStopScript)) {
+        // delete displayStopScript on finish
+        connect(displayStopScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayStopScript, &QProcess::deleteLater);
         if (!displayStopScript->waitForFinished(5000))
             displayStopScript->kill();
-        displayStopScript->deleteLater();
     }
 }
 
