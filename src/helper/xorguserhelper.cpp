@@ -212,14 +212,16 @@ void XOrgUserHelper::startDisplayCommand()
         env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
 
     // Set cursor
-    qInfo("Setting default cursor...");
-    QProcess *setCursor = nullptr;
-    if (startProcess(QStringLiteral("xsetroot -cursor_name left_ptr"), env, &setCursor)) {
-        if (!setCursor->waitForFinished(5000)) {
-            qWarning() << "Could not setup default cursor";
-            setCursor->kill();
+    {
+        qInfo("Setting default cursor...");
+        QProcess setCursor;
+        setCursor.setProcessEnvironment(env);
+        setCursor.start(QStringLiteral("xsetroot"), QStringList{QStringLiteral("-cursor_name"), QStringLiteral("left_ptr")});
+        if (!setCursor.waitForFinished(5000)) {
+            qWarning() << "Could not setup default cursor" << setCursor.error();
+            setCursor.kill();
+            setCursor.waitForFinished(-1);
         }
-        setCursor->deleteLater();
     }
 
     // Unlike libXcursor, xcb-util-cursor no longer looks at XCURSOR_*. Set the resources.
