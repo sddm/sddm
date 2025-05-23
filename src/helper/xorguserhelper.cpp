@@ -212,14 +212,16 @@ void XOrgUserHelper::startDisplayCommand()
         env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
 
     // Set cursor
-    qInfo("Setting default cursor...");
-    QProcess *setCursor = nullptr;
-    if (startProcess(QStringLiteral("xsetroot -cursor_name left_ptr"), env, &setCursor)) {
-        if (!setCursor->waitForFinished(1000)) {
-            qWarning() << "Could not setup default cursor";
-            setCursor->kill();
+    {
+        qInfo("Setting default cursor...");
+        QProcess setCursor;
+        setCursor.setProcessEnvironment(env);
+        setCursor.start(QStringLiteral("xsetroot"), QStringList{QStringLiteral("-cursor_name"), QStringLiteral("left_ptr")});
+        if (!setCursor.waitForFinished(5000)) {
+            qWarning() << "Could not setup default cursor" << setCursor.error();
+            setCursor.kill();
+            setCursor.waitForFinished(-1);
         }
-        setCursor->deleteLater();
     }
 
     // Unlike libXcursor, xcb-util-cursor no longer looks at XCURSOR_*. Set the resources.
@@ -234,9 +236,10 @@ void XOrgUserHelper::startDisplayCommand()
             xrdbProcess.write(QStringLiteral("Xcursor.size: %1\n").arg(xcursorSize).toUtf8());
 
         xrdbProcess.closeWriteChannel();
-        if (!xrdbProcess.waitForFinished(1000)) {
+        if (!xrdbProcess.waitForFinished(5000)) {
             qDebug() << "Could not set Xcursor resources" << xrdbProcess.error();
             xrdbProcess.kill();
+            xrdbProcess.waitForFinished(-1);
         }
     }
 
@@ -245,9 +248,10 @@ void XOrgUserHelper::startDisplayCommand()
     qInfo("Running display setup script: %s", qPrintable(cmd));
     QProcess *displayScript = nullptr;
     if (startProcess(cmd, env, &displayScript)) {
+        // delete displayScript on finish
+        connect(displayScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayScript, &QProcess::deleteLater);
         if (!displayScript->waitForFinished(30000))
             displayScript->kill();
-        displayScript->deleteLater();
     }
 }
 
@@ -257,9 +261,10 @@ void XOrgUserHelper::displayFinished()
     qInfo("Running display stop script: %s", qPrintable(cmd));
     QProcess *displayStopScript = nullptr;
     if (startProcess(cmd, sessionEnvironment(), &displayStopScript)) {
+        // delete displayStopScript on finish
+        connect(displayStopScript, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), displayStopScript, &QProcess::deleteLater);
         if (!displayStopScript->waitForFinished(5000))
             displayStopScript->kill();
-        displayStopScript->deleteLater();
     }
 }
 
