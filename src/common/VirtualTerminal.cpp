@@ -49,29 +49,11 @@ namespace SDDM {
             char c = (vt <= 10 ? '0' : 'a') + (vt - 1);
             return QStringLiteral("/dev/ttyv%1").arg(c);
         }
-
-        int getVtActive(int fd) {
-            int vtActive = 0;
-            if (ioctl(fd, VT_GETACTIVE, &vtActive) < 0) {
-                qCritical() << "Failed to get current VT:" << strerror(errno);
-                return -1;
-            }
-            return vtActive;
-        }
 #else
         const char *defaultVtPath = "/dev/tty0";
 
         QString path(int vt) {
             return QStringLiteral("/dev/tty%1").arg(vt);
-        }
-
-        int getVtActive(int fd) {
-            vt_stat vtState { };
-            if (ioctl(fd, VT_GETSTATE, &vtState) < 0) {
-                qCritical() << "Failed to get current VT:" << strerror(errno);
-                return -1;
-            }
-            return vtState.v_active;
         }
 #endif
 
@@ -154,21 +136,6 @@ out:
                 qDebug() << "VT mode didn't need to be fixed";
         }
 
-        int currentVt()
-        {
-            int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
-            if (fd < 0) {
-                qCritical() << "Failed to open VT master:" << strerror(errno);
-                return -1;
-            }
-            auto closeFd = qScopeGuard([fd] {
-                close(fd);
-            });
-
-            return getVtActive(fd);
-        }
-
-
         int setUpNewVt() {
             // open VT master
             int fd = open(defaultVtPath, O_RDWR | O_NOCTTY);
@@ -184,13 +151,6 @@ out:
             if (ioctl(fd, VT_OPENQRY, &vt) < 0) {
                 qCritical() << "Failed to open new VT:" << strerror(errno);
                 return -1;
-            }
-
-            // fallback to active VT
-            if (vt <= 0) {
-                int vtActive = getVtActive(fd);
-                qWarning() << "New VT" << vt << "is not valid, fall back to" << vtActive;
-                return vtActive;
             }
 
             return vt;
@@ -209,8 +169,8 @@ out:
                 fd = vtFd;
 
                 // Clear VT
-                static const char *clearEscapeSequence = "\33[H\33[2J";
-                if (write(vtFd, clearEscapeSequence, sizeof(clearEscapeSequence)) == -1) {
+                static const char clearEscapeSequence[] = "\33[H\33[2J";
+                if (write(vtFd, clearEscapeSequence, sizeof(clearEscapeSequence) - 1) == -1) {
                     qWarning("Failed to clear VT %d: %s", vt, strerror(errno));
                 }
 
