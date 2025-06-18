@@ -33,7 +33,7 @@ loop management.
 SDDM can optionally make use of logind (the systemd login manager API), or
 ConsoleKit2, or upower to enable support for suspend, hibernate etc.
 In order to build the man pages, you will need `rst2man` installed. It is
-provided by the python `docutils` package
+provided by the Python `docutils` package
 
 Note that SDDM makes use of C++11 features for a modern and clean codebase,
 therefore it needs a recent version of GCC to compile (4.7 at least).
