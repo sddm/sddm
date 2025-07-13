@@ -53,8 +53,13 @@ namespace SDDM {
             , m_socket(new QLocalSocket(this)) {
         qInstallMessageHandler(HelperMessageHandler);
         SignalHandler *s = new SignalHandler(this);
+        s->addCustomSignal(SIGHUP);
         QObject::connect(s, &SignalHandler::sigtermReceived, m_session, [] {
-            QCoreApplication::instance()->exit(-1);
+            QCoreApplication::instance()->exit(Auth::HELPER_OTHER_ERROR);
+        });
+
+        QObject::connect(s, &SignalHandler::customSignalReceived, m_session, [](int) {
+            QCoreApplication::instance()->exit(Auth::HELPER_OTHER_ERROR);
         });
 
         QTimer::singleShot(0, this, SLOT(setUp()));
