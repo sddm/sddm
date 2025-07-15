@@ -28,8 +28,8 @@ TTYReset=yes
 TTYVHangup=yes
 IgnoreSIGPIPE=no
 SendSIGHUP=yes
-ImportCredential=tty.tty${SDDM_INITIAL_VT}.agetty.*:agetty.
-ImportCredential=tty.tty${SDDM_INITIAL_VT}.login.*:login.
+ImportCredential=tty.virtual.tty${SDDM_INITIAL_VT}.agetty.*:agetty.
+ImportCredential=tty.virtual.tty${SDDM_INITIAL_VT}.login.*:login.
 ImportCredential=agetty.*
 ImportCredential=login.*
 ImportCredential=shell.*
@@ -38,4 +38,4 @@ UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETAR
 [Install]
 WantedBy=getty.target
 Alias=display-manager.service
-DefaultInstance=tty${SDDM_INITIAL_VT}
+#DefaultInstance=tty${SDDM_INITIAL_VT}
