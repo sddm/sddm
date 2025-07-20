@@ -199,7 +199,12 @@ namespace SDDM {
     }
 
     void HelperApp::sessionFinished(int status) {
-        exit(status);
+        if (status != 0) {
+            qWarning("Session crashed (exit code %d).", status);
+            exit(Auth::HELPER_SESSION_ERROR);
+        }
+        else
+            exit(Auth::HELPER_SUCCESS);
     }
 
     void HelperApp::info(const QString& message, Auth::Info type) {
