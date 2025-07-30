@@ -47,7 +47,6 @@ namespace SDDM {
     UserSession::UserSession(HelperApp *parent)
         : QProcess(parent)
     {
-        connect(this, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &UserSession::finished);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         setChildProcessModifier(std::bind(&UserSession::childModifier, this));
 #endif
@@ -157,7 +156,7 @@ namespace SDDM {
                 }
             }
         } else {
-            Q_EMIT finished(Auth::HELPER_OTHER_ERROR);
+            Q_EMIT finished(Auth::HELPER_OTHER_ERROR, QProcess::NormalExit);
         }
     }
 
