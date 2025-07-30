@@ -3,12 +3,12 @@ d	${STATE_DIR}	0750	sddm	sddm
 # This contains X11 auth files passed to Xorg and the greeter
 d	${RUNTIME_DIR}	0711	root	root
 # Sockets for IPC
-r!	/tmp/sddm-auth*
+r!	/tmp/.sddm-auth*
 # xauth files passed to user sessions
-r!	/tmp/xauth_*
+r!	/tmp/.xauth_*
 # "r!" above means to remove the files if existent (r), but only at boot (!).
 # tmpfiles.d/tmp.conf declares a periodic cleanup of old /tmp/ files, which
 # would ordinarily result in the deletion of our xauth files. To prevent that
 # from happening, explicitly tag these as X (ignore).
-X	/tmp/sddm-auth*
-X	/tmp/xauth_*
+X	/tmp/.sddm-auth*
+X	/tmp/.xauth_*

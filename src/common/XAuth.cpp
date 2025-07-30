@@ -82,7 +82,7 @@ void XAuth::setup()
     QDir().mkpath(m_authDir);
 
     // Set path
-    m_authFile.setFileTemplate(m_authDir + QStringLiteral("/xauth_XXXXXX"));
+    m_authFile.setFileTemplate(m_authDir + QStringLiteral("/.xauth_XXXXXX"));
     if(!m_authFile.open()) {
         qFatal("Failed to create xauth file");
     }
