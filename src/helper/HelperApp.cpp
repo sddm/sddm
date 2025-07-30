@@ -199,16 +199,16 @@ namespace SDDM {
     }
 
     void HelperApp::sessionFinished(int exitCode, QProcess::ExitStatus exitStatus) {
-        if (exitStatus == QProcess::CrashExit) {
-            qWarning("Session crashed (killed by signal %d).", exitCode);
-            exit(Auth::HELPER_SESSION_ERROR);
+        if (exitStatus == QProcess::NormalExit) {
+            if (exitCode != 0) {
+                qWarning("Session crashed (exit code %d).", exitCode);
+                exit(Auth::HELPER_SESSION_ERROR);
+            }
+            else
+                exit(Auth::HELPER_SUCCESS);
         }
-        else if (exitCode != 0) {
-            qWarning("Session crashed (exit code %d).", exitCode);
-            exit(Auth::HELPER_SESSION_ERROR);
-        }
-        else
-            exit(Auth::HELPER_SUCCESS);
+        qWarning("Session crashed (killed by signal %d).", exitCode);
+        exit(Auth::HELPER_SESSION_ERROR);
     }
 
     void HelperApp::info(const QString& message, Auth::Info type) {
