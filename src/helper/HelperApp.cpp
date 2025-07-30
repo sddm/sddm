@@ -131,7 +131,7 @@ namespace SDDM {
         }
 
         connect(m_socket, &QLocalSocket::connected, this, &HelperApp::doAuth);
-        connect(m_session, &UserSession::finished, this, &HelperApp::sessionFinished);
+        connect(m_session, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
         m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
     }
 
@@ -198,9 +198,13 @@ namespace SDDM {
         return;
     }
 
-    void HelperApp::sessionFinished(int status) {
-        if (status != 0) {
-            qWarning("Session crashed (exit code %d).", status);
+    void HelperApp::sessionFinished(int exitCode, QProcess::ExitStatus exitStatus) {
+        if (exitStatus == QProcess::CrashExit) {
+            qWarning("Session crashed (killed by signal %d).", exitCode);
+            exit(Auth::HELPER_SESSION_ERROR);
+        }
+        else if (exitCode != 0) {
+            qWarning("Session crashed (exit code %d).", exitCode);
             exit(Auth::HELPER_SESSION_ERROR);
         }
         else
