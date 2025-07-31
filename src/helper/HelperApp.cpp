@@ -206,7 +206,11 @@ namespace SDDM {
             }
             else
                 exit(Auth::HELPER_SUCCESS);
+            return;
         }
+
+        Q_ASSERT_X(exitCode != 0, "HelperApp::sessionFinished", "Crashing with 0 is impossible");
+
         qWarning("Session crashed (killed by signal %d).", exitCode);
         exit(Auth::HELPER_SESSION_ERROR);
     }
@@ -298,7 +302,9 @@ namespace SDDM {
     HelperApp::~HelperApp() {
         Q_ASSERT(getuid() == 0);
 
-        m_session->stop();
+        // Avoid re-emitting QProcess::finished if session is not running
+        if (m_session->state() != QProcess::NotRunning)
+            m_session->stop();
         m_backend->closeSession();
 
         // write logout to utmp/wtmp
