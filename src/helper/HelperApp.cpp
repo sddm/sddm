@@ -302,7 +302,8 @@ namespace SDDM {
     HelperApp::~HelperApp() {
         Q_ASSERT(getuid() == 0);
 
-        // Avoid re-emitting QProcess::finished if session is not running
+        // Avoid calls to sessionFinished when exiting
+        disconnect(m_session, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
         if (m_session->state() != QProcess::NotRunning)
             m_session->stop();
         m_backend->closeSession();
