@@ -156,7 +156,7 @@ namespace SDDM {
                 }
             }
         } else {
-            Q_EMIT finished(Auth::HELPER_OTHER_ERROR, QProcess::NormalExit);
+            qInfo() << "Attempted to stop session, but was already not running";
         }
     }
 
