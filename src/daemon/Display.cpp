@@ -77,7 +77,7 @@ namespace SDDM {
     }
 
     int fetchAvailableVt() {
-        if (!isTtyInUse(QStringLiteral("tty" STRINGIFY(SDDM_INITIAL_VT)))) {
+        if (!isTtyInUse(QStringLiteral("tty%1").arg(SDDM_INITIAL_VT))) {
             return SDDM_INITIAL_VT;
         }
         const auto vt = VirtualTerminal::currentVt();
