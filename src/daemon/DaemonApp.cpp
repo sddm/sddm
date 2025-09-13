@@ -47,6 +47,9 @@ namespace SDDM {
         // log message
         qDebug() << "Initializing...";
 
+        // setup logfile
+        m_firstLockFile.setFileName(QStringLiteral(RUNTIME_DIR) + QStringLiteral("/firstLock"));
+
         // set testing parameter
         m_testing = (arguments().indexOf(QStringLiteral("--test-mode")) != -1);
 
@@ -119,6 +122,25 @@ namespace SDDM {
     int DaemonApp::newSessionId() {
         return m_lastSessionId++;
     }
+
+    bool DaemonApp::hasLock() const {
+        return m_firstLockFile.exists();
+    };
+
+    bool DaemonApp::getFirst() const {
+        return self->first;
+    };
+
+    void DaemonApp::consumeFirst() {
+        self->first = false;
+        if (hasLock()) {
+            return;
+        }
+        if(!m_firstLockFile.open(QIODevice::WriteOnly)) {
+            qFatal("Failed to create lock file");
+        }
+        m_firstLockFile.close();
+    };
 }
 
 int main(int argc, char **argv) {

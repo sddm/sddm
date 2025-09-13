@@ -173,7 +173,10 @@ namespace SDDM {
         connect(m_greeter, &Greeter::displayServerFailed, this, &Display::displayServerFailed);
 
         // Load autologin configuration (whether to autologin, user, session, session type)
-        if ((daemonApp->first || mainConfig.Autologin.Relogin.get()) &&
+        if (((daemonApp->getFirst() &&
+              !(daemonApp->hasLock() &&
+                mainConfig.Autologin.FirstLoginLockFile.get())) ||
+             mainConfig.Autologin.Relogin.get()) &&
             !mainConfig.Autologin.User.get().isEmpty()) {
             // determine session type
             QString autologinSession = mainConfig.Autologin.Session.get();
@@ -191,7 +194,7 @@ namespace SDDM {
         }
 
         // reset first flag
-        daemonApp->first = false;
+        daemonApp->consumeFirst();
     }
 
     Display::~Display() {

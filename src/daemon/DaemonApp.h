@@ -21,6 +21,7 @@
 #define SDDM_DAEMONAPP_H
 
 #include <QCoreApplication>
+#include <QtCore>
 
 #define daemonApp DaemonApp::instance()
 
@@ -41,7 +42,10 @@ namespace SDDM {
 
         // TODO: move these two away
         bool testing() const;
-        bool first { true };
+
+        bool hasLock() const;
+        bool getFirst() const;
+        void consumeFirst();
 
         QString hostName() const;
         DisplayManager *displayManager() const;
@@ -56,6 +60,9 @@ namespace SDDM {
         static DaemonApp *self;
 
         int m_lastSessionId { 0 };
+
+        bool first { true };
+        QFile m_firstLockFile;
 
         bool m_testing { false };
         DisplayManager *m_displayManager { nullptr };
