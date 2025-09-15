@@ -40,12 +40,10 @@ namespace SDDM {
 
         static DaemonApp *instance() { return self; }
 
-        // TODO: move these two away
+        // TODO: move this away
         bool testing() const;
 
-        bool hasLock() const;
-        bool getFirst() const;
-        void consumeFirst();
+        bool tryLockFirstLogin();
 
         QString hostName() const;
         DisplayManager *displayManager() const;
@@ -61,8 +59,7 @@ namespace SDDM {
 
         int m_lastSessionId { 0 };
 
-        bool first { true };
-        QFile m_firstLockFile;
+        QFile m_firstloginLockFile;
 
         bool m_testing { false };
         DisplayManager *m_displayManager { nullptr };

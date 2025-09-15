@@ -103,7 +103,6 @@ namespace SDDM {
             Entry(User,                QString,     QString(),                                  _S("Username for autologin session"));
             Entry(Session,             QString,     QString(),                                  _S("Name of session file for autologin session (if empty try last logged in)"));
             Entry(Relogin,             bool,        false,                                      _S("Whether sddm should automatically log back into sessions when they exit"));
-            Entry(FirstLoginLockFile,  bool,        false,                                      _S("Whether sddm should use a temporary lock file to keep track of first login (persistent through `systemd soft-reboot`)"));
         );
     );
 
