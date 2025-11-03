@@ -1,16 +1,41 @@
 [Unit]
 Description=Simple Desktop Display Manager
 Documentation=man:sddm(1) man:sddm.conf(5)
+After=systemd-user-sessions.service
+After=console-getty.service
+After=getty@tty${SDDM_INITIAL_VT}.service
+After=getty-pre.target
+After=plymouth-quit.service
+After=systemd-logind.service
+Before=getty.target
+Conflicts=console-getty.service
 Conflicts=getty@tty${SDDM_INITIAL_VT}.service
-After=systemd-user-sessions.service getty@tty${SDDM_INITIAL_VT}.service plymouth-quit.service systemd-logind.service
+Conflicts=rescue.service
 PartOf=graphical.target
 StartLimitIntervalSec=30
 StartLimitBurst=2
 
+ConditionPathExists=/dev/tty${SDDM_INITIAL_VT}
+
 [Service]
 ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sddm
 Restart=always
+RestartSec=0
+StandardInput=null
+StandardOutput=journal
+TTYPath=/dev/tty${SDDM_INITIAL_VT}
+TTYReset=yes
+TTYVHangup=yes
+IgnoreSIGPIPE=no
+SendSIGHUP=yes
+ImportCredential=tty.virtual.tty${SDDM_INITIAL_VT}.agetty.*:agetty.
+ImportCredential=tty.virtual.tty${SDDM_INITIAL_VT}.login.*:login.
+ImportCredential=agetty.*
+ImportCredential=login.*
+ImportCredential=shell.*
+UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
 
 [Install]
+WantedBy=getty.target
 Alias=display-manager.service
-
+#DefaultInstance=tty${SDDM_INITIAL_VT}
