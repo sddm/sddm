@@ -51,7 +51,7 @@ namespace SDDM {
         populate(Session::X11Session, mainConfig.X11.SessionDir.get());
         endResetModel();
 
-        // refresh everytime a file is changed, added or removed
+        // refresh every time a file is changed, added or removed
         QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
         connect(watcher, &QFileSystemWatcher::directoryChanged, [this]() {
             // Recheck for flag to show Wayland sessions

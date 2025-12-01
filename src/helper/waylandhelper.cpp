@@ -98,7 +98,7 @@ bool WaylandHelper::startProcess(const QString &cmd, QProcess **p)
     if (p)
         *p = process;
 
-    qDebug() << "started succesfully" << cmd;
+    qDebug() << "started successfully" << cmd;
     return true;
 }
 
