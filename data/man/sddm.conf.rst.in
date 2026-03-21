@@ -62,12 +62,12 @@ OPTIONS
 	Default value is "none".
 
 `InputMethod=`
-        Set the Qt input method for the greeter.
-        Tablet users with Qt Virtual Keyboard installed can set this
-        to "qtvirtualkeyboard" for the on-screen keyboard.
-        Other known values are "ibus" for the Intelligent Input Bus,
-        or "compose" for dead keys support.
-        Leave this empty if unsure.
+	Set the Qt input method for the greeter.
+	Tablet users with Qt Virtual Keyboard installed can set this
+	to "qtvirtualkeyboard" for the on-screen keyboard.
+	Other known values are "ibus" for the Intelligent Input Bus,
+	or "compose" for dead keys support.
+	Leave this empty if unsure.
 
 `Namespaces=`
 	Comma-separated list of paths bound to Linux namespaces to enter with
@@ -75,6 +75,11 @@ OPTIONS
 	namespace `mynet` created with `ip netns add mynet`, the value might be
 	`/run/netns/mynet`.  Default value is empty.  (The value is ignored if
 	the operating system is not Linux.)
+
+`GreeterEnvironment=`
+	Comma-separated list of environment variables to be set.  For example,
+	to set a scale factor of 2 for the login interface (which uses QT), one might use the value
+	`QT_SCALE_FACTOR=2.0`.  Default value is empty.
 
 [Theme] section:
 
@@ -110,6 +115,10 @@ OPTIONS
 	them altogether.
 	Default value is true.
 
+`DisableAvatarsThreshold=`
+	Number of users to use as threshold	above which avatars are disabled
+	unless explicitly enabled with EnableAvatars
+
 [X11] section:
 
 `ServerPath=`
@@ -135,8 +144,8 @@ OPTIONS
 	Default value is "@SESSION_COMMAND@".
 
 `SessionLogFile=`
-        Path to the user session log file, relative to the home directory.
-        Default value is ".local/share/sddm/xorg-session.log".
+	Path to the user session log file, relative to the home directory.
+	Default value is ".local/share/sddm/xorg-session.log".
 
 `DisplayCommand=`
 	Path of script to execute when starting the display server.
@@ -149,12 +158,6 @@ OPTIONS
 	The script will be executed as root when General.DisplayServer
 	is "x11", otherwise as sddm user.
 	Default value is "@DATA_INSTALL_DIR@/scripts/Xstop".
-
-`MinimumVT=`
-	Minimum virtual terminal number that will be used
-	by the first display. Virtual terminal number will
-	increase as new displays added.
-	This setting is no longer available since SDDM v0.20.
 
 `EnableHiDPI=`
 	Enables Qt's automatic HiDPI scaling.
@@ -169,8 +172,8 @@ The `UserAuthFile=` option was removed, the file is always created as
 [Wayland] section:
 
 `CompositorCommand=`
-        Path of the compositor to execute when starting the greeter.
-        Default value is "weston --shell=kiosk".
+	Path of the compositor to execute when starting the greeter.
+	Default value is "weston --shell=kiosk".
 
 `SessionDir=`
 	Comma-separated list of directories containing session files.
@@ -183,8 +186,8 @@ The `UserAuthFile=` option was removed, the file is always created as
 	Default value is "@WAYLAND_SESSION_COMMAND@".
 
 `SessionLogFile=`
-        Path to the user session log file, relative to the home directory.
-        Default value is ".local/share/sddm/wayland-session.log".
+	Path to the user session log file, relative to the home directory.
+	Default value is ".local/share/sddm/wayland-session.log".
 
 `EnableHiDPI=`
 	Enables Qt's automatic HiDPI scaling.
@@ -226,6 +229,11 @@ The `UserAuthFile=` option was removed, the file is always created as
 	If this flag is true, LastSession value will updated
 	on every successful login, if false last session value
 	won't be updated.
+	Default value is true.
+
+`ReuseSession=`
+	If this flag is true, when logging in as the same user twice, SDDM will restore
+	the original session, rather than create a new one.
 	Default value is true.
 
 [Autologin] section:
