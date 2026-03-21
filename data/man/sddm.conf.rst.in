@@ -117,7 +117,7 @@ OPTIONS
 
 `DisableAvatarsThreshold=`
 	Number of users to use as threshold	above which avatars are disabled
-	unless explicitly enabled with EnableAvatars
+	unless explicitly enabled with EnableAvatars.
 
 [X11] section:
 
