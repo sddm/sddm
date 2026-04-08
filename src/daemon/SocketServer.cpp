@@ -109,7 +109,7 @@ namespace SDDM {
         // input stream
         QDataStream input(socket);
 
-        // Qt's QLocalSocket::readyRead is not designed to be called at every socket.write(), 
+        // Qt's QLocalSocket::readyRead is not designed to be called at every socket.write(),
         // so we need to use a loop to read all the signals.
         while(socket->bytesAvailable()) {
             // read message
@@ -135,7 +135,7 @@ namespace SDDM {
                     // log message
                     qDebug() << "Message received from greeter: Login";
 
-                    // read username, pasword etc.
+                    // read username, password etc.
                     QString user, password, filename;
                     Session session;
                     input >> user >> password >> session;

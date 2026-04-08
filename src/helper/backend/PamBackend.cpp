@@ -112,7 +112,7 @@ namespace SDDM {
     bool PamData::insertPrompt(const struct pam_message* msg, bool predict) {
         Prompt &p = findPrompt(msg);
 
-        // first, check if we already have stored this propmpt
+        // first, check if we already have stored this prompt
         if (p.valid()) {
             // we have a response already - do nothing
             if (m_sent)

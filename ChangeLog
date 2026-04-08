@@ -51,8 +51,8 @@
     * Don't disable authentication in --test-mode
     - Fix X not having access control on startup
       (fixes CVE-2020-28049)
-    - Don't fill UserModel if theme does not require it
-    * Set re-use session option by default
+    - Set RUNTIME_DIR to /run/sddm when using systemd to follow FHS 3.0
+    * Set reuse session option by default
     * Avoid adjusting active auth sessions
     * Cleanup sessions on exit
     * Don't abort on failure to start the display server
@@ -121,10 +121,10 @@
     - Do not truncate XAUTHORITY on login.
     - Make enabled property of Button functional.
     - Fix typos in documentation.
-    * Re-use existing sessions.
+    * Reuse existing sessions.
     * Add ConsoleKit 2 support.
     * Stop assuming shadow(5) is always available.
-    * Explicitely set XDG_SEAT when starting a user session.
+    * Explicitly set XDG_SEAT when starting a user session.
     * Suppress errors when pam_elogind is not available.
     * Suppress errors when pam_systemd is not available.
     * Added possibility to change color of dropdown menu.
@@ -181,7 +181,7 @@
     + Add ENABLE_PAM option to toggle PAM support at build time.
     + Allow overriding textColor in ComboBox.
     - Don't cast QByteArray to (char *).
-    - Disable greeters from loading KDE's debug hander
+    - Disable greeters from loading KDE's debug handler
       (fix CVE-2015-0856).
     - Fix multi-screen support for some setups.
     * Added Serbian translation.
@@ -266,7 +266,7 @@
     - Fixed incorrect PAM handling causing PulseAudio to fail.
     - Fixed a crash caused by incorrect handling of PAM
     - Fixed compilation with Qt 5.0.0
-    - Correctly import PAM environment into the sesion
+    - Correctly import PAM environment into the session
     - Fixed missing environment variables
     - Find empty displays and virtual desktops automatically
     - Exit gracefully when SIGTERM is received
@@ -279,4 +279,3 @@
 ## 0.1.0 - 2013-03-19
 ---------------------
     * Initial release
-

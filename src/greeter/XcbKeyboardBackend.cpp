@@ -325,7 +325,7 @@ namespace SDDM {
         // Flush connection
         xcb_flush(m_conn);
 
-        // Get file descripor and init socket listener
+        // Get file descriptor and init socket listener
         int fd = xcb_get_file_descriptor(m_conn);
         m_socket = new QSocketNotifier(fd, QSocketNotifier::Read);
 

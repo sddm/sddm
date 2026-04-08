@@ -166,22 +166,22 @@ void ConfigurationTest::RightOnInitDir() {
 
     QFile confFileA(SYS_CONF_DIR+QStringLiteral("/0001A"));
     confFileA.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    confFileA.write("Custom=Foo\n"); //overriden by B
+    confFileA.write("Custom=Foo\n"); //overridden by B
     confFileA.write("Boolean=false\n");
     confFileA.close();
 
     QFile confFileB(CONF_DIR+QStringLiteral("/0001A"));
     confFileB.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    confFileB.write("String=a\n"); //overriden by C
+    confFileB.write("String=a\n"); //overridden by C
     confFileB.write("Custom=Bar\n");
     confFileB.write("StringList=a,b,c\n");
-    confFileB.write("Int=1111111\n"); //this is set in this config file but overriden in CONF_FILE
+    confFileB.write("Int=1111111\n"); //this is set in this config file but overridden in CONF_FILE
     confFileB.close();
 
     QFile confFileC(CONF_DIR+QStringLiteral("/0001B"));
     confFileC.open(QIODevice::WriteOnly | QIODevice::Truncate);
     confFileC.write("String=b\n");
-    confFileC.write("Int=1111111\n"); //overriden in CONF_FILE
+    confFileC.write("Int=1111111\n"); //overridden in CONF_FILE
     confFileC.close();
 
     QFile confFileMain(CONF_FILE);
@@ -229,7 +229,7 @@ void ConfigurationTest::FileChanged()
     //add file to conf dir
     QFile confFileA(CONF_DIR+QStringLiteral("/0001A"));
     confFileA.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    confFileA.write("Int=1111111\n"); //this is set in this config file but overriden in CONF_FILE
+    confFileA.write("Int=1111111\n"); //this is set in this config file but overridden in CONF_FILE
     confFileA.close();
     config->load();
     QVERIFY(config->Int.get() ==1111111);
@@ -238,7 +238,7 @@ void ConfigurationTest::FileChanged()
     //modify existing file in conf dir
 
     confFileA.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    confFileA.write("Int=222222\n"); //this is set in this config file but overriden in CONF_FILE
+    confFileA.write("Int=222222\n"); //this is set in this config file but overridden in CONF_FILE
     confFileA.close();
     config->load();
     QVERIFY(config->Int.get() == 222222);

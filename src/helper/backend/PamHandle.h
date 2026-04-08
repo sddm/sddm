@@ -60,7 +60,7 @@ namespace SDDM {
         bool isOpen() const;
 
         /**
-        * pam_set_item - set and update PAM informations
+        * pam_set_item - set and update PAM information
         *
         * \param item_type PAM item type
         * \param item item pointer
@@ -70,7 +70,7 @@ namespace SDDM {
         bool setItem(int item_type, const void *item);
 
         /**
-        * pam_get_item - getting PAM informations
+        * pam_get_item - getting PAM information
         *
         * \param item_type
         *
