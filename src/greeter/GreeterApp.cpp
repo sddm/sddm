@@ -167,6 +167,15 @@ namespace SDDM {
             view->setGeometry(r);
         });
 
+        // Fix for issue #2157: activate view when user clicks on it
+        // This allows keyboard input on any monitor, not just the primary one
+        connect(view, &QQuickView::activeFocusItemChanged, this, [view]() {
+            if (!view->isActive() && view->activeFocusItem()) {
+                qDebug() << "Auto-activating view on" << view->screen()->name() << "due to focus change";
+                view->requestActivate();
+            }
+        });
+
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
@@ -276,8 +285,27 @@ namespace SDDM {
 
         // Create views
         const QList<QScreen *> screens = qGuiApp->primaryScreen()->virtualSiblings();
-        for (QScreen *screen : screens)
-            addViewForScreen(screen);
+        
+        // Apply multi-monitor configuration
+        const auto multiMonitorMode = mainConfig.MultiMonitor.get();
+        
+        if (multiMonitorMode == MainConfig::MULTI_PRIMARY_ONLY) {
+            // Only show greeter on primary screen
+            qInfo() << "Multi-monitor mode: primary-only - showing greeter only on primary screen";
+            addViewForScreen(QGuiApplication::primaryScreen());
+        }
+        else if (multiMonitorMode == MainConfig::MULTI_ALL_MIRRORED) {
+            // TODO: Implement mirrored mode - for now fall back to all-separate
+            qWarning() << "Multi-monitor mode: all-mirrored is not yet implemented, using all-separate";
+            for (QScreen *screen : screens)
+                addViewForScreen(screen);
+        }
+        else { // MULTI_ALL_SEPARATE (default)
+            // Show separate greeter on each screen with click-to-activate fix
+            qInfo() << "Multi-monitor mode: all-separate - showing greeter on all screens";
+            for (QScreen *screen : screens)
+                addViewForScreen(screen);
+        }
 
         // Handle screens
         connect(qGuiApp, &QGuiApplication::screenAdded, this, &GreeterApp::addViewForScreen);

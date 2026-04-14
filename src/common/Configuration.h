@@ -35,6 +35,7 @@ namespace SDDM {
     //     Name        File         Sections and/or Entries (but anything else too, it's a class) - Entries in a Config are assumed to be in the General section
     Config(MainConfig, QStringLiteral(CONFIG_FILE), QStringLiteral(CONFIG_DIR), QStringLiteral(SYSTEM_CONFIG_DIR),
         enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
+        enum MultiMonitorMode { MULTI_PRIMARY_ONLY, MULTI_ALL_SEPARATE, MULTI_ALL_MIRRORED };
 
         //  Name                   Type         Default value                                   Description
         // TODO: Change default to x11-user in a future release
@@ -48,6 +49,10 @@ namespace SDDM {
         Entry(InputMethod,         QString,     QStringLiteral("qtvirtualkeyboard"),                   _S("Input method module"));
         Entry(Namespaces,          QStringList, QStringList(),                                  _S("Comma-separated list of Linux namespaces for user session to enter"));
         Entry(GreeterEnvironment,  QStringList, QStringList(),                                  _S("Comma-separated list of environment variables to be set"));
+        Entry(MultiMonitor,        MultiMonitorMode, MULTI_ALL_SEPARATE,                        _S("Multi-monitor behavior mode. Can be primary-only, all-separate or all-mirrored.\n"
+                                                                                                   "primary-only: Show greeter only on primary screen\n"
+                                                                                                   "all-separate: Show separate greeter on each screen (allows input on any clicked screen)\n"
+                                                                                                   "all-mirrored: Show mirrored greeter on all screens"));
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
             Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));
@@ -136,6 +141,27 @@ namespace SDDM {
             str << "off";
         else
             str << "none";
+        return str;
+    }
+
+    inline QTextStream& operator>>(QTextStream &str, MainConfig::MultiMonitorMode &mode) {
+        QString text = str.readLine().trimmed();
+        if (text.compare(QLatin1String("primary-only"), Qt::CaseInsensitive) == 0)
+            mode = MainConfig::MULTI_PRIMARY_ONLY;
+        else if (text.compare(QLatin1String("all-mirrored"), Qt::CaseInsensitive) == 0)
+            mode = MainConfig::MULTI_ALL_MIRRORED;
+        else
+            mode = MainConfig::MULTI_ALL_SEPARATE;
+        return str;
+    }
+
+    inline QTextStream& operator<<(QTextStream &str, const MainConfig::MultiMonitorMode &mode) {
+        if (mode == MainConfig::MULTI_PRIMARY_ONLY)
+            str << "primary-only";
+        else if (mode == MainConfig::MULTI_ALL_MIRRORED)
+            str << "all-mirrored";
+        else
+            str << "all-separate";
         return str;
     }
 }
