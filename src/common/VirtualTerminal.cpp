@@ -117,6 +117,14 @@ namespace SDDM {
                 ok = false;
             }
 
+            // The previous VT_PROCESS owner (logind for Wayland greeters)
+            // can clear its VT mode mid-switch, leaving VT_WAITACTIVE hung.
+            // Take over so the relsig handshake completes locally.
+            if (getmodeReply.mode == VT_PROCESS) {
+                ok = handleVtSwitches(fd);
+                modeFixed = true;
+            }
+
             if (getmodeReply.mode != VT_AUTO)
                 goto out;
 
