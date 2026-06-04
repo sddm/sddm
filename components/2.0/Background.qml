@@ -31,6 +31,12 @@ FocusScope {
     property alias fillMode: image.fillMode
     property alias status: image.status
 
+    Rectangle {
+        id: fallback
+        anchors.fill: parent
+        color: "#2b2b2b"
+        visible: image.status === Image.Error
+    }
 
     Image {
         id: image
