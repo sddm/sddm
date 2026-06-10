@@ -228,8 +228,12 @@ namespace SDDM {
                 }
             }
 
-            if (vtNumber > 0)
+            if (vtNumber > 0) {
                 VirtualTerminal::jumpToVt(vtNumber, x11UserSession);
+                // This process becomes the session via execve(); leave the VT
+                // switch signals ignored so they survive the exec.
+                VirtualTerminal::ignoreVtSwitches();
+            }
         }
 
 #ifdef Q_OS_LINUX
