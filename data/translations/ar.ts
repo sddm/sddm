@@ -103,15 +103,15 @@
     </message>
     <message>
         <source>Show password</source>
-        <translation>أظهر كلمة المرور</translation>
+        <translation>عرض كلمة المرور</translation>
     </message>
     <message>
         <source>Hide password</source>
-        <translation>أخفِ كلمة المرور</translation>
+        <translation>إخفاء كلمة المرور</translation>
     </message>
     <message>
         <source>Password change aborted because maximum tries reached</source>
-        <translation>لا يمكن تغيير كلمة المرور لتخطي الحد الأقصى من المحاولات</translation>
+        <translation>تعذر تغيير كلمة المرور لتخطي الحد الأقصى من المحاولات</translation>
     </message>
 </context>
 </TS>
