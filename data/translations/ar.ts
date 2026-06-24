@@ -39,11 +39,11 @@
     </message>
     <message>
         <source>Login failed</source>
-        <translation>فشل تسجيل الدخول</translation>
+        <translation>فشل الدخول</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>نجح تسجيل الدخول</translation>
+        <translation>نجح الدخول</translation>
     </message>
     <message>
         <source>Password</source>
@@ -55,7 +55,7 @@
     </message>
     <message>
         <source>Reboot</source>
-        <translation>إعادة التشغيل</translation>
+        <translation>أعد الإقلاع</translation>
     </message>
     <message>
         <source>Session</source>
@@ -63,15 +63,15 @@
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>إيقاف التشغيل</translation>
+        <translation>أطفئ</translation>
     </message>
     <message>
     <source>Suspend</source>
-        <translation>تعليق</translation>
+        <translation>علِّق</translation>
     </message>
     <message>
         <source>Hibernate</source>
-        <translation>سُبات</translation>
+        <translation>أسبِت</translation>
     </message>
     <message>
         <source>Username</source>
@@ -112,6 +112,10 @@
     <message>
         <source>Password change aborted because maximum tries reached</source>
         <translation>تعذر تغيير كلمة المرور لتخطي الحد الأقصى من المحاولات</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>انتهت صلاحية كلمة المرور. أدخل كلمة المرور الحالية مجددا لتجديدها.</translation>
     </message>
 </context>
 </TS>
