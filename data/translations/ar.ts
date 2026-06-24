@@ -39,11 +39,11 @@
     </message>
     <message>
         <source>Login failed</source>
-        <translation>فشل الدخول</translation>
+        <translation>فشل تسجيل الدخول</translation>
     </message>
     <message>
         <source>Login succeeded</source>
-        <translation>نجح الدخول</translation>
+        <translation>نجح تسجيل الدخول</translation>
     </message>
     <message>
         <source>Password</source>
