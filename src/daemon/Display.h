@@ -83,7 +83,6 @@ namespace SDDM {
 
     private:
         QString findGreeterTheme() const;
-        bool findSessionEntry(const QStringList &dirPaths, const QString &name) const;
 
         bool startAuth(const QString &user, const QString &password,
                        const Session &session);

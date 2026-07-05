@@ -67,6 +67,8 @@ namespace SDDM {
 
         void setTo(Type type, const QString &name);
 
+        static Session findAutologinSession(const QString &name, Type preferredType);
+
         Session &operator=(const Session &other);
 
     private:

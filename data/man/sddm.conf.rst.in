@@ -240,6 +240,17 @@ The `UserAuthFile=` option was removed, the file is always created as
 	system starts first time.
 	Default value is empty.
 
+`SessionType=`
+	Session type to use for autologin when the session name exists in both
+	X11 and Wayland session directories.
+	Valid values are:
+
+	* `wayland`: Prefer a Wayland session.
+	* `x11`: Prefer an X11 session.
+
+	If the session is not found in the preferred type, the other type is tried.
+	Default value is "wayland".
+
 `Relogin=`
 	If true and User and Session are set automatic login will
 	kick in again on session exit, otherwise it will work
