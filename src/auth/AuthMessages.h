@@ -29,7 +29,7 @@
 namespace SDDM {
     class Prompt {
     public:
-        Prompt() { }
+        Prompt() = default;
         Prompt(AuthPrompt::Type type, QString message, bool hidden)
                 : type(type), message(message), hidden(hidden) { }
         Prompt(const Prompt &o)
@@ -67,7 +67,7 @@ namespace SDDM {
 
     class Request {
     public:
-        Request() { }
+        Request() = default;
         Request(QList<Prompt> prompts)
                 : prompts(prompts) { }
         Request(const Request &o)
