@@ -94,7 +94,7 @@ namespace SDDM {
                 continue;
 
             // create user
-            UserPtr user { new User(current_pw, iconURI) };
+            UserPtr user = std::make_shared<User>(current_pw, iconURI);
 
             // add user
             d->users << user;
@@ -106,7 +106,7 @@ namespace SDDM {
                 struct passwd *lastUserData;
                 // If the theme doesn't require that all users are present, try to add the data for lastUser at least
                 if(!lastUserFound && (lastUserData = getpwnam(qPrintable(lastUser()))))
-                    d->users << UserPtr(new User(lastUserData, themeDefaultFace));
+                    d->users << std::make_shared<User>(lastUserData, themeDefaultFace);
 
                 d->containsAllUsers = false;
                 break;
