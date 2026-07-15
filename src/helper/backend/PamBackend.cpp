@@ -188,9 +188,11 @@ namespace SDDM {
         }
 
         for (int i = 0; i < request.prompts.length(); i++) {
-            if (request.prompts[i].type != m_currentRequest.prompts[i].type
-                || request.prompts[i].message != m_currentRequest.prompts[i].message
-                || request.prompts[i].hidden != m_currentRequest.prompts[i].hidden) {
+            const Prompt& reqPrompt = request.prompts[i];
+            const Prompt& currentReqPrompt = m_currentRequest.prompts[i];
+            if (reqPrompt.type != currentReqPrompt.type
+                || reqPrompt.message != currentReqPrompt.message
+                || reqPrompt.hidden != currentReqPrompt.hidden) {
                 qWarning() << "[PAM] Order or type of the messages doesn't match, ignoring";
                 return;
             }
