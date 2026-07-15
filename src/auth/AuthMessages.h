@@ -60,9 +60,9 @@ namespace SDDM {
         }
 
         AuthPrompt::Type type { AuthPrompt::NONE };
+        bool hidden { false };
         QByteArray response { };
         QString message { };
-        bool hidden { false };
     };
 
     class Request {

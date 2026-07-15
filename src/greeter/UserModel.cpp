@@ -59,8 +59,8 @@ namespace SDDM {
     class UserModelPrivate {
     public:
         int lastIndex { 0 };
-        QList<UserPtr> users;
         bool containsAllUsers { true };
+        QList<UserPtr> users;
     };
 
     UserModel::UserModel(bool needAllUsers, QObject *parent) : QAbstractListModel(parent), d(new UserModelPrivate()) {
