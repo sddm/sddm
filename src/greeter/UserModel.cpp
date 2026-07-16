@@ -161,6 +161,7 @@ namespace SDDM {
     QHash<int, QByteArray> UserModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
+        roleNames.reserve(5);
         roleNames[NameRole] = QByteArrayLiteral("name");
         roleNames[RealNameRole] = QByteArrayLiteral("realName");
         roleNames[HomeDirRole] = QByteArrayLiteral("homeDir");
