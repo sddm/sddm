@@ -274,7 +274,25 @@ namespace SDDM {
 
     Session &Session::operator=(const Session &other)
     {
-        setTo(other.type(), other.fileName());
+        if (this == &other)
+            return *this;
+
+        m_valid = other.m_valid;
+        m_type = other.m_type;
+        m_vt = other.m_vt;
+        m_dir = other.m_dir;
+        m_name = other.m_name;
+        m_fileName = other.m_fileName;
+        m_displayName = other.m_displayName;
+        m_comment = other.m_comment;
+        m_exec = other.m_exec;
+        m_tryExec = other.m_tryExec;
+        m_xdgSessionType = other.m_xdgSessionType;
+        m_desktopNames = other.m_desktopNames;
+        m_additionalEnv = other.m_additionalEnv;
+        m_isHidden = other.m_isHidden;
+        m_isNoDisplay = other.m_isNoDisplay;
+
         return *this;
     }
 
