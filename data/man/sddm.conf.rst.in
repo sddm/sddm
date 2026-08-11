@@ -228,6 +228,12 @@ The `UserAuthFile=` option was removed, the file is always created as
 	won't be updated.
 	Default value is true.
 
+`ShowSavedUsers=`
+	If this flag is true, SavedUsers value will updated
+	on every successful login, if false list of last users
+	won't be updated.
+	Default value is false.
+
 [Autologin] section:
 
 `User=`

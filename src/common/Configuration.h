@@ -97,6 +97,7 @@ namespace SDDM {
             Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
 
             Entry(ReuseSession,        bool,        true,                                       _S("When logging in as the same user twice, restore the original session, rather than create a new one"));
+            Entry(ShowSavedUsers,      bool,        false,                                      _S("Save users which successfully logged in and display them in greeter"));
         );
 
         Section(Autologin,
@@ -112,6 +113,7 @@ namespace SDDM {
                                                                                                    "This session will be preselected when the login screen appears."));
             Entry(User,            QString,     QString(),                                      _S("Name of the last logged-in user.\n"
                                                                                                    "This user will be preselected when the login screen appears"));
+            Entry(SavedUsers,      QStringList, QStringList(),                                  _S("Comma-separated list of saved users that should be displayed"));
         );
     );
 

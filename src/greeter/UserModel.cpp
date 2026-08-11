@@ -74,23 +74,31 @@ namespace SDDM {
 
         bool lastUserFound = false;
 
+        const auto checkUser = [&](const struct passwd *data) -> bool {
+            // skip entries with uids smaller than minimum uid
+            if (int(data->pw_uid) < mainConfig.Users.MinimumUid.get())
+                return false;
+
+            // skip entries with uids greater than maximum uid
+            if (int(data->pw_uid) > mainConfig.Users.MaximumUid.get())
+                return false;
+
+            // skip entries with user names in the hide users list
+            if (mainConfig.Users.HideUsers.get().contains(QString::fromLocal8Bit(data->pw_name)))
+                return false;
+
+            // skip entries with shells in the hide shells list
+            if (mainConfig.Users.HideShells.get().contains(QString::fromLocal8Bit(data->pw_shell)))
+                return false;
+
+            return true;
+        };
+
         struct passwd *current_pw;
         setpwent();
         while ((current_pw = getpwent()) != nullptr) {
 
-            // skip entries with uids smaller than minimum uid
-            if (int(current_pw->pw_uid) < mainConfig.Users.MinimumUid.get())
-                continue;
-
-            // skip entries with uids greater than maximum uid
-            if (int(current_pw->pw_uid) > mainConfig.Users.MaximumUid.get())
-                continue;
-            // skip entries with user names in the hide users list
-            if (mainConfig.Users.HideUsers.get().contains(QString::fromLocal8Bit(current_pw->pw_name)))
-                continue;
-
-            // skip entries with shells in the hide shells list
-            if (mainConfig.Users.HideShells.get().contains(QString::fromLocal8Bit(current_pw->pw_shell)))
+            if (!checkUser(current_pw))
                 continue;
 
             // create user
@@ -114,6 +122,17 @@ namespace SDDM {
         }
 
         endpwent();
+
+        if (mainConfig.Users.ShowSavedUsers.get()) {
+            for (const QString& savedUser: stateConfig.Last.SavedUsers.get()) {
+                const auto it = std::find_if(d->users.begin(), d->users.end(), [&](const UserPtr &u) { return u->name == savedUser; });
+                if (it != d->users.end())
+                    continue;
+
+                if ((current_pw = getpwnam(qPrintable(savedUser))) && checkUser(current_pw))
+                    d->users << UserPtr(new User(current_pw, iconURI));
+            }
+        }
 
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });

@@ -507,6 +507,13 @@ namespace SDDM {
                 stateConfig.Last.Session.set(m_sessionName);
             else
                 stateConfig.Last.Session.setDefault();
+            // save users list to be displayed
+            if (mainConfig.Users.ShowSavedUsers.get()) {
+                auto savedUsers = stateConfig.Last.SavedUsers.get();
+                if (!savedUsers.contains(m_auth->user()))
+                    stateConfig.Last.SavedUsers.set(savedUsers << m_auth->user());
+            } else
+                stateConfig.Last.SavedUsers.setDefault();
             stateConfig.save();
 
             if (m_socket)
