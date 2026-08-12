@@ -24,6 +24,7 @@
 
 #include <QFile>
 #include <QList>
+#include <QProcess>
 #include <QTextStream>
 #include <QStringList>
 
@@ -115,6 +116,44 @@ namespace SDDM {
 
         endpwent();
 
+        bool savedLogins = mainConfig.Users.ShowSavedLogins.get();
+
+        // read users from logins.log before sort
+        if(savedLogins)
+        {
+            const QString loginList = QStringLiteral("%1/logins.log").arg(QStringLiteral(STATE_DIR));
+            QFile file(loginList);
+            bool insert = false;
+
+            if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+                qWarning("Failed to open %s", qPrintable(loginList));
+            else
+            {
+                // TODO: inefficient search for users in QList, should be hash list
+                while(!file.atEnd())
+                {
+                    insert = true;
+
+                    // login user
+                    QString luser = QLatin1String(file.readLine());
+                    luser = luser.trimmed(); // remove \n
+
+                    // user already in model?
+                    for(int i = 0; i < d->users.size(); i++) {
+                        if(!luser.compare(d->users.at(i)->name))
+                        {
+                            insert = false;
+                            break;
+                        }
+                    }
+
+                    if(insert)
+                        add(luser, defaultFace);
+                }
+                file.close();
+            }
+        }
+
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
         // Remove duplicates in case we have several sources specified
@@ -166,6 +205,8 @@ namespace SDDM {
         roleNames[HomeDirRole] = QByteArrayLiteral("homeDir");
         roleNames[IconRole] = QByteArrayLiteral("icon");
         roleNames[NeedsPasswordRole] = QByteArrayLiteral("needsPassword");
+        //roleNames[UidRole] = QByteArrayLiteral("uid");
+        //roleNames[GidRole] = QByteArrayLiteral("gid");
 
         return roleNames;
     }
@@ -200,9 +241,59 @@ namespace SDDM {
             return user->icon;
         else if (role == NeedsPasswordRole)
             return user->needsPassword;
+        //else if (role == UidRole)
+        //    return user->uid;
+        //else if (role == GidRole)
+        //    return user->gid;
 
         // return empty value
         return QVariant();
+    }
+
+    // remember user who where logging in, add to model
+    void UserModel::add(const QString username, QString defaultFace) {
+        // skip if user already in model
+        foreach(UserPtr duser, d->users)
+            if(username == duser->name)
+                return;
+
+        // get user data with getent()
+        QProcess cmd;
+        cmd.start(QStringLiteral("getent passwd ") + username);
+        cmd.waitForFinished(1000 /* ms */);
+        QString output(QLatin1String(cmd.readAllStandardOutput()));
+
+        if(output.isEmpty())
+        {
+            // ignore deleted or unknown users
+            qDebug("Login list: Ignore saved user %s, user unknown", qPrintable(username));
+        }
+        else
+        {
+            QStringList result = output.split(QLatin1Char(':'));
+            QString userShell = QString(result.at(6)).remove(QLatin1Char('\n'));
+
+            // skip entries with shells in the hide shells list
+            if (mainConfig.Users.HideShells.get().contains(userShell)) {
+                qDebug("Login list: Ignore saved user %s because shell in HideShells list", qPrintable(username));
+                return;
+            }
+
+            UserPtr user { new User() };
+            user->name = username;
+            user->realName = result.at(4).section(QLatin1Char(','),0,0);
+            user->homeDir = result.at(5);
+            // show always input field
+            user->needsPassword = result.at(1).startsWith(QStringLiteral("x"));
+            user->icon = defaultFace;
+            //user->uid = result.at(2).toInt();
+            //user->gid = result.at(3).toInt();
+
+            // append user to model
+            d->users << user;
+
+            qDebug("Login list: Added saved user %s to greeter", qPrintable(username));
+        }
     }
 
     int UserModel::disableAvatarsThreshold() const {

@@ -62,7 +62,7 @@ namespace SDDM {
         void hibernate();
         void hybridSleep();
 
-        void login(const QString &user, const QString &password, const int sessionIndex) const;
+        void login(const QString &user, const QString &password, const int sessionIndex);
 
     private slots:
         void connected();
@@ -85,6 +85,8 @@ namespace SDDM {
 
     private:
         GreeterProxyPrivate *d { nullptr };
+        QString loginUser;
+        void saveLoginUser(const QString loginUser) const;
     };
 }
 
