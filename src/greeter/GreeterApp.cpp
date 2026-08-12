@@ -361,6 +361,10 @@ int main(int argc, char **argv)
         qputenv("QT_IM_MODULE", inputMethod.toLocal8Bit());
 
     QGuiApplication app(argc, argv);
+
+    // Don't quit when the last screen and thus the last view disappears
+    app.setQuitOnLastWindowClosed(false);
+
     SDDM::SignalHandler s;
     QObject::connect(&s, &SDDM::SignalHandler::sigtermReceived, &app, [] {
         QCoreApplication::instance()->exit(-1);
