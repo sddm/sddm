@@ -103,13 +103,17 @@ namespace SDDM {
                 lastUserFound = true;
 
             if (!needAllUsers && d->users.count() > mainConfig.Theme.DisableAvatarsThreshold.get()) {
-                struct passwd *lastUserData;
-                // If the theme doesn't require that all users are present, try to add the data for lastUser at least
-                if(!lastUserFound && (lastUserData = getpwnam(qPrintable(lastUser()))))
-                    d->users << UserPtr(new User(lastUserData, themeDefaultFace));
-
                 d->containsAllUsers = false;
                 break;
+            }
+        }
+
+        // Always try to add the last user if not already found.
+        if (!lastUserFound) {
+            struct passwd *lastUserData;
+            if(!lastUserFound && (lastUserData = getpwnam(qPrintable(lastUser())))) {
+                d->users << UserPtr(new User(lastUserData, iconURI));
+                lastUserFound = true;
             }
         }
 
