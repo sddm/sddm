@@ -108,16 +108,14 @@ namespace SDDM {
             }
         }
 
-        // Always try to add the last user if not already found.
-        if (!lastUserFound) {
-            struct passwd *lastUserData;
-            if(!lastUserFound && (lastUserData = getpwnam(qPrintable(lastUser())))) {
-                d->users << UserPtr(new User(lastUserData, iconURI));
-                lastUserFound = true;
-            }
-        }
-
         endpwent();
+
+        // Always try to add the last user if not already found
+        if (!lastUser().isEmpty() && !lastUserFound) {
+            struct passwd *lastUserData;
+            if((lastUserData = getpwnam(qPrintable(lastUser()))))
+                d->users << UserPtr(new User(lastUserData, iconURI));
+        }
 
         // sort users by username
         std::sort(d->users.begin(), d->users.end(), [&](const UserPtr &u1, const UserPtr &u2) { return u1->name < u2->name; });
