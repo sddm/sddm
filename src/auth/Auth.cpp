@@ -68,6 +68,7 @@ namespace SDDM {
         QByteArray cookie { };
         bool autologin { false };
         bool fingerprintlogin { false };
+        bool stoppedIntentionally { false };
         bool greeter { false };
         QProcessEnvironment environment { };
         qint64 id { 0 };
@@ -219,12 +220,13 @@ namespace SDDM {
     }
 
     void Auth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
-        if (exitStatus != QProcess::NormalExit) {
+        if (exitStatus != QProcess::NormalExit && !stoppedIntentionally) {
             qWarning("Auth: sddm-helper (%s) crashed (exit code %d)",
                      qPrintable(child->arguments().join(QLatin1Char(' '))),
                      HelperExitStatus(exitStatus));
             Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
         }
+        stoppedIntentionally = false;
 
         if (exitCode == HELPER_SUCCESS) {
             qDebug() << "Auth: sddm-helper exited successfully";
@@ -408,6 +410,7 @@ namespace SDDM {
             return;
         }
 
+        d->stoppedIntentionally = true;
         d->child->terminate();
 
         // wait for finished
