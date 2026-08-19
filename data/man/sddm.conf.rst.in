@@ -76,6 +76,12 @@ OPTIONS
 	`/run/netns/mynet`.  Default value is empty.  (The value is ignored if
 	the operating system is not Linux.)
 
+`DefaultSession=`
+	Defines the session file name that will get selected by default.
+	In case `RememberLastSession` is enabled and there is a last session
+	available, that last session will be selected, ignoring this option.
+	Default value is empty.
+
 [Theme] section:
 
 `ThemeDir=`

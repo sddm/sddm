@@ -49,6 +49,7 @@ namespace SDDM {
         if (dri_active)
             populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
         populate(Session::X11Session, mainConfig.X11.SessionDir.get());
+        selectDefaultSession();
         endResetModel();
 
         // refresh everytime a file is changed, added or removed
@@ -62,6 +63,7 @@ namespace SDDM {
             if (dri_active)
                 populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
             populate(Session::X11Session, mainConfig.X11.SessionDir.get());
+            selectDefaultSession();
             endResetModel();
         });
         watcher->addPaths(mainConfig.Wayland.SessionDir.get());
@@ -164,11 +166,28 @@ namespace SDDM {
                 delete si;
             }
         }
-        // find out index of the last session
+    }
+
+    void SessionModel::selectDefaultSession() {
+        d->lastIndex = 0;
+
+        // Prefer last session in stateConfig if it exists and matches.
+        QString lastSession = stateConfig.Last.Session.get();
+        if (!lastSession.isEmpty()) {
+            for (int i = 0; i < d->sessions.size(); ++i) {
+                if (d->sessions.at(i)->fileName() == lastSession) {
+                    d->lastIndex = i;
+                    return;
+                }
+            }
+        }
+
+        // Otherwise, fallback to system-wide default session.
+        auto defaultSession = mainConfig.DefaultSession.get();
         for (int i = 0; i < d->sessions.size(); ++i) {
-            if (d->sessions.at(i)->fileName() == stateConfig.Last.Session.get()) {
+            if (QFileInfo(d->sessions.at(i)->fileName()).fileName() == defaultSession) {
                 d->lastIndex = i;
-                break;
+                return;
             }
         }
     }
