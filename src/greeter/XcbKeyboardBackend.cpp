@@ -154,11 +154,12 @@ namespace SDDM {
         cookie = xcb_xkb_get_names(m_conn,
                 XCB_XKB_ID_USE_CORE_KBD,
                 XCB_XKB_NAME_DETAIL_GROUP_NAMES | XCB_XKB_NAME_DETAIL_SYMBOLS);
-        reply = xcb_xkb_get_names_reply(m_conn, cookie, nullptr);
+        reply = xcb_xkb_get_names_reply(m_conn, cookie, &error);
 
         if (error) {
             // Log and disable
             qCritical() << "Can't init layouts: " << error->error_code;
+            d->enabled = false;
             return;
         }
 

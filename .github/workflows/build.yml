@@ -50,7 +50,7 @@ jobs:
         if: ${{ contains(matrix.container-image, 'fedora') || contains(matrix.container-image, 'centos') || contains(matrix.container-image, 'opensuse') }}
         run: |
           set -x
-          dnf --assumeyes install dnf-plugins-core
+          if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes install dnf-plugins-core; else dnf --assumeyes install dnf5-plugins; fi
           if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes config-manager --set-enabled crb && dnf --assumeyes install epel-release; fi
           dnf --assumeyes builddep sddm
           if [ "${{ matrix.qt }}" = "qt5" ] && [[ "${{ matrix.container-image }}" =~ "fedora" ]]; then dnf --assumeyes install qt5-qtbase-devel qt5-qtdeclarative-devel qt5-qttools-devel; fi
