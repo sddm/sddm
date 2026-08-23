@@ -67,6 +67,8 @@ namespace SDDM {
         QString user { };
         QByteArray cookie { };
         bool autologin { false };
+        bool fingerprintlogin { false };
+        bool stoppedIntentionally { false };
         bool greeter { false };
         QProcessEnvironment environment { };
         qint64 id { 0 };
@@ -218,19 +220,21 @@ namespace SDDM {
     }
 
     void Auth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
-        if (exitStatus != QProcess::NormalExit) {
+        if (exitStatus != QProcess::NormalExit && !stoppedIntentionally) {
             qWarning("Auth: sddm-helper (%s) crashed (exit code %d)",
                      qPrintable(child->arguments().join(QLatin1Char(' '))),
                      HelperExitStatus(exitStatus));
             Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
         }
+        stoppedIntentionally = false;
 
-        if (exitCode == HELPER_SUCCESS)
+        if (exitCode == HELPER_SUCCESS) {
             qDebug() << "Auth: sddm-helper exited successfully";
+            emit qobject_cast<Auth*>(parent())->finished(static_cast<Auth::HelperExitStatus>(exitCode));
+        }
+
         else
             qWarning("Auth: sddm-helper exited with %d", exitCode);
-
-        Q_EMIT qobject_cast<Auth*>(parent())->finished((Auth::HelperExitStatus)exitCode);
     }
 
     void Auth::Private::childError(QProcess::ProcessError error) {
@@ -274,6 +278,10 @@ namespace SDDM {
 
     bool Auth::autologin() const {
         return d->autologin;
+    }
+
+    bool Auth::fingerprintlogin() const {
+        return d->fingerprintlogin;
     }
 
     bool Auth::isGreeter() const
@@ -334,6 +342,12 @@ namespace SDDM {
         }
     }
 
+    void Auth::setFingerprintlogin(bool on){
+        if(on != d->fingerprintlogin){
+            d->fingerprintlogin = on;
+        }
+    }
+
     void Auth::setGreeter(bool on)
     {
         if (on != d->greeter) {
@@ -377,10 +391,17 @@ namespace SDDM {
             args << QStringLiteral("--user") << d->user;
         if (d->autologin)
             args << QStringLiteral("--autologin");
+        if (d->fingerprintlogin)
+            args << QStringLiteral("--fingerprintlogin");
         if (!d->displayServerCmd.isEmpty())
             args << QStringLiteral("--display-server") << d->displayServerCmd;
         if (d->greeter)
             args << QStringLiteral("--greeter");
+        if(d->child->state() != QProcess::NotRunning){
+            d->child->terminate();
+            d->child->waitForFinished();
+        }
+        qDebug() << "starting sddm-helper with" << args;
         d->child->start(QStringLiteral("%1/sddm-helper").arg(QStringLiteral(LIBEXEC_INSTALL_DIR)), args);
     }
 
@@ -389,10 +410,11 @@ namespace SDDM {
             return;
         }
 
+        d->stoppedIntentionally = true;
         d->child->terminate();
 
         // wait for finished
-        if (!d->child->waitForFinished(5000))
+        if (!d->child->waitForFinished(300))
             d->child->kill();
     }
 }
