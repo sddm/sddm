@@ -229,7 +229,7 @@ namespace SDDM {
             }
 
             if (vtNumber > 0)
-                VirtualTerminal::jumpToVt(vtNumber, x11UserSession);
+                VirtualTerminal::jumpToVt(vtNumber, x11UserSession || waylandUserSession);
         }
 
 #ifdef Q_OS_LINUX
