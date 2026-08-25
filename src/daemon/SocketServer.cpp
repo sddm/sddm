@@ -82,6 +82,9 @@ namespace SDDM {
         // log message
         qDebug() << "Socket server stopping...";
 
+        // stop listening first
+        m_server->close();
+
         // delete server
         m_server->deleteLater();
         m_server = nullptr;
