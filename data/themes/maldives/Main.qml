@@ -34,6 +34,42 @@ Rectangle {
     LayoutMirroring.childrenInherit: true
 
     property int sessionIndex: session.index
+    property bool pamConversationActive: false
+    property string pamConversationUser: ""
+    property bool pamResponsePending: false
+    property string pamPendingResponse: ""
+
+    function beginPamAuthentication(username) {
+        if (!username) {
+            password.enabled = false
+            lblPassword.text = ""
+            return
+        }
+
+        pamConversationActive = true
+        pamConversationUser = username
+        password.enabled = false
+        password.text = ""
+        lblPassword.text = ""
+        pamResponsePending = false
+        pamPendingResponse = ""
+        sddm.beginAuthentication(username, sessionIndex)
+    }
+
+    function submitPamResponse() {
+        if (!pamConversationActive) {
+            beginPamAuthentication(name.text)
+        }
+
+        if (password.enabled) {
+            password.enabled = false
+            sddm.respond(password.text)
+            password.text = ""
+        } else {
+            pamPendingResponse = password.text
+            pamResponsePending = true
+        }
+    }
 
     TextConstants { id: textConstants }
 
@@ -44,13 +80,33 @@ Rectangle {
             errorMessage.color = "steelblue"
             errorMessage.text = textConstants.loginSucceeded
         }
+        function onAuthenticationPrompt(message, promptVisible) {
+            lblPassword.text = message.trim().replace(/:\s*$/, "")
+            if (pamResponsePending) {
+                var response = pamPendingResponse
+                pamResponsePending = false
+                pamPendingResponse = ""
+                password.enabled = false
+                password.text = ""
+                sddm.respond(response)
+            } else {
+                password.enabled = true
+                password.text = ""
+                password.forceActiveFocus()
+            }
+        }
         function onLoginFailed() {
             password.text = ""
             errorMessage.color = "red"
             errorMessage.text = textConstants.loginFailed
+            pamConversationActive = false
+            pamConversationUser = ""
+            pamResponsePending = false
+            pamPendingResponse = ""
+            password.enabled = name.text !== ""
         }
         function onInformationMessage(message) {
-            errorMessage.color = "red"
+            errorMessage.color = "white"
             errorMessage.text = message
         }
     }
@@ -125,9 +181,25 @@ Rectangle {
 
                         KeyNavigation.backtab: rebootButton; KeyNavigation.tab: password
 
+                        onTextChanged: {
+                            if (pamConversationActive && text !== pamConversationUser) {
+                                sddm.cancelAuthentication()
+                                pamConversationActive = false
+                                pamConversationUser = ""
+                                pamResponsePending = false
+                                pamPendingResponse = ""
+                                password.text = ""
+                                lblPassword.text = ""
+                                errorMessage.color = "white"
+                                errorMessage.text = textConstants.prompt
+                            }
+
+                            password.enabled = text !== ""
+                        }
+
                         Keys.onPressed: function (event) {
                             if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                sddm.login(name.text, password.text, sessionIndex)
+                                beginPamAuthentication(name.text)
                                 event.accepted = true
                             }
                         }
@@ -149,12 +221,18 @@ Rectangle {
                         id: password
                         width: parent.width; height: 30
                         font.pixelSize: 14
+                        enabled: name.text !== ""
 
                         KeyNavigation.backtab: name; KeyNavigation.tab: session
 
+                        onActiveFocusChanged: {
+                            if (activeFocus && name.text !== "" && !pamConversationActive)
+                                beginPamAuthentication(name.text)
+                        }
+
                         Keys.onPressed: function (event) {
                             if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                                sddm.login(name.text, password.text, sessionIndex)
+                                submitPamResponse()
                                 event.accepted = true
                             }
                         }
@@ -190,6 +268,10 @@ Rectangle {
 
                             model: sessionModel
                             index: sessionModel.lastIndex
+                            onIndexChanged: {
+                                if (pamConversationActive)
+                                    sddm.setSession(index)
+                            }
 
                             KeyNavigation.backtab: password; KeyNavigation.tab: layoutBox
                         }
@@ -245,7 +327,7 @@ Rectangle {
                         text: textConstants.login
                         width: parent.btnWidth
 
-                        onClicked: sddm.login(name.text, password.text, sessionIndex)
+                        onClicked: submitPamResponse()
 
                         KeyNavigation.backtab: layoutBox; KeyNavigation.tab: shutdownButton
                     }
@@ -275,9 +357,11 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        if (name.text == "")
+        if (name.text == "") {
             name.focus = true
-        else
-            password.focus = true
+        } else {
+            beginPamAuthentication(name.text)
+        }
     }
+
 }

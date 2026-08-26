@@ -144,6 +144,36 @@ namespace SDDM {
                     emit login(socket, user, password, session);
                 }
                 break;
+                case GreeterMessages::AuthenticationResponse: {
+                    qDebug() << "Message received from greeter: AuthenticationResponse";
+
+                    QString response;
+                    input >> response;
+                    emit authenticationResponse(socket, response);
+                }
+                break;
+                case GreeterMessages::BeginAuthentication: {
+                    qDebug() << "Message received from greeter: BeginAuthentication";
+
+                    QString user;
+                    Session session;
+                    input >> user >> session;
+                    emit beginAuthentication(socket, user, session);
+                }
+                break;
+                case GreeterMessages::SetSession: {
+                    qDebug() << "Message received from greeter: SetSession";
+
+                    Session session;
+                    input >> session;
+                    emit setSession(socket, session);
+                }
+                break;
+                case GreeterMessages::CancelAuthentication: {
+                    qDebug() << "Message received from greeter: CancelAuthentication";
+                    emit cancelAuthentication(socket);
+                }
+                break;
                 case GreeterMessages::PowerOff: {
                     // log message
                     qDebug() << "Message received from greeter: PowerOff";
@@ -190,6 +220,10 @@ namespace SDDM {
             }
         }
 
+    }
+
+    void SocketServer::authenticationPrompt(QLocalSocket *socket, const QString &message, bool promptVisible) {
+        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationPrompt) << message << promptVisible;
     }
 
     void SocketServer::loginFailed(QLocalSocket *socket) {
