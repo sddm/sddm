@@ -53,8 +53,13 @@ namespace SDDM {
             , m_socket(new QLocalSocket(this)) {
         qInstallMessageHandler(HelperMessageHandler);
         SignalHandler *s = new SignalHandler(this);
+        s->addCustomSignal(SIGHUP);
         QObject::connect(s, &SignalHandler::sigtermReceived, m_session, [] {
-            QCoreApplication::instance()->exit(-1);
+            QCoreApplication::instance()->exit(Auth::HELPER_OTHER_ERROR);
+        });
+
+        QObject::connect(s, &SignalHandler::customSignalReceived, m_session, [](int) {
+            QCoreApplication::instance()->exit(Auth::HELPER_OTHER_ERROR);
         });
 
         QTimer::singleShot(0, this, SLOT(setUp()));
@@ -68,7 +73,7 @@ namespace SDDM {
         if ((pos = args.indexOf(QStringLiteral("--socket"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
+                QCoreApplication::exit(Auth::HELPER_OTHER_ERROR);
                 return;
             }
             server = args[pos + 1];
@@ -77,7 +82,7 @@ namespace SDDM {
         if ((pos = args.indexOf(QStringLiteral("--id"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
+                QCoreApplication::exit(Auth::HELPER_OTHER_ERROR);
                 return;
             }
             m_id = QString(args[pos + 1]).toLongLong();
@@ -86,7 +91,7 @@ namespace SDDM {
         if ((pos = args.indexOf(QStringLiteral("--start"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
+                QCoreApplication::exit(Auth::HELPER_OTHER_ERROR);
                 return;
             }
             m_session->setPath(args[pos + 1]);
@@ -95,7 +100,7 @@ namespace SDDM {
         if ((pos = args.indexOf(QStringLiteral("--user"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
+                QCoreApplication::exit(Auth::HELPER_OTHER_ERROR);
                 return;
             }
             m_user = args[pos + 1];
@@ -104,7 +109,7 @@ namespace SDDM {
         if ((pos = args.indexOf(QStringLiteral("--display-server"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
+                QCoreApplication::exit(Auth::HELPER_OTHER_ERROR);
                 return;
             }
             m_session->setDisplayServerCommand(args[pos + 1]);
@@ -121,12 +126,12 @@ namespace SDDM {
 
         if (server.isEmpty() || m_id <= 0) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(Auth::HELPER_OTHER_ERROR);
+            QCoreApplication::exit(Auth::HELPER_OTHER_ERROR);
             return;
         }
 
         connect(m_socket, &QLocalSocket::connected, this, &HelperApp::doAuth);
-        connect(m_session, &UserSession::finished, this, &HelperApp::sessionFinished);
+        connect(m_session, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
         m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
     }
 
@@ -146,7 +151,7 @@ namespace SDDM {
             const QString vt = env.value(QStringLiteral("XDG_VTNR"));
             utmpLogin(vt, displayId, m_user, 0, false);
 
-            exit(Auth::HELPER_AUTH_ERROR);
+            QCoreApplication::exit(Auth::HELPER_AUTH_ERROR);
             return;
         }
 
@@ -160,7 +165,7 @@ namespace SDDM {
             const QString vt = env.value(QStringLiteral("XDG_VTNR"));
             utmpLogin(vt, displayId, m_user, 0, false);
 
-            exit(Auth::HELPER_AUTH_ERROR);
+            QCoreApplication::exit(Auth::HELPER_AUTH_ERROR);
             return;
         }
 
@@ -173,7 +178,7 @@ namespace SDDM {
 
             if (!m_backend->openSession()) {
                 sessionOpened(false);
-                exit(Auth::HELPER_SESSION_ERROR);
+                QCoreApplication::exit(Auth::HELPER_SESSION_ERROR);
                 return;
             }
 
@@ -189,12 +194,25 @@ namespace SDDM {
             }
         }
         else
-            exit(Auth::HELPER_SUCCESS);
+            QCoreApplication::exit(Auth::HELPER_SUCCESS);
         return;
     }
 
-    void HelperApp::sessionFinished(int status) {
-        exit(status);
+    void HelperApp::sessionFinished(int exitCode, QProcess::ExitStatus exitStatus) {
+        if (exitStatus == QProcess::NormalExit) {
+            if (exitCode != 0) {
+                qWarning("Session crashed (exit code %d).", exitCode);
+                QCoreApplication::exit(Auth::HELPER_SESSION_ERROR);
+            }
+            else
+                QCoreApplication::exit(Auth::HELPER_SUCCESS);
+            return;
+        }
+
+        Q_ASSERT_X(exitCode != 0, "HelperApp::sessionFinished", "Crashing with 0 is impossible");
+
+        qWarning("Session crashed (killed by signal %d).", exitCode);
+        QCoreApplication::exit(Auth::HELPER_SESSION_ERROR);
     }
 
     void HelperApp::info(const QString& message, Auth::Info type) {
@@ -284,7 +302,10 @@ namespace SDDM {
     HelperApp::~HelperApp() {
         Q_ASSERT(getuid() == 0);
 
-        m_session->stop();
+        // Avoid calls to sessionFinished when exiting
+        disconnect(m_session, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &HelperApp::sessionFinished);
+        if (m_session->state() != QProcess::NotRunning)
+            m_session->stop();
         m_backend->closeSession();
 
         // write logout to utmp/wtmp
