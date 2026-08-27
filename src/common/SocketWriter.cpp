@@ -21,31 +21,28 @@
 #include "SocketWriter.h"
 
 namespace SDDM {
-    SocketWriter::SocketWriter(QLocalSocket *socket) : socket(socket) {
-        output = new QDataStream(&data, QIODevice::WriteOnly);
+    SocketWriter::SocketWriter(QLocalSocket *socket) : output(&data, QIODevice::WriteOnly), socket(socket) {
     }
 
     SocketWriter::~SocketWriter() {
         socket->write(data);
         socket->flush();
-
-        delete output;
     }
 
     SocketWriter &SocketWriter::operator << (const quint32 &u) {
-        *output << u;
+        output << u;
 
         return *this;
     }
 
     SocketWriter &SocketWriter::operator << (const QString &s) {
-        *output << s;
+        output << s;
 
         return *this;
     }
 
     SocketWriter &SocketWriter::operator << (const Session &s) {
-        *output << s;
+        output << s;
 
         return *this;
     }
