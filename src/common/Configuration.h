@@ -50,7 +50,7 @@ namespace SDDM {
         Entry(GreeterEnvironment,  QStringList, QStringList(),                                  _S("Comma-separated list of environment variables to be set"));
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
-            Entry(ThemeDir,            QString,     _S(DATA_INSTALL_DIR "/themes"),             _S("Theme directory path"));
+            Entry(ThemeDir,            QStringList, _S(THEME_DIRS).split(u','),                 _S("Comma-separated list of directories containing themes"));
             Entry(Current,             QString,     _S(""),                                     _S("Current theme name"));
             Entry(FacesDir,            QString,     _S(DATA_INSTALL_DIR "/faces"),              _S("Global directory for user avatars\n"
                                                                                                    "The files should be named <username>.face.icon"));
