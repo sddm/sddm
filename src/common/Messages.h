@@ -39,6 +39,7 @@ namespace SDDM {
         LoginSucceeded,
         LoginFailed,
         InformationMessage,
+        LoginFailedDelayStarted // Emitted after we know that the login attempt has failed, but PAM still hasn't returned control. This is the start of the failure delay.
     };
 
     enum Capability {

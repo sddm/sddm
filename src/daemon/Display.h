@@ -118,6 +118,7 @@ namespace SDDM {
         void slotHelperFinished(Auth::HelperExitStatus status);
         void slotAuthInfo(const QString &message, Auth::Info info);
         void slotAuthError(const QString &message, Auth::Error error);
+        void slotAuthLoginFailedDelayStarted(const uint uSecDuration);
     };
 }
 

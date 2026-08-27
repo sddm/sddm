@@ -147,6 +147,7 @@ namespace SDDM {
         connect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
         connect(m_auth, &Auth::info, this, &Display::slotAuthInfo);
         connect(m_auth, &Auth::error, this, &Display::slotAuthError);
+        connect(m_auth, &Auth::loginFailedDelayStarted, this, &Display::slotAuthLoginFailedDelayStarted);
 
         // restart display after display server ended
         connect(m_displayServer, &DisplayServer::started, this, &Display::displayServerStarted);
@@ -536,6 +537,14 @@ namespace SDDM {
         m_socketServer->informationMessage(m_socket, message);
         if (error == Auth::ERROR_AUTHENTICATION)
             emit loginFailed(m_socket);
+    }
+
+    void Display::slotAuthLoginFailedDelayStarted(const uint uSecDuration)
+    {
+        if (!m_socket)
+            return;
+
+        m_socketServer->loginFailedDelayStarted(m_socket, uSecDuration);
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {

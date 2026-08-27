@@ -200,6 +200,11 @@ namespace SDDM {
         SocketWriter(socket) << quint32(DaemonMessages::LoginSucceeded);
     }
 
+    void SocketServer::loginFailedDelayStarted(QLocalSocket *socket, const uint uSecDelay)
+    {
+        SocketWriter(socket) << static_cast< quint32 >(DaemonMessages::LoginFailedDelayStarted) << uSecDelay;
+    }
+
     void SocketServer::informationMessage(QLocalSocket *socket, const QString &message) {
         SocketWriter(socket) << quint32(DaemonMessages::InformationMessage) << message;
     }
