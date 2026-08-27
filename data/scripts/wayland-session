@@ -22,6 +22,11 @@ case $SHELL in
     [ -f $HOME/.profile ] && . $HOME/.profile
     exec $SHELL --login -c 'exec $argv' $@
     ;;
+  */nu)
+    [ -f /etc/profile ] && . /etc/profile
+    [ -f $HOME/.profile ] && . $HOME/.profile
+    exec $SHELL --login -c "exec $*"
+    ;;
   *) # Plain sh, ksh, and anything we do not know.
     [ -f /etc/profile ] && . /etc/profile
     [ -f $HOME/.profile ] && . $HOME/.profile
