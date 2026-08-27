@@ -57,6 +57,7 @@ namespace SDDM {
             // Recheck for flag to show Wayland sessions
             bool dri_active = QFileInfo::exists(QStringLiteral("/dev/dri"));
             beginResetModel();
+            qDeleteAll(d->sessions);
             d->sessions.clear();
             d->displayNames.clear();
             if (dri_active)
