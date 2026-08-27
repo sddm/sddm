@@ -119,6 +119,10 @@ namespace SDDM {
             m_backend->setGreeter(true);
         }
 
+        if ((pos = args.indexOf(QStringLiteral("--zeroDelayOnFailAuth"))) >= 0) {
+            m_backend->setRequiresZeroDelayOnFailAuth(true);
+        }
+
         if (server.isEmpty() || m_id <= 0) {
             qCritical() << "This application is not supposed to be executed manually";
             exit(Auth::HELPER_OTHER_ERROR);

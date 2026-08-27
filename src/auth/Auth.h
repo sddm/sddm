@@ -59,7 +59,7 @@ namespace SDDM {
         Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
         Q_PROPERTY(AuthRequest* request READ request NOTIFY requestChanged)
     public:
-        explicit Auth(const QString &user = QString(), const QString &session = QString(), bool autologin = false, QObject *parent = 0, bool verbose = false);
+        explicit Auth(const QString &user = QString(), const QString &session = QString(), bool autologin = false, QObject *parent = 0, bool verbose = false, const bool requiresZeroDelayOnFailAuth = false);
         explicit Auth(QObject *parent);
         ~Auth();
 
@@ -99,6 +99,7 @@ namespace SDDM {
         const QString &user() const;
         const QString &session() const;
         AuthRequest *request();
+        bool requiresZeroDelayOnFailAuth() const;
         /**
          * True if an authentication or session is in progress
          */
@@ -161,6 +162,15 @@ namespace SDDM {
          * @param cookie cookie data
          */
         void setCookie(const QByteArray &cookie);
+
+        /**
+         * Set whether the auth request should have no delay on failure.
+         * Reads the "needsZeroAuthFailDelay" value from the theme configuration.
+         * If set to true, then the theme should implement its own "Grace Lock".
+         * @param requiresZeroDelayOnFailAuth: True implies that there should be no delay from pam.
+         * @sa requiresZeroDelayOnFailAuth
+         */
+        void setRequiresZeroDelayOnFailAuth(const bool requiresZeroDelayOnFailAuth);
 
     public Q_SLOTS:
         /**

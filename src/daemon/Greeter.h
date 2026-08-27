@@ -45,6 +45,8 @@ namespace SDDM {
         void setDisplayServerCommand(const QString &cmd);
         bool isRunning() const;
 
+        bool requiresZeroDelayOnFailAuth() const;
+
     public slots:
         bool start();
         void stop();
@@ -77,6 +79,8 @@ namespace SDDM {
 
         Auth *m_auth { nullptr };
         QProcess *m_process { nullptr };
+
+        bool m_requiresZeroDelayOnFailAuth { false };
 
         static void insertEnvironmentList(QStringList names, QProcessEnvironment sourceEnv, QProcessEnvironment &targetEnv);
         static QString greeterPathForQt(int qtVersion);

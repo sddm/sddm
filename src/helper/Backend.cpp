@@ -58,6 +58,11 @@ namespace SDDM {
         m_greeter = on;
     }
 
+    void Backend::setRequiresZeroDelayOnFailAuth(const bool requiresZeroDelayOnFailAuth)
+    {
+        m_requiresZeroDelayOnFailAuth = requiresZeroDelayOnFailAuth;
+    }
+
     bool Backend::openSession() {
         QProcessEnvironment env = m_app->session()->processEnvironment();
         struct passwd *pw;
@@ -125,4 +130,5 @@ namespace SDDM {
     bool Backend::closeSession() {
         return true;
     }
+
 }
