@@ -408,7 +408,7 @@ namespace SDDM {
             return false;
         }
 
-        m_reuseSessionId = QString();
+        m_reuseSessionId.clear();
 
         if (Logind::isAvailable() && mainConfig.Users.ReuseSession.get()) {
             OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
