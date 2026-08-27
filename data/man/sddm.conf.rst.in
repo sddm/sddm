@@ -214,7 +214,7 @@ The `UserAuthFile=` option was removed, the file is always created as
 
 `HideShells=`
 	Comma-separated list of Shells of users that shouldn't show up in the user list.
-	Default value is empty.
+	Default value is "/usr/sbin/nologin,/sbin/nologin".
 
 `RememberLastUser=`
 	If this flag is true, LastUser value will updated

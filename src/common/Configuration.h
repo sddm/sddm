@@ -91,7 +91,8 @@ namespace SDDM {
             Entry(MinimumUid,          int,         UID_MIN,                                    _S("Minimum user id for displayed users"));
             Entry(MaximumUid,          int,         UID_MAX,                                    _S("Maximum user id for displayed users"));
             Entry(HideUsers,           QStringList, QStringList(),                              _S("Comma-separated list of users that should not be listed"));
-            Entry(HideShells,          QStringList, QStringList(),                              _S("Comma-separated list of shells.\n"
+            Entry(HideShells,          QStringList, {_S("/usr/sbin/nologin"),
+                                                     _S("/sbin/nologin")},                      _S("Comma-separated list of shells.\n"
                                                                                                    "Users with these shells as their default won't be listed"));
             Entry(RememberLastUser,    bool,        true,                                       _S("Remember the last successfully logged in user"));
             Entry(RememberLastSession, bool,        true,                                       _S("Remember the session of the last successfully logged in user"));
