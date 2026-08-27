@@ -27,6 +27,7 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <QProcess>
+#include <QDebug>
 
 namespace SDDM {
     /************************************************/
@@ -47,6 +48,7 @@ namespace SDDM {
         virtual void suspend() const = 0;
         virtual void hibernate() const = 0;
         virtual void hybridSleep() const = 0;
+        QString service;
     };
 
     /**********************************************/
@@ -60,7 +62,9 @@ const QString UPOWER_OBJECT = QStringLiteral("org.freedesktop.UPower");
     class UPowerBackend : public PowerManagerBackend {
     public:
         UPowerBackend(const QString & service, const QString & path, const QString & interface) {
+            qDebug() << "sddm QDBusInterface service =" << service << "path =" << path << "interface =" << interface;
             m_interface = new QDBusInterface(service, path, interface, QDBusConnection::systemBus());
+            this->service = service;
         }
 
         ~UPowerBackend() {
@@ -120,6 +124,7 @@ const QString UPOWER_OBJECT = QStringLiteral("org.freedesktop.UPower");
 const QString LOGIN1_SERVICE = QStringLiteral("org.freedesktop.login1");
 const QString LOGIN1_PATH = QStringLiteral("/org/freedesktop/login1");
 const QString LOGIN1_OBJECT = QStringLiteral("org.freedesktop.login1.Manager");
+const quint64 LOGIN1_FLAGS_KEXEC = Q_UINT64_C(1) << 1; // SD_LOGIND_KEXEC_REBOOT
 
 const QString CK2_SERVICE = QStringLiteral("org.freedesktop.ConsoleKit");
 const QString CK2_PATH = QStringLiteral("/org/freedesktop/ConsoleKit/Manager");
@@ -128,7 +133,9 @@ const QString CK2_OBJECT = QStringLiteral("org.freedesktop.ConsoleKit.Manager");
     class SeatManagerBackend : public PowerManagerBackend {
     public:
         SeatManagerBackend(const QString & service, const QString & path, const QString & interface) {
+            qDebug() << "sddm QDBusInterface service =" << service << "path =" << path << "interface =" << interface;
             m_interface = new QDBusInterface(service, path, interface, QDBusConnection::systemBus());
+            this->service = service;
         }
 
         ~SeatManagerBackend() {
@@ -174,8 +181,15 @@ const QString CK2_OBJECT = QStringLiteral("org.freedesktop.ConsoleKit.Manager");
         }
 
         void reboot() const {
-            if (!daemonApp->testing())
-                m_interface->call(QStringLiteral("Reboot"), true);
+            if (!daemonApp->testing()) {
+                if (m_interface->service() == LOGIN1_SERVICE) {
+                    qDebug() << "sddm calling RebootWithFlags";
+                    m_interface->call(QStringLiteral("RebootWithFlags"),
+                                      LOGIN1_FLAGS_KEXEC);
+                }
+                else
+                    m_interface->call(QStringLiteral("Reboot"), true);
+            }
         }
 
         void suspend() const {
@@ -245,6 +259,7 @@ const QString CK2_OBJECT = QStringLiteral("org.freedesktop.ConsoleKit.Manager");
 
         for (PowerManagerBackend *backend: m_backends) {
             if (backend->capabilities() & Capability::Reboot) {
+                qDebug() << "sddm reboot using" << backend->service;
                 backend->reboot();
                 break;
             }
