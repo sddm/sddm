@@ -17,6 +17,7 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
     ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/LogindDBusTypes.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthRequest.cpp
@@ -25,7 +26,6 @@ set(DAEMON_SOURCES
     Display.cpp
     DisplayManager.cpp
     DisplayServer.cpp
-    LogindDBusTypes.cpp
     Greeter.cpp
     PowerManager.cpp
     Seat.cpp

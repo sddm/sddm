@@ -23,6 +23,7 @@ set(GREETER_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
     ${CMAKE_SOURCE_DIR}/src/common/ThemeConfig.cpp
     ${CMAKE_SOURCE_DIR}/src/common/ThemeMetadata.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/LogindDBusTypes.cpp
     GreeterApp.cpp
     GreeterProxy.cpp
     KeyboardLayout.cpp
@@ -35,6 +36,15 @@ set(GREETER_SOURCES
     XcbKeyboardBackend.cpp
 )
 
+set_source_files_properties("${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Manager.xml" PROPERTIES
+   INCLUDE "LogindDBusTypes.h"
+)
+set_source_files_properties("${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Session.xml" PROPERTIES
+   INCLUDE "LogindDBusTypes.h"
+)
+qt_add_dbus_interface(GREETER_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Manager.xml" "Login1Manager")
+qt_add_dbus_interface(GREETER_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Session.xml" "Login1Session")
+
 configure_file("theme.qrc" "theme.qrc")
 configure_file("theme/metadata.desktop.in" "theme/metadata.desktop" @ONLY)
 
@@ -42,6 +52,7 @@ qt_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
 
 add_executable(${GREETER_TARGET} ${GREETER_SOURCES} ${RESOURCES})
 target_link_libraries(${GREETER_TARGET}
+                      Qt${QT_MAJOR_VERSION}::DBus
                       Qt${QT_MAJOR_VERSION}::Quick
                       ${LIBXCB_LIBRARIES}
                       ${LIBXKB_LIBRARIES})
