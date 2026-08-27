@@ -7,6 +7,11 @@ PartOf=graphical.target
 StartLimitIntervalSec=30
 StartLimitBurst=2
 
+# Wait for driver loading to be complete so that graphics work
+# (https://github.com/sddm/sddm/issues/1917)
+Wants=systemd-udev-settle.service
+After=systemd-udev-settle.service
+
 [Service]
 ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sddm
 Restart=always
