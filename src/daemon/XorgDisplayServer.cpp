@@ -53,6 +53,11 @@ namespace SDDM {
         return m_display;
     }
 
+    void XorgDisplayServer::setDisplayName(const QString &)
+    {
+        // Intentional noop
+    }
+
     QString XorgDisplayServer::authPath() const {
         return m_xauth.authPath();
     }
@@ -61,8 +66,12 @@ namespace SDDM {
         return QStringLiteral("x11");
     }
 
-    const QByteArray XorgDisplayServer::cookie() const {
+    QByteArray XorgDisplayServer::getCookie() const {
         return m_xauth.cookie();
+    }
+
+    QString XorgDisplayServer::getCommand(Display *) const {
+        return QStringLiteral();
     }
 
     bool XorgDisplayServer::start() {

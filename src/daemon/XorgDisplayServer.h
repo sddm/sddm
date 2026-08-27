@@ -35,11 +35,16 @@ namespace SDDM {
         ~XorgDisplayServer();
 
         const QString &display() const;
-        QString authPath() const;
+
+        void setDisplayName(const QString &displayName);
+
+        QString authPath() const override;
 
         QString sessionType() const;
 
-        const QByteArray cookie() const;
+        QByteArray getCookie() const override;
+
+        QString getCommand(Display *) const override;
 
     public slots:
         bool start();
