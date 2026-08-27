@@ -63,6 +63,7 @@ namespace SDDM {
         if (length < 0)
             return;
         reset();
+        m_data.reserve(length);
 
         while (m_data.length() < length) {
             if (!m_device->isOpen()) {
