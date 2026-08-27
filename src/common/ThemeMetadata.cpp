@@ -28,7 +28,7 @@ namespace SDDM {
         QString mainScript { QStringLiteral("Main.qml") };
         QString configFile;
         QString translationsDirectory { QStringLiteral(".") };
-        int qtVersion = 5;
+        int qtVersion = 6;
     };
 
     ThemeMetadata::ThemeMetadata(const QString &path, QObject *parent) : QObject(parent), d(new ThemeMetadataPrivate()) {
@@ -61,6 +61,6 @@ namespace SDDM {
         d->mainScript = settings.value(QStringLiteral("SddmGreeterTheme/MainScript"), QStringLiteral("Main.qml")).toString();
         d->configFile = settings.value(QStringLiteral("SddmGreeterTheme/ConfigFile"), QStringLiteral("theme.conf")).toString();
         d->translationsDirectory = settings.value(QStringLiteral("SddmGreeterTheme/TranslationsDirectory"), QStringLiteral(".")).toString();
-        d->qtVersion = settings.value(QStringLiteral("SddmGreeterTheme/QtVersion"), 5).toInt();
+        d->qtVersion = settings.value(QStringLiteral("SddmGreeterTheme/QtVersion"), 6).toInt();
     }
 }
