@@ -136,7 +136,7 @@ namespace SDDM {
                     qDebug() << "Message received from greeter: Login";
 
                     // read username, pasword etc.
-                    QString user, password, filename;
+                    QString user, password;
                     Session session;
                     input >> user >> password >> session;
 
