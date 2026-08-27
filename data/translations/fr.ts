@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>Warning, Caps Lock is ON!</source>
-        <translation>Attention, la touche Verr Maj est activée !</translation>
+        <translation>Attention, la touche Verr Maj est activée !</translation>
     </message>
     <message>
         <source>Layout</source>
@@ -95,7 +95,7 @@
     </message>
     <message>
         <source>Please enter a password!</source>
-        <translation>Veuillez entrer un mot de passe!</translation>
+        <translation>Veuillez entrer un mot de passe !</translation>
     </message>
     <message>
         <source>Change password</source>
@@ -103,7 +103,7 @@
     </message>
     <message>
         <source>Password:</source>
-        <translation>Mot de passe:</translation>
+        <translation>Mot de passe :</translation>
     </message>
     <message>
         <source>Password change aborted because maximum tries reached</source>
@@ -111,7 +111,7 @@
     </message>
     <message>
         <source>New password change round! Please input current password again!</source>
-        <translation>Nouveau cycle de changement de mot de passe! Veuillez saisir à nouveau votre mot de passe actuel!</translation>
+        <translation>Nouveau cycle de changement de mot de passe ! Veuillez saisir à nouveau votre mot de passe actuel !</translation>
     </message>
 </context>
 </TS>
