@@ -278,6 +278,57 @@ namespace SDDM {
         return *this;
     }
 
+    static bool sessionEntryExists(const QStringList &dirPaths, const QString &name)
+    {
+        const QFileInfo fileInfo(name);
+        QString fileName = name;
+
+        const QString extension = QStringLiteral(".desktop");
+        if (!fileName.endsWith(extension))
+            fileName += extension;
+
+        for (const auto &path : dirPaths) {
+            QDir dir = path;
+
+            if (fileInfo.isAbsolute() && fileInfo.absolutePath() != dir.absolutePath())
+                continue;
+
+            if (dir.exists(fileName))
+                return true;
+        }
+        return false;
+    }
+
+    Session Session::findAutologinSession(const QString &name, Type preferredType)
+    {
+        const Type fallbackType = preferredType == WaylandSession ? X11Session : WaylandSession;
+
+        const auto tryType = [&](Type type) -> Session {
+            QStringList dirs;
+            switch (type) {
+            case WaylandSession:
+                dirs = mainConfig.Wayland.SessionDir.get();
+                break;
+            case X11Session:
+                dirs = mainConfig.X11.SessionDir.get();
+                break;
+            default:
+                return Session();
+            }
+            if (sessionEntryExists(dirs, name))
+                return Session(type, name);
+            return Session();
+        };
+
+        Session session = tryType(preferredType);
+        if (session.isValid())
+            return session;
+        session = tryType(fallbackType);
+        if (session.isValid())
+            return session;
+        return Session();
+    }
+
     QProcessEnvironment SDDM::Session::parseEnv(const QString &list)
     {
         QProcessEnvironment env;

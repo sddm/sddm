@@ -181,11 +181,11 @@ namespace SDDM {
             if (autologinSession.isEmpty()) {
                 autologinSession = stateConfig.Last.Session.get();
             }
-            if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), autologinSession)) {
-                m_autologinSession.setTo(Session::WaylandSession, autologinSession);
-            } else if (findSessionEntry(mainConfig.X11.SessionDir.get(), autologinSession)) {
-                m_autologinSession.setTo(Session::X11Session, autologinSession);
-            } else {
+            const Session::Type preferredType = mainConfig.Autologin.SessionType.get() == MainConfig::AUTOLOGIN_X11
+                ? Session::X11Session
+                : Session::WaylandSession;
+            m_autologinSession = Session::findAutologinSession(autologinSession, preferredType);
+            if (!m_autologinSession.isValid()) {
                 qCritical() << "Unable to find autologin session entry" << autologinSession;
             }
         }
@@ -361,28 +361,6 @@ namespace SDDM {
         // otherwise use the embedded theme
         qWarning() << "The configured theme" << themeName << "doesn't exist, using the embedded theme instead";
         return QString();
-    }
-
-    bool Display::findSessionEntry(const QStringList &dirPaths, const QString &name) const {
-        const QFileInfo fileInfo(name);
-        QString fileName = name;
-
-        // append extension
-        const QString extension = QStringLiteral(".desktop");
-        if (!fileName.endsWith(extension))
-            fileName += extension;
-
-        for (const auto &path: dirPaths) {
-            QDir dir = path;
-
-            // Given an absolute path: Check that it matches dir
-            if (fileInfo.isAbsolute() && fileInfo.absolutePath() != dir.absolutePath())
-                continue;
-
-            if (dir.exists(fileName))
-                return true;
-        }
-        return false;
     }
 
     bool Display::startAuth(const QString &user, const QString &password, const Session &session) {
