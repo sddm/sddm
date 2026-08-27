@@ -45,6 +45,8 @@
 #include <QByteArray>
 #include <signal.h>
 
+#include <pwd.h>
+
 namespace SDDM {
     HelperApp::HelperApp(int& argc, char** argv)
             : QCoreApplication(argc, argv)
@@ -131,11 +133,29 @@ namespace SDDM {
     }
 
     void HelperApp::doAuth() {
+        struct passwd pw;
+        struct passwd *rpw;
         SafeDataStream str(m_socket);
         str << Msg::HELLO << m_id;
         str.send();
         if (str.status() != QDataStream::Ok)
             qCritical() << "Couldn't write initial message:" << str.status();
+
+        long bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
+        if (bufsize == -1)
+            bufsize = 16384;
+        QScopedPointer<char, QScopedPointerPodDeleter> buffer(static_cast<char*>(malloc(bufsize)));
+        if (buffer.isNull())
+            exit(Auth::HELPER_OTHER_ERROR);
+        int err = getpwnam_r(m_user.toLocal8Bit().constData(), &pw, buffer.data(), bufsize, &rpw);
+        if (rpw == NULL) {
+            if (err == 0)
+                qCritical() << "getpwnam_r(" << m_user << ") username not found!";
+            else
+                qCritical() << "getpwnam_r(" << m_user << ") failed with error: " << strerror(err);
+            exit(Auth::HELPER_OTHER_ERROR);
+        }
+        m_user = QString::fromLocal8Bit((const char*)pw.pw_name);
 
         if (!m_backend->start(m_user)) {
             authenticated(QString());
