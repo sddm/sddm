@@ -24,6 +24,7 @@
 #include "DaemonApp.h"
 #include "Display.h"
 #include "Seat.h"
+#include "VirtualTerminal.h"
 
 #include <QDebug>
 #include <QFile>
@@ -115,6 +116,7 @@ namespace SDDM {
             args << mainConfig.X11.ServerArguments.get().split(QLatin1Char(' '), Qt::SkipEmptyParts)
                  << QStringLiteral("-background") << QStringLiteral("none")
                  << QStringLiteral("-seat") << displayPtr()->seat()->name()
+                 << QStringLiteral("-novtswitch")
                  << QStringLiteral("vt%1").arg(displayPtr()->terminalId());
         } else {
             process->setProgram(mainConfig.X11.XephyrPath.get());
@@ -181,6 +183,10 @@ namespace SDDM {
             }
         }
         changeOwner(m_xauth.authPath());
+
+        if (displayPtr()->terminalId() > 0) {
+            VirtualTerminal::jumpToVt(displayPtr()->terminalId(), true);
+        }
 
         emit started();
 
