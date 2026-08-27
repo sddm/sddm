@@ -135,7 +135,8 @@ OPTIONS
 	Default value is "@SESSION_COMMAND@".
 
 `SessionLogFile=`
-        Path to the user session log file, relative to the home directory.
+        Path to the user session log file.
+        Relative to the home directory, if does not begin with "/".
         Default value is ".local/share/sddm/xorg-session.log".
 
 `DisplayCommand=`
@@ -183,7 +184,8 @@ The `UserAuthFile=` option was removed, the file is always created as
 	Default value is "@WAYLAND_SESSION_COMMAND@".
 
 `SessionLogFile=`
-        Path to the user session log file, relative to the home directory.
+        Path to the user session log file.
+        Relative to the home directory, if does not begin with "/".
         Default value is ".local/share/sddm/wayland-session.log".
 
 `EnableHiDPI=`
