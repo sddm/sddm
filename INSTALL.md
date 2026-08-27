@@ -25,6 +25,20 @@ For documentation on standard CMake variables, see:
 By default, SDDM runs as its own user. An `sddm` user needs to be created, with
 its home set to `/var/lib/sddm` by default.
 
+Several PAM services need to be created to set up authentication. As distributions
+have different methods for PAM service configuration, SDDM does not provide them
+itself anymore.
+
+* `sddm`: Used for user sessions with password-based authentication.
+  Authentication must be password-based (e.g. `pam_unix`), the session needs
+  to be set up and managed if applicable (e.g. `pam_systemd`).
+* `sddm-autologin`: Used for user sessions without authentication. Like `sddm`,
+  without modules asking for passwords.
+* `sddm-greeter`: Used for the greeter session. Authentication must always
+  succeed (`pam_permit`). Session should use modules appropriate for the
+  greeter environment, which can be identical to user sessions.
+
+
 ### Dependencies
 
 SDDM depends on PAM for authorization and XCB to communicate with the X server.
