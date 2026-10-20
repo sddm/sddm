@@ -148,17 +148,17 @@ namespace SDDM {
         // * m_path (classic fallback /etc/sddm.conf)
 
         QStringList files;
-        QDateTime latestModificationTime = QFileInfo(m_path).lastModified();
+        QDateTime latestModificationTime = QFileInfo(m_path).lastModified().toUTC();
 
         if (!m_sysConfigDir.isEmpty()) {
             //include the configDir in modification time so we also reload on any files added/removed
             QDir dir(m_sysConfigDir);
             if (dir.exists()) {
-                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_sysConfigDir).lastModified());
+                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_sysConfigDir).lastModified().toUTC());
                 const auto dirFiles = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware);
                 for (const QFileInfo &file : dirFiles) {
                     files << (file.absoluteFilePath());
-                    latestModificationTime = std::max(latestModificationTime, file.lastModified());
+                    latestModificationTime = std::max(latestModificationTime, file.lastModified().toUTC());
                 }
             }
         }
@@ -166,11 +166,11 @@ namespace SDDM {
             //include the configDir in modification time so we also reload on any files added/removed
             QDir dir(m_configDir);
             if (dir.exists()) {
-                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_configDir).lastModified());
+                latestModificationTime = std::max(latestModificationTime,  QFileInfo(m_configDir).lastModified().toUTC());
                 const auto dirFiles = dir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::LocaleAware);
                 for (const QFileInfo &file : dirFiles) {
                     files << (file.absoluteFilePath());
-                    latestModificationTime = std::max(latestModificationTime, file.lastModified());
+                    latestModificationTime = std::max(latestModificationTime, file.lastModified().toUTC());
                 }
             }
         }
