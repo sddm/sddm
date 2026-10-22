@@ -75,6 +75,7 @@ namespace SDDM {
     QHash<int, QByteArray> SessionModel::roleNames() const {
         // set role names
         QHash<int, QByteArray> roleNames;
+        roleNames.reserve(6);
         roleNames[DirectoryRole] = QByteArrayLiteral("directory");
         roleNames[FileRole] = QByteArrayLiteral("file");
         roleNames[TypeRole] = QByteArrayLiteral("type");
@@ -135,6 +136,9 @@ namespace SDDM {
         }
         // read session
         sessions.removeDuplicates();
+        d->sessions.reserve(d->sessions.size() + sessions.size());
+        d->displayNames.reserve(d->displayNames.size() + sessions.size());
+
         for (auto& session : std::as_const(sessions)) {
             Session *si = new Session(type, session);
             bool execAllowed = true;
