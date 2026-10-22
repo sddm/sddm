@@ -26,6 +26,7 @@ import QtQuick 2.0
 
 ComboBox {
     id: combo
+    visible: keyboard.enabled && keyboard.layouts.length > 1
 
     model: keyboard.layouts
     index: keyboard.currentLayout
@@ -47,7 +48,7 @@ ComboBox {
 
         Image {
             id: img
-            source: "${DATA_INSTALL_DIR}/flags/%1.png".arg(modelItem ? modelItem.modelData.shortName : "zz")
+            source: modelItem ? "${DATA_INSTALL_DIR}/flags/%1.png".arg(modelItem.modelData.shortName) : ""
 
             anchors.margins: 4
             fillMode: Image.PreserveAspectFit
@@ -65,7 +66,7 @@ ComboBox {
 
             verticalAlignment: Text.AlignVCenter
 
-            text: modelItem ? modelItem.modelData.shortName : "zz"
+            text: modelItem ? modelItem.modelData.shortName : ""
             font.pixelSize: 14
         }
     }

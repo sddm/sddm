@@ -21,11 +21,20 @@
 #define WAYLANDKEYBOARDBACKEND_H
 
 #include "KeyboardBackend.h"
+#include "Locale1Keyboard.h"
+
+#include <QObject>
+#include <QString>
+#include <QStringList>
+#include <QVariantMap>
 
 namespace SDDM {
 
-class WaylandKeyboardBackend : public KeyboardBackend
+class KeyboardModel;
+
+class WaylandKeyboardBackend : public QObject, public KeyboardBackend
 {
+    Q_OBJECT
 public:
     WaylandKeyboardBackend(KeyboardModelPrivate *kmp);
     virtual ~WaylandKeyboardBackend();
@@ -36,6 +45,15 @@ public:
     void dispatchEvents() override;
 
     void connectEventsDispatcher(KeyboardModel *model) override;
+
+private slots:
+    void propertiesChanged(const QString &interface, const QVariantMap &changed, const QStringList &invalidated);
+
+private:
+    void applyLocale1(const Locale1Keyboard &kb);
+    bool readLocale1();
+
+    KeyboardModel *m_model { nullptr };
 };
 
 } // namespace SDDM

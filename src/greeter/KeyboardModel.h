@@ -52,6 +52,8 @@ namespace SDDM {
 
         void currentLayoutChanged();
         void layoutsChanged();
+        void layoutChangeRequested(const QString &layout, const QString &model,
+                                   const QString &variant, const QString &options);
 
     public slots:
         bool numLockState() const;
@@ -65,9 +67,9 @@ namespace SDDM {
         void setCurrentLayout(int id);
 
         bool enabled() const;
-
-    private slots:
         void dispatchEvents();
+        void requestLayoutChange(const QString &layout, const QString &model,
+                                 const QString &variant, const QString &options);
 
     private:
         KeyboardModelPrivate * d { nullptr };

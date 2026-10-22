@@ -27,6 +27,9 @@
 #include "Utils.h"
 
 #include <QLocalServer>
+#include <QDebug>
+#include <QDBusConnection>
+#include <QDBusMessage>
 
 namespace SDDM {
     SocketServer::SocketServer(QObject *parent) : QObject(parent) {
@@ -181,6 +184,22 @@ namespace SDDM {
                     qDebug() << "Message received from greeter: HybridSleep";
                     // hybrid sleep
                     daemonApp->powerManager()->hybridSleep();
+                }
+                break;
+                case GreeterMessages::SetKeyboardLayout: {
+                    QString layout, model, variant, options;
+                    input >> layout >> model >> variant >> options;
+                    qDebug() << "Message received from greeter: SetKeyboardLayout" << layout << model << variant << options;
+
+                    QDBusMessage msg = QDBusMessage::createMethodCall(
+                        QStringLiteral("org.freedesktop.locale1"),
+                        QStringLiteral("/org/freedesktop/locale1"),
+                        QStringLiteral("org.freedesktop.locale1"),
+                        QStringLiteral("SetX11Keyboard"));
+                    msg << layout << model << variant << options << false << false;
+                    const QDBusMessage reply = QDBusConnection::systemBus().call(msg);
+                    if (reply.type() == QDBusMessage::ErrorMessage)
+                        qWarning() << "SetX11Keyboard failed:" << reply.errorMessage();
                 }
                 break;
                 default: {

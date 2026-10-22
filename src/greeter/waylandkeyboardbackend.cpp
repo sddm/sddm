@@ -20,18 +20,25 @@
 * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ***************************************************************************/
 
-#include <QDir>
-#include <QDebug>
-#include <QGuiApplication>
-#include <QInputMethod>
+#include "waylandkeyboardbackend.h"
 
+#include "KeyboardLayout.h"
 #include "KeyboardModel.h"
 #include "KeyboardModel_p.h"
-#include "KeyboardLayout.h"
-#include "waylandkeyboardbackend.h"
-#include <qxmlstream.h>
+
+#include <QDBusConnection>
+#include <QDBusInterface>
+#include <QDBusReply>
+#include <QDebug>
+
+#include <algorithm>
 
 namespace SDDM {
+
+static const QString locale1Service = QStringLiteral("org.freedesktop.locale1");
+static const QString locale1Path = QStringLiteral("/org/freedesktop/locale1");
+static const QString locale1Iface = QStringLiteral("org.freedesktop.locale1");
+static const QString dbusPropertiesIface = QStringLiteral("org.freedesktop.DBus.Properties");
 
 WaylandKeyboardBackend::WaylandKeyboardBackend(KeyboardModelPrivate *kmp)
     : KeyboardBackend(kmp)
@@ -42,77 +49,103 @@ WaylandKeyboardBackend::~WaylandKeyboardBackend()
 {
 }
 
-
-QList<QObject *> parseRules(const QString &filename, int &current)
+void WaylandKeyboardBackend::applyLocale1(const Locale1Keyboard &kb)
 {
-    // FIXME: https://github.com/sddm/sddm/pull/1664#discussion_r1115361314
-    current = 0;
-    QFile file(filename);
-    qDebug() << "Parsing xkb rules from" << file.fileName();
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        qWarning() << "Cannot open the rules file" << file.fileName();
-        return {};
+    qDeleteAll(d->layouts);
+    d->layouts.clear();
+    d->layoutIds = kb.layouts;
+    d->variantIds = kb.variants;
+    d->x11Model = kb.model;
+    d->x11Options = kb.options;
+    d->layout_id = 0;
+
+    for (const QString &id : kb.layouts)
+        d->layouts << new KeyboardLayout(id, id);
+
+    d->enabled = !d->layouts.isEmpty();
+}
+
+bool WaylandKeyboardBackend::readLocale1()
+{
+    QDBusInterface iface(locale1Service, locale1Path, dbusPropertiesIface, QDBusConnection::systemBus());
+    if (!iface.isValid()) {
+        qWarning() << "Cannot talk to locale1:" << iface.lastError().message();
+        return false;
     }
 
-    QList<QObject *> layouts;
-
-    QString lastName, lastDescription;
-
-    QStringList path;
-    QXmlStreamReader reader(&file);
-    while (!reader.atEnd()) {
-        const auto token = reader.readNext();
-        if (token == QXmlStreamReader::StartElement) {
-            path << reader.name().toString();
-            QString strPath = path.join(QLatin1String("/"));
-
-            if (strPath.endsWith(QLatin1String("layoutList/layout/configItem/name"))) {
-                lastName = reader.readElementText().trimmed();
-            } else if (strPath.endsWith(QLatin1String("layoutList/layout/configItem/description"))) {
-                // TODO: This should be translated using i18nd("xkeyboard-config", lastDescription)
-                lastDescription = reader.readElementText().trimmed();
-            }
-        }
-        // don't use token here, readElementText() above can have moved us forward meanwhile
-        if (reader.tokenType() == QXmlStreamReader::EndElement) {
-            const QString strPath = path.join(QLatin1String("/"));
-            if (strPath.endsWith(QLatin1String("layoutList/layout/configItem/description"))) {
-                layouts << new KeyboardLayout(lastName, lastDescription);
-            }
-            path.removeLast();
-        }
+    const QDBusReply<QVariantMap> reply = iface.call(QStringLiteral("GetAll"), locale1Iface);
+    if (!reply.isValid()) {
+        qWarning() << "locale1 GetAll failed:" << reply.error().message();
+        return false;
     }
 
-    if (reader.hasError()) {
-        qWarning() << "Failed to parse the rules file" << file.fileName();
-        return {};
-    }
-    return layouts;
+    applyLocale1(parseLocale1Keyboard(reply.value()));
+    return d->enabled;
 }
 
 void WaylandKeyboardBackend::init()
 {
-    // TODO: We can't actually switch keyboard layout yet, so don't populate a list of layouts
-    // so that themes can know to not show the option to change layout
-    // d->layouts = parseRules(QStringLiteral("/usr/share/X11/xkb/rules/evdev.xml"), d->layout_id);
-    d->enabled = false;
+    if (!readLocale1()) {
+        qWarning() << "Wayland keyboard backend: no layouts from locale1";
+        d->enabled = false;
+    }
 }
 
 void WaylandKeyboardBackend::disconnect()
 {
+    QDBusConnection::systemBus().disconnect(
+        locale1Service, locale1Path, dbusPropertiesIface, QStringLiteral("PropertiesChanged"),
+        this, SLOT(propertiesChanged(QString,QVariantMap,QStringList)));
 }
 
 void WaylandKeyboardBackend::sendChanges()
 {
+    if (!m_model || d->layoutIds.isEmpty())
+        return;
+    if (d->layout_id < 0 || d->layout_id >= d->layoutIds.size())
+        return;
+
+    QStringList layouts = d->layoutIds;
+    QStringList variants = d->variantIds;
+    while (variants.size() < layouts.size())
+        variants << QString();
+    variants.resize(layouts.size());
+
+    const int id = d->layout_id;
+    std::rotate(layouts.begin(), layouts.begin() + id, layouts.end());
+    std::rotate(variants.begin(), variants.begin() + id, variants.end());
+
+    m_model->requestLayoutChange(layouts.join(QLatin1Char(',')),
+                                 d->x11Model,
+                                 variants.join(QLatin1Char(',')),
+                                 d->x11Options);
 }
 
 void WaylandKeyboardBackend::dispatchEvents()
 {
+    readLocale1();
 }
 
 void WaylandKeyboardBackend::connectEventsDispatcher(KeyboardModel *model)
 {
-    Q_UNUSED(model);
+    m_model = model;
+    QDBusConnection::systemBus().connect(
+        locale1Service, locale1Path, dbusPropertiesIface, QStringLiteral("PropertiesChanged"),
+        this, SLOT(propertiesChanged(QString,QVariantMap,QStringList)));
+}
+
+void WaylandKeyboardBackend::propertiesChanged(const QString &interface, const QVariantMap &changed, const QStringList &invalidated)
+{
+    Q_UNUSED(invalidated);
+    if (interface != locale1Iface)
+        return;
+    if (!changed.contains(QStringLiteral("X11Layout"))
+        && !changed.contains(QStringLiteral("X11Variant"))
+        && !changed.contains(QStringLiteral("X11Model"))
+        && !changed.contains(QStringLiteral("X11Options")))
+        return;
+    if (m_model)
+        m_model->dispatchEvents();
 }
 
 } // namespace SDDM
