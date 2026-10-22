@@ -43,6 +43,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
+#include <QLocalSocket>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusReply>
@@ -154,6 +155,7 @@ namespace SDDM {
 
         // connect login signal
         connect(m_socketServer, &SocketServer::login, this, &Display::login);
+        connect(m_socketServer, &SocketServer::greeterConnected, this, &Display::onGreeterConnected);
 
         // connect login result signals
         connect(this, &Display::loginFailed, m_socketServer, &SocketServer::loginFailed);
@@ -332,6 +334,7 @@ namespace SDDM {
                         const QString &user, const QString &password,
                         const Session &session) {
         m_socket = socket;
+        if (!user.isEmpty()) m_lastAttemptedUser = user;
 
         //the SDDM user has special privileges that skip password checking so that we can load the greeter
         //block ever trying to log in as the SDDM user
@@ -340,8 +343,41 @@ namespace SDDM {
             return;
         }
 
+        if(password.isEmpty() && !m_auth->fingerprintlogin()){
+            qDebug() << "use fingerprint because password is empty";
+            m_auth->setFingerprintlogin(true);
+        }
+
         // authenticate
         startAuth(user, password, session);
+    }
+
+    void Display::onGreeterConnected() {
+        QString lastUser = m_lastAttemptedUser.isEmpty() ? stateConfig.Last.User.get() : m_lastAttemptedUser;
+        if (lastUser.isEmpty() || lastUser == QLatin1String("sddm"))
+            return;
+
+        if (m_auth->isActive())
+            return;
+
+        QString lastSession = stateConfig.Last.Session.get();
+        Session::Type sessionType = Session::X11Session;
+
+        if (findSessionEntry(mainConfig.Wayland.SessionDir.get(), lastSession))
+            sessionType = Session::WaylandSession;
+        else if (findSessionEntry(mainConfig.X11.SessionDir.get(), lastSession))
+            sessionType = Session::X11Session;
+        else
+            return;
+
+        Session session;
+        session.setTo(sessionType, lastSession);
+
+        qDebug() << "Starting fingerprint auth for last user:" << lastUser;
+        m_auth->setFingerprintlogin(true);
+        m_fingerprintAuthActive = true;
+        startAuth(lastUser, QString(), session);
+        m_auth->setFingerprintlogin(false);
     }
 
     QString Display::findGreeterTheme() const {
@@ -388,8 +424,14 @@ namespace SDDM {
     bool Display::startAuth(const QString &user, const QString &password, const Session &session) {
 
         if (m_auth->isActive()) {
-            qWarning() << "Existing authentication ongoing, aborting";
-            return false;
+            if (m_fingerprintAuthActive) {
+                qDebug() << "Stopping fingerprint auth to allow password auth";
+                m_auth->stop();
+                m_fingerprintAuthActive = false;
+            } else {
+                qWarning() << "Existing authentication ongoing, aborting";
+                return false;
+            }
         }
 
         m_passPhrase = password;
@@ -481,6 +523,9 @@ namespace SDDM {
     }
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
+        m_fingerprintAuthActive = false;
+        if (!success && !m_auth->autologin() && !m_auth->fingerprintlogin()) { QTimer::singleShot(300, this, &Display::onGreeterConnected); }
+
         if (m_auth->autologin() && !success) {
             handleAutologinFailure();
             return;
