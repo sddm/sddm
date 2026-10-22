@@ -5,7 +5,7 @@
     <name>PictureBox</name>
     <message>
         <source>Press to login</source>
-        <translation>اضغط لستجيل الدخول</translation>
+        <translation>اضغط لتسجيل الدخول</translation>
     </message>
 </context>
 <context>
@@ -47,15 +47,15 @@
     </message>
     <message>
         <source>Password</source>
-        <translation>كلمة السر</translation>
+        <translation>كلمة المرور</translation>
     </message>
     <message>
         <source>Enter your username and password</source>
-        <translation>أدخل اسم المستخدم وكلمة السر</translation>
+        <translation>أدخل اسم المستخدم وكلمة المرور</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation>أعادة التشغيل</translation>
+        <translation>أعد الإقلاع</translation>
     </message>
     <message>
         <source>Session</source>
@@ -63,15 +63,15 @@
     </message>
     <message>
         <source>Shutdown</source>
-        <translation>أيقاف التشغيل</translation>
+        <translation>أطفئ</translation>
     </message>
     <message>
     <source>Suspend</source>
-        <translation>ايقاف</translation>
+        <translation>علِّق</translation>
     </message>
     <message>
         <source>Hibernate</source>
-        <translation>وضع الثبات</translation>
+        <translation>أسبِت</translation>
     </message>
     <message>
         <source>Username</source>
@@ -79,39 +79,43 @@
     </message>
     <message>
         <source>Select your user and enter password</source>
-        <translation>اختر مستخدمًا وأدخل كلمة السر</translation>
+        <translation>اختر مستخدمًا وأدخل كلمة المرور</translation>
     </message>
     <message>
         <source>Please enter a password!</source>
-        <translation>برجاء ادخال كلمة السر</translation>
+        <translation>برجاء إدخال كلمة المرور</translation>
     </message>
     <message>
         <source>Change password</source>
-        <translation>تغيير كلمة السر</translation>
+        <translation>تغيير كلمة المرور</translation>
     </message>
     <message>
         <source>Enter your username</source>
-        <translation>ادخل اسم المستخدم الخاص بك</translation>
+        <translation>أدخل اسم المستخدم الخاص بك</translation>
     </message>
     <message>
         <source>Enter your password</source>
-        <translation>ادخل كلمة السر الخاصة بك</translation>
+        <translation>أدخل كلمة المرور الخاصة بك</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation>كلمة السر:</translation>
+        <translation>كلمة المرور:</translation>
     </message>
     <message>
         <source>Show password</source>
-        <translation>اظهر كلمة السر</translation>
+        <translation>عرض كلمة المرور</translation>
     </message>
     <message>
         <source>Hide password</source>
-        <translation>اخفِ كلمة السر</translation>
+        <translation>إخفاء كلمة المرور</translation>
     </message>
     <message>
         <source>Password change aborted because maximum tries reached</source>
-        <translation>لا يمكن تغيير كلمة السر لتخطي اقصي عدد ممكن من المحاولات</translation>
+        <translation>تعذر تغيير كلمة المرور لتخطي الحد الأقصى من المحاولات</translation>
+    </message>
+    <message>
+        <source>New password change round! Please input current password again!</source>
+        <translation>انتهت صلاحية كلمة المرور. أدخل كلمة المرور الحالية مجددا لتجديدها.</translation>
     </message>
 </context>
 </TS>
