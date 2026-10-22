@@ -52,6 +52,7 @@ namespace SDDM {
     public:
         Private(Auth *parent);
         ~Private();
+        void initLocale();
         void setSocket(QLocalSocket *socket);
     public slots:
         void dataPending();
@@ -71,6 +72,8 @@ namespace SDDM {
         QProcessEnvironment environment { };
         qint64 id { 0 };
         static qint64 lastId;
+    public:
+        static const QString LOCALE_ENV_VARS[];
     };
 
     qint64 Auth::Private::lastId = 1;
@@ -114,24 +117,7 @@ namespace SDDM {
             , child(new QProcess(this))
             , id(lastId++) {
         SocketServer::instance()->helpers[id] = this;
-        QProcessEnvironment env = child->processEnvironment();
-        bool langEmpty = true;
-        QFile localeFile(QStringLiteral("/etc/locale.conf"));
-        if (localeFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&localeFile);
-            while (!in.atEnd()) {
-                QStringList parts = in.readLine().split(QLatin1Char('='));
-                if (parts.size() >= 2) {
-                    env.insert(parts[0], parts[1]);
-                    if (parts[0] == QLatin1String("LANG"))
-                        langEmpty = false;
-                }
-            }
-            localeFile.close();
-        }
-        if (langEmpty)
-            env.insert(QStringLiteral("LANG"), QStringLiteral("C"));
-        child->setProcessEnvironment(env);
+        initLocale();
         connect(child, QOverload<int,QProcess::ExitStatus>::of(&QProcess::finished), this, &Auth::Private::childExited);
         connect(child, &QProcess::errorOccurred, this, &Auth::Private::childError);
         connect(request, &AuthRequest::finished, this, &Auth::Private::requestFinished);
@@ -143,6 +129,33 @@ namespace SDDM {
         SocketServer::instance()->helpers.remove(id);
     }
 
+    void Auth::Private::initLocale() {
+        QProcessEnvironment parentEnv = QProcessEnvironment::systemEnvironment();
+        QProcessEnvironment env = child->processEnvironment();
+
+        for( unsigned int i = 0; LOCALE_ENV_VARS[i].isEmpty() == false; i++ ) {
+            if(parentEnv.value(LOCALE_ENV_VARS[i]).isEmpty()) continue;
+            env.insert(LOCALE_ENV_VARS[i], parentEnv.value(LOCALE_ENV_VARS[i]));
+        }
+
+        if(env.value(QStringLiteral("LANG")).isEmpty()) {
+            QFile localeFile(QStringLiteral("/etc/locale.conf"));
+            if (localeFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&localeFile);
+                while (!in.atEnd()) {
+                    QStringList parts = in.readLine().split(QLatin1Char('='));
+                    if (parts.size() >= 2 && env.value(parts[0]).isEmpty()) {
+                        env.insert(parts[0], parts[1]);
+                    }
+                }
+                localeFile.close();
+            }
+        }
+
+        if(env.value(QStringLiteral("LANG")).isEmpty())
+            env.insert(QStringLiteral("LANG"), QStringLiteral("C"));
+        child->setProcessEnvironment(env);
+    }
 
     void Auth::Private::setSocket(QLocalSocket *socket) {
         this->socket = socket;
@@ -246,6 +259,17 @@ namespace SDDM {
         request->setRequest();
     }
 
+    const QString Auth::Private::LOCALE_ENV_VARS[] = {
+        QStringLiteral("LANG"),
+        QStringLiteral("LC_COLLATE"),
+        QStringLiteral("LC_CTYPE"),
+        QStringLiteral("LC_MESSAGES"),
+        QStringLiteral("LC_NUMERIC"),
+        QStringLiteral("LC_MONETARY"),
+        QStringLiteral("LC_TIME"),
+        QStringLiteral("LC_ALL"),
+        QStringLiteral("")
+    };
 
     Auth::Auth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
             : QObject(parent)
