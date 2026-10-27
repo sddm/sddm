@@ -115,6 +115,12 @@ namespace SDDM {
             m_backend->setAutologin(true);
         }
 
+        m_parallelProtocol = args.contains(QStringLiteral("--parallel-auth-v2"));
+        if (args.contains(QStringLiteral("--fingerprint")))
+            m_backend->setFingerprint(true);
+        else if (args.contains(QStringLiteral("--password-only")))
+            m_backend->setPasswordOnly(true);
+
         if ((pos = args.indexOf(QStringLiteral("--greeter"))) >= 0) {
             m_backend->setGreeter(true);
         }
@@ -132,7 +138,7 @@ namespace SDDM {
 
     void HelperApp::doAuth() {
         SafeDataStream str(m_socket);
-        str << Msg::HELLO << m_id;
+        str << (m_parallelProtocol ? Msg::HELLO_V2 : Msg::HELLO) << m_id;
         str.send();
         if (str.status() != QDataStream::Ok)
             qCritical() << "Couldn't write initial message:" << str.status();
@@ -166,6 +172,10 @@ namespace SDDM {
 
         m_user = m_backend->userName();
         QProcessEnvironment env = authenticated(m_user);
+        if (!m_authenticationApproved) {
+            exit(Auth::HELPER_AUTH_ERROR);
+            return;
+        }
 
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
@@ -232,15 +242,32 @@ namespace SDDM {
         SafeDataStream str(m_socket);
         str << Msg::AUTHENTICATED << user;
         str.send();
-        if (user.isEmpty())
+        if (user.isEmpty()) {
+            m_authenticationApproved = false;
+            if (m_parallelProtocol) {
+                // Keep the embedded peer alive until the daemon has checked
+                // its identity and consumed the failed result. A fast PAM
+                // denial must not disappear before the hello is accepted.
+                str.receive();
+                str >> m;
+                if (m != AUTHENTICATED || str.status() != QDataStream::Ok)
+                    qWarning() << "Invalid failed-authentication acknowledgement";
+            }
             return env;
-        str.receive();
-        str >> m >> env >> m_cookie;
-        if (m != AUTHENTICATED) {
-            env = QProcessEnvironment();
-            m_cookie = {};
-            qCritical() << "Received a wrong opcode instead of AUTHENTICATED:" << m;
         }
+        str.receive();
+        bool approved = !m_parallelProtocol;
+        m_authenticationApproved = false;
+        str >> m;
+        if (m_parallelProtocol)
+            str >> approved;
+        str >> env >> m_cookie;
+        if (m != AUTHENTICATED || str.status() != QDataStream::Ok || !approved) {
+            // Rejected/cancelled authentication must never reach openSession().
+            exit(Auth::HELPER_AUTH_ERROR);
+            return QProcessEnvironment();
+        }
+        m_authenticationApproved = true;
         return env;
     }
 
@@ -382,6 +409,11 @@ namespace SDDM {
 }
 
 int main(int argc, char** argv) {
+    if (argc == 2 && QByteArray(argv[1]) == "--parallel-probe") {
+        if (write(STDOUT_FILENO, "READY", 5) != 5) return 1;
+        char reply = 0;
+        return read(STDIN_FILENO, &reply, 1) == 1 && reply == 'x' ? 0 : 1;
+    }
     SDDM::HelperApp app(argc, argv);
     return app.exec();
 }

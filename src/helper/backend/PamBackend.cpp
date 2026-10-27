@@ -23,6 +23,7 @@
 #include "HelperApp.h"
 #include "UserSession.h"
 #include "Auth.h"
+#include "Constants.h"
 #include "VirtualTerminal.h"
 
 #include <QtCore/QString>
@@ -223,6 +224,10 @@ namespace SDDM {
             service = QStringLiteral("sddm-greeter");
         else if (m_autologin)
             service = QStringLiteral("sddm-autologin");
+        else if (m_fingerprint)
+            service = QStringLiteral(PAM_FINGERPRINT_SERVICE);
+        else if (m_passwordOnly)
+            service = QStringLiteral("sddm-password");
         result = m_pam->start(service, user);
 
         if (!result)

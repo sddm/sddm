@@ -19,6 +19,8 @@
 ***************************************************************************/
 
 #include "SocketServer.h"
+#include "LoginMessages.h"
+#include "Configuration.h"
 
 #include "DaemonApp.h"
 #include "Messages.h"
@@ -27,9 +29,17 @@
 #include "Utils.h"
 
 #include <QLocalServer>
+#include <QPointer>
 
 namespace SDDM {
     SocketServer::SocketServer(QObject *parent) : QObject(parent) {
+        registerParallelRuntimeListener(this, [this] {
+            QList<QPointer<QLocalSocket>> peers;
+            for (auto *socket : m_parallelCapabilityPeers) peers.append(QPointer<QLocalSocket>(socket));
+            for (const auto &socket : peers)
+                if (socket && m_parallelCapabilityPeers.contains(socket.data()))
+                    parallelCapability(socket.data(), parallelFingerprintEnabled());
+        });
     }
 
     QString SocketServer::socketAddress() const {
@@ -96,7 +106,9 @@ namespace SDDM {
 
         // connect signals
         connect(socket, &QLocalSocket::readyRead, this, &SocketServer::readyRead);
+        connect(socket, &QLocalSocket::disconnected, this, [this, socket] { m_parallelCapabilityPeers.remove(socket); emit disconnected(socket); });
         connect(socket, &QLocalSocket::disconnected, socket, &QLocalSocket::deleteLater);
+        connect(socket, &QObject::destroyed, this, [this, socket] { m_parallelCapabilityPeers.remove(socket); });
     }
 
     void SocketServer::readyRead() {
@@ -113,10 +125,10 @@ namespace SDDM {
         // so we need to use a loop to read all the signals.
         while(socket->bytesAvailable()) {
             // read message
-            quint32 message;
-            input >> message;
-
-            switch (GreeterMessages(message)) {
+            LoginRequest request;
+            if (!readLoginRequest(input, request)) return;
+            const auto message = quint32(request.kind);
+            switch (request.kind) {
                 case GreeterMessages::Connect: {
                     // log message
                     qDebug() << "Message received from greeter: Connect";
@@ -131,19 +143,23 @@ namespace SDDM {
                     emit connected();
                 }
                 break;
+                case GreeterMessages::QueryParallelFingerprint: {
+                    m_parallelCapabilityPeers.insert(socket);
+                    SocketWriter(socket) << quint32(DaemonMessages::ParallelFingerprint) << parallelFingerprintEnabled();
+                    break;
+                }
                 case GreeterMessages::Login: {
                     // log message
                     qDebug() << "Message received from greeter: Login";
 
                     // read username, pasword etc.
-                    QString user, password, filename;
-                    Session session;
-                    input >> user >> password >> session;
-
-                    // emit signal
-                    emit login(socket, user, password, session);
+                    emit login(socket, request.user, request.password, request.session);
                 }
                 break;
+                case GreeterMessages::StartFingerprint: {
+                    emit startFingerprint(socket, request.user, request.session);
+                    break;
+                }
                 case GreeterMessages::PowerOff: {
                     // log message
                     qDebug() << "Message received from greeter: PowerOff";
@@ -190,6 +206,15 @@ namespace SDDM {
             }
         }
 
+    }
+
+    void SocketServer::parallelCapability(QLocalSocket *socket, bool active) {
+        if (socket && m_parallelCapabilityPeers.contains(socket))
+            SocketWriter(socket) << quint32(DaemonMessages::ParallelFingerprint) << active;
+    }
+
+    void SocketServer::fingerprintActive(QLocalSocket *socket, bool active) {
+        SocketWriter(socket) << quint32(DaemonMessages::FingerprintActive) << active;
     }
 
     void SocketServer::loginFailed(QLocalSocket *socket) {

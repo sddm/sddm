@@ -31,6 +31,8 @@
 
 #include "ConfigReader.h"
 
+#include "PeerCredentials.h"
+
 namespace SDDM {
     //     Name        File         Sections and/or Entries (but anything else too, it's a class) - Entries in a Config are assumed to be in the General section
     Config(MainConfig, QStringLiteral(CONFIG_FILE), QStringLiteral(CONFIG_DIR), QStringLiteral(SYSTEM_CONFIG_DIR),
@@ -47,6 +49,7 @@ namespace SDDM {
                                                                                                    "NOTE: Currently ignored if autologin is enabled."));
         Entry(InputMethod,         QString,     QStringLiteral("qtvirtualkeyboard"),                   _S("Input method module"));
         Entry(Namespaces,          QStringList, QStringList(),                                  _S("Comma-separated list of Linux namespaces for user session to enter"));
+        Entry(ParallelFingerprint, bool, false, _S("Enable separate fingerprint authentication alongside password authentication (requires Users.ReuseSession=false)"));
         Entry(GreeterEnvironment,  QStringList, QStringList(),                                  _S("Comma-separated list of environment variables to be set"));
         //  Name   Entries (but it's a regular class again)
         Section(Theme,
@@ -117,6 +120,15 @@ namespace SDDM {
 
     extern MainConfig mainConfig;
     extern StateConfig stateConfig;
+
+    // The parallel arbitration has only been qualified without session reuse.
+    inline bool parallelFingerprintEnabled() {
+#if SDDM_TRUSTED_HELPER_PID
+        return mainConfig.ParallelFingerprint.get() && !mainConfig.Users.ReuseSession.get() && parallelRuntimeAvailable();
+#else
+        return false;
+#endif
+    }
 
     inline QTextStream& operator>>(QTextStream &str, MainConfig::NumState &state) {
         QString text = str.readLine().trimmed();

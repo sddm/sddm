@@ -109,6 +109,7 @@ namespace SDDM {
         : QObject(parent),
         m_displayServerType(serverType),
         m_auth(new Auth(this)),
+        m_fingerprintAuth(new Auth(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this))
@@ -140,13 +141,39 @@ namespace SDDM {
         qDebug("Using VT %d", m_terminalId);
 
         // respond to authentication requests
-        m_auth->setVerbose(true);
-        connect(m_auth, &Auth::requestChanged, this, &Display::slotRequestChanged);
-        connect(m_auth, &Auth::authentication, this, &Display::slotAuthenticationFinished);
-        connect(m_auth, &Auth::sessionStarted, this, &Display::slotSessionStarted);
-        connect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
-        connect(m_auth, &Auth::info, this, &Display::slotAuthInfo);
-        connect(m_auth, &Auth::error, this, &Display::slotAuthError);
+        for (Auth *auth : {m_auth, m_fingerprintAuth}) {
+            auth->setVerbose(true);
+            connect(auth, &Auth::requestChanged, this, &Display::slotRequestChanged);
+            connect(auth, &Auth::authentication, this, &Display::slotAuthenticationFinished);
+            connect(auth, &Auth::sessionStarted, this, &Display::slotSessionStarted);
+            connect(auth, &Auth::finished, this, &Display::slotHelperFinished);
+            connect(auth, &Auth::parallelUnavailable, this, [this] {
+                if (m_parallelFailureNotified || m_selection.winner()) return;
+                m_parallelFailureNotified = true;
+                m_fingerprintRetry.stop();
+                m_selection.selectUser(QString());
+                m_passPhrase.clear();
+                if (m_socket) {
+                    emit loginFailed(m_socket);
+                }
+            });
+            connect(auth, &Auth::info, this, &Display::slotAuthInfo);
+            connect(auth, &Auth::error, this, &Display::slotAuthError);
+        }
+        m_fingerprintAuth->setFingerprint(true);
+        m_fingerprintRetry.setSingleShot(true);
+        m_fingerprintRetry.setInterval(2000);
+        connect(&m_fingerprintRetry, &QTimer::timeout, this, &Display::retryFingerprint);
+        connect(m_socketServer, &SocketServer::startFingerprint, this, &Display::startFingerprint);
+        connect(m_socketServer, &SocketServer::disconnected, this, [this](QLocalSocket *socket) {
+            if (m_socket == socket && !m_selection.winner()) {
+                m_socket = nullptr;
+                m_fingerprintRetry.stop();
+                m_selection.selectUser(QString());
+                m_auth->cancelAuthentication();
+                m_fingerprintAuth->cancelAuthentication();
+            }
+        });
 
         // restart display after display server ended
         connect(m_displayServer, &DisplayServer::started, this, &Display::displayServerStarted);
@@ -196,6 +223,7 @@ namespace SDDM {
 
     Display::~Display() {
         disconnect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
+        disconnect(m_fingerprintAuth, &Auth::finished, this, &Display::slotHelperFinished);
         stop();
     }
 
@@ -210,7 +238,7 @@ namespace SDDM {
     }
 
     int Display::terminalId() const {
-        return m_auth->isActive() ? m_sessionTerminalId : m_terminalId;
+        return (m_auth->isActive() || m_fingerprintAuth->isActive()) ? m_sessionTerminalId : m_terminalId;
     }
 
     const QString &Display::name() const {
@@ -304,14 +332,16 @@ namespace SDDM {
     }
 
     void Display::stop() {
-        // check flag
-        if (!m_started)
-            return;
+        if (!m_started || m_stopping) return;
+        m_stopping = true;
+        m_selection.close();
+        m_fingerprintRetry.stop();
 
         // stop the greeter
         m_greeter->stop();
 
         m_auth->stop();
+        m_fingerprintAuth->stop();
 
         // stop socket server
         m_socketServer->stop();
@@ -331,6 +361,8 @@ namespace SDDM {
     void Display::login(QLocalSocket *socket,
                         const QString &user, const QString &password,
                         const Session &session) {
+        if (m_stopping || m_selection.winner() || m_legacySessionReleased) return;
+        if (m_socket && m_socket != socket) return;
         m_socket = socket;
 
         //the SDDM user has special privileges that skip password checking so that we can load the greeter
@@ -340,9 +372,62 @@ namespace SDDM {
             return;
         }
 
-        // authenticate
-        startAuth(user, password, session);
+        if (parallelFingerprintEnabled()) {
+            m_parallelFailureNotified = false;
+            // A password submission never cancels the fingerprint channel.
+            if (m_selection.user() != user && (m_auth->isActive() || m_fingerprintAuth->isActive())) {
+                emit loginFailed(socket);
+                return;
+            }
+            m_selection.selectUser(user);
+        }
+        if (!startAuth(user, password, session)) emit loginFailed(socket);
     }
+
+    void Display::startFingerprint(QLocalSocket *socket, const QString &user, const Session &session) {
+        if (!parallelFingerprintEnabled() || m_stopping || m_selection.winner() || m_legacySessionReleased ||
+            !m_greeter->isRunning()) return;
+        if (m_socket && m_socket != socket) return;
+        m_parallelFailureNotified = false;
+        // Runtime readiness is withheld while a legacy helper is alive.
+        if (m_auth->isActive() && !m_auth->parallelAttempt()) return;
+        m_socket = socket;
+        if (user.isEmpty() || user == QLatin1String("sddm") || !session.isValid() ||
+            session.exec().isEmpty() || session.xdgSessionType().isEmpty()) {
+            m_fingerprintRetry.stop();
+            m_selection.selectUser(QString());
+            m_fingerprintSession = Session();
+            m_preparedUser.clear();
+            m_passPhrase.clear();
+            m_auth->cancelAuthentication();
+            m_fingerprintAuth->cancelAuthentication();
+            m_socketServer->fingerprintActive(socket, false);
+            return;
+        }
+        // The first fingerprint request may arrive after a password was submitted.
+        // Starting the other channel for that same selection must not cancel it.
+        const Session &selected = m_fingerprintSession.isValid() ? m_fingerprintSession : m_preparedSession;
+        const bool changed = (!m_selection.user().isEmpty() && m_selection.user() != user) ||
+            (selected.isValid() && (selected.fileName() != session.fileName() ||
+             selected.exec() != session.exec() || selected.type() != session.type()));
+        if (changed) {
+            m_auth->cancelAuthentication();
+            m_fingerprintAuth->cancelAuthentication();
+        }
+        m_selection.selectUser(user);
+        m_fingerprintSession = session;
+        retryFingerprint();
+    }
+
+    void Display::retryFingerprint() {
+        if (!parallelFingerprintEnabled() || m_stopping || m_selection.winner() ||
+            !m_socket || m_selection.user().isEmpty() || !m_greeter->isRunning()) return;
+        if (m_fingerprintAuth->isActive()) return;
+        if (!startAuth(m_selection.user(), QString(), m_fingerprintSession, m_fingerprintAuth)) {
+            m_fingerprintRetry.start();
+            return;
+        }
+        }
 
     QString Display::findGreeterTheme() const {
         QString themeName = mainConfig.Theme.Current.get();
@@ -385,14 +470,17 @@ namespace SDDM {
         return false;
     }
 
-    bool Display::startAuth(const QString &user, const QString &password, const Session &session) {
-
-        if (m_auth->isActive()) {
+    bool Display::startAuth(const QString &user, const QString &password, const Session &session, Auth *auth) {
+        if (!auth) auth = m_auth;
+        const bool parallel = parallelFingerprintEnabled();
+        auth->setPasswordOnly(auth == m_auth && parallel && !auth->autologin());
+        if (m_stopping || m_selection.winner()) return false;
+        if (auth->isActive()) {
             qWarning() << "Existing authentication ongoing, aborting";
             return false;
         }
 
-        m_passPhrase = password;
+        if (auth == m_auth) m_passPhrase = password;
 
         // sanity check
         if (!session.isValid()) {
@@ -408,6 +496,21 @@ namespace SDDM {
             return false;
         }
 
+        const bool sameContext = m_preparedUser == user &&
+            m_preparedSession.fileName() == session.fileName() &&
+            m_preparedSession.exec() == session.exec() && m_preparedSession.type() == session.type();
+        Auth *other = auth == m_auth ? m_fingerprintAuth : m_auth;
+        if (parallelFingerprintEnabled() && sameContext) {
+            auth->setUser(user);
+            auth->setSession(m_reuseSessionId.isNull() ? session.exec() : QString());
+            auth->setDisplayServerCommand(session.xdgSessionType() == QLatin1String("x11") &&
+                m_displayServerType != X11DisplayServerType ? XorgUserDisplayServer::command(this) : QString());
+            auth->insertEnvironment(m_preparedEnvironment);
+            auth->start();
+            return true;
+        }
+        if (parallelFingerprintEnabled() && other->isActive()) return false;
+
         m_reuseSessionId = QString();
 
         if (Logind::isAvailable() && mainConfig.Users.ReuseSession.get()) {
@@ -419,9 +522,11 @@ namespace SDDM {
             for(const SessionInfo &s : reply.value()) {
                 if (s.userName == user) {
                     OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
-                    if ((session.service() == QLatin1String("sddm")
-                        || session.service() == QLatin1String("sddm-autologin"))
-                            && session.state() == QLatin1String("online")) {
+                    if ((session.service() == QLatin1String("sddm") ||
+                         session.service() == QLatin1String("sddm-autologin") ||
+                         session.service() == QLatin1String("sddm-password") ||
+                         session.service() == QLatin1String("sddm-fingerprint")) &&
+                        session.state() == QLatin1String("online")) {
                         m_reuseSessionId = s.sessionId;
                         break;
                     }
@@ -466,27 +571,47 @@ namespace SDDM {
           if (m_displayServerType == X11DisplayServerType)
             env.insert(QStringLiteral("DISPLAY"), name());
           else
-            m_auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
+            auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
         } else {
-            m_auth->setDisplayServerCommand(QStringLiteral());
+            auth->setDisplayServerCommand(QStringLiteral());
 	}
-        m_auth->setUser(user);
+        auth->setUser(user);
         if (m_reuseSessionId.isNull()) {
-            m_auth->setSession(session.exec());
+            auth->setSession(session.exec());
         }
-        m_auth->insertEnvironment(env);
-        m_auth->start();
+        m_preparedUser = user;
+        m_preparedSession = session;
+        m_preparedEnvironment = env;
+        auth->insertEnvironment(env);
+        auth->start();
 
         return true;
     }
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
-        if (m_auth->autologin() && !success) {
+        Auth *auth = qobject_cast<Auth *>(sender());
+        if (!auth) return;
+        if (auth->parallelAttempt() && !auth->autologin()) {
+            if (!parallelFingerprintEnabled()) { auth->setSessionApproved(false); return; }
+            if (success) {
+                const bool accepted = !m_stopping && m_selection.accept(auth, user);
+                auth->setSessionApproved(accepted);
+                if (!accepted) return;
+                m_fingerprintRetry.stop();
+                (auth == m_auth ? m_fingerprintAuth : m_auth)->cancelAuthentication();
+                m_passPhrase.clear();
+            } else {
+                // Child completion controls retry/UI failure; no credential replay.
+                return;
+            }
+        }
+        if (auth->autologin() && !success) {
             handleAutologinFailure();
             return;
         }
 
         if (success) {
+            if (!auth->parallelAttempt()) m_legacySessionReleased = true;
             qDebug() << "Authentication for user " << user << " successful";
 
             if (!m_reuseSessionId.isNull()) {
@@ -495,12 +620,12 @@ namespace SDDM {
                 manager.ActivateSession(m_reuseSessionId);
             } else {
                 if (qobject_cast<XorgDisplayServer *>(m_displayServer))
-                    m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+                    auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
             }
 
             // save last user and last session
             if (mainConfig.Users.RememberLastUser.get())
-                stateConfig.Last.User.set(m_auth->user());
+                stateConfig.Last.User.set(auth->user());
             else
                 stateConfig.Last.User.setDefault();
             if (mainConfig.Users.RememberLastSession.get())
@@ -519,6 +644,15 @@ namespace SDDM {
     }
 
     void Display::slotAuthInfo(const QString &message, Auth::Info info) {
+        // An opt-in PAM notification is sent only after VerifyStart succeeds.
+        if (message == QStringLiteral("\036FPRINTD_VERIFY_READY_V1")) {
+            Auth *auth = qobject_cast<Auth *>(sender());
+            if (auth == m_fingerprintAuth && auth->parallelAttempt() && auth->isActive() &&
+                !auth->cancelled() && !m_selection.user().isEmpty() &&
+                auth->user() == m_selection.user() && !m_stopping && !m_selection.winner() && m_socket)
+                m_socketServer->fingerprintActive(m_socket, true);
+            return;
+        }
         qWarning() << "Authentication information:" << info << message;
 
         if (!m_socket)
@@ -534,11 +668,28 @@ namespace SDDM {
             return;
 
         m_socketServer->informationMessage(m_socket, message);
-        if (error == Auth::ERROR_AUTHENTICATION)
+        if (error == Auth::ERROR_AUTHENTICATION && !parallelFingerprintEnabled())
             emit loginFailed(m_socket);
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
+        if (m_stopping) return;
+        Auth *auth = qobject_cast<Auth *>(sender());
+        if (auth && auth->parallelAttempt() && !auth->autologin()) {
+            if (!parallelFingerprintEnabled()) return;
+            if (m_selection.winner()) {
+                if (auth == m_selection.winner()) stop();
+                return;
+            }
+            if (auth == m_fingerprintAuth) {
+                if (m_socket) m_socketServer->fingerprintActive(m_socket, false);
+                if (m_socket && !m_selection.user().isEmpty()) m_fingerprintRetry.start();
+            } else {
+                m_passPhrase.clear();
+                if (m_socket) emit loginFailed(m_socket);
+            }
+            return;
+        }
         // Don't restart greeter and display server unless sddm-helper exited
         // with an internal error or the user session finished successfully,
         // we want to avoid greeter from restarting when an authentication
@@ -549,13 +700,20 @@ namespace SDDM {
     }
 
     void Display::slotRequestChanged() {
-        if (m_auth->request()->prompts().length() == 1) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_passPhrase));
-            m_auth->request()->done();
-        } else if (m_auth->request()->prompts().length() == 2) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_auth->user()));
-            m_auth->request()->prompts()[1]->setResponse(qPrintable(m_passPhrase));
-            m_auth->request()->done();
+        Auth *auth = qobject_cast<Auth *>(sender());
+        if (!auth) return;
+        // The fingerprint-only stack must never consume a password. Refuse unexpected prompts.
+        if (auth->fingerprint() && !auth->request()->prompts().isEmpty()) {
+            auth->cancelAuthentication();
+            return;
+        }
+        if (auth->request()->prompts().length() == 1) {
+            auth->request()->prompts()[0]->setResponse(qPrintable(m_passPhrase));
+            auth->request()->done();
+        } else if (auth->request()->prompts().length() == 2) {
+            auth->request()->prompts()[0]->setResponse(qPrintable(auth->user()));
+            auth->request()->prompts()[1]->setResponse(qPrintable(m_passPhrase));
+            auth->request()->done();
         }
     }
 

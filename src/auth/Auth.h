@@ -93,6 +93,14 @@ namespace SDDM {
         static void registerTypes();
 
         bool autologin() const;
+        bool fingerprint() const;
+        bool parallelAttempt() const;
+        bool cancelled() const;
+        void setFingerprint(bool enabled);
+        void setPasswordOnly(bool enabled);
+        // Called synchronously from authentication() before session approval.
+        void setSessionApproved(bool approved);
+        void cancelAuthentication();
         bool isGreeter() const;
         bool verbose() const;
         const QByteArray &cookie() const;
@@ -174,6 +182,7 @@ namespace SDDM {
         void stop();
 
     Q_SIGNALS:
+        void parallelUnavailable();
         void autologinChanged();
         void greeterChanged();
         void verboseChanged();

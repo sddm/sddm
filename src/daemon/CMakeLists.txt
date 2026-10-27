@@ -60,6 +60,16 @@ qt_add_dbus_interface(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.fr
 qt_add_dbus_interface(DAEMON_SOURCES "${CMAKE_SOURCE_DIR}/data/interfaces/org.freedesktop.login1.Session.xml"  "Login1Session")
 
 add_executable(sddm ${DAEMON_SOURCES})
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(embedded_helper "${CMAKE_CURRENT_BINARY_DIR}/embedded-helper.cpp")
+    add_custom_command(OUTPUT "${embedded_helper}"
+        COMMAND ${CMAKE_COMMAND} -DHELPER=$<TARGET_FILE:sddm-helper> -DOUTPUT=${embedded_helper}
+                -P ${CMAKE_SOURCE_DIR}/cmake/EmbedHelper.cmake
+        DEPENDS sddm-helper ${CMAKE_SOURCE_DIR}/cmake/EmbedHelper.cmake VERBATIM)
+    set_source_files_properties("${embedded_helper}" PROPERTIES SKIP_AUTOMOC ON)
+    target_sources(sddm PRIVATE "${embedded_helper}")
+    target_compile_definitions(sddm PRIVATE SDDM_EMBEDDED_PARALLEL_HELPER=1)
+endif()
 target_link_libraries(sddm
                       Qt${QT_MAJOR_VERSION}::DBus
                       Qt${QT_MAJOR_VERSION}::Network
