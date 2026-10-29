@@ -24,6 +24,7 @@
 #include <QObject>
 #include <QScreen>
 #include <QQuickView>
+#include <QTimer>
 
 class QTranslator;
 
@@ -37,6 +38,28 @@ namespace SDDM {
     class GreeterProxy;
     class KeyboardModel;
 
+    // Event filter shared by all views to update IdleHint in CK/Login1
+    class IdleMonitor : public QObject
+    {
+        Q_OBJECT
+        Q_DISABLE_COPY(IdleMonitor)
+    public:
+        IdleMonitor(QObject *parent);
+        ~IdleMonitor();
+
+    public Q_SLOTS:
+        void arm(); // Start idle tracking
+        void disarm(); // Set IdleHint to false and stop idle tracking
+
+    protected:
+        bool eventFilter(QObject *obj, QEvent *ev) override;
+
+    private:
+        void idleChanged(bool idle);
+        QString m_sessionPath; // DBus path to the session (if available)
+        QTimer m_idleTimer; // Reset every time an event happens. On timeout -> idle.
+        bool m_isIdle = false;
+    };
 
     class GreeterApp : public QObject
     {
@@ -76,6 +99,7 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+        IdleMonitor *m_idleMonitor { nullptr };
 
         void startup();
         void activatePrimary();

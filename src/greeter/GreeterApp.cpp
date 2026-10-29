@@ -29,7 +29,9 @@
 #include "ThemeMetadata.h"
 #include "UserModel.h"
 #include "KeyboardModel.h"
-
+#include "LogindDBusTypes.h"
+#include "Login1Manager.h"
+#include "Login1Session.h"
 #include "MessageHandler.h"
 
 #include <QCommandLineParser>
@@ -52,6 +54,64 @@
 static const QEvent::Type StartupEventType = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 namespace SDDM {
+    IdleMonitor::IdleMonitor(QObject *parent) : QObject(parent)
+    {
+        connect(&m_idleTimer, &QTimer::timeout, this, [this] { idleChanged(true); });
+        m_idleTimer.setInterval(5*1000);
+        m_idleTimer.setSingleShot(true);
+    }
+
+    IdleMonitor::~IdleMonitor()
+    {
+        disarm();
+    }
+
+    void IdleMonitor::arm()
+    {
+        m_idleTimer.start();
+    }
+
+    void IdleMonitor::disarm()
+    {
+        m_idleTimer.stop();
+        if (m_isIdle)
+            idleChanged(false);
+    }
+
+    bool IdleMonitor::eventFilter(QObject *obj, QEvent *ev)
+    {
+        (void) obj;
+        // Qt6 has ev->isInputEvent()
+        if(ev->type() == QEvent::MouseMove || ev->type() == QEvent::MouseButtonPress
+            || ev->type() == QEvent::KeyPress || ev->type() == QEvent::TouchBegin /* others? */) {
+            m_idleTimer.start(); // Reset timer on each input event
+            if (m_isIdle)
+                idleChanged(false); // Notify manager if it changed
+        }
+
+        return false;
+    }
+
+    void IdleMonitor::idleChanged(bool idle)
+    {
+        // Set this unconditionally, so on call failure the dbus calls aren't repeated for all events
+        m_isIdle = idle;
+
+        qDebug() << "Session idleChanged:" << idle;
+
+        // Fetch the session path lazily
+        if (m_sessionPath.isEmpty() && Logind::isAvailable()) {
+            QString sessionId = qEnvironmentVariable("XDG_SESSION_ID");
+            OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+            m_sessionPath = manager.GetSession(sessionId).value().path();
+        }
+
+        if (!m_sessionPath.isEmpty() && !qobject_cast<GreeterApp*>(parent())->isTestModeEnabled()) {
+            OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), m_sessionPath, QDBusConnection::systemBus());
+            session.SetIdleHint(idle);
+        }
+    }
+
     GreeterApp::GreeterApp(QObject *parent)
         : QObject(parent)
     {
@@ -65,6 +125,7 @@ namespace SDDM {
         // Create models
         m_sessionModel = new SessionModel();
         m_keyboard = new KeyboardModel();
+        m_idleMonitor = new IdleMonitor(this);
     }
 
     bool GreeterApp::isTestModeEnabled() const
@@ -167,10 +228,16 @@ namespace SDDM {
             view->setGeometry(r);
         });
 
+        // Track input events
+        view->installEventFilter(m_idleMonitor);
+        m_idleMonitor->arm();
+
         view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
 
         // connect proxy signals
         connect(m_proxy, &GreeterProxy::loginSucceeded, view, &QQuickView::close);
+        // TODO: Necessary? ~IdleMonitor should run in that case.
+        // connect(m_proxy, &GreeterProxy::loginSucceeded, m_idleMonitor, &IdleMonitor::disarm);
 
         // we used to have only one window as big as the virtual desktop,
         // QML took care of creating an item for each screen by iterating on
