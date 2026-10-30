@@ -115,6 +115,12 @@ namespace SDDM {
             return;
         }
 
+        if (!reply) {
+            qCritical() << "Failed to get indicator names reply or no indicators found";
+            d->enabled = false;
+            return;
+        }
+
         // Unpack
         xcb_xkb_get_names_value_list_t list;
         const void *buffer = xcb_xkb_get_names_value_list(reply);
