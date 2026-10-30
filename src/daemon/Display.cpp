@@ -563,6 +563,12 @@ namespace SDDM {
         qDebug() << "Session started" << success;
         if (success) {
             QTimer::singleShot(5000, m_greeter, &Greeter::stop);
+
+            // If no longer needed, stop the display server.
+            if(m_sessionTerminalId != m_terminalId) {
+                disconnect(m_displayServer, &DisplayServer::stopped, this, &Display::stop);
+                QTimer::singleShot(5000, m_displayServer, &DisplayServer::stop);
+            }
         }
     }
 }
