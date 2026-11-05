@@ -41,6 +41,18 @@ void WaylandDisplayServer::setDisplayName(const QString &displayName)
     m_display = displayName;
 }
 
+QString WaylandDisplayServer::getCommand(Display *) const {
+    return QStringLiteral();
+}
+
+QByteArray WaylandDisplayServer::getCookie() const {
+    return {};
+}
+
+QString WaylandDisplayServer::authPath() const {
+    return {};
+}
+
 bool WaylandDisplayServer::start()
 {
     // Check flag

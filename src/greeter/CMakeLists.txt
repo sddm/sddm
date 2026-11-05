@@ -12,7 +12,7 @@ message(STATUS "Building greeter for Qt ${QT_MAJOR_VERSION} as ${GREETER_TARGET}
 include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_BINARY_DIR}/src/common"
-    "${LIBXCB_INCLUDE_DIR}"
+    ${LIBXCB_INCLUDE_DIR}
 )
 
 set(GREETER_SOURCES
@@ -32,8 +32,11 @@ set(GREETER_SOURCES
     UserModel.cpp
     waylandkeyboardbackend.cpp
     waylandkeyboardbackend.h
-    XcbKeyboardBackend.cpp
 )
+
+if(BUILD_WITH_X11)
+    list(APPEND GREETER_SOURCES XcbKeyboardBackend.cpp)
+endif()
 
 configure_file("theme.qrc" "theme.qrc")
 configure_file("theme/metadata.desktop.in" "theme/metadata.desktop" @ONLY)
