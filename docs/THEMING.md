@@ -13,7 +13,7 @@ We also provide models containing information about the screens, available sessi
     	index: sessionModel.lastIndex
     }
 
-Themes are run by a Qt 5 built sddm-greeter, unless the `QtVersion` property in metadata.desktop specifies a different version, such as `QtVersion=6` for using `sddm-greeter-qt6`.
+Themes are run by a Qt6 built sddm-greeter-qt6 (the only currently supported value for `QtVersion` property in metadata.desktop is `QtVersion=6`).
 
 ## Proxy Object
 
@@ -76,9 +76,3 @@ This model also has a `lastIndex` property holding the index of the last user su
 You can test your themes using `sddm-greeter`. Note that in this mode, actions like shutdown, suspend or login will have no effect.
 
     sddm-greeter --test --theme /path/to/your/theme
-
-If you have compiled SDDM with Qt4, you can also use it in a nested X session through Xephyr. To accomplish this use:
-
-    sddm --test-mode
-
-When using Qt5, test-mode requires [at least xorg-server 1.15.0](https://bugs.freedesktop.org/show_bug.cgi?id=62346#c8), as older releases don't support GLX in Xephyr which is required by QtQuick2.
