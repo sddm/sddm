@@ -18,7 +18,6 @@ option(BUILD_MAN_PAGES "Build man pages" OFF)
 option(ENABLE_JOURNALD "Enable logging to journald" ON)
 option(NO_SYSTEMD "Disable systemd support" OFF)
 option(USE_ELOGIND "Use elogind instead of logind" OFF)
-option(BUILD_WITH_QT6 "Build with Qt 6" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -74,18 +73,10 @@ find_package(XCB REQUIRED)
 find_package(XKB REQUIRED)
 
 # Qt
-if(BUILD_WITH_QT6)
-    set(QT_MAJOR_VERSION 6)
-    message(STATUS "Building Qt 6 version")
-else()
-    set(QT_MAJOR_VERSION 5)
-    message(STATUS "Building Qt 5 version")
-endif()
+find_package(Qt6 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
 
-find_package(Qt${QT_MAJOR_VERSION} 5.15.0 CONFIG REQUIRED Core DBus Gui Qml Quick LinguistTools Test QuickTest)
-
-# find qt5 imports dir
-get_target_property(QMAKE_EXECUTABLE Qt${QT_MAJOR_VERSION}::qmake LOCATION)
+# find qt6 imports dir
+get_target_property(QMAKE_EXECUTABLE Qt6::qmake LOCATION)
 if(NOT QT_IMPORTS_DIR)
     execute_process(COMMAND ${QMAKE_EXECUTABLE} -query QT_INSTALL_QML OUTPUT_VARIABLE QT_IMPORTS_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
@@ -188,7 +179,7 @@ set(ACCOUNTSSERVICE_DATA_DIR    "/var/lib/AccountsService"                      
 set(SYSTEM_CONFIG_DIR           "${CMAKE_INSTALL_PREFIX}/lib/sddm/sddm.conf.d"      CACHE PATH      "Path of the system sddm config directory")
 set(LOG_FILE                    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/sddm.log"  CACHE PATH      "Path of the sddm log file")
 set(DBUS_CONFIG_FILENAME        "org.freedesktop.DisplayManager.conf"               CACHE STRING    "Name of the sddm config file")
-set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations-qt${QT_MAJOR_VERSION}" CACHE PATH      "Components translations directory")
+set(COMPONENTS_TRANSLATION_DIR  "${DATA_INSTALL_DIR}/translations-qt6"              CACHE PATH      "Components translations directory")
 set(SDDM_INITIAL_VT             "1"                                                 CACHE STRING    "Initial tty to use")
 
 

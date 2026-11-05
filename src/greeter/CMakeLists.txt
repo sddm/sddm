@@ -1,14 +1,3 @@
-if(QT_MAJOR_VERSION EQUAL "5")
-    # Keep the unversioned name for Qt5. When upgrading SDDM, the old daemon
-    # might still be running and only know about "sddm-greeter". Keeping the
-    # previous name around also helps users calling it directly.
-    set(GREETER_TARGET sddm-greeter)
-else()
-    set(GREETER_TARGET sddm-greeter-qt${QT_MAJOR_VERSION})
-endif()
-
-message(STATUS "Building greeter for Qt ${QT_MAJOR_VERSION} as ${GREETER_TARGET}")
-
 include_directories(
     "${CMAKE_SOURCE_DIR}/src/common"
     "${CMAKE_BINARY_DIR}/src/common"
@@ -40,17 +29,18 @@ configure_file("theme/metadata.desktop.in" "theme/metadata.desktop" @ONLY)
 
 qt_add_resources(RESOURCES ${CMAKE_CURRENT_BINARY_DIR}/theme.qrc)
 
-add_executable(${GREETER_TARGET} ${GREETER_SOURCES} ${RESOURCES})
-target_link_libraries(${GREETER_TARGET}
-                      Qt${QT_MAJOR_VERSION}::Quick
+# The unversioned name was used for the old Qt5 version.
+add_executable(sddm-greeter-qt6 ${GREETER_SOURCES} ${RESOURCES})
+target_link_libraries(sddm-greeter-qt6
+                      Qt6::Quick
                       ${LIBXCB_LIBRARIES}
                       ${LIBXKB_LIBRARIES})
 
 if(JOURNALD_FOUND)
-    target_link_libraries(${GREETER_TARGET} ${JOURNALD_LIBRARIES})
+    target_link_libraries(sddm-greeter-qt6 ${JOURNALD_LIBRARIES})
 endif()
 
 # Translations
-add_dependencies(${GREETER_TARGET} components-translation themes-translation)
+add_dependencies(sddm-greeter-qt6 components-translation themes-translation)
 
-install(TARGETS ${GREETER_TARGET} DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(TARGETS sddm-greeter-qt6 DESTINATION "${CMAKE_INSTALL_BINDIR}")
