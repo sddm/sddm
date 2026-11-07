@@ -19,3 +19,7 @@ add_executable(SessionTest ${SessionTest_SRCS})
 target_include_directories(SessionTest PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src/common)
 add_test(NAME Session COMMAND SessionTest)
 target_link_libraries(SessionTest Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Test)
+
+if(PAM_FOUND)
+    add_subdirectory(conversation)
+endif()

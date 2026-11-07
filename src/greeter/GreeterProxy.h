@@ -54,6 +54,8 @@ namespace SDDM {
         bool isConnected() const;
 
         void setSessionModel(SessionModel *model);
+        Q_PROPERTY(quint32 authenticationConversationVersion READ authenticationConversationVersion NOTIFY authenticationConversationVersionChanged)
+        quint32 authenticationConversationVersion() const;
 
     public slots:
         void powerOff();
@@ -63,6 +65,9 @@ namespace SDDM {
         void hybridSleep();
 
         void login(const QString &user, const QString &password, const int sessionIndex) const;
+        quint32 beginAuthentication(const QString &user, int sessionIndex);
+        void respond(quint32 attempt, quint32 prompt, const QString &response);
+        void cancelAuthentication(quint32 attempt);
 
     private slots:
         void connected();
@@ -71,6 +76,11 @@ namespace SDDM {
         void error();
 
     signals:
+        void authenticationConversationVersionChanged();
+        void authenticationAuthorized(quint32 attempt);
+        void authenticationPrompt(quint32 attempt, quint32 prompt, const QString &message, bool responseVisible);
+        void authenticationMessage(quint32 attempt, const QString &message, bool error);
+        void authenticationFinished(quint32 attempt, quint32 result);
         void informationMessage(const QString &message);
         void hostNameChanged(const QString &hostName);
         void canPowerOffChanged(bool canPowerOff);

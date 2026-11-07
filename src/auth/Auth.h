@@ -92,6 +92,9 @@ namespace SDDM {
 
         static void registerTypes();
 
+        bool conversation() const;
+        void setConversation(bool enabled);
+        bool isCancelled() const;
         bool autologin() const;
         bool isGreeter() const;
         bool verbose() const;

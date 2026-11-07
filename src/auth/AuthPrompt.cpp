@@ -61,6 +61,7 @@ namespace SDDM {
 
     void AuthPrompt::setResponse(const QByteArray &r) {
         if (r != d->response) {
+            explicit_bzero(d->response.data(), d->response.size());
             d->response = r;
             Q_EMIT responseChanged();
         }

@@ -24,6 +24,7 @@
 #include "SafeDataStream.h"
 
 #include <QtCore/QProcess>
+#include <QtCore/QTimer>
 #include <QtCore/QUuid>
 #include <QtNetwork/QLocalServer>
 #include <QtNetwork/QLocalSocket>
@@ -61,12 +62,17 @@ namespace SDDM {
     public:
         AuthRequest *request { nullptr };
         QProcess *child { nullptr };
+        QTimer *killTimer { nullptr };
         QLocalSocket *socket { nullptr };
         QString displayServerCmd;
         QString sessionPath { };
         QString user { };
         QByteArray cookie { };
         bool autologin { false };
+        bool conversation { false };
+        bool cancelled { false };
+        bool authResultSeen { false };
+        bool authenticationSucceeded { false };
         bool greeter { false };
         QProcessEnvironment environment { };
         qint64 id { 0 };
@@ -79,22 +85,35 @@ namespace SDDM {
 
     Auth::SocketServer::SocketServer()
             : QLocalServer() {
+        setSocketOptions(QLocalServer::UserAccessOption);
         connect(this, &QLocalServer::newConnection, this, &Auth::SocketServer::handleNewConnection);
     }
 
     void Auth::SocketServer::handleNewConnection()  {
         while (hasPendingConnections()) {
             Msg m = Msg::MSG_UNKNOWN;
-            qint64 id;
+            qint64 id = 0;
             QLocalSocket *socket = nextPendingConnection();
             SafeDataStream str(socket);
             str.receive();
             str >> m >> id;
-            if (m == Msg::HELLO && id && SocketServer::instance()->helpers.contains(id)) {
-                helpers[id]->setSocket(socket);
-                if (socket->bytesAvailable() > 0)
-                    helpers[id]->dataPending();
+            quint32 version = 0;
+            if (m == Msg::HELLO_CONVERSATION) str >> version;
+            auto *helper = helpers.value(id, nullptr);
+            const bool compatible = helper && !helper->cancelled && helper->child->state() != QProcess::NotRunning
+                && ((helper->conversation && m == Msg::HELLO_CONVERSATION && version == 1)
+                    || (!helper->conversation && m == Msg::HELLO));
+            if (str.status() != QDataStream::Ok || !compatible || (helper && helper->socket)) {
+                socket->disconnectFromServer();
+                socket->deleteLater();
+                if (helper && !helper->cancelled) {
+                    Q_EMIT qobject_cast<Auth *>(helper->parent())->error(QStringLiteral("Incompatible authentication helper"), Auth::ERROR_INTERNAL);
+                    qobject_cast<Auth *>(helper->parent())->stop();
+                }
+                continue;
             }
+            helper->setSocket(socket);
+            if (socket->bytesAvailable() > 0) helper->dataPending();
         }
     }
 
@@ -112,8 +131,14 @@ namespace SDDM {
             : QObject(parent)
             , request(new AuthRequest(parent))
             , child(new QProcess(this))
+            , killTimer(new QTimer(this))
             , id(lastId++) {
         SocketServer::instance()->helpers[id] = this;
+        killTimer->setSingleShot(true);
+        killTimer->setInterval(5000);
+        connect(killTimer, &QTimer::timeout, this, [this] {
+            if (cancelled && child->state() != QProcess::NotRunning) child->kill();
+        });
         QProcessEnvironment env = child->processEnvironment();
         bool langEmpty = true;
         QFile localeFile(QStringLiteral("/etc/locale.conf"));
@@ -145,17 +170,26 @@ namespace SDDM {
 
 
     void Auth::Private::setSocket(QLocalSocket *socket) {
+        if (this->socket && this->socket != socket) {
+            this->socket->disconnect(this);
+            this->socket->deleteLater();
+        }
         this->socket = socket;
-        connect(socket, &QLocalSocket::readyRead, this, &Auth::Private::dataPending);
+        connect(socket, &QLocalSocket::readyRead, this, [this, socket] {
+            if (socket == this->socket) dataPending();
+        });
     }
 
     void Auth::Private::dataPending() {
+        if (!socket) return;
         Auth *auth = qobject_cast<Auth*>(parent());
         Msg m = MSG_UNKNOWN;
         SafeDataStream str(socket);
         while (socket->bytesAvailable() > 0) {
             str.receive();
+            if (str.status() != QDataStream::Ok) { socket->disconnectFromServer(); return; }
             str >> m;
+            if (str.status() != QDataStream::Ok) { socket->disconnectFromServer(); return; }
             switch (m) {
                 case ERROR: {
                     QString message;
@@ -174,15 +208,26 @@ namespace SDDM {
                 case REQUEST: {
                     Request r;
                     str >> r;
-                    request->setRequest(&r);
+                    if (!cancelled) request->setRequest(&r);
                     break;
                 }
                 case AUTHENTICATED: {
                     QString user;
                     str >> user;
+                    if (cancelled || authResultSeen || str.status() != QDataStream::Ok) {
+                        socket->disconnectFromServer();
+                        break;
+                    }
+                    authResultSeen = true;
                     if (!user.isEmpty()) {
                         auth->setUser(user);
                         Q_EMIT auth->authentication(user, true);
+                        // Display may reject/cancel while handling authentication.
+                        if (cancelled) {
+                            socket->disconnectFromServer();
+                            break;
+                        }
+                        authenticationSucceeded = true;
                         str.reset();
                         str << AUTHENTICATED << environment << cookie;
                         str.send();
@@ -193,8 +238,13 @@ namespace SDDM {
                     break;
                 }
                 case SESSION_STATUS: {
-                    bool status;
+                    if (cancelled || !authenticationSucceeded) {
+                        socket->disconnectFromServer();
+                        return;
+                    }
+                    bool status = false;
                     str >> status;
+                    if (str.status() != QDataStream::Ok) { socket->disconnectFromServer(); return; }
                     Q_EMIT auth->sessionStarted(status);
                     str.reset();
                     str << SESSION_STATUS;
@@ -202,6 +252,7 @@ namespace SDDM {
                     break;
                 }
                 case DISPLAY_SERVER_STARTED: {
+                    if (cancelled) { socket->disconnectFromServer(); return; }
                     QString displayName;
                     str >> displayName;
                     Q_EMIT auth->displayServerReady(displayName);
@@ -218,6 +269,7 @@ namespace SDDM {
     }
 
     void Auth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
+        killTimer->stop();
         if (exitStatus != QProcess::NormalExit) {
             qWarning("Auth: sddm-helper (%s) crashed (exit code %d)",
                      qPrintable(child->arguments().join(QLatin1Char(' '))),
@@ -230,20 +282,26 @@ namespace SDDM {
         else
             qWarning("Auth: sddm-helper exited with %d", exitCode);
 
+        if (socket && socket->bytesAvailable() > 0) dataPending();
+        request->setRequest();
+        if (exitStatus != QProcess::NormalExit || exitCode < HELPER_SUCCESS || exitCode > HELPER_TTY_ERROR)
+            exitCode = HELPER_OTHER_ERROR;
         Q_EMIT qobject_cast<Auth*>(parent())->finished((Auth::HelperExitStatus)exitCode);
     }
 
     void Auth::Private::childError(QProcess::ProcessError error) {
-        Q_UNUSED(error);
         Q_EMIT qobject_cast<Auth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
+        if (error == QProcess::FailedToStart)
+            Q_EMIT qobject_cast<Auth*>(parent())->finished(HELPER_OTHER_ERROR);
     }
 
     void Auth::Private::requestFinished() {
+        if (cancelled || !socket) return;
         SafeDataStream str(socket);
         Request r = request->request();
+        request->setRequest();
         str << REQUEST << r;
         str.send();
-        request->setRequest();
     }
 
 
@@ -262,7 +320,19 @@ namespace SDDM {
     }
 
     Auth::~Auth() {
+        // Owners may already have cleared their Auth pointer before deleteLater.
+        // stop() clears requests and can process child events while destroying us.
+        blockSignals(true);
         stop();
+        if (isActive()) {
+            // Keep only the bounded reaper alive, never callbacks into this Auth.
+            d->child->disconnect(d);
+            d->child->setParent(nullptr);
+            d->killTimer->disconnect(d);
+            d->killTimer->setParent(d->child);
+            connect(d->killTimer, &QTimer::timeout, d->child, &QProcess::kill);
+            connect(d->child, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), d->child, &QObject::deleteLater);
+        }
         delete d;
     }
 
@@ -367,10 +437,33 @@ namespace SDDM {
         }
     }
 
+    bool Auth::conversation() const { return d->conversation; }
+    bool Auth::isCancelled() const { return d->cancelled; }
+    void Auth::setConversation(bool enabled) {
+        if (!isActive()) d->conversation = enabled;
+    }
+
     void Auth::start() {
+        if (isActive()) return;
+        // A fresh helper identity prevents an old socket from attaching to a new attempt.
+        SocketServer::instance()->helpers.remove(d->id);
+        d->id = Private::lastId++;
+        SocketServer::instance()->helpers[d->id] = d;
+        if (d->socket) {
+            d->socket->disconnect(d);
+            d->socket->deleteLater();
+            d->socket = nullptr;
+        }
+        d->request->setRequest();
+        d->cancelled = false;
+        d->authResultSeen = false;
+        d->authenticationSucceeded = false;
         QStringList args;
         args << QStringLiteral("--socket") << SocketServer::instance()->fullServerName();
         args << QStringLiteral("--id") << QString::number(d->id);
+        d->killTimer->stop();
+        if (d->conversation)
+            args << QStringLiteral("--conversation");
         if (!d->sessionPath.isEmpty())
             args << QStringLiteral("--start") << d->sessionPath;
         if (!d->user.isEmpty())
@@ -385,15 +478,12 @@ namespace SDDM {
     }
 
     void Auth::stop() {
-        if (d->child->state() == QProcess::NotRunning) {
-            return;
-        }
-
+        // Invalidate synchronously; reaping must not block the daemon/UI event loop.
+        d->cancelled = true;
+        d->request->setRequest();
+        if (d->child->state() == QProcess::NotRunning) return;
         d->child->terminate();
-
-        // wait for finished
-        if (!d->child->waitForFinished(5000))
-            d->child->kill();
+        if (!d->killTimer->isActive()) d->killTimer->start();
     }
 }
 

@@ -22,60 +22,81 @@
 
 #include <QtCore/QDebug>
 #include <QIODevice>
+#include <string.h>
+#include <QElapsedTimer>
 
 namespace SDDM {
     SafeDataStream::SafeDataStream(QIODevice* device)
             : QDataStream(&m_data, QIODevice::ReadWrite)
             , m_device(device) { }
 
+    SafeDataStream::~SafeDataStream() {
+        explicit_bzero(m_data.data(), m_data.size());
+    }
+
     void SafeDataStream::send() {
-        qint64 length = m_data.length();
-        qint64 writtenTotal = 0;
-        if (!m_device->isOpen()) {
-            qCritical() << " Auth: SafeDataStream: Could not write any data";
-            return;
-        }
-        m_device->write((const char*) &length, sizeof(length));
-        while (writtenTotal != length) {
-            qint64 written = m_device->write(m_data.mid(writtenTotal));
-            if (written < 0 || !m_device->isOpen()) {
-                qCritical() << " Auth: SafeDataStream: Could not write all stored data";
+        const qint64 length = m_data.length();
+        if (!m_device->isOpen()) { setStatus(QDataStream::WriteFailed); return; }
+        QByteArray frame(reinterpret_cast<const char *>(&length), sizeof(length));
+        frame.append(m_data);
+        qint64 sent = 0;
+        QElapsedTimer deadline;
+        deadline.start();
+        while (sent < frame.size()) {
+            const qint64 count = m_device->write(frame.constData() + sent, frame.size() - sent);
+            if (count < 0 || deadline.elapsed() >= 1000) {
+                explicit_bzero(frame.data(), frame.size());
+                setStatus(QDataStream::WriteFailed);
                 return;
             }
-            writtenTotal += written;
-            m_device->waitForBytesWritten(-1);
+            sent += count;
+            if (m_device->bytesToWrite() && !m_device->waitForBytesWritten(1000 - deadline.elapsed())) {
+                explicit_bzero(frame.data(), frame.size());
+                setStatus(QDataStream::WriteFailed);
+                return;
+            }
         }
-
+        explicit_bzero(frame.data(), frame.size());
         reset();
     }
 
-    void SafeDataStream::receive() {
-        qint64 length = -1;
-
-        if (!m_device->isOpen()) {
-            qCritical() << " Auth: SafeDataStream: Could not read from the device";
+    void SafeDataStream::receive(bool waitForReply) {
+        reset();
+        if (waitForReply && !m_device->bytesAvailable() && !m_device->waitForReadyRead(-1)) {
+            setStatus(QDataStream::ReadPastEnd);
             return;
         }
-        if (!m_device->bytesAvailable())
-            m_device->waitForReadyRead(-1);
-        m_device->read((char*) &length, sizeof(length));
-
-        if (length < 0)
-            return;
-        reset();
-
-        while (m_data.length() < length) {
-            if (!m_device->isOpen()) {
-                qCritical() << " Auth: SafeDataStream: Could not read from the device";
-                return;
+        qint64 length = -1;
+        QElapsedTimer deadline;
+        deadline.start();
+        auto readExact = [this, &deadline](char *destination, qint64 size) {
+            qint64 received = 0;
+            while (received < size) {
+                if (!m_device->isOpen() || deadline.elapsed() >= 1000) return false;
+                const qint64 count = m_device->read(destination + received, size - received);
+                if (count < 0) return false;
+                received += count;
+                if (received < size && !m_device->bytesAvailable()
+                    && !m_device->waitForReadyRead(1000 - deadline.elapsed())) return false;
             }
-            if (!m_device->bytesAvailable())
-                m_device->waitForReadyRead(-1);
-            m_data.append(m_device->read(length - m_data.length()));
+            return true;
+        };
+        if (!readExact(reinterpret_cast<char *>(&length), sizeof(length))) {
+            setStatus(QDataStream::ReadPastEnd);
+            return;
+        }
+        // PAM messages and session environments must fit in a bounded frame.
+        if (length < 0 || length > 1024 * 1024) { setStatus(QDataStream::ReadCorruptData); return; }
+        m_data.resize(length);
+        if (!readExact(m_data.data(), length)) {
+            explicit_bzero(m_data.data(), m_data.size());
+            m_data.clear();
+            setStatus(QDataStream::ReadPastEnd);
         }
     }
 
     void SafeDataStream::reset() {
+        explicit_bzero(m_data.data(), m_data.size());
         m_data.clear();
         device()->reset();
         resetStatus();

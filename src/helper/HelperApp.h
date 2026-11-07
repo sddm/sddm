@@ -40,6 +40,7 @@ namespace SDDM {
 
         UserSession *session();
         const QString &user() const;
+        bool conversation() const { return m_conversation; }
         const QByteArray &cookie() const;
 
     public slots:
@@ -62,6 +63,8 @@ namespace SDDM {
         UserSession *m_session { nullptr };
         QLocalSocket *m_socket { nullptr };
         QString m_user { };
+        bool m_conversation { false };
+        bool m_sessionAuthorized { false };
         // TODO: get rid of this in a nice clean way along the way with moving to user session X server
         QByteArray m_cookie { };
 

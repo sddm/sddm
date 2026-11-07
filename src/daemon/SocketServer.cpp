@@ -90,6 +90,19 @@ namespace SDDM {
         qDebug() << "Socket server stopped.";
     }
 
+    void SocketServer::conversationAuthorized(QLocalSocket *socket, quint32 attempt) {
+        if (socket) SocketWriter(socket) << quint32(DaemonMessages::ConversationAuthorized) << attempt;
+    }
+    void SocketServer::conversationPrompt(QLocalSocket *socket, quint32 attempt, quint32 prompt, const QString &message, bool hidden) {
+        if (socket) SocketWriter(socket) << quint32(DaemonMessages::ConversationPrompt) << attempt << prompt << message << quint32(hidden);
+    }
+    void SocketServer::conversationMessage(QLocalSocket *socket, quint32 attempt, const QString &message, bool error) {
+        if (socket) SocketWriter(socket) << quint32(DaemonMessages::ConversationMessage) << attempt << message << quint32(error);
+    }
+    void SocketServer::conversationFinished(QLocalSocket *socket, quint32 attempt, quint32 result) {
+        if (socket) SocketWriter(socket) << quint32(DaemonMessages::ConversationFinished) << attempt << result;
+    }
+
     void SocketServer::newConnection() {
         // get pending connection
         QLocalSocket *socket = m_server->nextPendingConnection();
@@ -112,12 +125,15 @@ namespace SDDM {
         // Qt's QLocalSocket::readyRead is not designed to be called at every socket.write(), 
         // so we need to use a loop to read all the signals.
         while(socket->bytesAvailable()) {
+            if (socket->bytesAvailable() < 4) return;
+            input.startTransaction();
             // read message
             quint32 message;
             input >> message;
 
             switch (GreeterMessages(message)) {
                 case GreeterMessages::Connect: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from greeter: Connect";
 
@@ -131,6 +147,11 @@ namespace SDDM {
                     emit connected();
                 }
                 break;
+                case GreeterMessages::ConversationHello: {
+                    if (!input.commitTransaction()) return;
+                    SocketWriter(socket) << quint32(DaemonMessages::ConversationVersion) << quint32(1);
+                    break;
+                }
                 case GreeterMessages::Login: {
                     // log message
                     qDebug() << "Message received from greeter: Login";
@@ -139,12 +160,38 @@ namespace SDDM {
                     QString user, password, filename;
                     Session session;
                     input >> user >> password >> session;
+                    if (!input.commitTransaction()) return;
 
                     // emit signal
                     emit login(socket, user, password, session);
+                    password.fill(QChar(0));
                 }
                 break;
+                case GreeterMessages::BeginConversation: {
+                    quint32 attempt = 0; QString user; Session session;
+                    input >> attempt >> user >> session;
+                    if (!input.commitTransaction()) return;
+                    if (input.status() == QDataStream::Ok)
+                        emit conversationBegin(socket, attempt, user, session);
+                    break;
+                }
+                case GreeterMessages::ConversationResponse: {
+                    quint32 attempt = 0, prompt = 0; QString response;
+                    input >> attempt >> prompt >> response;
+                    if (!input.commitTransaction()) return;
+                    if (input.status() == QDataStream::Ok && response.size() <= 4096)
+                        emit conversationResponse(socket, attempt, prompt, response);
+                    response.fill(QChar(0));
+                    break;
+                }
+                case GreeterMessages::CancelConversation: {
+                    quint32 attempt = 0; input >> attempt;
+                    if (!input.commitTransaction()) return;
+                    if (input.status() == QDataStream::Ok) emit conversationCancel(socket, attempt);
+                    break;
+                }
                 case GreeterMessages::PowerOff: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from greeter: PowerOff";
 
@@ -153,6 +200,7 @@ namespace SDDM {
                 }
                 break;
                 case GreeterMessages::Reboot: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from greeter: Reboot";
 
@@ -161,6 +209,7 @@ namespace SDDM {
                 }
                 break;
                 case GreeterMessages::Suspend: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from greeter: Suspend";
 
@@ -169,6 +218,7 @@ namespace SDDM {
                 }
                 break;
                 case GreeterMessages::Hibernate: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from greeter: Hibernate";
 
@@ -177,6 +227,7 @@ namespace SDDM {
                 }
                 break;
                 case GreeterMessages::HybridSleep: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from greeter: HybridSleep";
                     // hybrid sleep
@@ -185,7 +236,10 @@ namespace SDDM {
                 break;
                 default: {
                     // log message
-                    qWarning() << "Unknown message" << message;
+                    input.abortTransaction();
+                    qWarning() << "Unknown socket message" << message;
+                    socket->disconnectFromServer();
+                    return;
                 }
             }
         }

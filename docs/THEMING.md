@@ -82,3 +82,51 @@ If you have compiled SDDM with Qt4, you can also use it in a nested X session th
     sddm --test-mode
 
 When using Qt5, test-mode requires [at least xorg-server 1.15.0](https://bugs.freedesktop.org/show_bug.cgi?id=62346#c8), as older releases don't support GLX in Xephyr which is required by QtQuick2.
+
+### Interactive PAM authentication
+
+Themes can opt into interactive authentication when
+`sddm.authenticationConversationVersion === 1`. The property is negotiated with
+the daemon; it is zero before negotiation and with older daemons. Do not start
+an interactive attempt until version 1 is available. The bundled theme retains
+its legacy password interface when this capability is unavailable.
+
+`beginAuthentication(user, sessionIndex)` returns a nonzero attempt identifier,
+or zero if local validation or capability checks prevent the request. The
+daemon rejects a busy request asynchronously with `authenticationFinished` and
+result 0. Retain the current attempt until its final result rather than starting
+another one. Bind the selected user and session to that attempt. Trusted PAM modules may canonicalize
+the supplied username during normal authentication.
+
+The proxy emits these signals:
+
+* `authenticationPrompt(attempt, prompt, message, responseVisible)` requests one
+  fresh response. Render the literal message using `Text.PlainText`; use visible
+  input only when `responseVisible` is true.
+* `authenticationMessage(attempt, message, error)` carries a literal informational
+  or error notice. An error notice is not necessarily a terminal failure: PAM
+  may continue with another prompt or retry. Keep relevant instructions visible
+  while waiting, including authenticator number-matching information.
+* `authenticationAuthorized(attempt)` marks the session-authorization cutoff.
+  Cancellation can no longer prevent a session from starting. PAM session setup
+  may still request further responses.
+* `authenticationFinished(attempt, result)` ends the attempt. Results are 0 for
+  failure, 1 for cancellation and 2 for successful session login.
+
+Call `respond(attempt, prompt, response)` once for the current prompt. Clear the
+input field before sending and on every new prompt, cancellation and completion.
+Never reuse a password or other response for a subsequent prompt. Ignore signals
+whose attempt identifier does not match the current attempt. Do not log response
+or message contents, interpret PAM text as rich text, or launch links from it.
+
+Call `cancelAuthentication(attempt)` before authorization to cancel. Keep the
+attempt active in the UI until its final result arrives; the daemon invalidates
+it immediately and asynchronously terminates the helper, forcibly after five
+seconds if necessary. A new attempt is refused until the old helper exits.
+Socket disconnection clears the UI's outstanding response and attempt.
+
+The existing `login(user, password, sessionIndex)` API remains available for
+legacy themes. Its supplied password can answer one hidden prompt only. A
+subsequent prompt fails authentication instead of reusing that password. Normal
+PAM account checks and session setup remain required. Interactive authentication
+does not add an explicit password/PIN reset API.

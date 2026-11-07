@@ -25,6 +25,7 @@
 #include <QtCore/QProcessEnvironment>
 
 #include "Auth.h"
+#include <string.h>
 
 namespace SDDM {
     class Prompt {
@@ -38,6 +39,8 @@ namespace SDDM {
             clear();
         }
         Prompt& operator=(const Prompt &o) {
+            if (this == &o) return *this;
+            clear();
             type = o.type;
             response = o.response;
             message = o.message;
@@ -53,7 +56,7 @@ namespace SDDM {
         void clear() {
             type = AuthPrompt::NONE;
             // overwrite the whole thing with zeroes before clearing
-            memset(response.data(), 0, response.length());
+            explicit_bzero(response.data(), response.size());
             response.clear();
             message.clear();
             hidden = false;
@@ -98,6 +101,7 @@ namespace SDDM {
         AUTHENTICATED,
         SESSION_STATUS,
         DISPLAY_SERVER_STARTED,
+        HELLO_CONVERSATION,
         MSG_LAST,
     };
 

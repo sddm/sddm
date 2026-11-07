@@ -63,9 +63,7 @@ namespace SDDM {
             d->finished = false;
         }
         Q_EMIT promptsChanged();
-        if (request == nullptr) {
-            qDeleteAll(promptsCopy);
-        }
+        qDeleteAll(promptsCopy);
     }
 
     QList<AuthPrompt*> AuthRequest::prompts() {

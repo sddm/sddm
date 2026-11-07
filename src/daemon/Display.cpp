@@ -29,6 +29,7 @@
 #include "Seat.h"
 #include "SocketServer.h"
 #include "Greeter.h"
+#include "Messages.h"
 #include "Utils.h"
 
 #include <QDebug>
@@ -154,6 +155,9 @@ namespace SDDM {
 
         // connect login signal
         connect(m_socketServer, &SocketServer::login, this, &Display::login);
+        connect(m_socketServer, &SocketServer::conversationBegin, this, &Display::beginAuthentication);
+        connect(m_socketServer, &SocketServer::conversationResponse, this, &Display::respondConversation);
+        connect(m_socketServer, &SocketServer::conversationCancel, this, &Display::cancelAuthentication);
 
         // connect login result signals
         connect(this, &Display::loginFailed, m_socketServer, &SocketServer::loginFailed);
@@ -331,7 +335,12 @@ namespace SDDM {
     void Display::login(QLocalSocket *socket,
                         const QString &user, const QString &password,
                         const Session &session) {
+        if (m_auth->isActive() || m_conversationId || user.isEmpty() || user.size() > 256
+            || user.startsWith(QLatin1Char('-')) || user.contains(QChar(0))) { emit loginFailed(socket); return; }
         m_socket = socket;
+        m_legacyInitialRequest = true;
+        m_cancelledConversation = false;
+        m_sessionAuthorized = false;
 
         //the SDDM user has special privileges that skip password checking so that we can load the greeter
         //block ever trying to log in as the SDDM user
@@ -342,6 +351,74 @@ namespace SDDM {
 
         // authenticate
         startAuth(user, password, session);
+    }
+
+    void Display::beginAuthentication(QLocalSocket *socket, quint32 attempt, const QString &user, const Session &session) {
+        if (!socket || !attempt || attempt <= m_seenAttempts.value(socket, 0)) return;
+        if (!m_seenAttempts.contains(socket)) {
+            connect(socket, &QObject::destroyed, this, [this, socket] { m_seenAttempts.remove(socket); });
+            connect(socket, &QLocalSocket::disconnected, this, [this, socket] {
+                if (socket == m_conversationSocket) cancelAuthentication(socket, m_conversationId);
+            });
+        }
+        m_seenAttempts[socket] = attempt;
+        // Never overlap helpers, including a helper still exiting after cancellation.
+        if (m_auth->isActive() || m_conversationId || user.isEmpty() || user.size() > 256
+            || user.startsWith(QLatin1Char('-')) || user.contains(QChar(0)) || user == QLatin1String("sddm")) {
+            m_socketServer->conversationFinished(socket, attempt, ConversationFailed);
+            return;
+        }
+        m_conversationId = attempt;
+        m_conversationSocket = socket;
+        m_socket = socket;
+        m_promptId = 0;
+        m_waitingPrompt = false;
+        m_cancelledConversation = false;
+        m_sessionAuthorized = false;
+        m_legacyInitialRequest = false;
+        m_passPhrase.fill(QChar(0)); m_passPhrase.clear();
+        if (!startAuth(user, QString(), session)) {
+            finishConversation(ConversationFailed);
+        }
+    }
+
+    void Display::respondConversation(QLocalSocket *socket, quint32 attempt, quint32 prompt, const QString &response) {
+        if (!m_conversationId || socket != m_conversationSocket || attempt != m_conversationId
+            || prompt != m_promptId || !m_waitingPrompt || m_cancelledConversation
+            || m_auth->isCancelled() || !m_auth->isActive() || response.size() > 4096) return;
+        const auto prompts = m_auth->request()->prompts();
+        if (prompts.size() != 1) return;
+        m_waitingPrompt = false; // consume before callbacks can request another prompt
+        prompts[0]->setResponse(response.toUtf8());
+        m_auth->request()->done();
+    }
+
+    void Display::cancelAuthentication(QLocalSocket *socket, quint32 attempt) {
+        if (!attempt || attempt != m_conversationId || socket != m_conversationSocket) return;
+        if (m_sessionAuthorized) {
+            m_socketServer->conversationAuthorized(socket, attempt);
+            const auto prompts = m_auth->request()->prompts();
+            if (m_waitingPrompt && prompts.size() == 1)
+                m_socketServer->conversationPrompt(socket, attempt, m_promptId, prompts[0]->message(), prompts[0]->hidden());
+            return;
+        }
+        m_cancelledConversation = true;
+        m_waitingPrompt = false;
+        m_passPhrase.fill(QChar(0)); m_passPhrase.clear();
+        if (m_auth->isActive()) m_auth->stop();
+        else finishConversation(ConversationCancelled);
+    }
+
+    void Display::finishConversation(quint32 result) {
+        const quint32 attempt = m_conversationId;
+        QPointer<QLocalSocket> socket = m_conversationSocket;
+        m_conversationId = 0;
+        m_promptId = 0;
+        m_waitingPrompt = false;
+        m_conversationSocket = nullptr;
+        m_socket = nullptr;
+        m_passPhrase.fill(QChar(0)); m_passPhrase.clear();
+        if (socket && attempt) m_socketServer->conversationFinished(socket, attempt, result);
     }
 
     QString Display::findGreeterTheme() const {
@@ -392,6 +469,9 @@ namespace SDDM {
             return false;
         }
 
+        m_auth->setConversation(m_conversationId != 0);
+        if (!m_conversationId) m_cancelledConversation = false;
+        m_sessionAuthorized = false;
         m_passPhrase = password;
 
         // sanity check
@@ -473,6 +553,8 @@ namespace SDDM {
         m_auth->setUser(user);
         if (m_reuseSessionId.isNull()) {
             m_auth->setSession(session.exec());
+        } else {
+            m_auth->setSession(QString());
         }
         m_auth->insertEnvironment(env);
         m_auth->start();
@@ -481,12 +563,19 @@ namespace SDDM {
     }
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
+        // No cancelled/reset authentication can authorize, activate or unlock a session.
+        if (m_auth->isCancelled() || m_cancelledConversation) return;
         if (m_auth->autologin() && !success) {
             handleAutologinFailure();
             return;
         }
 
         if (success) {
+            // From this point greeter cancellation is no longer a session-control API.
+            m_sessionAuthorized = true;
+            if (m_conversationId) m_socketServer->conversationAuthorized(m_conversationSocket, m_conversationId);
+            m_waitingPrompt = false;
+            m_passPhrase.fill(QChar(0)); m_passPhrase.clear();
             qDebug() << "Authentication for user " << user << " successful";
 
             if (!m_reuseSessionId.isNull()) {
@@ -511,7 +600,7 @@ namespace SDDM {
 
             if (m_socket)
                 emit loginSucceeded(m_socket);
-        } else if (m_socket) {
+        } else if (m_socket && !m_conversationId) {
             qDebug() << "Authentication for user " << user << " failed";
             emit loginFailed(m_socket);
         }
@@ -519,7 +608,12 @@ namespace SDDM {
     }
 
     void Display::slotAuthInfo(const QString &message, Auth::Info info) {
-        qWarning() << "Authentication information:" << info << message;
+        Q_UNUSED(info);
+        if (m_conversationId) {
+            if (!m_cancelledConversation && !m_auth->isCancelled())
+                m_socketServer->conversationMessage(m_conversationSocket, m_conversationId, message, false);
+            return;
+        }
 
         if (!m_socket)
             return;
@@ -528,7 +622,11 @@ namespace SDDM {
     }
 
     void Display::slotAuthError(const QString &message, Auth::Error error) {
-        qWarning() << "Authentication error:" << error << message;
+        if (m_conversationId) {
+            if (!m_cancelledConversation && !m_auth->isCancelled())
+                m_socketServer->conversationMessage(m_conversationSocket, m_conversationId, message, true);
+            return;
+        }
 
         if (!m_socket)
             return;
@@ -539,6 +637,12 @@ namespace SDDM {
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
+        if (m_conversationId) {
+            const bool cancelled = m_cancelledConversation;
+            const bool reused = !cancelled && m_sessionAuthorized && status == Auth::HELPER_SUCCESS;
+            finishConversation(cancelled ? ConversationCancelled : reused ? ConversationLogin : ConversationFailed);
+            if (cancelled) return;
+        }
         // Don't restart greeter and display server unless sddm-helper exited
         // with an internal error or the user session finished successfully,
         // we want to avoid greeter from restarting when an authentication
@@ -549,19 +653,34 @@ namespace SDDM {
     }
 
     void Display::slotRequestChanged() {
-        if (m_auth->request()->prompts().length() == 1) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_passPhrase));
+        if (m_auth->isCancelled() || m_cancelledConversation) return;
+        const auto prompts = m_auth->request()->prompts();
+        if (prompts.size() != 1) return;
+        if (m_legacyInitialRequest && prompts[0]->hidden()) {
+            m_legacyInitialRequest = false;
+            prompts[0]->setResponse(m_passPhrase.toUtf8());
+            m_passPhrase.fill(QChar(0)); m_passPhrase.clear();
             m_auth->request()->done();
-        } else if (m_auth->request()->prompts().length() == 2) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_auth->user()));
-            m_auth->request()->prompts()[1]->setResponse(qPrintable(m_passPhrase));
-            m_auth->request()->done();
+            return;
+        }
+        if (!m_conversationId) {
+            m_passPhrase.fill(QChar(0)); m_passPhrase.clear();
+            emit loginFailed(m_socket);
+            m_auth->stop();
+            return;
+        }
+        if (m_conversationId && m_conversationSocket && !m_waitingPrompt && m_promptId != 0xffffffffu) {
+            ++m_promptId;
+            m_waitingPrompt = true;
+            m_socketServer->conversationPrompt(m_conversationSocket, m_conversationId, m_promptId, prompts[0]->message(), prompts[0]->hidden());
         }
     }
 
     void Display::slotSessionStarted(bool success) {
         qDebug() << "Session started" << success;
+        if (m_auth->isCancelled() || m_cancelledConversation) return;
         if (success) {
+            if (m_conversationId) finishConversation(ConversationLogin);
             QTimer::singleShot(5000, m_greeter, &Greeter::stop);
         }
     }

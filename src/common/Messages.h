@@ -30,7 +30,11 @@ namespace SDDM {
         Reboot,
         Suspend,
         Hibernate,
-        HybridSleep
+        HybridSleep,
+        BeginConversation,
+        ConversationResponse,
+        CancelConversation,
+        ConversationHello
     };
 
     enum class DaemonMessages {
@@ -39,7 +43,14 @@ namespace SDDM {
         LoginSucceeded,
         LoginFailed,
         InformationMessage,
+        ConversationVersion,
+        ConversationPrompt,
+        ConversationMessage,
+        ConversationFinished,
+        ConversationAuthorized,
     };
+
+    enum ConversationResult { ConversationFailed = 0, ConversationCancelled = 1, ConversationLogin = 2 };
 
     enum Capability {
         None = 0x0000,

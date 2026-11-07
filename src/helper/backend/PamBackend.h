@@ -32,28 +32,6 @@
 namespace SDDM {
     class PamHandle;
     class PamBackend;
-    class PamData {
-    public:
-        PamData();
-
-        bool insertPrompt(const struct pam_message *msg, bool predict = true);
-        Auth::Info handleInfo(const struct pam_message *msg, bool predict);
-
-        const Request& getRequest() const;
-        void completeRequest(const Request& request);
-
-        QByteArray getResponse(const struct pam_message *msg);
-
-    private:
-        AuthPrompt::Type detectPrompt(const struct pam_message *msg) const;
-
-        const Prompt& findPrompt(const struct pam_message *msg) const;
-        Prompt& findPrompt(const struct pam_message *msg);
-
-        bool m_sent { false };
-        Request m_currentRequest { };
-    };
-
     class PamBackend : public Backend
     {
         Q_OBJECT
@@ -71,7 +49,6 @@ namespace SDDM {
         virtual QString userName();
 
     private:
-        PamData *m_data { nullptr };
         PamHandle *m_pam { nullptr };
     };
 }

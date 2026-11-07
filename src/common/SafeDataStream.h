@@ -28,8 +28,10 @@ namespace SDDM {
     class SafeDataStream : public QDataStream {
     public:
         SafeDataStream(QIODevice* device);
+        ~SafeDataStream();
         void send();
-        void receive();
+        // Human PAM responses may wait for the first byte; partial frames stay bounded.
+        void receive(bool waitForReply = false);
         void reset();
 
     private:

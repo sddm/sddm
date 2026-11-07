@@ -33,6 +33,8 @@ namespace SDDM {
         SessionModel *sessionModel { nullptr };
         QLocalSocket *socket { nullptr };
         QString hostName;
+        quint32 authenticationConversationVersion {0};
+        quint32 nextConversation {0};
         bool canPowerOff { false };
         bool canReboot { false };
         bool canSuspend { false };
@@ -127,15 +129,39 @@ namespace SDDM {
         SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
     }
 
+    quint32 GreeterProxy::authenticationConversationVersion() const { return d->authenticationConversationVersion; }
+    quint32 GreeterProxy::beginAuthentication(const QString &user, int sessionIndex) {
+        if (d->authenticationConversationVersion != 1 || !d->sessionModel || user.isEmpty() || user.size() > 256
+            || user.startsWith(QLatin1Char('-')) || user.contains(QChar(0)) || d->nextConversation == 0xffffffffu) return 0;
+        const QModelIndex index = d->sessionModel->index(sessionIndex, 0);
+        if (!index.isValid()) return 0;
+        const auto type = static_cast<Session::Type>(d->sessionModel->data(index, SessionModel::TypeRole).toInt());
+        const auto name = d->sessionModel->data(index, SessionModel::FileRole).toString();
+        const quint32 attempt = ++d->nextConversation;
+        SocketWriter(d->socket) << quint32(GreeterMessages::BeginConversation) << attempt << user << Session(type, name);
+        return attempt;
+    }
+    void GreeterProxy::respond(quint32 attempt, quint32 prompt, const QString &response) {
+        if (d->authenticationConversationVersion == 1 && attempt && prompt && response.size() <= 4096)
+            SocketWriter(d->socket) << quint32(GreeterMessages::ConversationResponse) << attempt << prompt << response;
+    }
+    void GreeterProxy::cancelAuthentication(quint32 attempt) {
+        if (d->authenticationConversationVersion == 1 && attempt)
+            SocketWriter(d->socket) << quint32(GreeterMessages::CancelConversation) << attempt;
+    }
+
     void GreeterProxy::connected() {
         // log connection
         qDebug() << "Connected to the daemon.";
 
         // send connected message
         SocketWriter(d->socket) << quint32(GreeterMessages::Connect);
+        SocketWriter(d->socket) << quint32(GreeterMessages::ConversationHello);
     }
 
     void GreeterProxy::disconnected() {
+        d->authenticationConversationVersion = 0;
+        emit authenticationConversationVersionChanged();
         // log disconnection
         qDebug() << "Disconnected from the daemon.";
 
@@ -151,6 +177,8 @@ namespace SDDM {
         QDataStream input(d->socket);
 
         while (input.device()->bytesAvailable()) {
+            if (d->socket->bytesAvailable() < 4) return;
+            input.startTransaction();
             // read message
             quint32 message;
             input >> message;
@@ -163,6 +191,7 @@ namespace SDDM {
                     // read capabilities
                     quint32 capabilities;
                     input >> capabilities;
+                    if (!input.commitTransaction()) return;
 
                     // parse capabilities
                     d->canPowerOff = capabilities & Capability::PowerOff;
@@ -184,13 +213,48 @@ namespace SDDM {
                     qDebug() << "Message received from daemon: HostName";
 
                     // read host name
-                    input >> d->hostName;
+                    QString hostName;
+                    input >> hostName;
+                    if (!input.commitTransaction()) return;
+                    d->hostName = hostName;
 
                     // emit signal
                     emit hostNameChanged(d->hostName);
                 }
                 break;
+                case DaemonMessages::ConversationVersion: {
+                    quint32 version = 0; input >> version;
+                    if (!input.commitTransaction()) return;
+                    d->authenticationConversationVersion = version; emit authenticationConversationVersionChanged(); break;
+                }
+                case DaemonMessages::ConversationAuthorized: {
+                    quint32 attempt = 0; input >> attempt;
+                    if (!input.commitTransaction()) return;
+                    emit authenticationAuthorized(attempt);
+                    break;
+                }
+                case DaemonMessages::ConversationPrompt: {
+                    quint32 attempt = 0, prompt = 0, hidden = 0; QString text;
+                    input >> attempt >> prompt >> text >> hidden;
+                    if (!input.commitTransaction()) return;
+                    if (input.status() == QDataStream::Ok && hidden <= 1) emit authenticationPrompt(attempt, prompt, text, hidden == 0);
+                    break;
+                }
+                case DaemonMessages::ConversationMessage: {
+                    quint32 attempt = 0, error = 0; QString text;
+                    input >> attempt >> text >> error;
+                    if (!input.commitTransaction()) return;
+                    if (input.status() == QDataStream::Ok && error <= 1) emit authenticationMessage(attempt, text, error == 1);
+                    break;
+                }
+                case DaemonMessages::ConversationFinished: {
+                    quint32 attempt = 0, result = 0; input >> attempt >> result;
+                    if (!input.commitTransaction()) return;
+                    if (input.status() == QDataStream::Ok) emit authenticationFinished(attempt, result);
+                    break;
+                }
                 case DaemonMessages::LoginSucceeded: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from daemon: LoginSucceeded";
 
@@ -199,6 +263,7 @@ namespace SDDM {
                 }
                 break;
                 case DaemonMessages::LoginFailed: {
+                    if (!input.commitTransaction()) return;
                     // log message
                     qDebug() << "Message received from daemon: LoginFailed";
 
@@ -209,8 +274,7 @@ namespace SDDM {
                 case DaemonMessages::InformationMessage: {
                     QString message;
                     input >> message;
-
-                    qDebug() << "Information Message received from daemon: " << message;
+                    if (!input.commitTransaction()) return;
                     emit informationMessage(message);
                 }
                 break;

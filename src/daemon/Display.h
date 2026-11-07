@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QHash>
 #include <QDir>
 
 #include "Auth.h"
@@ -72,6 +73,9 @@ namespace SDDM {
         void login(QLocalSocket *socket,
                    const QString &user, const QString &password,
                    const Session &session);
+        void beginAuthentication(QLocalSocket *socket, quint32 attempt, const QString &user, const Session &session);
+        void respondConversation(QLocalSocket *socket, quint32 attempt, quint32 prompt, const QString &response);
+        void cancelAuthentication(QLocalSocket *socket, quint32 attempt);
         void displayServerStarted();
 
     signals:
@@ -104,6 +108,15 @@ namespace SDDM {
 
         Session m_autologinSession;
 
+        quint32 m_conversationId {0};
+        quint32 m_promptId {0};
+        bool m_waitingPrompt {false};
+        bool m_cancelledConversation {false};
+        bool m_sessionAuthorized {false};
+        bool m_legacyInitialRequest {false};
+        QPointer<QLocalSocket> m_conversationSocket;
+        QHash<QLocalSocket *, quint32> m_seenAttempts;
+        void finishConversation(quint32 result);
         Auth *m_auth { nullptr };
         DisplayServer *m_displayServer { nullptr };
         Seat *m_seat { nullptr };

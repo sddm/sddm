@@ -32,185 +32,12 @@
 #include <stdlib.h>
 
 namespace SDDM {
-    static Request loginRequest {
-        {   { AuthPrompt::LOGIN_USER, QStringLiteral("login:"), false },
-            { AuthPrompt::LOGIN_PASSWORD, QStringLiteral("Password: "), true }
-        }
-    };
-
-    static Request changePassRequest {
-        {   { AuthPrompt::CHANGE_CURRENT, QStringLiteral("(current) UNIX password: "), true },
-            { AuthPrompt::CHANGE_NEW, QStringLiteral("New password: "), true },
-            { AuthPrompt::CHANGE_REPEAT, QStringLiteral("Retype new password: "), true }
-        }
-    };
-
-    static Request changePassNoOldRequest {
-        {   { AuthPrompt::CHANGE_NEW, QStringLiteral("New password: "), true },
-            { AuthPrompt::CHANGE_REPEAT, QStringLiteral("Retype new password: "), true }
-        }
-    };
-
-    static Request invalidRequest { {} };
-
-    static Prompt invalidPrompt {};
-
-    PamData::PamData() { }
-
-    AuthPrompt::Type PamData::detectPrompt(const struct pam_message* msg) const {
-        if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
-            QString message = QString::fromLocal8Bit(msg->msg);
-            if ((QRegularExpression(QStringLiteral("\\bpassword\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
-                if ((QRegularExpression(QStringLiteral("\\b(re-?(enter|type)|again|confirm|repeat)\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
-                    return AuthPrompt::CHANGE_REPEAT;
-                }
-                else if ((QRegularExpression(QStringLiteral("\\bnew\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
-                    return AuthPrompt::CHANGE_NEW;
-                }
-                else if ((QRegularExpression(QStringLiteral("\\b(old|current)\\b"), QRegularExpression::CaseInsensitiveOption)).match(message).hasMatch()) {
-                    return AuthPrompt::CHANGE_CURRENT;
-                }
-                else {
-                    return AuthPrompt::LOGIN_PASSWORD;
-                }
-            }
-        }
-        else {
-            return AuthPrompt::LOGIN_USER;
-        }
-
-        return AuthPrompt::UNKNOWN;
-    }
-
-    const Prompt& PamData::findPrompt(const struct pam_message* msg) const {
-        AuthPrompt::Type type = detectPrompt(msg);
-
-        for (const Prompt &p : m_currentRequest.prompts) {
-            if (type == p.type && p.message == QString::fromLocal8Bit(msg->msg))
-                return p;
-        }
-
-        return invalidPrompt;
-    }
-
-    Prompt& PamData::findPrompt(const struct pam_message* msg) {
-        AuthPrompt::Type type = detectPrompt(msg);
-
-        for (Prompt &p : m_currentRequest.prompts) {
-            if (type == AuthPrompt::UNKNOWN && QString::fromLocal8Bit(msg->msg) == p.message)
-                return p;
-            if (type == p.type)
-                return p;
-        }
-
-        return invalidPrompt;
-    }
-
-    /*
-    * Expects an empty prompt list if the previous request has been processed
-    */
-    bool PamData::insertPrompt(const struct pam_message* msg, bool predict) {
-        Prompt &p = findPrompt(msg);
-
-        // first, check if we already have stored this propmpt
-        if (p.valid()) {
-            // we have a response already - do nothing
-            if (m_sent)
-                return false;
-            // we don't have a response yet - replace the message and prepare to send it
-            p.message = QString::fromLocal8Bit(msg->msg);
-            return true;
-        }
-        // this prompt is not stored but we have some prompts
-        else if (m_currentRequest.prompts.length() != 0) {
-            // check if we have already sent this - if we did, get rid of the answers
-            if (m_sent) {
-                m_currentRequest.clear();
-                m_sent = false;
-            }
-        }
-
-        // we'll predict what will come next
-        if (predict) {
-            AuthPrompt::Type type = detectPrompt(msg);
-            switch (type) {
-                case AuthPrompt::LOGIN_USER:
-                    m_currentRequest = Request(loginRequest);
-                    return true;
-                case AuthPrompt::CHANGE_CURRENT:
-                    m_currentRequest = Request(changePassRequest);
-                    return true;
-                case AuthPrompt::CHANGE_NEW:
-                    m_currentRequest = Request(changePassNoOldRequest);
-                    return true;
-                default:
-                    break;
-            }
-        }
-
-        // or just add whatever comes exactly as it comes
-        m_currentRequest.prompts.append(Prompt(detectPrompt(msg), QString::fromLocal8Bit(msg->msg), msg->msg_style == PAM_PROMPT_ECHO_OFF));
-
-        return true;
-    }
-
-    Auth::Info PamData::handleInfo(const struct pam_message* msg, bool predict) {
-        if ((QRegularExpression(QStringLiteral("^Changing password for [^ ]+$"))).match(QString::fromLocal8Bit(msg->msg)).hasMatch()) {
-            if (predict)
-                m_currentRequest = Request(changePassRequest);
-            return Auth::INFO_PASS_CHANGE_REQUIRED;
-        }
-        return Auth::INFO_UNKNOWN;
-    }
-
-    /*
-    * Destroys the prompt with that response
-    */
-    QByteArray PamData::getResponse(const struct pam_message* msg) {
-        QByteArray response = findPrompt(msg).response;
-        m_currentRequest.prompts.removeOne(findPrompt(msg));
-        if (m_currentRequest.prompts.length() == 0)
-            m_sent = false;
-        return response;
-    }
-
-    const Request& PamData::getRequest() const {
-        if (!m_sent)
-            return m_currentRequest;
-        else
-            return invalidRequest;
-    }
-
-    void PamData::completeRequest(const Request& request) {
-        if (request.prompts.length() != m_currentRequest.prompts.length()) {
-            qWarning() << "[PAM] Different request/response list length, ignoring";
-            return;
-        }
-
-        for (int i = 0; i < request.prompts.length(); i++) {
-            if (request.prompts[i].type != m_currentRequest.prompts[i].type
-                || request.prompts[i].message != m_currentRequest.prompts[i].message
-                || request.prompts[i].hidden != m_currentRequest.prompts[i].hidden) {
-                qWarning() << "[PAM] Order or type of the messages doesn't match, ignoring";
-                return;
-            }
-        }
-
-        m_currentRequest = request;
-        m_sent = true;
-    }
-
-
-
-
     PamBackend::PamBackend(HelperApp *parent)
             : Backend(parent)
-            , m_data(new PamData())
             , m_pam(new PamHandle(this)) {
     }
 
     PamBackend::~PamBackend() {
-        delete m_data;
         delete m_pam;
     }
 
@@ -230,6 +57,8 @@ namespace SDDM {
 
         return result;
     }
+
+
 
     bool PamBackend::authenticate() {
         if (!m_pam->authenticate()) {
@@ -298,67 +127,39 @@ namespace SDDM {
     int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {
         qDebug() << "[PAM] Conversation with" << n << "messages";
 
-        bool newRequest = false;
-
-        if (n <= 0 || n > PAM_MAX_NUM_MSG)
-            return PAM_CONV_ERR;
-
-        for (int i = 0; i < n; i++) {
-            switch(msg[i]->msg_style) {
-                case PAM_PROMPT_ECHO_OFF:
-                case PAM_PROMPT_ECHO_ON:
-                    newRequest = m_data->insertPrompt(msg[i], n == 1);
-                    break;
-                case PAM_ERROR_MSG:
-                    m_app->error(QString::fromLocal8Bit(msg[i]->msg), Auth::ERROR_AUTHENTICATION);
-                    break;
-                case PAM_TEXT_INFO:
-                    // if there's only the info message, let's predict the prompts too
-                    m_app->info(QString::fromLocal8Bit(msg[i]->msg), m_data->handleInfo(msg[i], n == 1));
-                    break;
-                default:
-                    break;
-            }
+        if (n <= 0 || n > PAM_MAX_NUM_MSG || !resp || !msg) return PAM_CONV_ERR;
+        QVector<size_t> lengths(n, 0);
+        *resp = static_cast<pam_response *>(calloc(n, sizeof(pam_response)));
+        if (!*resp) return PAM_BUF_ERR;
+        for (int i = 0; i < n; ++i) {
+            if (!msg[i] || !msg[i]->msg || strlen(msg[i]->msg) > 8192) goto failed;
+            if (msg[i]->msg_style == PAM_TEXT_INFO) {
+                m_app->info(QString::fromLocal8Bit(msg[i]->msg), Auth::INFO_NONE);
+            } else if (msg[i]->msg_style == PAM_ERROR_MSG) {
+                m_app->error(QString::fromLocal8Bit(msg[i]->msg), Auth::ERROR_AUTHENTICATION);
+            } else if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
+                Request sent({Prompt(AuthPrompt::UNKNOWN, QString::fromLocal8Bit(msg[i]->msg), msg[i]->msg_style == PAM_PROMPT_ECHO_OFF)});
+                Request received = m_app->request(sent);
+                if (!received.valid() || received.prompts.length() != 1
+                    || received.prompts[0].message != sent.prompts[0].message
+                    || received.prompts[0].hidden != sent.prompts[0].hidden
+                    || received.prompts[0].response.length() > 16384) goto failed;
+                const QByteArray &response = received.prompts[0].response;
+                lengths[i] = response.length() + 1;
+                (*resp)[i].resp = static_cast<char *>(malloc(lengths[i]));
+                if (!(*resp)[i].resp) goto failed;
+                memcpy((*resp)[i].resp, response.constData(), response.length());
+                (*resp)[i].resp[response.length()] = '\0';
+                received.clear();
+            } else goto failed;
         }
-
-        if (newRequest) {
-            Request sent = m_data->getRequest();
-            Request received;
-
-            if (sent.valid()) {
-                received = m_app->request(sent);
-
-                if (!received.valid())
-                    return PAM_CONV_ERR;
-
-                m_data->completeRequest(received);
-            }
-        }
-
-        *resp = (struct pam_response *) calloc(n, sizeof(struct pam_response));
-        if (!*resp) {
-            return PAM_BUF_ERR;
-        }
-
-        for (int i = 0; i < n; i++) {
-            QByteArray response = m_data->getResponse(msg[i]);
-
-            resp[i]->resp = (char *) malloc(response.length() + 1);
-            // on error, get rid of everything
-            if (!resp[i]->resp) {
-                for (int j = 0; j < i; j++) {
-                    free(resp[j]->resp);
-                    resp[j]->resp = nullptr;
-                }
-                free(*resp);
-                *resp = nullptr;
-                return PAM_BUF_ERR;
-            }
-
-            memcpy(resp[i]->resp, response.constData(), response.length());
-            resp[i]->resp[response.length()] = '\0';
-        }
-
         return PAM_SUCCESS;
+failed:
+        for (int i = 0; i < n; ++i) if ((*resp)[i].resp) {
+            explicit_bzero((*resp)[i].resp, lengths[i]);
+            free((*resp)[i].resp);
+        }
+        free(*resp); *resp = nullptr;
+        return PAM_CONV_ERR;
     }
 }

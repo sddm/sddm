@@ -47,6 +47,10 @@ namespace SDDM {
 
     public slots:
         void informationMessage(QLocalSocket *socket, const QString &message);
+        void conversationAuthorized(QLocalSocket *socket, quint32 attempt);
+        void conversationPrompt(QLocalSocket *socket, quint32 attempt, quint32 prompt, const QString &message, bool hidden);
+        void conversationMessage(QLocalSocket *socket, quint32 attempt, const QString &message, bool error);
+        void conversationFinished(QLocalSocket *socket, quint32 attempt, quint32 result);
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
 
@@ -54,6 +58,9 @@ namespace SDDM {
         void login(QLocalSocket *socket,
                    const QString &user, const QString &password,
                    const Session &session);
+        void conversationBegin(QLocalSocket *socket, quint32 attempt, const QString &user, const Session &session);
+        void conversationResponse(QLocalSocket *socket, quint32 attempt, quint32 prompt, const QString &response);
+        void conversationCancel(QLocalSocket *socket, quint32 attempt);
         void connected();
 
     private:

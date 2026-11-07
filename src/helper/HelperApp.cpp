@@ -39,10 +39,12 @@
 #include <sys/time.h>
 
 #if defined(Q_OS_LINUX)
+#include <sys/prctl.h>
 #include <utmp.h>
 #endif
 #include <utmpx.h>
 #include <QByteArray>
+#include <QCommandLineParser>
 #include <signal.h>
 
 namespace SDDM {
@@ -61,65 +63,39 @@ namespace SDDM {
     }
 
     void HelperApp::setUp() {
-        const QStringList args = QCoreApplication::arguments();
-        QString server;
-        int pos;
-
-        if ((pos = args.indexOf(QStringLiteral("--socket"))) >= 0) {
-            if (pos >= args.length() - 1) {
-                qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
-                return;
-            }
-            server = args[pos + 1];
+        QCommandLineParser parser;
+        parser.addOptions({
+            {QStringLiteral("socket"), QString(), QStringLiteral("path")},
+            {QStringLiteral("id"), QString(), QStringLiteral("id")},
+            {QStringLiteral("start"), QString(), QStringLiteral("command")},
+            {QStringLiteral("user"), QString(), QStringLiteral("name")},
+            {QStringLiteral("display-server"), QString(), QStringLiteral("command")},
+            {QStringLiteral("autologin"), QString()},
+            {QStringLiteral("greeter"), QString()},
+            {QStringLiteral("conversation"), QString()}
+        });
+        if (!parser.parse(QCoreApplication::arguments()) || !parser.positionalArguments().isEmpty()) {
+            qCritical() << "Invalid authentication helper options";
+            exit(Auth::HELPER_OTHER_ERROR);
+            return;
         }
-
-        if ((pos = args.indexOf(QStringLiteral("--id"))) >= 0) {
-            if (pos >= args.length() - 1) {
-                qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
-                return;
-            }
-            m_id = QString(args[pos + 1]).toLongLong();
-        }
-
-        if ((pos = args.indexOf(QStringLiteral("--start"))) >= 0) {
-            if (pos >= args.length() - 1) {
-                qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
-                return;
-            }
-            m_session->setPath(args[pos + 1]);
-        }
-
-        if ((pos = args.indexOf(QStringLiteral("--user"))) >= 0) {
-            if (pos >= args.length() - 1) {
-                qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
-                return;
-            }
-            m_user = args[pos + 1];
-        }
-
-        if ((pos = args.indexOf(QStringLiteral("--display-server"))) >= 0) {
-            if (pos >= args.length() - 1) {
-                qCritical() << "This application is not supposed to be executed manually";
-                exit(Auth::HELPER_OTHER_ERROR);
-                return;
-            }
-            m_session->setDisplayServerCommand(args[pos + 1]);
+        const QString server = parser.value(QStringLiteral("socket"));
+        bool validId = false;
+        m_id = parser.value(QStringLiteral("id")).toLongLong(&validId);
+        m_user = parser.value(QStringLiteral("user"));
+        m_conversation = parser.isSet(QStringLiteral("conversation"));
+        m_session->setPath(parser.value(QStringLiteral("start")));
+        if (parser.isSet(QStringLiteral("display-server"))) {
+            m_session->setDisplayServerCommand(parser.value(QStringLiteral("display-server")));
             m_backend->setDisplayServer(true);
         }
-
-        if ((pos = args.indexOf(QStringLiteral("--autologin"))) >= 0) {
-            m_backend->setAutologin(true);
+        m_backend->setAutologin(parser.isSet(QStringLiteral("autologin")));
+        m_backend->setGreeter(parser.isSet(QStringLiteral("greeter")));
+        if (m_conversation && (parser.isSet(QStringLiteral("autologin")) || parser.isSet(QStringLiteral("greeter")))) {
+            exit(Auth::HELPER_OTHER_ERROR);
+            return;
         }
-
-        if ((pos = args.indexOf(QStringLiteral("--greeter"))) >= 0) {
-            m_backend->setGreeter(true);
-        }
-
-        if (server.isEmpty() || m_id <= 0) {
+        if (server.isEmpty() || !validId || m_id <= 0) {
             qCritical() << "This application is not supposed to be executed manually";
             exit(Auth::HELPER_OTHER_ERROR);
             return;
@@ -132,7 +108,8 @@ namespace SDDM {
 
     void HelperApp::doAuth() {
         SafeDataStream str(m_socket);
-        str << Msg::HELLO << m_id;
+        str << (m_conversation ? Msg::HELLO_CONVERSATION : Msg::HELLO) << m_id;
+        if (m_conversation) str << quint32(1);
         str.send();
         if (str.status() != QDataStream::Ok)
             qCritical() << "Couldn't write initial message:" << str.status();
@@ -166,6 +143,10 @@ namespace SDDM {
 
         m_user = m_backend->userName();
         QProcessEnvironment env = authenticated(m_user);
+        if (!m_sessionAuthorized) {
+            exit(Auth::HELPER_AUTH_ERROR);
+            return;
+        }
 
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
@@ -217,7 +198,7 @@ namespace SDDM {
         SafeDataStream str(m_socket);
         str << Msg::REQUEST << request;
         str.send();
-        str.receive();
+        str.receive(true);
         str >> m >> response;
         if (m != REQUEST) {
             response = Request();
@@ -236,7 +217,8 @@ namespace SDDM {
             return env;
         str.receive();
         str >> m >> env >> m_cookie;
-        if (m != AUTHENTICATED) {
+        m_sessionAuthorized = str.status() == QDataStream::Ok && m == AUTHENTICATED;
+        if (!m_sessionAuthorized) {
             env = QProcessEnvironment();
             m_cookie = {};
             qCritical() << "Received a wrong opcode instead of AUTHENTICATED:" << m;
@@ -382,6 +364,9 @@ namespace SDDM {
 }
 
 int main(int argc, char** argv) {
+#if defined(Q_OS_LINUX)
+    if (prctl(PR_SET_DUMPABLE, 0)) return 1;
+#endif
     SDDM::HelperApp app(argc, argv);
     return app.exec();
 }

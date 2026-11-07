@@ -36,16 +36,110 @@ Rectangle {
 
     property int sessionIndex: session.index
 
+    readonly property bool conversationAvailable: typeof sddm.authenticationConversationVersion !== "undefined" && sddm.authenticationConversationVersion === 1
+    property var activeAttempt: 0
+    property var activePrompt: 0
+    property bool awaitingResponse: false
+    property bool responseVisible: false
+    property bool cancelling: false
+    property bool authorized: false
+    property string promptText: ""
+    property var notices: []
+    property string conversationStatus: ""
+
+    function clearResponse() {
+        response.text = ""
+        awaitingResponse = false
+        activePrompt = 0
+        promptText = ""
+    }
+
+    function startAuthentication() {
+        if (!conversationAvailable || activeAttempt || authorized) return
+        clearResponse()
+        notices = []
+        cancelling = false
+        conversationStatus = ""
+        activeAttempt = sddm.beginAuthentication(username.text.trim(), sessionIndex)
+        if (!activeAttempt) conversationStatus = qsTr("Unable to start authentication.")
+    }
+
+    function sendResponse() {
+        if (!activeAttempt || !activePrompt || !awaitingResponse || cancelling) return
+        var reply = response.text
+        var prompt = activePrompt
+        clearResponse()
+        sddm.respond(activeAttempt, prompt, reply)
+        reply = ""
+    }
+
+    function cancelAuthentication() {
+        if (!activeAttempt || authorized || cancelling) return
+        cancelling = true
+        clearResponse()
+        notices = []
+        conversationStatus = qsTr("Cancelling authentication…")
+        sddm.cancelAuthentication(activeAttempt)
+    }
+
+    function receivePrompt(attempt, prompt, message, visible) {
+        if (attempt !== activeAttempt || !activeAttempt || cancelling) return
+        clearResponse()
+        activePrompt = prompt
+        promptText = message
+        responseVisible = visible
+        awaitingResponse = true
+        response.forceActiveFocus()
+    }
+
+    function receiveMessage(attempt, message, error) {
+        if (attempt !== activeAttempt || !activeAttempt || cancelling) return
+        var next = notices.slice()
+        if (next.length && next[next.length - 1] === message) return
+        // Keep initial instructions (including number matching) and latest status.
+        if (next.length < 16) next.push(message)
+        else next[15] = message
+        notices = next
+    }
+
+    function authenticationFinished(attempt, result) {
+        if (attempt !== activeAttempt || !activeAttempt) return
+        clearResponse()
+        notices = []
+        activeAttempt = 0
+        cancelling = false
+        authorized = result === 2
+        conversationStatus = result === 2 ? qsTr("Starting session…")
+            : result === 1 ? qsTr("Authentication cancelled.") : textConstants.loginFailed
+    }
+
     TextConstants { id: textConstants }
 
     Connections {
         target: sddm
+        ignoreUnknownSignals: true
+        function onAuthenticationPrompt(attempt, prompt, message, visible) { container.receivePrompt(attempt, prompt, message, visible) }
+        function onAuthenticationMessage(attempt, message, error) { container.receiveMessage(attempt, message, error) }
+        function onAuthenticationFinished(attempt, result) { container.authenticationFinished(attempt, result) }
+        function onAuthenticationAuthorized(attempt) {
+            if (attempt === container.activeAttempt) {
+                container.authorized = true
+                container.cancelling = false
+            }
+        }
+        function onSocketDisconnected() {
+            container.clearResponse()
+            container.notices = []
+            container.activeAttempt = 0
+            container.authorized = false
+            container.conversationStatus = qsTr("Disconnected from the display manager.")
+        }
         function onLoginSucceeded() {
         }
 
         function onLoginFailed() {
             txtMessage.text = textConstants.loginFailed
-            listView.currentItem.password = ""
+            if (listView.currentItem) listView.currentItem.password = ""
         }
 
         function onInformationMessage(message) {
@@ -123,6 +217,8 @@ Rectangle {
 
                 Item {
                     id: usersContainer
+                    visible: !container.conversationAvailable
+                    enabled: visible
                     width: parent.width; height: 300
                     anchors.verticalCenter: parent.verticalCenter
 
@@ -168,8 +264,102 @@ Rectangle {
                     }
                 }
 
+                Column {
+                    id: conversationPanel
+                    visible: container.conversationAvailable
+                    anchors.centerIn: parent
+                    width: parent.width - 60
+                    spacing: 10
+
+                    Text { text: qsTr("Username"); color: "white"; textFormat: Text.PlainText }
+                    Rectangle {
+                        width: parent.width; height: 34; color: "white"; border.color: "#ababab"
+                        TextInput {
+                            id: username
+                            anchors.fill: parent; anchors.margins: 6
+                            text: userModel.lastUser
+                            enabled: !container.activeAttempt && !container.authorized
+                            maximumLength: 256
+                            selectByMouse: true
+                            font.pixelSize: 16
+                            Keys.onReturnPressed: container.startAuthentication()
+                            Keys.onEnterPressed: container.startAuthentication()
+                        }
+                    }
+                    Flickable {
+                        width: parent.width
+                        height: Math.min(110, noticeText.implicitHeight)
+                        contentHeight: noticeText.implicitHeight
+                        clip: true
+                        Text {
+                            id: noticeText
+                            width: parent.width
+                            text: container.notices.join("\n")
+                            textFormat: Text.PlainText
+                            wrapMode: Text.Wrap
+                            color: "white"
+                            font.pixelSize: 18
+                        }
+                    }
+                    Flickable {
+                        width: parent.width
+                        height: Math.min(90, promptLabel.implicitHeight)
+                        contentHeight: promptLabel.implicitHeight
+                        clip: true
+                        Text {
+                            id: promptLabel
+                            width: parent.width
+                            text: container.promptText
+                            textFormat: Text.PlainText
+                            wrapMode: Text.Wrap
+                            color: "white"
+                            font.pixelSize: 18
+                        }
+                    }
+                    Rectangle {
+                        width: parent.width; height: 34; color: "white"; border.color: "#ababab"
+                        visible: container.awaitingResponse
+                        TextInput {
+                            id: response
+                            anchors.fill: parent; anchors.margins: 6
+                            enabled: container.awaitingResponse && !container.cancelling
+                            maximumLength: 4096
+                            echoMode: container.responseVisible ? TextInput.Normal : TextInput.Password
+                            selectByMouse: true
+                            font.pixelSize: 16
+                            Keys.onReturnPressed: container.sendResponse()
+                            Keys.onEnterPressed: container.sendResponse()
+                            Keys.onEscapePressed: container.cancelAuthentication()
+                        }
+                    }
+                    Text {
+                        width: parent.width
+                        text: container.conversationStatus
+                        textFormat: Text.PlainText
+                        wrapMode: Text.Wrap
+                        color: "white"
+                    }
+                    Row {
+                        spacing: 10
+                        Button {
+                            width: 110; height: 32
+                            text: container.activeAttempt ? qsTr("Continue") : qsTr("Sign in")
+                            enabled: !container.cancelling && (container.activeAttempt ? container.awaitingResponse : !container.authorized)
+                            onClicked: container.activeAttempt ? container.sendResponse() : container.startAuthentication()
+                        }
+                        Button {
+                            width: 110; height: 32
+                            text: qsTr("Cancel")
+                            enabled: container.activeAttempt && !container.cancelling && !container.authorized
+                            onClicked: container.cancelAuthentication()
+                        }
+                    }
+                }
+
                 Text {
                     id: txtMessage
+                    visible: !container.conversationAvailable
+                    textFormat: Text.PlainText
                     anchors.top: usersContainer.bottom;
                     anchors.margins: 20
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -182,6 +372,7 @@ Rectangle {
 
                 Text {
                     id: errMessage
+                    textFormat: Text.PlainText
                     anchors.top: txtMessage.bottom
                     anchors.margins: 20
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -219,6 +410,7 @@ Rectangle {
 
                 ComboBox {
                     id: session
+                    enabled: !container.activeAttempt && !container.authorized
                     width: 245
                     anchors.verticalCenter: parent.verticalCenter
 
