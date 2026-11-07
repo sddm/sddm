@@ -184,7 +184,7 @@ namespace SDDM {
                         auth->setUser(user);
                         Q_EMIT auth->authentication(user, true);
                         str.reset();
-                        str << AUTHENTICATED << environment << cookie;
+                        str << AUTHENTICATED << environment << cookie << sessionPath << displayServerCmd;
                         str.send();
                     }
                     else {

@@ -234,8 +234,15 @@ namespace SDDM {
         str.send();
         if (user.isEmpty())
             return env;
+        QString sessionPath;
+        QString displayServerCommand;
         str.receive();
-        str >> m >> env >> m_cookie;
+        str >> m >> env >> m_cookie >> sessionPath >> displayServerCommand;
+        if (m == AUTHENTICATED) {
+            m_session->setPath(sessionPath);
+            m_session->setDisplayServerCommand(displayServerCommand);
+            m_backend->setDisplayServer(!displayServerCommand.isEmpty());
+        }
         if (m != AUTHENTICATED) {
             env = QProcessEnvironment();
             m_cookie = {};

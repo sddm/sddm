@@ -30,7 +30,11 @@ namespace SDDM {
         Reboot,
         Suspend,
         Hibernate,
-        HybridSleep
+        HybridSleep,
+        AuthenticationResponse,
+        BeginAuthentication,
+        SetSession,
+        CancelAuthentication
     };
 
     enum class DaemonMessages {
@@ -39,6 +43,7 @@ namespace SDDM {
         LoginSucceeded,
         LoginFailed,
         InformationMessage,
+        AuthenticationPrompt,
     };
 
     enum Capability {

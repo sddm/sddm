@@ -35,6 +35,46 @@ Rectangle {
     LayoutMirroring.childrenInherit: true
 
     property int sessionIndex: session.index
+    property bool pamConversationActive: false
+    property string pamConversationUser: ""
+    property bool pamResponsePending: false
+    property string pamPendingResponse: ""
+
+    function beginPamAuthentication(username) {
+        if (!username)
+            return
+
+        if (pamConversationActive && pamConversationUser === username)
+            return
+
+        if (pamConversationActive)
+            sddm.cancelAuthentication()
+
+        pamConversationActive = true
+        pamConversationUser = username
+        pamResponsePending = false
+        pamPendingResponse = ""
+        txtMessage.text = ""
+        if (listView.currentItem)
+            listView.currentItem.password = ""
+        sddm.beginAuthentication(username, sessionIndex)
+    }
+
+    function submitPamResponse(username, response) {
+        if (!username)
+            return
+
+        if (!pamConversationActive || pamConversationUser !== username) {
+            beginPamAuthentication(username)
+            pamPendingResponse = response
+            pamResponsePending = true
+            return
+        }
+
+        sddm.respond(response)
+        if (listView.currentItem)
+            listView.currentItem.password = ""
+    }
 
     TextConstants { id: textConstants }
 
@@ -45,7 +85,28 @@ Rectangle {
 
         function onLoginFailed() {
             txtMessage.text = textConstants.loginFailed
-            listView.currentItem.password = ""
+            if (listView.currentItem)
+                listView.currentItem.password = ""
+            pamConversationActive = false
+            pamConversationUser = ""
+            pamResponsePending = false
+            pamPendingResponse = ""
+        }
+
+        function onAuthenticationPrompt(message, promptVisible) {
+            txtMessage.text = message
+            if (listView.currentItem) {
+                listView.currentItem.showPassword = true
+                listView.currentItem.password = ""
+                listView.currentItem.forceActiveFocus()
+            }
+
+            if (pamResponsePending) {
+                var response = pamPendingResponse
+                pamResponsePending = false
+                pamPendingResponse = ""
+                sddm.respond(response)
+            }
         }
 
         function onInformationMessage(message) {
@@ -55,11 +116,12 @@ Rectangle {
 
     Background {
         anchors.fill: parent
-        source: "qrc:///theme/background.png"
+        source: Qt.resolvedUrl(config.background)
         fillMode: Image.PreserveAspectCrop
         onStatusChanged: {
-            if (status == Image.Error && source != config.defaultBackground) {
-                source = config.defaultBackground
+            var defaultBackground = Qt.resolvedUrl(config.defaultBackground)
+            if (status == Image.Error && source != defaultBackground) {
+                source = defaultBackground
             }
         }
 
@@ -81,6 +143,7 @@ Rectangle {
 
             PictureBox {
                 anchors.verticalCenter: parent.verticalCenter
+                property string userName: model.name
                 name: (model.realName === "") ? model.name : model.realName
                 icon: model.icon
                 showPassword: model.needsPassword
@@ -88,13 +151,14 @@ Rectangle {
                 focus: (listView.currentIndex === index) ? true : false
                 state: (listView.currentIndex === index) ? "active" : ""
 
-                onLogin: sddm.login(model.name, password, sessionIndex);
+                onLogin: container.submitPamResponse(userName, password);
 
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
                         listView.currentIndex = index;
                         listView.focus = true;
+                        container.beginPamAuthentication(model.name);
                     }
                 }
             }
@@ -153,6 +217,11 @@ Rectangle {
                         delegate: userDelegate
                         orientation: ListView.Horizontal
                         currentIndex: userModel.lastIndex
+
+                        onCurrentItemChanged: {
+                            if (currentItem)
+                                container.beginPamAuthentication(currentItem.userName)
+                        }
 
                         KeyNavigation.backtab: prevUser; KeyNavigation.tab: nextUser
                     }
@@ -226,6 +295,10 @@ Rectangle {
 
                     model: sessionModel
                     index: sessionModel.lastIndex
+                    onIndexChanged: {
+                        if (pamConversationActive)
+                            sddm.setSession(index)
+                    }
 
                     font.pixelSize: 14
 
