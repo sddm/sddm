@@ -79,8 +79,8 @@ OPTIONS
 [Theme] section:
 
 `ThemeDir=`
-	Path of the directory containing theme files.
-	Default value is "@DATA_INSTALL_DIR@/themes".
+	Comma-separated list of directories containing theme files.
+	Default value is "@THEME_DIRS@".
 
 `Current=`
 	Name of the current theme.
