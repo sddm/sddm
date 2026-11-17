@@ -164,7 +164,7 @@ OPTIONS
 The `XauthPath=` option is no longer necessary, libxau is used instead.
 
 The `UserAuthFile=` option was removed, the file is always created as
-`/tmp/xauth_XXXXX`. This is necessary for to the use of `FamilyWild` entries.
+`/tmp/.xauth_XXXXX`. This is necessary for to the use of `FamilyWild` entries.
 
 [Wayland] section:
 

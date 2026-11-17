@@ -60,7 +60,7 @@ namespace SDDM {
         bool isWaylandGreeter = false;
 
         // If the Xorg display server was already started, write the passed
-        // auth cookie to /tmp/xauth_XXXXXX. This is done in the parent process
+        // auth cookie to /tmp/.xauth_XXXXXX. This is done in the parent process
         // so that it can clean up the file on session end.
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")
             && m_displayServerCmd.isEmpty()) {
@@ -74,7 +74,7 @@ namespace SDDM {
             // Place it into /tmp, which is guaranteed to be read/writeable by
             // everyone while having the sticky bit set to avoid messing with
             // other's files.
-            m_xauthFile.setFileTemplate(QStringLiteral("/tmp/xauth_XXXXXX"));
+            m_xauthFile.setFileTemplate(QStringLiteral("/tmp/.xauth_XXXXXX"));
 
             if (!m_xauthFile.open()) {
                 qCritical() << "Could not create the Xauthority file";
