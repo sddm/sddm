@@ -49,6 +49,7 @@ namespace SDDM {
         void informationMessage(QLocalSocket *socket, const QString &message);
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
+        void loginFailedDelayStarted(QLocalSocket *socket, const uint uSecDelay);
 
     signals:
         void login(QLocalSocket *socket,

@@ -21,8 +21,25 @@
 #include "PamBackend.h"
 
 #include <QtCore/QDebug>
+#include <QThread>
 
 namespace SDDM {
+    static void fail_delay(int retval, uint usec_delay, void* appdata_ptr) {
+        auto* backend = reinterpret_cast< PamBackend* >(appdata_ptr); // Refer the pam_conv (@sa m_conv) structure for info on appdata_ptr
+        if (!backend) {
+            qFatal() << "[PAM] appdata_ptr not convertible to a valid PamBackend! Cannot apply fail delay";
+            return;
+        }
+        if (retval == PAM_SUCCESS) {
+            qDebug() << "[PAM] Fail delay function was called, but authentication result was a success!";
+            return;
+        }
+        Q_EMIT backend->loginFailedDelayStarted(usec_delay);
+        if (usec_delay > 0u) {
+            QThread::usleep(usec_delay); // This calls nanosleep as of Qt 6.8. It also handles EINTR (restarts the sleep with the remainder duration when interrupted), but not EFAULT or EINVAL.
+        }
+    }
+
     bool PamHandle::putEnv(const QProcessEnvironment& env) {
         const auto envs = env.toStringList();
         for (const QString& s : envs) {
@@ -149,6 +166,13 @@ namespace SDDM {
             m_result = pam_start(qPrintable(service), NULL, &m_conv, &m_handle);
         else
             m_result = pam_start(qPrintable(service), qPrintable(user), &m_conv, &m_handle);
+
+#if defined(HAVE_PAM_FAIL_DELAY)
+        setItem(PAM_FAIL_DELAY, reinterpret_cast< void* >(fail_delay));
+#else
+        Q_UNUSED(fail_delay);
+#endif
+
         if (m_result != PAM_SUCCESS) {
             qWarning() << "[PAM] start" << pam_strerror(m_handle, m_result);
             return false;

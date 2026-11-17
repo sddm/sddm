@@ -210,6 +210,13 @@ namespace SDDM {
                     str.send();
                     break;
                 }
+                case LOGIN_FAILED_DELAY_STARTED: {
+                    uint uSecDelay {0};
+                    str >> uSecDelay;
+                    qDebug() << "Auth: Login failed delay started notification received; delay duration:" << uSecDelay;
+                    Q_EMIT auth->loginFailedDelayStarted(uSecDelay);
+                    break;
+                }
                 default: {
                     Q_EMIT auth->error(QStringLiteral("Auth: Unexpected value received: %1").arg(m), ERROR_INTERNAL);
                 }

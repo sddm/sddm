@@ -46,6 +46,7 @@ namespace SDDM {
         Request request(const Request &request);
         void info(const QString &message, Auth::Info type);
         void error(const QString &message, Auth::Error type);
+        void loginFailedDelayStarted(const uint uSecDelay);
         QProcessEnvironment authenticated(const QString &user);
         void displayServerStarted(const QString &displayName);
         void sessionOpened(bool success);
