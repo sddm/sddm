@@ -218,12 +218,15 @@ namespace SDDM {
         bool result;
 
         QString service = QStringLiteral("sddm");
+        bool requiresZeroDelayOnFailAuth{ m_requiresZeroDelayOnFailAuth };
 
         if (user == QStringLiteral("sddm") && m_greeter)
             service = QStringLiteral("sddm-greeter");
-        else if (m_autologin)
+        else if (m_autologin) {
             service = QStringLiteral("sddm-autologin");
-        result = m_pam->start(service, user);
+            requiresZeroDelayOnFailAuth = false; // PAM can introduce a delay, as the UI does not do much
+        }
+        result = m_pam->start(service, user, requiresZeroDelayOnFailAuth);
 
         if (!result)
             m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);

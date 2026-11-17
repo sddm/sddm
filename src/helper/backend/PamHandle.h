@@ -160,10 +160,11 @@ namespace SDDM {
         * \param service PAM service name, e.g. "sddm"
         * \param pam_conversation pointer to the PAM conversation structure to be used
         * \param user username
+        * \param requiresZeroDelayOnFailAuth: If true, then the delay function of the PAM is set to \ref fail_delay, i.e, no delay from the PAM. Default false
         *
         * \return true on success
         */
-        bool start(const QString &service, const QString &user = QString());
+        bool start(const QString &service, const QString &user = QString(), const bool requiresZeroDelayOnFailAuth = false);
 
         /**
         * Set PAM_SILENT upon the contained calls
