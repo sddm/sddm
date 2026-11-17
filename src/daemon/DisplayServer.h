@@ -39,6 +39,7 @@ namespace SDDM {
         const QString &display() const;
 
         virtual QString sessionType() const = 0;
+        virtual void setDisplayName(const QString &displayName) = 0;
 
     public slots:
         virtual bool start() = 0;

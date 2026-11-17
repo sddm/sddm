@@ -41,6 +41,8 @@ namespace SDDM {
 
         const QByteArray cookie() const;
 
+        void setDisplayName(const QString &displayName);
+
     public slots:
         bool start();
         void stop();
