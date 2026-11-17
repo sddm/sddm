@@ -29,6 +29,7 @@ Rectangle {
     width: 80; height: 30
 
     property alias borderColor: main.color
+    property alias hoverBorderColor: main.border.color
     property alias textColor: textArea.color
     property alias font: textArea.font
     property alias text: textArea.text
