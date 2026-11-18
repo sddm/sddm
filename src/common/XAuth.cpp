@@ -22,10 +22,10 @@
 #include <limits.h>
 #include <QDebug>
 #include <QDir>
+#include <QRandomGenerator>
 #include <QScopeGuard>
 #include <QString>
 #include <QStringView>
-#include <random>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -89,17 +89,12 @@ void XAuth::setup()
 
     qDebug() << "Xauthority path:" << authPath();
 
-    // Generate cookie
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 0xFF);
+    // Generate cookie from the system CSPRNG
+    m_cookie.resize(16); // Cookie must be 128bits
 
-    m_cookie.truncate(0);
-    m_cookie.reserve(16);
-
-    // Create a random hexadecimal number
-    for(int i = 0; i < 16; i++)
-        m_cookie.append(dis(gen));
+    QRandomGenerator *generator = QRandomGenerator::system();
+    for (int i = 0; i < m_cookie.size(); ++i)
+        m_cookie[i] = uint8_t(generator->bounded(256));
 }
 
 bool XAuth::addCookie(const QString &display)
