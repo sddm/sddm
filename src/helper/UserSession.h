@@ -45,13 +45,6 @@ namespace SDDM {
         void setPath(const QString &path);
         QString path() const;
 
-        /*!
-         \brief Gets m_cachedProcessId
-         \return  The cached process ID
-        */
-        qint64 cachedProcessId();
-
-
     Q_SIGNALS:
         void finished(int exitCode);
 
@@ -71,11 +64,6 @@ namespace SDDM {
         QString m_path { };
         QTemporaryFile m_xauthFile;
         QString m_displayServerCmd;
-
-        /*!
-         Needed for getting the PID of a finished UserSession and calling HelperApp::utmpLogout
-        */
-        qint64 m_cachedProcessId = -1;
     };
 }
 

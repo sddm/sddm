@@ -53,11 +53,6 @@ else()
     target_link_libraries(sddm-helper crypt)
 endif()
 
-if (UTMPS_FOUND)
-    target_include_directories(sddm-helper SYSTEM PRIVATE ${UTMPS_INCLUDE_DIR})
-    target_link_libraries(sddm-helper ${UTMPS_LIBRARIES})
-endif (UTMPS_FOUND)
-
 install(TARGETS sddm-helper RUNTIME DESTINATION "${CMAKE_INSTALL_LIBEXECDIR}")
 
 add_executable(sddm-helper-start-wayland HelperStartWayland.cpp waylandsocketwatcher.cpp waylandhelper.cpp ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp)

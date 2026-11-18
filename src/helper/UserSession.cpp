@@ -132,7 +132,6 @@ namespace SDDM {
         }
 
         const bool started = waitForStarted();
-        m_cachedProcessId = processId();
         if (started) {
             return true;
         } else if (isWaylandGreeter) {
@@ -385,9 +384,4 @@ namespace SDDM {
             }
         }
     }
-
-    qint64 UserSession::cachedProcessId() {
-        return m_cachedProcessId;
-    }
-
 }
