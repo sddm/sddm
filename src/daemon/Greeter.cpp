@@ -82,7 +82,7 @@ namespace SDDM {
 
     QString Greeter::greeterPathForQt(int qtVersion)
     {
-        const QString suffix = qtVersion == 5 ? QString() : QStringLiteral("-qt%1").arg(qtVersion);
+        const QString suffix = QStringLiteral("-qt%1").arg(qtVersion);
         return QStringLiteral(BIN_INSTALL_DIR "/sddm-greeter%1").arg(suffix);
     }
 

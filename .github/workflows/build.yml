@@ -28,11 +28,11 @@ jobs:
           - gcc
           - clang
         qt:
-          - "qt5"
+          - "qt6"
         include:
-          - container-image: "quay.io/centos/centos:stream9"
+          - container-image: "quay.io/centos/centos:stream10"
             compiler: gcc
-            qt: "qt5"
+            qt: "qt6"
           - container-image: "docker.io/library/ubuntu:24.04"
             compiler: clang
             qt: "qt6"
@@ -53,7 +53,6 @@ jobs:
           if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes install dnf-plugins-core; else dnf --assumeyes install dnf5-plugins; fi
           if [[ "${{ matrix.container-image }}" =~ "centos" ]]; then dnf --assumeyes config-manager --set-enabled crb && dnf --assumeyes install epel-release; fi
           dnf --assumeyes builddep sddm
-          if [ "${{ matrix.qt }}" = "qt5" ] && [[ "${{ matrix.container-image }}" =~ "fedora" ]]; then dnf --assumeyes install qt5-qtbase-devel qt5-qtdeclarative-devel qt5-qttools-devel; fi
           dnf --assumeyes install --allowerasing --nobest clang clazy
       - name: Dependencies (deb-type)
         if: ${{ contains(matrix.container-image, 'ubuntu') }}
@@ -63,21 +62,12 @@ jobs:
           ! [ -e /etc/apt/sources.list.d/ubuntu.sources ] || sed -i '/^Types: deb/s/$/ deb-src/' /etc/apt/sources.list.d/ubuntu.sources
           apt-get update -y
           DEBIAN_FRONTEND=noninteractive apt-get build-dep sddm -y
-          if [ "${{ matrix.qt }}" = "qt6" ]; then
-            DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-declarative-dev qml6-module-qtqml-workerscript qml6-module-qtquick-window -y
-          else
-            DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qml-module-qttest -y
-          fi
+          DEBIAN_FRONTEND=noninteractive apt-get install clang clazy qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-declarative-dev qml6-module-qtqml-workerscript qml6-module-qtquick-window -y
       - name: Build
         run: |
           set -x
           mkdir -p build
           cd build
-          if [ "${{ matrix.qt }}" = "qt6" ]; then
-            BUILD_WITH_QT6=ON
-          else
-            BUILD_WITH_QT6=OFF
-          fi
           if [ "${{ matrix.compiler }}" = "clang" ]; then
             export CC=clang
             #export CXX=clang++
@@ -90,7 +80,6 @@ jobs:
           fi
           cmake .. \
             -DBUILD_MAN_PAGES:BOOL=ON \
-            -DBUILD_WITH_QT6:BOOL=${BUILD_WITH_QT6} \
             -DLOGIN_DEFS_PATH:PATH="${LOGIN_DEFS_PATH}"
           make -j $(getconf _NPROCESSORS_ONLN)
           make install
