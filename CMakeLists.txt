@@ -173,6 +173,10 @@ find_package(utmps)
 add_feature_info("utmps" UTMPS_FOUND "utmps support")
 
 # Set constants
+set(PAM_FINGERPRINT_SERVICE "sddm-fingerprint" CACHE STRING "PAM service for the opt-in parallel fingerprint helper")
+if(NOT PAM_FINGERPRINT_SERVICE MATCHES "^[A-Za-z0-9_-]+$")
+    message(FATAL_ERROR "PAM_FINGERPRINT_SERVICE must be a PAM service name")
+endif()
 set(DATA_INSTALL_DIR            "${CMAKE_INSTALL_FULL_DATADIR}/sddm"                CACHE PATH      "System application data install directory")
 set(DBUS_CONFIG_DIR             "${CMAKE_INSTALL_FULL_DATADIR}/dbus-1/system.d"       CACHE PATH      "DBus config files directory")
 set(STATE_DIR                   "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/sddm"      CACHE PATH      "State directory")

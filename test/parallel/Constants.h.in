@@ -1,0 +1,53 @@
+/***************************************************************************
+* Copyright (c) 2013 Abdurrahman AVCI <abdurrahmanavci@gmail.com>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the
+* Free Software Foundation, Inc.,
+* 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+***************************************************************************/
+
+#ifndef SDDM_CONSTANTS_H
+#define SDDM_CONSTANTS_H
+
+#define BIN_INSTALL_DIR             "@SDDM_NATIVE_BUILD@/src/greeter"
+#ifndef SDDM_TEST_HELPER_DIR
+#define LIBEXEC_INSTALL_DIR         "@CMAKE_CURRENT_BINARY_DIR@/fake-bin"
+#else
+#define LIBEXEC_INSTALL_DIR         SDDM_TEST_HELPER_DIR
+#endif
+#define DATA_INSTALL_DIR            "/usr/share/sddm"
+#define SYS_CONFIG_DIR              "@CMAKE_CURRENT_BINARY_DIR@/fixture/etc"
+#define IMPORTS_INSTALL_DIR         "/usr/lib/qt6/qml"
+#define COMPONENTS_TRANSLATION_DIR  "/usr/share/sddm/translations-qt6"
+#define RUNTIME_DIR                 "@CMAKE_CURRENT_BINARY_DIR@/fixture/run/sddm"
+#define STATE_DIR                   "@CMAKE_CURRENT_BINARY_DIR@/fixture/var/lib/sddm"
+#define ACCOUNTSSERVICE_DATA_DIR    "/var/lib/AccountsService"
+
+#define SESSION_COMMAND             "/usr/share/sddm/scripts/Xsession"
+#define PAM_FINGERPRINT_SERVICE     "@PAM_FINGERPRINT_SERVICE@"
+#define WAYLAND_SESSION_COMMAND     "/usr/share/sddm/scripts/wayland-session"
+
+#define CONFIG_FILE                 "@CMAKE_CURRENT_BINARY_DIR@/fixture/etc/sddm.conf"
+#define CONFIG_DIR                  "@CMAKE_CURRENT_BINARY_DIR@/fixture/etc/sddm.conf.d"
+#define SYSTEM_CONFIG_DIR           "@CMAKE_CURRENT_BINARY_DIR@/fixture/usr/lib/sddm/sddm.conf.d"
+
+#define LOG_FILE                    "/var/log/sddm.log"
+
+#define UID_MIN                     1000
+#define UID_MAX                     60000
+
+#define HALT_COMMAND "/usr/bin/systemctl poweroff"
+#define REBOOT_COMMAND "/usr/bin/systemctl reboot"
+
+#endif // SDDM_CONSTANTS_H

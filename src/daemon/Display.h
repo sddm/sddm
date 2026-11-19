@@ -27,6 +27,8 @@
 #include <QDir>
 
 #include "Auth.h"
+#include "AuthenticationSelection.h"
+#include <QTimer>
 #include "Session.h"
 
 class QLocalSocket;
@@ -73,6 +75,8 @@ namespace SDDM {
                    const QString &user, const QString &password,
                    const Session &session);
         void displayServerStarted();
+        void startFingerprint(QLocalSocket *socket, const QString &user, const Session &session);
+        void retryFingerprint();
 
     signals:
         void stopped();
@@ -86,7 +90,7 @@ namespace SDDM {
         bool findSessionEntry(const QStringList &dirPaths, const QString &name) const;
 
         bool startAuth(const QString &user, const QString &password,
-                       const Session &session);
+                       const Session &session, Auth *auth = nullptr);
 
         void startSocketServerAndGreeter();
         bool handleAutologinFailure();
@@ -94,6 +98,8 @@ namespace SDDM {
         DisplayServerType m_displayServerType = X11DisplayServerType;
 
         bool m_started { false };
+        bool m_parallelFailureNotified { false };
+        bool m_legacySessionReleased { false };
 
         int m_terminalId = -1;
         int m_sessionTerminalId = 0;
@@ -105,6 +111,14 @@ namespace SDDM {
         Session m_autologinSession;
 
         Auth *m_auth { nullptr };
+        Auth *m_fingerprintAuth { nullptr };
+        AuthenticationSelection m_selection;
+        bool m_stopping = false;
+        QString m_preparedUser;
+        Session m_preparedSession;
+        QProcessEnvironment m_preparedEnvironment;
+        Session m_fingerprintSession;
+        QTimer m_fingerprintRetry;
         DisplayServer *m_displayServer { nullptr };
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };

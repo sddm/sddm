@@ -98,6 +98,7 @@ namespace SDDM {
         AUTHENTICATED,
         SESSION_STATUS,
         DISPLAY_SERVER_STARTED,
+        HELLO_V2,
         MSG_LAST,
     };
 

@@ -32,6 +32,7 @@ namespace SDDM {
         Q_OBJECT
         Q_DISABLE_COPY(GreeterProxy)
 
+        Q_PROPERTY(bool parallelFingerprint READ parallelFingerprint NOTIFY parallelFingerprintChanged)
         Q_PROPERTY(QString  hostName        READ hostName       NOTIFY hostNameChanged)
         Q_PROPERTY(bool     canPowerOff     READ canPowerOff    NOTIFY canPowerOffChanged)
         Q_PROPERTY(bool     canReboot       READ canReboot      NOTIFY canRebootChanged)
@@ -52,6 +53,7 @@ namespace SDDM {
         bool canHybridSleep() const;
 
         bool isConnected() const;
+        bool parallelFingerprint() const;
 
         void setSessionModel(SessionModel *model);
 
@@ -62,6 +64,7 @@ namespace SDDM {
         void hibernate();
         void hybridSleep();
 
+        void startFingerprint(const QString &user, int sessionIndex) const;
         void login(const QString &user, const QString &password, const int sessionIndex) const;
 
     private slots:
@@ -79,6 +82,8 @@ namespace SDDM {
         void canHibernateChanged(bool canHibernate);
         void canHybridSleepChanged(bool canHybridSleep);
 
+        void parallelFingerprintChanged();
+        void fingerprintActiveChanged(bool active);
         void socketDisconnected();
         void loginFailed();
         void loginSucceeded();

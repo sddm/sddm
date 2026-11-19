@@ -36,6 +36,8 @@ namespace SDDM {
         static Backend *get(HelperApp *parent);
 
         void setAutologin(bool on = true);
+        void setFingerprint(bool on = true) { m_fingerprint = on; }
+        void setPasswordOnly(bool on = true) { m_passwordOnly = on; }
         void setDisplayServer(bool on = true);
         void setGreeter(bool on = true);
 
@@ -51,6 +53,8 @@ namespace SDDM {
         Backend(HelperApp *parent);
         HelperApp *m_app;
         bool m_autologin { false };
+        bool m_fingerprint { false };
+        bool m_passwordOnly { false };
         bool m_displayServer = false;
         bool m_greeter { false };
     };

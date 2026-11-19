@@ -22,6 +22,7 @@
 
 #include "Configuration.h"
 #include "Messages.h"
+#include "LoginMessages.h"
 #include "SessionModel.h"
 #include "SocketWriter.h"
 
@@ -33,6 +34,7 @@ namespace SDDM {
         SessionModel *sessionModel { nullptr };
         QLocalSocket *socket { nullptr };
         QString hostName;
+        bool parallelFingerprint { false };
         bool canPowerOff { false };
         bool canReboot { false };
         bool canSuspend { false };
@@ -127,12 +129,29 @@ namespace SDDM {
         SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
     }
 
+    bool GreeterProxy::parallelFingerprint() const { return d->parallelFingerprint; }
+
+    void GreeterProxy::startFingerprint(const QString &user, int sessionIndex) const {
+        if (!d->parallelFingerprint || !d->sessionModel || !isConnected()) return;
+        Session session;
+        if (sessionIndex >= 0 && sessionIndex < d->sessionModel->rowCount()) {
+            const QModelIndex index = d->sessionModel->index(sessionIndex, 0);
+            const auto type = static_cast<Session::Type>(d->sessionModel->data(index, SessionModel::TypeRole).toInt());
+            const QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
+            session.setTo(type, name);
+        }
+        // Invalid indices still revoke authentication for the previous choice.
+        SocketWriter(d->socket) << quint32(GreeterMessages::StartFingerprint) << user << session;
+    }
+
     void GreeterProxy::connected() {
         // log connection
         qDebug() << "Connected to the daemon.";
 
         // send connected message
         SocketWriter(d->socket) << quint32(GreeterMessages::Connect);
+        // Payload-free so older daemons can discard the unknown opcode.
+        SocketWriter(d->socket) << quint32(GreeterMessages::QueryParallelFingerprint);
     }
 
     void GreeterProxy::disconnected() {
@@ -152,17 +171,15 @@ namespace SDDM {
 
         while (input.device()->bytesAvailable()) {
             // read message
-            quint32 message;
-            input >> message;
-
-            switch (DaemonMessages(message)) {
+            LoginReply reply;
+            if (!readLoginReply(input, reply)) return;
+            switch (reply.kind) {
                 case DaemonMessages::Capabilities: {
                     // log message
                     qDebug() << "Message received from daemon: Capabilities";
 
                     // read capabilities
-                    quint32 capabilities;
-                    input >> capabilities;
+                    const quint32 capabilities = reply.capabilities;
 
                     // parse capabilities
                     d->canPowerOff = capabilities & Capability::PowerOff;
@@ -184,7 +201,7 @@ namespace SDDM {
                     qDebug() << "Message received from daemon: HostName";
 
                     // read host name
-                    input >> d->hostName;
+                    d->hostName = reply.text;
 
                     // emit signal
                     emit hostNameChanged(d->hostName);
@@ -206,9 +223,17 @@ namespace SDDM {
                     emit loginFailed();
                 }
                 break;
+                case DaemonMessages::ParallelFingerprint: {
+                    d->parallelFingerprint = reply.active;
+                    emit parallelFingerprintChanged();
+                    break;
+                }
+                case DaemonMessages::FingerprintActive: {
+                    emit fingerprintActiveChanged(reply.active);
+                    break;
+                }
                 case DaemonMessages::InformationMessage: {
-                    QString message;
-                    input >> message;
+                    const QString message = reply.text;
 
                     qDebug() << "Information Message received from daemon: " << message;
                     emit informationMessage(message);

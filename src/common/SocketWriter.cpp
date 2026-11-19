@@ -44,6 +44,13 @@ namespace SDDM {
         return *this;
     }
 
+    SocketWriter &SocketWriter::operator << (const bool &b) {
+        // Match QDataStream's bool encoding instead of promoting to quint32.
+        *output << b;
+
+        return *this;
+    }
+
     SocketWriter &SocketWriter::operator << (const Session &s) {
         *output << s;
 

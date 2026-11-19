@@ -23,6 +23,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QSet>
 
 #include "Session.h"
 
@@ -48,6 +49,8 @@ namespace SDDM {
     public slots:
         void informationMessage(QLocalSocket *socket, const QString &message);
         void loginFailed(QLocalSocket *socket);
+        void fingerprintActive(QLocalSocket *socket, bool active);
+        void parallelCapability(QLocalSocket *socket, bool active);
         void loginSucceeded(QLocalSocket *socket);
 
     signals:
@@ -55,9 +58,12 @@ namespace SDDM {
                    const QString &user, const QString &password,
                    const Session &session);
         void connected();
+        void startFingerprint(QLocalSocket *socket, const QString &user, const Session &session);
+        void disconnected(QLocalSocket *socket);
 
     private:
         QLocalServer *m_server { nullptr };
+        QSet<QLocalSocket *> m_parallelCapabilityPeers;
     };
 }
 
