@@ -246,6 +246,17 @@ The `UserAuthFile=` option was removed, the file is always created as
 	only the first time.
 	Default value is false.
 
+[Fingerprintlogin] section:
+
+`User=`
+	Username to start fingerprint authentication for when the greeter loads.
+	If empty, fingerprint authentication is not started automatically.
+	Default value is empty.
+
+`Session=`
+	Session to use for fingerprint login. If empty, the last used session is used.
+	Default value is empty.
+
 SEE ALSO
 ========
 

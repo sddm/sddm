@@ -11,3 +11,7 @@ if(DEFINED SYSTEMD_TMPFILES_DIR)
     configure_file(sddm-tmpfiles.conf.in sddm-tmpfiles.conf)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/sddm-tmpfiles.conf" DESTINATION "${SYSTEMD_TMPFILES_DIR}" RENAME sddm.conf)
 endif()
+
+if(INSTALL_PAM_CONFIGURATION)
+    install(FILES sddm-fingerprint.pam DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pam.d RENAME sddm-fingerprint)
+endif()

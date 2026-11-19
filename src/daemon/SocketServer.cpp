@@ -128,7 +128,7 @@ namespace SDDM {
                     SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
 
                     // emit signal
-                    emit connected();
+                    emit greeterConnected();
                 }
                 break;
                 case GreeterMessages::Login: {

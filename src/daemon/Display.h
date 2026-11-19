@@ -87,6 +87,7 @@ namespace SDDM {
 
         bool startAuth(const QString &user, const QString &password,
                        const Session &session);
+        void onGreeterConnected();
 
         void startSocketServerAndGreeter();
         bool handleAutologinFailure();
@@ -94,6 +95,8 @@ namespace SDDM {
         DisplayServerType m_displayServerType = X11DisplayServerType;
 
         bool m_started { false };
+        bool m_fingerprintAuthActive { false };
+        QString m_lastAttemptedUser;
 
         int m_terminalId = -1;
         int m_sessionTerminalId = 0;
