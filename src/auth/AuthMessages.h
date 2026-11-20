@@ -181,7 +181,7 @@ namespace SDDM {
         m.type = AuthPrompt::Type(type);
         m.message = message;
         m.hidden = hidden;
-        m.response = response;
+        m.response = std::move(response);
         return s;
     }
 
