@@ -49,6 +49,7 @@ namespace SDDM {
         if (dri_active)
             populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
         populate(Session::X11Session, mainConfig.X11.SessionDir.get());
+        updateLastIndex();
         endResetModel();
 
         // refresh everytime a file is changed, added or removed
@@ -62,6 +63,7 @@ namespace SDDM {
             if (dri_active)
                 populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
             populate(Session::X11Session, mainConfig.X11.SessionDir.get());
+            updateLastIndex();
             endResetModel();
         });
         watcher->addPaths(mainConfig.Wayland.SessionDir.get());
@@ -164,11 +166,32 @@ namespace SDDM {
                 delete si;
             }
         }
-        // find out index of the last session
+    }
+
+    void SessionModel::updateLastIndex()
+    {
+        d->lastIndex = 0;
+        if (d->sessions.isEmpty())
+            return;
+
+        const QString last = stateConfig.Last.Session.get();
+        if (!last.isEmpty()) {
+            for (int i = 0; i < d->sessions.size(); ++i) {
+                if (d->sessions.at(i)->fileName() == last) {
+                    d->lastIndex = i;
+                    return;
+                }
+            }
+        }
+
+        // Reuse Autologin.SessionType so flavors need no extra greeter key.
+        const Session::Type preferred = mainConfig.Autologin.SessionType.get() == MainConfig::AUTOLOGIN_X11
+            ? Session::X11Session
+            : Session::WaylandSession;
         for (int i = 0; i < d->sessions.size(); ++i) {
-            if (d->sessions.at(i)->fileName() == stateConfig.Last.Session.get()) {
+            if (d->sessions.at(i)->type() == preferred) {
                 d->lastIndex = i;
-                break;
+                return;
             }
         }
     }

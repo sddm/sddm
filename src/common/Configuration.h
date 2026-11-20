@@ -35,6 +35,7 @@ namespace SDDM {
     //     Name        File         Sections and/or Entries (but anything else too, it's a class) - Entries in a Config are assumed to be in the General section
     Config(MainConfig, QStringLiteral(CONFIG_FILE), QStringLiteral(CONFIG_DIR), QStringLiteral(SYSTEM_CONFIG_DIR),
         enum NumState { NUM_NONE, NUM_SET_ON, NUM_SET_OFF };
+        enum AutologinSessionType { AUTOLOGIN_WAYLAND, AUTOLOGIN_X11 };
 
         //  Name                   Type         Default value                                   Description
         // TODO: Change default to x11-user in a future release
@@ -102,6 +103,9 @@ namespace SDDM {
         Section(Autologin,
             Entry(User,                QString,     QString(),                                  _S("Username for autologin session"));
             Entry(Session,             QString,     QString(),                                  _S("Name of session file for autologin session (if empty try last logged in)"));
+            Entry(SessionType,         AutologinSessionType, AUTOLOGIN_WAYLAND,                   _S("Session type for autologin (wayland or x11).\n"
+                                                                                                   "When the configured session name exists in both X11 and Wayland directories,\n"
+                                                                                                   "this determines which one is selected"));
             Entry(Relogin,             bool,        false,                                      _S("Whether sddm should automatically log back into sessions when they exit"));
         );
     );
@@ -136,6 +140,23 @@ namespace SDDM {
             str << "off";
         else
             str << "none";
+        return str;
+    }
+
+    inline QTextStream& operator>>(QTextStream &str, MainConfig::AutologinSessionType &type) {
+        QString text = str.readLine().trimmed();
+        if (text.compare(QLatin1String("x11"), Qt::CaseInsensitive) == 0)
+            type = MainConfig::AUTOLOGIN_X11;
+        else
+            type = MainConfig::AUTOLOGIN_WAYLAND;
+        return str;
+    }
+
+    inline QTextStream& operator<<(QTextStream &str, const MainConfig::AutologinSessionType &type) {
+        if (type == MainConfig::AUTOLOGIN_X11)
+            str << "x11";
+        else
+            str << "wayland";
         return str;
     }
 }

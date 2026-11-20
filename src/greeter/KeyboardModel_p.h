@@ -21,6 +21,8 @@
 #define KEYBOARDMODEL_P_H
 
 #include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 namespace SDDM {
     struct Indicator {
@@ -39,6 +41,10 @@ namespace SDDM {
         // Layouts
         int layout_id { 0 };
         QList<QObject*> layouts;
+        QStringList layoutIds;
+        QStringList variantIds;
+        QString x11Model;
+        QString x11Options;
     };
 }
 

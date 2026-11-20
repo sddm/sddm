@@ -38,6 +38,7 @@ namespace SDDM {
         } else if (QGuiApplication::platformName().contains(QLatin1String("wayland"))) {
             m_backend = new WaylandKeyboardBackend(d);
             m_backend->init();
+            m_backend->connectEventsDispatcher(this);
         }
     }
 
@@ -125,6 +126,11 @@ namespace SDDM {
 
         if (layouts_old != d->layouts)
             emit layoutsChanged();
+    }
+
+    void KeyboardModel::requestLayoutChange(const QString &layout, const QString &model,
+                                            const QString &variant, const QString &options) {
+        emit layoutChangeRequested(layout, model, variant, options);
     }
 }
 
