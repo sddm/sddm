@@ -48,7 +48,7 @@ namespace SDDM {
             for(int lineNumber = 1; !device.atEnd(); lineNumber++)
             {
                 // Iterate each line, remove line terminators
-                const auto line = device.readLine().replace("\r", "").replace("\n", "");
+                const auto line = device.readLine().trimmed();
                 if(line.isEmpty() || line.startsWith('#'))
                     continue; // Ignore empty lines and comments
 
@@ -195,8 +195,6 @@ namespace SDDM {
         if (!fileName.endsWith(s_entryExtention))
             fileName += s_entryExtention;
 
-        QFileInfo info(fileName);
-
         m_type = UnknownSession;
         m_valid = false;
         m_desktopNames.clear();
@@ -246,7 +244,7 @@ namespace SDDM {
         settings.beginGroup(QLatin1String("Desktop Entry"));
 
         auto localizedValue = [&] (const QLatin1String &key) {
-            for (QString locale : std::as_const(locales)) {
+            for (const QString &locale : std::as_const(locales)) {
                 QString localizedValue = settings.value(key + QLatin1Char('[') + locale + QLatin1Char(']'), QString()).toString();
                 if (!localizedValue.isEmpty()) {
                     return localizedValue;
