@@ -33,7 +33,7 @@
 namespace SDDM {
     class User {
     public:
-        User(const struct passwd *data, const QString icon) :
+        User(const struct passwd *data, const QString &icon) :
             name(QString::fromLocal8Bit(data->pw_name)),
             realName(QString::fromLocal8Bit(data->pw_gecos).split(QLatin1Char(',')).first()),
             homeDir(QString::fromLocal8Bit(data->pw_dir)),
