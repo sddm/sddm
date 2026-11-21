@@ -101,7 +101,7 @@ namespace SDDM {
         MSG_LAST,
     };
 
-    inline QDataStream& operator<<(QDataStream &s, const Msg &m) {
+    inline QDataStream& operator<<(QDataStream &s, const Msg m) {
         s << qint32(m);
         return s;
     }
@@ -118,7 +118,7 @@ namespace SDDM {
         return s;
     }
 
-    inline QDataStream& operator<<(QDataStream &s, const Auth::Error &m) {
+    inline QDataStream& operator<<(QDataStream &s, const Auth::Error m) {
         s << qint32(m);
         return s;
     }
@@ -135,7 +135,7 @@ namespace SDDM {
         return s;
     }
 
-    inline QDataStream& operator<<(QDataStream &s, const Auth::Info &m) {
+    inline QDataStream& operator<<(QDataStream &s, const Auth::Info m) {
         s << qint32(m);
         return s;
     }
