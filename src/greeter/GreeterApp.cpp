@@ -342,6 +342,10 @@ int main(int argc, char **argv)
     if (QLibraryInfo::version() >= QVersionNumber(5, 13, 0)) {
         auto format(QSurfaceFormat::defaultFormat());
         format.setOption(QSurfaceFormat::ResetNotification);
+        // Ensure at least 8-bit color channels to prevent EGL fallback to 16-bit RGB565
+        format.setRedBufferSize(8);
+        format.setGreenBufferSize(8);
+        format.setBlueBufferSize(8);
         QSurfaceFormat::setDefaultFormat(format);
     }
 
