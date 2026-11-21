@@ -55,7 +55,7 @@ namespace SDDM {
 
     static Prompt invalidPrompt {};
 
-    PamData::PamData() { }
+    PamData::PamData() = default;
 
     AuthPrompt::Type PamData::detectPrompt(const struct pam_message* msg) const {
         if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
