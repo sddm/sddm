@@ -50,8 +50,9 @@ namespace SDDM {
         // set testing parameter
         m_testing = (arguments().indexOf(QStringLiteral("--test-mode")) != -1);
 
+        QDBusConnectionInterface *dbusInterface = QDBusConnection::systemBus().interface();
         bool consoleKitServiceActivatable = false;
-        QDBusReply<QStringList> activatableNamesReply = QDBusConnection::systemBus().interface()->activatableServiceNames();
+        QDBusReply<QStringList> activatableNamesReply = dbusInterface->activatableServiceNames();
         if (activatableNamesReply.isValid()) {
             consoleKitServiceActivatable = activatableNamesReply.value().contains(QStringLiteral("org.freedesktop.ConsoleKit"));
         }
@@ -59,9 +60,9 @@ namespace SDDM {
         // If ConsoleKit isn't started by the OS init system (FreeBSD, for instance),
         // we start it ourselves during the sddm startup
         if (consoleKitServiceActivatable) {
-            QDBusReply<bool> registeredReply = QDBusConnection::systemBus().interface()->isServiceRegistered(QStringLiteral("org.freedesktop.ConsoleKit"));
+            QDBusReply<bool> registeredReply = dbusInterface->isServiceRegistered(QStringLiteral("org.freedesktop.ConsoleKit"));
             if (registeredReply.isValid() && registeredReply.value() == false) {
-                QDBusConnection::systemBus().interface()->startService(QStringLiteral("org.freedesktop.ConsoleKit"));
+                dbusInterface->startService(QStringLiteral("org.freedesktop.ConsoleKit"));
             }
         }
 

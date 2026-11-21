@@ -204,14 +204,15 @@ namespace SDDM {
                                    QStringLiteral("XDG_DATA_DIRS")
             }, sysenv, env);
 
+            Seat *seat = m_display->seat();
             env.insert(QStringLiteral("PATH"), mainConfig.Users.DefaultPath.get());
             env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
             if (!xcursorSize.isEmpty())
                 env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
-            env.insert(QStringLiteral("XDG_SEAT"), m_display->seat()->name());
-            env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(m_display->seat()->name()));
+            env.insert(QStringLiteral("XDG_SEAT"), seat->name());
+            env.insert(QStringLiteral("XDG_SEAT_PATH"), daemonApp->displayManager()->seatPath(seat->name()));
             env.insert(QStringLiteral("XDG_SESSION_PATH"), daemonApp->displayManager()->sessionPath(QStringLiteral("Session%1").arg(daemonApp->newSessionId())));
-            if (m_display->seat()->name() == QLatin1String("seat0") && m_display->terminalId() > 0)
+            if (seat->name() == QLatin1String("seat0") && m_display->terminalId() > 0)
                 env.insert(QStringLiteral("XDG_VTNR"), QString::number(m_display->terminalId()));
             env.insert(QStringLiteral("XDG_SESSION_CLASS"), QStringLiteral("greeter"));
             env.insert(QStringLiteral("XDG_SESSION_TYPE"), m_display->sessionType());
