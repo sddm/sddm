@@ -154,6 +154,10 @@ namespace SDDM {
 
         // connect login signal
         connect(m_socketServer, &SocketServer::login, this, &Display::login);
+        connect(m_socketServer, &SocketServer::beginAuthentication, this, QOverload<QLocalSocket *, const QString &, const Session &>::of(&Display::beginAuthentication));
+        connect(m_socketServer, &SocketServer::setSession, this, &Display::setAuthenticationSession);
+        connect(m_socketServer, &SocketServer::cancelAuthentication, this, &Display::cancelAuthentication);
+        connect(m_socketServer, &SocketServer::authenticationResponse, this, &Display::authenticationResponse);
 
         // connect login result signals
         connect(this, &Display::loginFailed, m_socketServer, &SocketServer::loginFailed);
@@ -331,17 +335,121 @@ namespace SDDM {
     void Display::login(QLocalSocket *socket,
                         const QString &user, const QString &password,
                         const Session &session) {
-        m_socket = socket;
+        beginAuthentication(socket, user, password, session, true);
+    }
 
-        //the SDDM user has special privileges that skip password checking so that we can load the greeter
-        //block ever trying to log in as the SDDM user
+    void Display::beginAuthentication(QLocalSocket *socket, const QString &user, const Session &session) {
+        beginAuthentication(socket, user, QString(), session, false);
+    }
+
+    bool Display::beginAuthentication(QLocalSocket *socket, const QString &user,
+                                      const QString &password, const Session &session,
+                                      bool answerInitialRequest) {
+        // The SDDM user has special privileges that skip password checking so
+        // that the greeter can be loaded. Never allow logging in as that user.
         if (user == QLatin1String("sddm")) {
-            emit loginFailed(m_socket);
+            emit loginFailed(socket);
+            return false;
+        }
+
+        // Replacing an active PAM conversation is asynchronous. Remember the
+        // new request and start it only after the helper for the old request
+        // has really exited. This avoids a cancel/start race when users are
+        // switched quickly in the greeter.
+        if (m_auth->isActive()) {
+            m_pendingAuthentication = true;
+            m_pendingSocket = socket;
+            m_pendingUser = user;
+            m_pendingPassword = password;
+            m_pendingSession = session;
+            m_pendingInitialAuthRequest = answerInitialRequest;
+
+            if (!m_cancelingAuthentication) {
+                m_cancelingAuthentication = true;
+                m_socket = nullptr;
+                m_passPhrase.clear();
+                m_initialAuthRequest = false;
+                m_auth->stop();
+            }
+            return true;
+        }
+
+        m_socket = socket;
+        if (!startAuth(user, password, session, answerInitialRequest)) {
+            m_socket = nullptr;
+            return false;
+        }
+        return true;
+    }
+
+    bool Display::startPendingAuthentication() {
+        if (!m_pendingAuthentication)
+            return false;
+
+        const auto socket = m_pendingSocket;
+        const auto user = m_pendingUser;
+        const auto password = m_pendingPassword;
+        const auto session = m_pendingSession;
+        const bool answerInitialRequest = m_pendingInitialAuthRequest;
+
+        m_pendingAuthentication = false;
+        m_pendingSocket = nullptr;
+        m_pendingUser.clear();
+        m_pendingPassword.clear();
+        m_pendingInitialAuthRequest = false;
+
+        return beginAuthentication(socket, user, password, session, answerInitialRequest);
+    }
+
+    void Display::setAuthenticationSession(QLocalSocket *socket, const Session &session) {
+        if (socket == m_socket && m_auth->isActive()) {
+            if (!session.isValid()) {
+                qWarning() << "Ignoring invalid session change" << session.fileName();
+                return;
+            }
+            m_authenticationSession = session;
+            m_sessionName = session.fileName();
             return;
         }
 
-        // authenticate
-        startAuth(user, password, session);
+        if (socket == m_pendingSocket && m_pendingAuthentication)
+            m_pendingSession = session;
+    }
+
+    void Display::cancelAuthentication(QLocalSocket *socket) {
+        if (socket != m_socket && socket != m_pendingSocket)
+            return;
+
+        m_pendingAuthentication = false;
+        m_pendingSocket = nullptr;
+        m_pendingUser.clear();
+        m_pendingPassword.clear();
+        m_pendingInitialAuthRequest = false;
+
+        if (!m_auth->isActive())
+            return;
+
+        m_cancelingAuthentication = true;
+        m_socket = nullptr;
+        m_passPhrase.clear();
+        m_initialAuthRequest = false;
+        m_auth->stop();
+    }
+
+    void Display::authenticationResponse(QLocalSocket *socket, const QString &response) {
+        if (socket != m_socket || !m_auth->isActive()) {
+            qWarning() << "Ignoring authentication response without a matching active authentication";
+            return;
+        }
+
+        const auto prompts = m_auth->request()->prompts();
+        if (prompts.length() != 1) {
+            qWarning() << "Cannot apply authentication response: expected one prompt, got" << prompts.length();
+            return;
+        }
+
+        prompts[0]->setResponse(response.toUtf8());
+        m_auth->request()->done();
     }
 
     QString Display::findGreeterTheme() const {
@@ -385,7 +493,7 @@ namespace SDDM {
         return false;
     }
 
-    bool Display::startAuth(const QString &user, const QString &password, const Session &session) {
+    bool Display::startAuth(const QString &user, const QString &password, const Session &session, bool answerInitialRequest) {
 
         if (m_auth->isActive()) {
             qWarning() << "Existing authentication ongoing, aborting";
@@ -393,8 +501,49 @@ namespace SDDM {
         }
 
         m_passPhrase = password;
+        m_initialAuthRequest = answerInitialRequest;
+        m_cancelingAuthentication = false;
 
-        // sanity check
+        // Validate the initial selection. It remains changeable while the PAM
+        // conversation is active and is prepared only after authentication
+        // succeeds.
+        if (!session.isValid()) {
+            qCritical() << "Invalid session" << session.fileName();
+            return false;
+        }
+
+        m_authenticationSession = session;
+        m_sessionName = session.fileName();
+        m_auth->setSession(QString());
+        m_auth->setDisplayServerCommand(QString());
+
+        m_reuseSessionId = QString();
+
+        if (Logind::isAvailable() && mainConfig.Users.ReuseSession.get()) {
+            OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+            auto reply = manager.ListSessions();
+            reply.waitForFinished();
+
+            for (const SessionInfo &s : reply.value()) {
+                if (s.userName == user) {
+                    OrgFreedesktopLogin1SessionInterface loginSession(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
+                    if ((loginSession.service() == QLatin1String("sddm")
+                        || loginSession.service() == QLatin1String("sddm-autologin"))
+                            && loginSession.state() == QLatin1String("online")) {
+                        m_reuseSessionId = s.sessionId;
+                        break;
+                    }
+                }
+            }
+        }
+
+        m_auth->setUser(user);
+        m_auth->start();
+
+        return true;
+    }
+
+    bool Display::configureUserSession(const Session &session) {
         if (!session.isValid()) {
             qCritical() << "Invalid session" << session.fileName();
             return false;
@@ -408,40 +557,15 @@ namespace SDDM {
             return false;
         }
 
-        m_reuseSessionId = QString();
-
-        if (Logind::isAvailable() && mainConfig.Users.ReuseSession.get()) {
-            OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
-            auto reply = manager.ListSessions();
-            reply.waitForFinished();
-
-            const auto info = reply.value();
-            for(const SessionInfo &s : reply.value()) {
-                if (s.userName == user) {
-                    OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
-                    if ((session.service() == QLatin1String("sddm")
-                        || session.service() == QLatin1String("sddm-autologin"))
-                            && session.state() == QLatin1String("online")) {
-                        m_reuseSessionId = s.sessionId;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // save session desktop file name, we'll use it to set the
-        // last session later, in slotAuthenticationFinished()
         m_sessionName = session.fileName();
 
         m_sessionTerminalId = m_terminalId;
         if ((session.type() == Session::WaylandSession && m_displayServerType == X11DisplayServerType) || (m_greeter->isRunning() && m_displayServerType != X11DisplayServerType)) {
             // Create a new VT when we need to have another compositor running
-            if (seat()->canTTY()) {
+            if (seat()->canTTY())
                 m_sessionTerminalId = VirtualTerminal::setUpNewVt();
-            }
         }
 
-        // some information
         qDebug() << "Session" << m_sessionName << "selected, command:" << session.exec() << "for VT" << m_sessionTerminalId;
 
         QProcessEnvironment env;
@@ -462,21 +586,16 @@ namespace SDDM {
         env.insert(QStringLiteral("XDG_SESSION_DESKTOP"), session.desktopNames());
 #endif
 
+        m_auth->setDisplayServerCommand(QString());
         if (session.xdgSessionType() == QLatin1String("x11")) {
-          if (m_displayServerType == X11DisplayServerType)
-            env.insert(QStringLiteral("DISPLAY"), name());
-          else
-            m_auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
-        } else {
-            m_auth->setDisplayServerCommand(QStringLiteral());
-	}
-        m_auth->setUser(user);
-        if (m_reuseSessionId.isNull()) {
-            m_auth->setSession(session.exec());
+            if (m_displayServerType == X11DisplayServerType)
+                env.insert(QStringLiteral("DISPLAY"), name());
+            else
+                m_auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
         }
-        m_auth->insertEnvironment(env);
-        m_auth->start();
 
+        m_auth->setSession(session.exec());
+        m_auth->insertEnvironment(env);
         return true;
     }
 
@@ -488,6 +607,13 @@ namespace SDDM {
 
         if (success) {
             qDebug() << "Authentication for user " << user << " successful";
+
+            if (m_reuseSessionId.isNull() && !configureUserSession(m_authenticationSession)) {
+                if (m_socket)
+                    emit loginFailed(m_socket);
+                m_socket = nullptr;
+                return;
+            }
 
             if (!m_reuseSessionId.isNull()) {
                 OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
@@ -539,6 +665,13 @@ namespace SDDM {
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
+        if (m_cancelingAuthentication) {
+            m_cancelingAuthentication = false;
+            if (m_pendingAuthentication)
+                startPendingAuthentication();
+            return;
+        }
+
         // Don't restart greeter and display server unless sddm-helper exited
         // with an internal error or the user session finished successfully,
         // we want to avoid greeter from restarting when an authentication
@@ -549,13 +682,31 @@ namespace SDDM {
     }
 
     void Display::slotRequestChanged() {
-        if (m_auth->request()->prompts().length() == 1) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_passPhrase));
-            m_auth->request()->done();
-        } else if (m_auth->request()->prompts().length() == 2) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_auth->user()));
-            m_auth->request()->prompts()[1]->setResponse(qPrintable(m_passPhrase));
-            m_auth->request()->done();
+        const auto prompts = m_auth->request()->prompts();
+
+        // Keep the existing behaviour for the initial request so unchanged
+        // greeter themes continue to work with ordinary password logins.
+        if (m_initialAuthRequest) {
+            m_initialAuthRequest = false;
+
+            if (prompts.length() == 1) {
+                prompts[0]->setResponse(qPrintable(m_passPhrase));
+                m_auth->request()->done();
+            } else if (prompts.length() == 2) {
+                prompts[0]->setResponse(qPrintable(m_auth->user()));
+                prompts[1]->setResponse(qPrintable(m_passPhrase));
+                m_auth->request()->done();
+            }
+            return;
+        }
+
+        // Subsequent requests must be answered by a greeter theme through
+        // sddm.respond().  PAM modules such as pam_google_authenticator use
+        // this for a separate one-time-password prompt.
+        if (prompts.length() == 1 && m_socket) {
+            m_socketServer->authenticationPrompt(m_socket, prompts[0]->message(), prompts[0]->hidden());
+        } else {
+            qWarning() << "Unsupported authentication request with" << prompts.length() << "prompts";
         }
     }
 

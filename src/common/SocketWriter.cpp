@@ -49,4 +49,10 @@ namespace SDDM {
 
         return *this;
     }
+
+    SocketWriter &SocketWriter::operator << (bool value) {
+        *output << value;
+
+        return *this;
+    }
 }

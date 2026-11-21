@@ -127,6 +127,40 @@ namespace SDDM {
         SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
     }
 
+    void GreeterProxy::beginAuthentication(const QString &user, const int sessionIndex) const {
+        if (!d->sessionModel) {
+            qCritical() << "Session model is not set.";
+            return;
+        }
+
+        const QModelIndex index = d->sessionModel->index(sessionIndex, 0);
+        const Session::Type type = static_cast<Session::Type>(d->sessionModel->data(index, SessionModel::TypeRole).toInt());
+        const QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
+        const Session session(type, name);
+        SocketWriter(d->socket) << quint32(GreeterMessages::BeginAuthentication) << user << session;
+    }
+
+    void GreeterProxy::setSession(const int sessionIndex) const {
+        if (!d->sessionModel) {
+            qCritical() << "Session model is not set.";
+            return;
+        }
+
+        const QModelIndex index = d->sessionModel->index(sessionIndex, 0);
+        const Session::Type type = static_cast<Session::Type>(d->sessionModel->data(index, SessionModel::TypeRole).toInt());
+        const QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
+        const Session session(type, name);
+        SocketWriter(d->socket) << quint32(GreeterMessages::SetSession) << session;
+    }
+
+    void GreeterProxy::cancelAuthentication() const {
+        SocketWriter(d->socket) << quint32(GreeterMessages::CancelAuthentication);
+    }
+
+    void GreeterProxy::respond(const QString &response) const {
+        SocketWriter(d->socket) << quint32(GreeterMessages::AuthenticationResponse) << response;
+    }
+
     void GreeterProxy::connected() {
         // log connection
         qDebug() << "Connected to the daemon.";
@@ -212,6 +246,15 @@ namespace SDDM {
 
                     qDebug() << "Information Message received from daemon: " << message;
                     emit informationMessage(message);
+                }
+                break;
+                case DaemonMessages::AuthenticationPrompt: {
+                    QString prompt;
+                    bool promptVisible;
+                    input >> prompt >> promptVisible;
+
+                    qDebug() << "Authentication prompt received from daemon:" << prompt;
+                    emit authenticationPrompt(prompt, promptVisible);
                 }
                 break;
                 default: {
