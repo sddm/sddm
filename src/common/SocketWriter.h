@@ -39,7 +39,7 @@ namespace SDDM {
 
     private:
         QByteArray data;
-        QDataStream *output;
+        QDataStream output;
         QLocalSocket *socket;
     };
 }
