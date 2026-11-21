@@ -52,6 +52,7 @@ namespace SDDM {
 
     ObjectPathList DisplayManager::Seats() const {
         ObjectPathList seats;
+        seats.reserve(m_seats.size());
 
         for (DisplayManagerSeat *seat: m_seats)
             seats << ObjectPath(seat->Path());
@@ -61,6 +62,7 @@ namespace SDDM {
 
     ObjectPathList DisplayManager::Sessions(DisplayManagerSeat *seat) const {
         ObjectPathList sessions;
+        sessions.reserve(m_sessions.size());
 
         for (DisplayManagerSession *session: m_sessions)
             if (seat == nullptr || seat->Name() == session->Seat())
