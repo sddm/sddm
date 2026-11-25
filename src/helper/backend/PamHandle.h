@@ -41,7 +41,7 @@ namespace SDDM {
     * \ref acctMgmt doesn't require you to handle the PAM_NEW_AUTHTOK_REQD condition,
     * it calls chAuthTok on its own.
     *
-    * Error messages are automatically reported to qDebug
+    * Password errors retain PAM prose; fingerprint errors log numeric results.
     */
     class PamHandle {
     public:
@@ -49,7 +49,7 @@ namespace SDDM {
         * ctor
         * \param parent parent backend
         */
-        explicit PamHandle(PamBackend *parent = 0);
+        explicit PamHandle(PamBackend *parent);
 
         virtual ~PamHandle();
 
@@ -177,6 +177,8 @@ namespace SDDM {
         * \return error string
         */
         QString errorString();
+        // The result of the last PAM operation; reading it never invokes PAM.
+        int result() const;
 
     private:
         /**
@@ -187,6 +189,8 @@ namespace SDDM {
         * Not to be called directly, therefore private
         */
         static int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data);
+        void logError(const char *operation) const;
+        PamBackend *m_backend;
 
         int m_silent { 0 }; ///< flag mask for silence of the contained calls
 

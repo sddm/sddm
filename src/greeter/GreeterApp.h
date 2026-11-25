@@ -22,6 +22,7 @@
 #define GREETERAPP_H
 
 #include <QObject>
+#include <QPointer>
 #include <QScreen>
 #include <QQuickView>
 
@@ -44,6 +45,7 @@ namespace SDDM {
         Q_DISABLE_COPY(GreeterApp)
     public:
         explicit GreeterApp(QObject *parent = nullptr);
+        ~GreeterApp() override;
 
         bool isTestModeEnabled() const;
         void setTestModeEnabled(bool value);
@@ -62,6 +64,7 @@ namespace SDDM {
         void removeViewForScreen(QQuickView *view);
 
     private:
+        friend class GreeterAppTest;
         bool m_testing = false;
         QString m_socket;
         QString m_themePath;
@@ -76,9 +79,19 @@ namespace SDDM {
         UserModel *m_userModel { nullptr };
         GreeterProxy *m_proxy { nullptr };
         KeyboardModel *m_keyboard { nullptr };
+        QPointer<QQuickView> m_controllerView;
+        QPointer<QQuickView> m_pendingController;
+        bool m_clearPending { false };
+        bool m_committedPromotion { false };
+        bool m_replacingRoots { false };
+        bool m_fallbackStarted { false };
+        bool m_embeddedFallback { false };
+        QString m_fallbackErrors;
 
         void startup();
         void activatePrimary();
+        void promoteController();
+        void beginFallback(const QString &errors);
     };
 
     class StartupEvent : public QEvent

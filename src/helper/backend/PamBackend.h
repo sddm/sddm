@@ -72,6 +72,9 @@ namespace SDDM {
         virtual QString userName();
 
     private:
+        friend class PamHandle;
+        void authenticationStarted();
+        bool m_authenticating { false };
         PamData *m_data { nullptr };
         PamHandle *m_pam { nullptr };
     };

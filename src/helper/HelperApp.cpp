@@ -147,6 +147,16 @@ namespace SDDM {
         connect(m_session, &UserSession::finished, this, &HelperApp::sessionFinished);
         m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
     }
+    void HelperApp::methodState(FingerprintState state, const QString &detailCode) {
+        if (m_method != AuthMethod::Fingerprint || !validHelperMethodState(state, detailCode)
+            || !m_socket || m_socket->state() != QLocalSocket::ConnectedState)
+            return;
+        SafeDataStream str(m_socket);
+        str << Msg::METHOD_STATE << m_requestId << m_method << m_user
+            << quint32(state) << detailCode;
+        str.send();
+    }
+
 
     void HelperApp::doAuth() {
         SafeDataStream str(m_socket);
@@ -154,6 +164,7 @@ namespace SDDM {
         str.send();
         if (str.status() != QDataStream::Ok)
             qCritical() << "Couldn't write initial message:" << str.status();
+
 
         if (!m_backend->start(m_user)) {
             QProcessEnvironment ignored;
@@ -237,6 +248,8 @@ namespace SDDM {
     }
 
     void HelperApp::info(const QString& message, Auth::Info type) {
+        if (m_method == AuthMethod::Fingerprint)
+            return;
         SafeDataStream str(m_socket);
         str << Msg::INFO << m_requestId << m_method << message << type;
         str.send();
@@ -244,6 +257,8 @@ namespace SDDM {
     }
 
     void HelperApp::error(const QString& message, Auth::Error type) {
+        if (m_method == AuthMethod::Fingerprint)
+            return;
         SafeDataStream str(m_socket);
         str << Msg::ERROR << m_requestId << m_method << message << type;
         str.send();
@@ -260,7 +275,8 @@ namespace SDDM {
         QString requestId;
         AuthMethod method = AuthMethod::Password;
         str >> m >> requestId >> method >> response;
-        if (m != REQUEST || requestId != m_requestId || method != m_method) {
+        if (str.status() != QDataStream::Ok || !str.atEnd()
+            || m != REQUEST || requestId != m_requestId || method != m_method) {
             response = Request();
             qCritical() << "Received a wrong opcode instead of REQUEST:" << m;
         }
@@ -279,9 +295,10 @@ namespace SDDM {
         QString requestId;
         AuthMethod method = AuthMethod::Password;
         str >> m >> requestId >> method >> proceed;
-        if (m == SESSION_AUTHORIZATION && requestId == m_requestId && method == m_method && proceed) {
+        if (str.status() == QDataStream::Ok
+            && m == SESSION_AUTHORIZATION && requestId == m_requestId && method == m_method && proceed) {
             str >> environment >> m_cookie;
-            return str.status() == QDataStream::Ok;
+            return str.status() == QDataStream::Ok && str.atEnd();
         }
         if (m != SESSION_AUTHORIZATION || requestId != m_requestId || method != m_method)
             qCritical() << "Rejected invalid session authorization";
@@ -297,7 +314,8 @@ namespace SDDM {
         QString requestId;
         AuthMethod method = AuthMethod::Password;
         str >> m >> requestId >> method;
-        if (m != SESSION_STATUS || requestId != m_requestId || method != m_method) {
+        if (str.status() != QDataStream::Ok || !str.atEnd()
+            || m != SESSION_STATUS || requestId != m_requestId || method != m_method) {
             qCritical() << "Received a wrong opcode instead of SESSION_STATUS:" << m;
         }
     }
@@ -312,7 +330,8 @@ namespace SDDM {
         QString requestId;
         AuthMethod method = AuthMethod::Password;
         str >> m >> requestId >> method;
-        if (m != DISPLAY_SERVER_STARTED || requestId != m_requestId || method != m_method) {
+        if (str.status() != QDataStream::Ok || !str.atEnd()
+            || m != DISPLAY_SERVER_STARTED || requestId != m_requestId || method != m_method) {
             qCritical() << "Received a wrong opcode instead of DISPLAY_SERVER_STARTED:" << m;
         }
     }

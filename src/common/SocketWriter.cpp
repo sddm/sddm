@@ -38,6 +38,12 @@ namespace SDDM {
         return *this;
     }
 
+    SocketWriter &SocketWriter::operator << (const quint64 &u) {
+        *output << u;
+
+        return *this;
+    }
+
     SocketWriter &SocketWriter::operator << (const QString &s) {
         *output << s;
 

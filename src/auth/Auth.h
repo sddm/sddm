@@ -21,11 +21,12 @@
 #ifndef SDDM_AUTH_H
 #define SDDM_AUTH_H
 
+#include "../common/Messages.h"
 #include "AuthRequest.h"
 #include "AuthPrompt.h"
+#include <QMetaType>
 
-#include <QtCore/QObject>
-#include <QtCore/QProcessEnvironment>
+class QProcessEnvironment;
 
 namespace SDDM {
     enum class AuthMethod : qint32 {
@@ -108,6 +109,7 @@ namespace SDDM {
         const QString &requestId() const;
         quint64 launchGeneration() const;
         bool isDeferredAuthorization() const;
+        bool isAwaitingAuthorization() const;
         /**
          * True if an authentication or session is in progress
          */
@@ -217,6 +219,10 @@ namespace SDDM {
         * @param success true if succeeded
         */
         void sessionStarted(bool success);
+        // Validated fingerprint helper advisories/failures only. This signal
+        // cannot authorize a session; authentication() remains the success path.
+        void authenticationMethodState(const QString &requestId, SDDM::AuthMethod method,
+                                       SDDM::FingerprintState state, const QString &detailCode);
 
         /**
          * Emitted when the display server is ready.
@@ -255,5 +261,7 @@ namespace SDDM {
         Private *d { nullptr };
     };
 }
+
+Q_DECLARE_METATYPE(SDDM::AuthMethod)
 
 #endif // SDDM_AUTH_H

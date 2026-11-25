@@ -67,7 +67,7 @@ namespace SDDM {
 
         void setTo(Type type, const QString &name);
 
-        Session &operator=(const Session &other);
+        Session &operator=(const Session &other) = default;
 
     private:
         QProcessEnvironment parseEnv(const QString &list);

@@ -272,11 +272,6 @@ namespace SDDM {
         m_valid = true;
     }
 
-    Session &Session::operator=(const Session &other)
-    {
-        setTo(other.type(), other.fileName());
-        return *this;
-    }
 
     QProcessEnvironment SDDM::Session::parseEnv(const QString &list)
     {

@@ -98,10 +98,27 @@ namespace SDDM {
         AUTHENTICATED,
         SESSION_STATUS,
         DISPLAY_SERVER_STARTED,
-        METHOD_STATE,
+        METHOD_STATE = 8,
         SESSION_AUTHORIZATION,
         MSG_LAST,
     };
+
+    // These are advisories and failures only. PAM success is AUTHENTICATED;
+    // cancellation and timeout completion belong to the daemon.
+    inline bool validHelperMethodState(FingerprintState state, const QString &detailCode) {
+        switch (state) {
+        case FingerprintState::Scanning:
+            return detailCode == QLatin1String("scanning");
+        case FingerprintState::Retry:
+            return detailCode == QLatin1String("try_again");
+        case FingerprintState::Failed:
+            return detailCode == QLatin1String("authentication_failed");
+        case FingerprintState::Unavailable:
+            return detailCode == QLatin1String("authentication_unavailable");
+        default:
+            return false;
+        }
+    }
 
     inline QDataStream& operator<<(QDataStream &s, const AuthMethod &method) {
         s << qint32(method);

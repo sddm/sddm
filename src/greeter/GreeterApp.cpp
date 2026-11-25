@@ -57,14 +57,23 @@ namespace SDDM {
     {
         // Translations
         // Components translation
-        m_components_tranlator = new QTranslator();
+        m_components_tranlator = new QTranslator(this);
         if (m_components_tranlator->load(QLocale::system(), QString(), QString(), QStringLiteral(COMPONENTS_TRANSLATION_DIR)))
             QCoreApplication::installTranslator(m_components_tranlator);
 
 
         // Create models
-        m_sessionModel = new SessionModel();
+        m_sessionModel = new SessionModel(this);
         m_keyboard = new KeyboardModel();
+    }
+
+    GreeterApp::~GreeterApp() {
+        m_replacingRoots = true;
+        m_controllerView.clear();
+        m_pendingController.clear();
+        qDeleteAll(m_views);
+        m_views.clear();
+        delete m_keyboard;
     }
 
     bool GreeterApp::isTestModeEnabled() const
@@ -103,7 +112,7 @@ namespace SDDM {
         if (m_metadata)
             m_metadata->setTo(metadataPath);
         else
-            m_metadata = new ThemeMetadata(metadataPath);
+            m_metadata = new ThemeMetadata(metadataPath, this);
 
         // Get theme config file
         QString configFile = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->configFile());
@@ -122,7 +131,7 @@ namespace SDDM {
         }
 
         if (!m_userModel)
-            m_userModel = new UserModel(themeNeedsAllUsers, nullptr);
+            m_userModel = new UserModel(themeNeedsAllUsers, this);
 
         // Set default icon theme from greeter theme
         if (m_themeConfig->contains(QStringLiteral("iconTheme")))
@@ -131,7 +140,7 @@ namespace SDDM {
         // Theme specific translation
         if (m_theme_translator)
             m_theme_translator->deleteLater();
-        m_theme_translator = new QTranslator();
+        m_theme_translator = new QTranslator(this);
         if (m_theme_translator->load(QLocale::system(), QString(), QString(),
                            QStringLiteral("%1/%2/").arg(m_themePath, m_metadata->translationsDirectory())))
             QCoreApplication::installTranslator(m_theme_translator);
@@ -144,155 +153,198 @@ namespace SDDM {
     }
 
     void GreeterApp::addViewForScreen(QScreen *screen) {
-        // create view
+        if (!screen || m_replacingRoots) return;
         QQuickView *view = new QQuickView();
         view->setScreen(screen);
         view->setResizeMode(QQuickView::SizeRootObjectToView);
-        //view->setGeometry(QRect(QPoint(0, 0), screen->geometry().size()));
         view->setGeometry(screen->geometry());
         view->setFlags(Qt::FramelessWindowHint);
         m_views.append(view);
 
-        // remove the view when the screen is removed, but we
-        // need to be careful here since Qt will move the view to
-        // another screen before this signal is emitted so we
-        // pass a pointer to the view to our slot
-        connect(qGuiApp, &QGuiApplication::screenRemoved, view, [view, this, screen](QScreen *s) {
-            if (s == screen)
-                removeViewForScreen(view);
+        connect(qGuiApp, &QGuiApplication::screenRemoved, view, [this, view, screen](QScreen *removed) {
+            if (removed == screen) removeViewForScreen(view);
         });
-
-        // always resize when the screen geometry changes
-        connect(screen, &QScreen::geometryChanged, this, [view](const QRect &r) {
-            view->setGeometry(r);
+        connect(screen, &QScreen::geometryChanged, view, [view](const QRect &geometry) {
+            view->setGeometry(geometry);
         });
-
-        view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
-
-        // connect proxy signals
         connect(m_proxy, &GreeterProxy::loginSucceeded, view, &QQuickView::close);
-
-        // we used to have only one window as big as the virtual desktop,
-        // QML took care of creating an item for each screen by iterating on
-        // the screen model. However we now have a better approach: we create
-        // a view for each screen that compose the virtual desktop and thus
-        // the QML code for each screen is responsible for drawing only its
-        // screen. By doing so we actually make the screen model useless, but
-        // we want to keep it for compatibility reasons, we do however create
-        // one for each view and expose only the screen that the view belongs to
-        // in order to avoid creating items with different sizes.
+        view->engine()->addImportPath(QStringLiteral(IMPORTS_INSTALL_DIR));
         ScreenModel *screenModel = new ScreenModel(screen, view);
 
-        // set context properties
+        const bool controller = !m_clearPending && !m_controllerView
+            && (screen == QGuiApplication::primaryScreen() || m_views.size() == 1);
+        if (controller) {
+            m_controllerView = view;
+            m_proxy->setAuthenticationController(true);
+        }
+        if (!m_pendingController || (m_clearPending && screen == QGuiApplication::primaryScreen()))
+            m_pendingController = view;
         view->rootContext()->setContextProperty(QStringLiteral("sessionModel"), m_sessionModel);
         view->rootContext()->setContextProperty(QStringLiteral("screenModel"), screenModel);
         view->rootContext()->setContextProperty(QStringLiteral("userModel"), m_userModel);
         view->rootContext()->setContextProperty(QStringLiteral("config"), m_themeConfig);
         view->rootContext()->setContextProperty(QStringLiteral("sddm"), m_proxy);
         view->rootContext()->setContextProperty(QStringLiteral("keyboard"), m_keyboard);
-        view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), QGuiApplication::primaryScreen() == screen);
-        view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), QString());
+        view->rootContext()->setContextProperty(QStringLiteral("authenticationController"), controller);
+        view->rootContext()->setContextProperty(QStringLiteral("primaryScreen"), screen == QGuiApplication::primaryScreen());
+        view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), m_fallbackErrors);
 
-        // get theme main script
-        QString mainScript = QStringLiteral("%1/%2").arg(m_themePath).arg(m_metadata->mainScript());
-        QUrl mainScriptUrl;
-        if (m_themePath.startsWith(QLatin1String("qrc:/")))
-            mainScriptUrl = QUrl(mainScript);
-        else
-            mainScriptUrl = QUrl::fromLocalFile(mainScript);
-
-        // load theme from resources when an error has occurred
-        connect(view, &QQuickView::statusChanged, this, [view](QQuickView::Status status) {
-            if (status != QQuickView::Error)
-                return;
-
+        connect(view, &QQuickView::statusChanged, this, [this, view](QQuickView::Status status) {
+            if (status != QQuickView::Error) return;
             QString errors;
-            const auto errorList = view->errors();
-            for(const QQmlError &e : errorList) {
-                qWarning() << e;
-                errors += QLatin1String("\n") + e.toString();
+            for (const QQmlError &error : view->errors()) {
+                qWarning() << error;
+                errors += QLatin1String("\n") + error.toString();
             }
-
-            qWarning() << "Fallback to embedded theme";
-            view->rootContext()->setContextProperty(QStringLiteral("__sddm_errors"), errors);
-            view->setSource(QUrl(QStringLiteral("qrc:/theme/Main.qml")));
+            if (m_embeddedFallback) {
+                qCritical() << "Embedded greeter theme failed to load";
+                QCoreApplication::exit(EXIT_FAILURE);
+            } else if (!m_fallbackStarted) {
+                beginFallback(errors);
+            }
         });
-
-        // set main script as source
+        const QString mainScript = QStringLiteral("%1/%2").arg(m_themePath, m_metadata->mainScript());
+        const QUrl mainScriptUrl = m_themePath.startsWith(QLatin1String("qrc:/"))
+            ? QUrl(mainScript) : QUrl::fromLocalFile(mainScript);
         qInfo("Loading %s...", qPrintable(mainScriptUrl.toString()));
         view->setSource(mainScriptUrl);
-
-        // set default cursor
-        QCursor cursor(Qt::ArrowCursor);
-        view->rootObject()->setCursor(cursor);
-
-        // show
-        qDebug() << "Adding view for" << screen->name() << screen->geometry();
+        if (QQuickItem *root = view->rootObject()) {
+            root->setCursor(QCursor(Qt::ArrowCursor));
+            connect(root, &QObject::destroyed, this, [this, view] {
+                if (m_replacingRoots || m_controllerView != view) return;
+                // A mirror has no lifecycle authority. A lost controlling root
+                // cannot leave invisible automatic authentication behind.
+                removeViewForScreen(view);
+            });
+        }
+        if (view->status() != QQuickView::Ready) return;
         view->showFullScreen();
-
-        // activate windows for the primary screen to give focus to text fields
-        if (QGuiApplication::primaryScreen() == screen)
-            view->requestActivate();
+        if (controller) view->requestActivate();
+        if (screen == QGuiApplication::primaryScreen() && m_controllerView != view)
+            activatePrimary();
     }
 
     void GreeterApp::removeViewForScreen(QQuickView *view) {
-        // screen is gone, remove the window
-        m_views.removeOne(view);
+        if (!m_views.removeOne(view)) return;
+        const bool wasController = m_controllerView == view;
+        if (m_pendingController == view) m_pendingController.clear();
+        if (wasController) {
+            m_controllerView.clear();
+            m_proxy->setAuthenticationController(false);
+            m_clearPending = true;
+        }
         view->deleteLater();
+        if (wasController) {
+            activatePrimary();
+            m_proxy->clearAuthenticationContext();
+        }
+    }
+
+    void GreeterApp::beginFallback(const QString &errors) {
+        qWarning() << "Fallback to embedded theme";
+        m_fallbackStarted = true;
+        m_fallbackErrors = errors;
+        m_clearPending = true;
+        m_proxy->setAuthenticationController(false);
+        for (QQuickView *view : qAsConst(m_views))
+            view->rootContext()->setContextProperty(QStringLiteral("authenticationController"), false);
+        m_proxy->disableAuthenticationMethods();
+        // Destroying a root from its own load-status callback is unsafe. The
+        // method prohibition and clear request above take effect immediately.
+        QTimer::singleShot(0, this, [this] {
+            m_replacingRoots = true;
+            m_controllerView.clear();
+            m_pendingController.clear();
+            const auto oldViews = m_views;
+            m_views.clear();
+            qDeleteAll(oldViews);
+            setThemePath(QStringLiteral("qrc:/theme"));
+            m_embeddedFallback = true;
+            m_replacingRoots = false;
+            QScreen *primary = QGuiApplication::primaryScreen();
+            if (primary) addViewForScreen(primary);
+            for (QScreen *screen : QGuiApplication::screens())
+                if (screen != primary) addViewForScreen(screen);
+            if (m_committedPromotion) promoteController();
+            else activatePrimary();
+        });
     }
 
     void GreeterApp::startup()
     {
-        // Connect to the daemon
-        m_proxy = new GreeterProxy(m_socket);
+        m_proxy = new GreeterProxy(m_socket, this);
         if (!m_testing && !m_proxy->isConnected()) {
             qCritical() << "Cannot connect to the daemon - is it running?";
             QCoreApplication::exit(EXIT_FAILURE);
             return;
         }
-
-        // Set numlock upon start
         if (m_keyboard->enabled()) {
             if (mainConfig.Numlock.get() == MainConfig::NUM_SET_ON)
                 m_keyboard->setNumLockState(true);
             else if (mainConfig.Numlock.get() == MainConfig::NUM_SET_OFF)
                 m_keyboard->setNumLockState(false);
         }
-
-        // Set font
         const QString fontStr = mainConfig.Theme.Font.get();
         if (!fontStr.isEmpty()) {
             QFont font;
-            if (font.fromString(fontStr)) {
+            if (font.fromString(fontStr))
                 QGuiApplication::setFont(font);
-            }
         }
-
-        // Set session model on proxy
         m_proxy->setSessionModel(m_sessionModel);
-
-        // If the socket ends, bail. There is not much we can do.
         connect(m_proxy, &GreeterProxy::socketDisconnected, qGuiApp, &QCoreApplication::quit);
-
-        // Create views
-        const QList<QScreen *> screens = qGuiApp->primaryScreen()->virtualSiblings();
-        for (QScreen *screen : screens)
-            addViewForScreen(screen);
-
-        // Handle screens
-        connect(qGuiApp, &QGuiApplication::screenAdded, this, &GreeterApp::addViewForScreen);
-        connect(qGuiApp, &QGuiApplication::primaryScreenChanged, this, [this](QScreen *) {
-            activatePrimary();
+        connect(m_proxy, &GreeterProxy::authenticationContextCleared, this, [this](quint64) {
+            m_clearPending = false;
+            m_committedPromotion = false;
+            if (!m_replacingRoots && (!m_fallbackStarted || m_embeddedFallback))
+                promoteController();
         });
+        connect(m_proxy, &GreeterProxy::authenticationContextRejected, this, [this](quint64, const QString &) {
+            m_committedPromotion = true;
+            if (!m_replacingRoots && (!m_fallbackStarted || m_embeddedFallback))
+                promoteController();
+        });
+        m_embeddedFallback = m_themePath.startsWith(QLatin1String("qrc:/"));
+        if (m_embeddedFallback) m_proxy->disableAuthenticationMethods();
+        QScreen *primary = QGuiApplication::primaryScreen();
+        if (primary) addViewForScreen(primary);
+        for (QScreen *screen : QGuiApplication::screens())
+            if (screen != primary) addViewForScreen(screen);
+        connect(qGuiApp, &QGuiApplication::screenAdded, this, &GreeterApp::addViewForScreen);
+        connect(qGuiApp, &QGuiApplication::primaryScreenChanged, this, [this](QScreen *) { activatePrimary(); });
     }
 
     void GreeterApp::activatePrimary() {
-        // activate and give focus to the window assigned to the primary screen
+        QQuickView *next = nullptr;
         for (QQuickView *view : std::as_const(m_views)) {
             if (view->screen() == QGuiApplication::primaryScreen()) {
-                view->requestActivate();
+                next = view;
                 break;
             }
+        }
+        if (!next && !m_views.isEmpty()) next = m_views.first();
+        if (m_controllerView == next && !m_clearPending) return;
+        m_pendingController = next;
+        if (m_clearPending) {
+            if (m_committedPromotion) promoteController();
+            return;
+        }
+        m_clearPending = true;
+        m_controllerView.clear();
+        m_proxy->setAuthenticationController(false);
+        for (QQuickView *view : qAsConst(m_views))
+            view->rootContext()->setContextProperty(QStringLiteral("authenticationController"), false);
+        m_proxy->clearAuthenticationContext();
+    }
+
+    void GreeterApp::promoteController() {
+        if (!m_pendingController && !m_views.isEmpty())
+            m_pendingController = m_views.first();
+        m_controllerView = m_pendingController;
+        m_proxy->setAuthenticationController(bool(m_controllerView));
+        for (QQuickView *view : qAsConst(m_views)) {
+            const bool controller = view == m_controllerView;
+            view->rootContext()->setContextProperty(QStringLiteral("authenticationController"), controller);
+            if (controller) view->requestActivate();
         }
     }
 
@@ -302,6 +354,7 @@ namespace SDDM {
     }
 }
 
+#ifndef SDDM_GREETER_APP_TEST
 int main(int argc, char **argv)
 {
     bool testMode = false;
@@ -397,3 +450,4 @@ int main(int argc, char **argv)
 
     return app.exec();
 }
+#endif

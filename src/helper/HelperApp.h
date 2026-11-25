@@ -48,6 +48,7 @@ namespace SDDM {
         void error(const QString &message, Auth::Error type);
         bool authenticated(const QString &user, QProcessEnvironment &environment);
         void displayServerStarted(const QString &displayName);
+        void methodState(FingerprintState state, const QString &detailCode);
         void sessionOpened(bool success);
 
     private slots:

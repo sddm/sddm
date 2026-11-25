@@ -6,6 +6,7 @@
 #include <QDataStream>
 #include <QLocalSocket>
 #include <QTimer>
+#include <csignal>
 
 using namespace SDDM;
 
@@ -52,6 +53,119 @@ int main(int argc, char **argv) {
             }
         }
         first << HELLO << value(QStringLiteral("--id")).toLongLong() << id << method;
+        if (user == QStringLiteral("stop-late-success")) {
+            std::signal(SIGTERM, SIG_IGN);
+            QByteArray info;
+            QDataStream stream(&info, QIODevice::WriteOnly);
+            stream << INFO << id << method << QStringLiteral("ready") << Auth::INFO_UNKNOWN;
+            socket.write(frame(hello) + frame(info));
+            QTimer::singleShot(200, &app, [&, id, method, user] {
+                QByteArray payload;
+                QDataStream result(&payload, QIODevice::WriteOnly);
+                result << AUTHENTICATED << id << method << user;
+                socket.write(frame(payload));
+            });
+            return;
+        }
+        auto progress = [&](FingerprintState state, const QString &detail,
+                            const QString &boundUser, const QString &request, AuthMethod progressMethod) {
+            QByteArray payload;
+            QDataStream stream(&payload, QIODevice::WriteOnly);
+            stream << METHOD_STATE << request << progressMethod << boundUser << quint32(state) << detail;
+            return frame(payload);
+        };
+        if (user.startsWith(QStringLiteral("progress-"))) {
+            socket.write(frame(hello));
+            const QByteArray scanning = progress(FingerprintState::Scanning, QStringLiteral("scanning"), user, id, method);
+            if (user == QStringLiteral("progress-retry-success")) {
+                QByteArray info, error;
+                QDataStream information(&info, QIODevice::WriteOnly), failure(&error, QIODevice::WriteOnly);
+                information << INFO << id << method << QStringLiteral("private PAM information") << Auth::INFO_UNKNOWN;
+                failure << ERROR << id << method << QStringLiteral("private PAM advisory") << Auth::ERROR_AUTHENTICATION;
+                socket.write(scanning + frame(info) + frame(error)
+                             + progress(FingerprintState::Retry, QStringLiteral("try_again"), user, id, method)
+                             + progress(FingerprintState::Retry, QStringLiteral("try_again"), user, id, method));
+                QTimer::singleShot(250, &app, [&, id, method, user] {
+                    QByteArray payload;
+                    QDataStream stream(&payload, QIODevice::WriteOnly);
+                    stream << AUTHENTICATED << id << method << user;
+                    socket.write(frame(payload));
+                });
+                return;
+            }
+            if (user == QStringLiteral("progress-fragmented")) {
+                socket.write(scanning.left(scanning.size() - 1));
+                QTimer::singleShot(250, &app, [&, scanning] { socket.write(scanning.right(1)); });
+                return;
+            }
+            if (user == QStringLiteral("progress-unavailable")) {
+                QByteArray failure;
+                QDataStream stream(&failure, QIODevice::WriteOnly);
+                stream << AUTHENTICATED << id << method << QString();
+                socket.write(scanning
+                             + progress(FingerprintState::Unavailable, QStringLiteral("authentication_unavailable"), user, id, method)
+                             + frame(failure));
+                socket.flush();
+                QTimer::singleShot(100, &app, [&] { app.exit(Auth::HELPER_AUTH_ERROR); });
+                return;
+            }
+            if (user == QStringLiteral("progress-terminal-success")) {
+                QByteArray success;
+                QDataStream stream(&success, QIODevice::WriteOnly);
+                stream << AUTHENTICATED << id << method << user;
+                socket.write(scanning
+                             + progress(FingerprintState::Failed, QStringLiteral("authentication_failed"), user, id, method)
+                             + frame(success));
+                return;
+            }
+            FingerprintState state = FingerprintState::Scanning;
+            QString detail = QStringLiteral("scanning"), boundUser = user, request = id;
+            AuthMethod progressMethod = method;
+            if (user == QStringLiteral("progress-ready"))
+                state = FingerprintState::Ready;
+            else if (user == QStringLiteral("progress-matched"))
+                state = FingerprintState::Matched;
+            else if (user == QStringLiteral("progress-cancelled"))
+                state = FingerprintState::Cancelled;
+            else if (user == QStringLiteral("progress-timeout"))
+                state = FingerprintState::TimedOut;
+            else if (user == QStringLiteral("progress-unknown"))
+                state = FingerprintState(999);
+            else if (user == QStringLiteral("progress-prose"))
+                detail = QStringLiteral("localized private PAM prose");
+            else if (user == QStringLiteral("progress-empty-code"))
+                detail.clear();
+            else if (user == QStringLiteral("progress-wrong-code"))
+                detail = QStringLiteral("authentication_unavailable");
+            else if (user == QStringLiteral("progress-wrong-user"))
+                boundUser = QStringLiteral("other-user");
+            else if (user == QStringLiteral("progress-wrong-request"))
+                request = QStringLiteral("stale-request");
+            else if (user == QStringLiteral("progress-wrong-method"))
+                progressMethod = AuthMethod::Password;
+            QByteArray success;
+            QDataStream stream(&success, QIODevice::WriteOnly);
+            stream << AUTHENTICATED << id << method << user;
+            // A forged progress frame must not authorize the valid success
+            // deliberately queued behind it in the very same read.
+            socket.write(progress(state, detail, boundUser, request, progressMethod) + frame(success));
+            return;
+        }
+        if (user == QStringLiteral("wrong-authenticated-user")) {
+            QByteArray payload;
+            QDataStream stream(&payload, QIODevice::WriteOnly);
+            stream << AUTHENTICATED << id << method << QStringLiteral("other-user");
+            socket.write(frame(hello) + frame(payload));
+            return;
+        }
+        if (user == QStringLiteral("password-feedback")) {
+            QByteArray info, error;
+            QDataStream information(&info, QIODevice::WriteOnly), failure(&error, QIODevice::WriteOnly);
+            information << INFO << id << method << QStringLiteral("stock password information") << Auth::INFO_UNKNOWN;
+            failure << ERROR << id << method << QStringLiteral("stock password advisory") << Auth::ERROR_AUTHENTICATION;
+            socket.write(frame(hello) + frame(info) + frame(error));
+            return;
+        }
         QDataStream second(&authenticated, QIODevice::WriteOnly);
         second << AUTHENTICATED << (user == QStringLiteral("wrong") ? QStringLiteral("stale") : id)
                << method << user;
@@ -97,7 +211,8 @@ int main(int argc, char **argv) {
             QTimer::singleShot(100, &app, &QCoreApplication::quit);
         });
     }
-    QTimer::singleShot(user == QStringLiteral("slow") ? 10000 : 2500, &app, [&] { app.exit(2); });
+    QTimer::singleShot(user == QStringLiteral("slow") || user == QStringLiteral("stop-late-success") ? 10000 : 2500,
+                      &app, [&] { app.exit(2); });
     socket.connectToServer(value(QStringLiteral("--socket")));
     if (!socket.waitForConnected(1000))
         return 3;

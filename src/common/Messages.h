@@ -23,27 +23,42 @@
 #include <QFlags>
 
 namespace SDDM {
-    enum class GreeterMessages {
+    enum class GreeterMessages : quint32 {
         Connect = 0,
-        Login,
-        PowerOff,
-        Reboot,
-        Suspend,
-        Hibernate,
-        HybridSleep,
-        StartFingerprint,
-        CancelFingerprint
+        Login = 1,
+        PowerOff = 2,
+        Reboot = 3,
+        Suspend = 4,
+        Hibernate = 5,
+        HybridSleep = 6,
+        QueryAuthenticationCapabilities = 9,
+        SetAuthenticationContext = 10,
+        StartAuthenticationMethod = 11,
+        CancelAuthenticationMethod = 12
     };
 
-    enum class DaemonMessages {
-        HostName,
-        Capabilities,
-        LoginSucceeded,
-        LoginFailed,
-        InformationMessage,
-        AuthenticationCapabilities,
-        AuthenticationMethodState,
-        AuthenticationAttemptFinished,
+    enum class DaemonMessages : quint32 {
+        HostName = 0,
+        Capabilities = 1,
+        LoginSucceeded = 2,
+        LoginFailed = 3,
+        InformationMessage = 4,
+        AuthenticationCapabilities = 5,
+        AuthenticationContext = 8,
+        AuthenticationMethodState = 9,
+        AuthenticationAttemptFinished = 10
+    };
+
+    enum class AuthenticationMethod : quint32 { Password = 0, Fingerprint = 1, NoWinner = 2 };
+    enum class AuthenticationAvailability : quint32 { Unknown = 0, Available = 1, Unavailable = 2 };
+    enum class AuthenticationResult : quint32 { Failed = 0, Succeeded = 1, Cancelled = 2 };
+    enum class AuthenticationPhase : quint32 {
+        Idle = 0, Active = 1, WinnerSelected = 2, LoserStopping = 3,
+        SessionAuthorized = 4, Finished = 5
+    };
+    enum class FingerprintState : quint32 {
+        Unavailable = 0, Ready = 1, Scanning = 2, Retry = 3,
+        Matched = 4, Failed = 5, Cancelled = 6, TimedOut = 7
     };
 
     enum Capability {

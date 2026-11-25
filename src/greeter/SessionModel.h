@@ -26,6 +26,7 @@
 #include <QAbstractListModel>
 
 #include <QHash>
+#include <QVariantMap>
 
 namespace SDDM {
     class SessionModelPrivate;
@@ -33,8 +34,8 @@ namespace SDDM {
     class SessionModel : public QAbstractListModel {
         Q_OBJECT
         Q_DISABLE_COPY(SessionModel)
-        Q_PROPERTY(int lastIndex READ lastIndex CONSTANT)
-        Q_PROPERTY(int count READ rowCount CONSTANT)
+        Q_PROPERTY(int lastIndex READ lastIndex NOTIFY countChanged)
+        Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
     public:
         enum SessionRole {
             DirectoryRole = Qt::UserRole + 1,
@@ -55,6 +56,13 @@ namespace SDDM {
 
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
         QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+        const Session &sessionAt(int index) const;
+        Q_INVOKABLE int indexOfSession(int type, const QString &file) const;
+        Q_INVOKABLE QVariantMap sessionIdentity(int index) const;
+
+    signals:
+        void countChanged();
 
     private:
         SessionModelPrivate *d { nullptr };

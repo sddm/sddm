@@ -23,8 +23,10 @@
 
 #include <QObject>
 #include <QString>
+#include <QSet>
 
 #include "Session.h"
+#include "Messages.h"
 
 class QLocalServer;
 class QLocalSocket;
@@ -40,6 +42,7 @@ namespace SDDM {
         void stop();
 
         QString socketAddress() const;
+        bool isCorrelated(QLocalSocket *socket) const;
 
     private slots:
         void newConnection();
@@ -49,20 +52,31 @@ namespace SDDM {
         void informationMessage(QLocalSocket *socket, const QString &message);
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
-        void authenticationCapabilities(QLocalSocket *socket, quint32 capabilities);
-        void authenticationMethodState(QLocalSocket *socket, const QString &requestId, quint32 state, const QString &detail);
-        void authenticationAttemptFinished(QLocalSocket *socket, const QString &requestId, bool success, quint32 method);
+        void authenticationContext(QLocalSocket *socket, quint64 serial, quint32 accepted,
+                                   const QString &requestId, const QString &user, const Session &session,
+                                   quint32 availability, quint32 phase, const QString &detailCode);
+        void authenticationMethodState(QLocalSocket *socket, quint64 serial, const QString &requestId,
+                                       quint32 method, const QString &user, const Session &session,
+                                       quint32 state, quint32 phase, const QString &detailCode);
+        void authenticationAttemptFinished(QLocalSocket *socket, quint64 serial, const QString &requestId,
+                                           const QString &user, const Session &session,
+                                           quint32 result, quint32 winningMethod);
 
     signals:
-        void login(QLocalSocket *socket,
-                   const QString &user, const QString &password,
-                   const Session &session);
-        void startFingerprint(QLocalSocket *socket, const QString &user, const Session &session);
-        void cancelFingerprint(QLocalSocket *socket, const QString &requestId);
+        void login(QLocalSocket *socket, const QString &user, const QString &password, const Session &session);
+        void setAuthenticationContext(QLocalSocket *socket, quint64 serial, bool hasContext,
+                                      const QString &user, const Session &session);
+        void startFingerprint(QLocalSocket *socket, quint64 serial);
+        void cancelFingerprint(QLocalSocket *socket, quint64 serial, const QString &requestId);
+        void disconnected(QLocalSocket *socket);
+        void powerRequested(SDDM::GreeterMessages action);
         void connected();
 
     private:
         QLocalServer *m_server { nullptr };
+        QSet<QLocalSocket *> m_correlatedSockets;
+        QSet<QLocalSocket *> m_queriedSockets;
+        QSet<QLocalSocket *> m_legacyClearSockets;
     };
 }
 

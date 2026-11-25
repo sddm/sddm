@@ -57,12 +57,15 @@ namespace SDDM {
             // Recheck for flag to show Wayland sessions
             bool dri_active = QFileInfo::exists(QStringLiteral("/dev/dri"));
             beginResetModel();
+            qDeleteAll(d->sessions);
             d->sessions.clear();
             d->displayNames.clear();
+            d->lastIndex = 0;
             if (dri_active)
                 populate(Session::WaylandSession, mainConfig.Wayland.SessionDir.get());
             populate(Session::X11Session, mainConfig.X11.SessionDir.get());
             endResetModel();
+            emit countChanged();
         });
         watcher->addPaths(mainConfig.Wayland.SessionDir.get());
         watcher->addPaths(mainConfig.X11.SessionDir.get());
@@ -122,6 +125,28 @@ namespace SDDM {
 
         // return empty value
         return QVariant();
+    }
+
+    const Session &SessionModel::sessionAt(int index) const {
+        static const Session invalid;
+        return index >= 0 && index < d->sessions.size() ? *d->sessions.at(index) : invalid;
+    }
+
+    int SessionModel::indexOfSession(int type, const QString &file) const {
+        for (int i = 0; i < d->sessions.size(); ++i) {
+            const Session *session = d->sessions.at(i);
+            if (int(session->type()) == type && session->fileName() == file)
+                return i;
+        }
+        return -1;
+    }
+
+    QVariantMap SessionModel::sessionIdentity(int index) const {
+        const Session &session = sessionAt(index);
+        if (!session.isValid())
+            return {};
+        return {{QStringLiteral("type"), int(session.type())},
+                {QStringLiteral("file"), session.fileName()}};
     }
 
     void SessionModel::populate(Session::Type type, const QStringList &dirPaths) {

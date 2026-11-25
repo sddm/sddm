@@ -26,12 +26,17 @@
 #include <QPointer>
 #include <QDir>
 #include <QSet>
+#include <QHash>
+#include <QDBusObjectPath>
 
 #include "Auth.h"
 #include "AuthAttemptGate.h"
 #include "Session.h"
 
+class QDBusServiceWatcher;
+class QDBusPendingCallWatcher;
 class QLocalSocket;
+class QTimer;
 
 namespace SDDM {
     class Authenticator;
@@ -71,11 +76,11 @@ namespace SDDM {
         bool start();
         void stop();
 
-        void login(QLocalSocket *socket,
-                   const QString &user, const QString &password,
-                   const Session &session);
-        void startFingerprint(QLocalSocket *socket, const QString &user, const Session &session);
-        void cancelFingerprint(QLocalSocket *socket, const QString &requestId);
+        void login(QLocalSocket *socket, const QString &user, const QString &password, const Session &session);
+        void setAuthenticationContext(QLocalSocket *socket, quint64 serial, bool hasContext,
+                                      const QString &user, const Session &session);
+        void startFingerprint(QLocalSocket *socket, quint64 serial);
+        void cancelFingerprint(QLocalSocket *socket, quint64 serial, const QString &requestId);
         void displayServerStarted();
 
     signals:
@@ -86,20 +91,87 @@ namespace SDDM {
         void loginSucceeded(QLocalSocket *socket);
 
     private:
+        friend class DaemonContextTest;
+        Display(Seat *parent, DisplayServerType serverType, int terminalId);
         QString findGreeterTheme() const;
         bool findSessionEntry(const QStringList &dirPaths, const QString &name) const;
 
-        bool startAuth(const QString &user, const QString &password,
+        virtual bool startAuth(const QString &user, const QString &password,
                        const Session &session, AuthMethod method = AuthMethod::Password);
         void stopInternal(bool destroying);
         void cancelMethodAttempt(bool destroying = false);
         void authorizeWinner();
         void finishMethodAttempt(bool success);
+        void publishMethodState(AuthenticationMethod method, FingerprintState state,
+                                AuthenticationPhase phase, const QString &detailCode);
+        virtual void probeFingerprintAvailability();
+        void resolveFingerprintServiceOwner(quint64 generation, bool allowActivation);
+        void setFingerprintAvailability(quint64 serial, const QString &requestId, bool available,
+                                       const QString &detailCode);
         void startPendingLogin();
+        void advancePendingContext();
+        void beginMethodAttempt(QLocalSocket *socket, const QString &user, const Session &session);
+        void clearPendingLogin();
+        void invalidateProbe();
+        void probeEnrolledDevices(const QList<QDBusObjectPath> &devices, int index, bool hadError,
+                                  const QString &owner, quint64 generation);
+        void confirmFingerprintAvailability(const QString &owner, quint64 generation);
+        void stopAuthenticationHelper(Auth *auth, bool destroying = false);
+        void disarmFingerprintDeadline();
+        void armFingerprintDeadline(Auth *auth);
+        bool isCurrentHelper(Auth *auth) const;
+        void retireSocket(QLocalSocket *socket);
+        void requestPower(GreeterMessages action);
+        void performPendingPower();
 
         void startSocketServerAndGreeter();
         bool handleAutologinFailure();
 
+        QPointer<QLocalSocket> m_contextSocket;
+        quint64 m_contextSerial { 0 };
+        quint64 m_pendingContextSerial { 0 };
+        QString m_contextUser;
+        QPointer<QLocalSocket> m_pendingContextSocket;
+        QString m_pendingContextUser;
+        Session m_pendingContextSession;
+        bool m_pendingContext { false };
+        bool m_pendingHasContext { false };
+        bool m_pendingFingerprintStart { false };
+        bool m_pendingFingerprintCancelled { false };
+        bool m_fingerprintStartRequested { false };
+        QHash<QLocalSocket *, quint64> m_selectionSerials;
+        Session m_contextSession;
+        bool m_contextOptedIn { false };
+        bool m_contextCommitted { false };
+        bool m_contextFinished { false };
+        AuthenticationPhase m_contextPhase { AuthenticationPhase::Idle };
+        bool m_tearingDown { false };
+        int m_pendingPower { -1 };
+        quint64 m_probeGeneration { 0 };
+        QString m_probeServiceOwner;
+        QDBusServiceWatcher *m_fprintServiceWatcher { nullptr };
+        AuthenticationAvailability m_fingerprintAvailability { AuthenticationAvailability::Unknown };
+        QSet<QDBusPendingCallWatcher *> m_probeWatchers;
+        QPointer<QTimer> m_probeDeadline;
+        quint64 m_passwordGeneration { 0 };
+        quint64 m_fingerprintGeneration { 0 };
+        // Generation-bound explicit retries share the current socket/context;
+        // invalidation or winner selection discards them before any relaunch.
+        quint64 m_pendingPasswordGeneration { 0 };
+        quint64 m_pendingFingerprintRetryGeneration { 0 };
+        bool m_fingerprintAwaitingAuthentication { false };
+        bool m_fingerprintTerminal { false };
+        FingerprintState m_fingerprintTerminalState { FingerprintState::Failed };
+        QString m_fingerprintTerminalDetail;
+        struct MethodSnapshot {
+            bool valid { false };
+            FingerprintState state { FingerprintState::Unavailable };
+            AuthenticationPhase phase { AuthenticationPhase::Idle };
+            QString detail;
+        };
+        MethodSnapshot m_passwordSnapshot;
+        MethodSnapshot m_fingerprintSnapshot;
+        QPointer<QTimer> m_fingerprintDeadline;
         DisplayServerType m_displayServerType = X11DisplayServerType;
 
         bool m_started { false };
@@ -143,6 +215,8 @@ namespace SDDM {
     private slots:
         void slotRequestChanged();
         void slotAuthenticationFinished(const QString &user, bool success);
+        void slotAuthenticationMethodState(const QString &requestId, AuthMethod method,
+                                           FingerprintState state, const QString &detailCode);
         void slotSessionStarted(bool success);
         void slotHelperFinished(Auth::HelperExitStatus status);
         void slotAuthInfo(const QString &message, Auth::Info info);

@@ -51,3 +51,84 @@ target_link_libraries(AuthTransportTest
     Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Network
     Qt${QT_MAJOR_VERSION}::Qml Qt${QT_MAJOR_VERSION}::Test)
 add_test(NAME AuthTransport COMMAND AuthTransportTest)
+
+# Exercise the real correlated proxy against a private daemon peer.
+set(GreeterTest_SRCS
+    ../src/greeter/GreeterProxy.cpp ../src/greeter/SessionModel.cpp
+    ../src/common/Session.cpp ../src/common/Configuration.cpp
+    ../src/common/ConfigReader.cpp ../src/common/SocketWriter.cpp)
+add_executable(GreeterProxyTest GreeterProxyTest.cpp ${GreeterTest_SRCS})
+target_include_directories(GreeterProxyTest PRIVATE
+    ../src/greeter ${CMAKE_CURRENT_BINARY_DIR}/../src/common)
+target_link_libraries(GreeterProxyTest Qt${QT_MAJOR_VERSION}::Core
+    Qt${QT_MAJOR_VERSION}::Network Qt${QT_MAJOR_VERSION}::Test)
+add_test(NAME GreeterProxy COMMAND GreeterProxyTest)
+
+# Compile the actual daemon lifecycle with a private helper and no host VT.
+set(DAEMON_CONTEXT_HELPER_DIR "${CMAKE_CURRENT_BINARY_DIR}/daemon-context-helper")
+file(READ "${CMAKE_CURRENT_BINARY_DIR}/../src/common/Constants.h" DAEMON_TEST_CONSTANTS)
+string(REGEX REPLACE "#define LIBEXEC_INSTALL_DIR [^\n]*"
+    "#define LIBEXEC_INSTALL_DIR \"${DAEMON_CONTEXT_HELPER_DIR}\""
+    DAEMON_TEST_CONSTANTS "${DAEMON_TEST_CONSTANTS}")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/daemon-test-constants")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/daemon-test-constants/Constants.h" "${DAEMON_TEST_CONSTANTS}")
+add_executable(DaemonContextHelper DaemonContextHelper.cpp)
+set_target_properties(DaemonContextHelper PROPERTIES
+    OUTPUT_NAME sddm-helper RUNTIME_OUTPUT_DIRECTORY "${DAEMON_CONTEXT_HELPER_DIR}")
+target_link_libraries(DaemonContextHelper Qt${QT_MAJOR_VERSION}::Core
+    Qt${QT_MAJOR_VERSION}::Network Qt${QT_MAJOR_VERSION}::Qml)
+
+
+add_executable(FingerprintAvailabilityService FingerprintAvailabilityService.cpp)
+target_link_libraries(FingerprintAvailabilityService Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::DBus)
+get_target_property(DaemonTest_SRCS sddm SOURCES)
+set(DaemonTest_ABSOLUTE_SRCS)
+foreach(source IN LISTS DaemonTest_SRCS)
+    if(IS_ABSOLUTE "${source}")
+        list(APPEND DaemonTest_ABSOLUTE_SRCS "${source}")
+        if("${source}" MATCHES "^${CMAKE_BINARY_DIR}/")
+            set_source_files_properties("${source}" PROPERTIES GENERATED TRUE SKIP_AUTOMOC ON)
+        endif()
+    else()
+        list(APPEND DaemonTest_ABSOLUTE_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../src/daemon/${source}")
+    endif()
+endforeach()
+add_executable(DaemonContextTest DaemonContextTest.cpp ${DaemonTest_ABSOLUTE_SRCS}
+    ../src/greeter/GreeterProxy.cpp ../src/greeter/SessionModel.cpp)
+target_compile_definitions(DaemonContextTest PRIVATE SDDM_DAEMON_APP_TEST)
+target_include_directories(DaemonContextTest BEFORE PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/daemon-test-constants"
+    ../src/daemon ../src/greeter ${CMAKE_CURRENT_BINARY_DIR}/../src/daemon
+    ${CMAKE_CURRENT_BINARY_DIR}/../src/common ${LIBXAU_INCLUDE_DIRS} ${LIBXCB_INCLUDE_DIR})
+get_target_property(DaemonTest_LIBS sddm LINK_LIBRARIES)
+target_link_libraries(DaemonContextTest ${DaemonTest_LIBS} Qt${QT_MAJOR_VERSION}::Test)
+add_dependencies(DaemonContextTest DaemonContextHelper FingerprintAvailabilityService sddm)
+add_test(NAME DaemonContext COMMAND DaemonContextTest)
+
+if(QT_MAJOR_VERSION EQUAL "5")
+    set(GREETER_TEST_TARGET sddm-greeter)
+else()
+    set(GREETER_TEST_TARGET sddm-greeter-qt${QT_MAJOR_VERSION})
+endif()
+get_target_property(GreeterAppTest_SRCS ${GREETER_TEST_TARGET} SOURCES)
+set(GreeterAppTest_ABSOLUTE_SRCS)
+foreach(source IN LISTS GreeterAppTest_SRCS)
+    if(IS_ABSOLUTE "${source}")
+        list(APPEND GreeterAppTest_ABSOLUTE_SRCS "${source}")
+        if("${source}" MATCHES "^${CMAKE_BINARY_DIR}/")
+            set_source_files_properties("${source}" PROPERTIES GENERATED TRUE SKIP_AUTOMOC ON)
+        endif()
+    else()
+        list(APPEND GreeterAppTest_ABSOLUTE_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../src/greeter/${source}")
+    endif()
+endforeach()
+add_executable(GreeterAppTest GreeterAppTest.cpp ${GreeterAppTest_ABSOLUTE_SRCS})
+target_compile_definitions(GreeterAppTest PRIVATE SDDM_GREETER_APP_TEST)
+get_target_property(GreeterAppTest_INCLUDES ${GREETER_TEST_TARGET} INCLUDE_DIRECTORIES)
+target_include_directories(GreeterAppTest PRIVATE ${GreeterAppTest_INCLUDES} ../src/greeter)
+get_target_property(GreeterAppTest_LIBS ${GREETER_TEST_TARGET} LINK_LIBRARIES)
+target_link_libraries(GreeterAppTest ${GreeterAppTest_LIBS} Qt${QT_MAJOR_VERSION}::Test)
+add_dependencies(GreeterAppTest ${GREETER_TEST_TARGET})
+add_test(NAME GreeterApp COMMAND GreeterAppTest -platform offscreen)
+set_tests_properties(GreeterApp PROPERTIES
+    ENVIRONMENT "QT_QUICK_BACKEND=software;QT_QUICK_CONTROLS_STYLE=Basic")

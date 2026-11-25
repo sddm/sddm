@@ -28,7 +28,7 @@ namespace SDDM {
         for (const QString& s : envs) {
             m_result = pam_putenv(m_handle, qPrintable(s));
             if (m_result != PAM_SUCCESS) {
-                qWarning() << "[PAM] putEnv:" << pam_strerror(m_handle, m_result);
+                logError("putEnv");
                 return false;
             }
         }
@@ -64,7 +64,7 @@ namespace SDDM {
     bool PamHandle::chAuthTok(int flags) {
         m_result = pam_chauthtok(m_handle, flags | m_silent);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] chAuthTok:" << pam_strerror(m_handle, m_result);
+            logError("chAuthTok");
         }
         return m_result == PAM_SUCCESS;
     }
@@ -76,7 +76,7 @@ namespace SDDM {
             return chAuthTok(PAM_CHANGE_EXPIRED_AUTHTOK);
         }
         else if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] acctMgmt:" << pam_strerror(m_handle, m_result);
+            logError("acctMgmt");
             return false;
         }
         return true;
@@ -84,9 +84,10 @@ namespace SDDM {
 
     bool PamHandle::authenticate(int flags) {
         qDebug() << "[PAM] Authenticating...";
+        m_backend->authenticationStarted();
         m_result = pam_authenticate(m_handle, flags | m_silent);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] authenticate:" << pam_strerror(m_handle, m_result);
+            logError("authenticate");
         }
         qDebug() << "[PAM] returning.";
         return m_result == PAM_SUCCESS;
@@ -95,7 +96,7 @@ namespace SDDM {
     bool PamHandle::setCred(int flags) {
         m_result = pam_setcred(m_handle, flags | m_silent);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] setCred:" << pam_strerror(m_handle, m_result);
+            logError("setCred");
         }
         return m_result == PAM_SUCCESS;
     }
@@ -103,7 +104,7 @@ namespace SDDM {
     bool PamHandle::openSession() {
         m_result = pam_open_session(m_handle, m_silent);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] openSession:" << pam_strerror(m_handle, m_result);
+            logError("openSession");
         }
         m_open = m_result == PAM_SUCCESS;
         return m_open;
@@ -112,7 +113,7 @@ namespace SDDM {
     bool PamHandle::closeSession() {
         m_result = pam_close_session(m_handle, m_silent);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] closeSession:" << pam_strerror(m_handle, m_result);
+            logError("closeSession");
         }
         return m_result == PAM_SUCCESS;
     }
@@ -124,7 +125,7 @@ namespace SDDM {
     bool PamHandle::setItem(int item_type, const void* item) {
         m_result = pam_set_item(m_handle, item_type, item);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] setItem:" << pam_strerror(m_handle, m_result);
+            logError("setItem");
         }
         return m_result == PAM_SUCCESS;
     }
@@ -133,7 +134,7 @@ namespace SDDM {
         const void *item;
         m_result = pam_get_item(m_handle, item_type, &item);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] getItem:" << pam_strerror(m_handle, m_result);
+            logError("getItem");
         }
         return item;
     }
@@ -150,7 +151,7 @@ namespace SDDM {
         else
             m_result = pam_start(qPrintable(service), qPrintable(user), &m_conv, &m_handle);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] start" << pam_strerror(m_handle, m_result);
+            logError("start");
             return false;
         }
         else {
@@ -164,7 +165,7 @@ namespace SDDM {
             return false;
         m_result = pam_end(m_handle, m_silent | flags);
         if (m_result != PAM_SUCCESS) {
-            qWarning() << "[PAM] end:" << pam_strerror(m_handle, m_result);
+            logError("end");
             return false;
         }
         else {
@@ -175,10 +176,22 @@ namespace SDDM {
     }
 
     QString PamHandle::errorString() {
+        if (m_backend->m_fingerprint)
+            return QStringLiteral("PAM operation failed");
         return QString::fromLocal8Bit(pam_strerror(m_handle, m_result));
     }
+    int PamHandle::result() const {
+        return m_result;
+    }
 
-    PamHandle::PamHandle(PamBackend *parent) : m_conv{&PamHandle::converse, parent} { // create context
+    void PamHandle::logError(const char *operation) const {
+        if (m_backend->m_fingerprint)
+            qWarning() << "[PAM]" << operation << "failed with code" << m_result;
+        else
+            qWarning() << "[PAM]" << operation << pam_strerror(m_handle, m_result);
+    }
+
+    PamHandle::PamHandle(PamBackend *parent) : m_backend(parent), m_conv{&PamHandle::converse, parent} {
     }
 
     PamHandle::~PamHandle() {

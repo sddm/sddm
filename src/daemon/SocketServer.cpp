@@ -37,6 +37,10 @@ namespace SDDM {
             return m_server->fullServerName();
         return QString();
     }
+    bool SocketServer::isCorrelated(QLocalSocket *socket) const {
+        return m_correlatedSockets.contains(socket);
+    }
+
 
     bool SocketServer::start(const QString &displayName) {
         // check if the server has been created already
@@ -95,148 +99,167 @@ namespace SDDM {
         QLocalSocket *socket = m_server->nextPendingConnection();
         socket->setReadBufferSize(1024 * 1024);
 
-        // connect signals
         connect(socket, &QLocalSocket::readyRead, this, &SocketServer::readyRead);
-        connect(socket, &QLocalSocket::disconnected, socket, &QLocalSocket::deleteLater);
+        connect(socket, &QLocalSocket::disconnected, this, [this, socket] {
+            m_correlatedSockets.remove(socket);
+            m_queriedSockets.remove(socket);
+            m_legacyClearSockets.remove(socket);
+            emit disconnected(socket);
+            socket->deleteLater();
+        });
     }
 
     void SocketServer::readyRead() {
-        QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
-
-        // check socket
+        auto *socket = qobject_cast<QLocalSocket *>(sender());
         if (!socket)
             return;
-
-        // input stream
         QDataStream input(socket);
-
-        // Qt's QLocalSocket::readyRead is not designed to be called at every socket.write(),
-        // so we need to use a loop to read all the signals.
-        if (socket->bytesAvailable() >= 1024 * 1024) { socket->abort(); return; }
-        while(socket->bytesAvailable() >= qint64(sizeof(quint32))) {
+        constexpr qint64 inputLimit = 1024 * 1024;
+        if (socket->bytesAvailable() >= inputLimit) {
+            socket->abort();
+            return;
+        }
+        while (socket->bytesAvailable() >= qint64(sizeof(quint32))) {
+            quint32 value = 0, hasContext = 0, method = 0, sessionType = 0;
+            quint64 serial = 0;
+            QString user, password, requestId, sessionFile;
+            Session session;
             input.startTransaction();
-            quint32 message;
-            input >> message;
-            if (input.status() == QDataStream::ReadPastEnd) {
-                input.rollbackTransaction();
+            input >> value;
+            const auto message = GreeterMessages(value);
+            switch (message) {
+            case GreeterMessages::SetAuthenticationContext:
+                input >> serial >> hasContext;
+                if (hasContext == 1)
+                    input >> user >> sessionType >> sessionFile;
+                break;
+            case GreeterMessages::Login:
+                input >> user >> password >> sessionType >> sessionFile;
+                break;
+            case GreeterMessages::StartAuthenticationMethod:
+                input >> serial >> method;
+                break;
+            case GreeterMessages::CancelAuthenticationMethod:
+                input >> serial >> requestId >> method;
+                break;
+            case GreeterMessages::Connect:
+            case GreeterMessages::QueryAuthenticationCapabilities:
+            case GreeterMessages::PowerOff:
+            case GreeterMessages::Reboot:
+            case GreeterMessages::Suspend:
+            case GreeterMessages::Hibernate:
+            case GreeterMessages::HybridSleep:
+                break;
+            default:
+                socket->abort();
                 return;
             }
-            if (input.status() != QDataStream::Ok) { socket->abort(); return; }
-
-            switch (GreeterMessages(message)) {
-                case GreeterMessages::Connect: {
-                    // log message
-                    qDebug() << "Message received from greeter: Connect";
-
-                    // send capabilities
-                    SocketWriter(socket) << quint32(DaemonMessages::Capabilities) << quint32(daemonApp->powerManager()->capabilities());
-
-                    // send host name
-                    SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
-                    SocketWriter(socket) << quint32(DaemonMessages::AuthenticationCapabilities) << quint32(0x1);
-
-                    // emit signal
-                    emit connected();
-                }
-                break;
-                case GreeterMessages::Login: {
-                    qDebug() << "Message received from greeter: Login";
-                    QString user, password;
-                    Session session;
-                    input >> user >> password >> session;
-                    if (input.status() == QDataStream::ReadPastEnd) { input.rollbackTransaction(); return; }
-                    if (input.status() != QDataStream::Ok) { socket->abort(); return; }
-                    emit login(socket, user, password, session);
-                }
-                break;
-                case GreeterMessages::StartFingerprint: {
-                    QString user;
-                    Session session;
-                    input >> user >> session;
-                    if (input.status() == QDataStream::ReadPastEnd) { input.rollbackTransaction(); return; }
-                    if (input.status() != QDataStream::Ok) { socket->abort(); return; }
-                    emit startFingerprint(socket, user, session);
-                }
-                break;
-                case GreeterMessages::CancelFingerprint: {
-                    QString requestId;
-                    input >> requestId;
-                    if (input.status() == QDataStream::ReadPastEnd) { input.rollbackTransaction(); return; }
-                    if (input.status() != QDataStream::Ok || requestId.isEmpty()) { socket->abort(); return; }
-                    emit cancelFingerprint(socket, requestId);
-                }
-                break;
-                case GreeterMessages::PowerOff: {
-                    // log message
-                    qDebug() << "Message received from greeter: PowerOff";
-
-                    // power off
-                    daemonApp->powerManager()->powerOff();
-                }
-                break;
-                case GreeterMessages::Reboot: {
-                    // log message
-                    qDebug() << "Message received from greeter: Reboot";
-
-                    // reboot
-                    daemonApp->powerManager()->reboot();
-                }
-                break;
-                case GreeterMessages::Suspend: {
-                    // log message
-                    qDebug() << "Message received from greeter: Suspend";
-
-                    // suspend
-                    daemonApp->powerManager()->suspend();
-                }
-                break;
-                case GreeterMessages::Hibernate: {
-                    // log message
-                    qDebug() << "Message received from greeter: Hibernate";
-
-                    // hibernate
-                    daemonApp->powerManager()->hibernate();
-                }
-                break;
-                case GreeterMessages::HybridSleep: {
-                    // log message
-                    qDebug() << "Message received from greeter: HybridSleep";
-                    // hybrid sleep
-                    daemonApp->powerManager()->hybridSleep();
-                }
-                break;
-                default: {
-                    // log message
-                    qWarning() << "Unknown message" << message;
-                }
+            if (!input.commitTransaction()) {
+                if (input.status() != QDataStream::ReadPastEnd)
+                    socket->abort();
+                return;
             }
-            if (!input.commitTransaction())
+            const bool contextMessage = message == GreeterMessages::SetAuthenticationContext;
+            const bool methodMessage = message == GreeterMessages::StartAuthenticationMethod
+                                    || message == GreeterMessages::CancelAuthenticationMethod;
+            if ((contextMessage && (!serial || hasContext > 1 || !m_queriedSockets.contains(socket)))
+                || (methodMessage && (!serial || method != quint32(AuthenticationMethod::Fingerprint)
+                                      || !m_correlatedSockets.contains(socket)))
+                || sessionType > quint32(Session::WaylandSession) || sessionFile.size() > 4096
+                || user.size() > 256 || password.size() > 65536 || requestId.size() > 64) {
+                socket->abort();
+                return;
+            }
+            if (message == GreeterMessages::Login || (contextMessage && hasContext))
+                session.setTo(Session::Type(sessionType), sessionFile);
+            // Dispatch only after the complete transaction has been committed.
+            switch (message) {
+            case GreeterMessages::Connect:
+                SocketWriter(socket) << quint32(DaemonMessages::Capabilities)
+                                     << quint32(daemonApp->powerManager()->capabilities());
+                SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
+                emit connected();
+                break;
+            case GreeterMessages::QueryAuthenticationCapabilities:
+                m_queriedSockets.insert(socket);
+                SocketWriter(socket) << quint32(DaemonMessages::AuthenticationCapabilities) << quint32(0x2);
+                break;
+            case GreeterMessages::SetAuthenticationContext:
+                // Stay correlated through a pending/rejected clear barrier.
+                if (!hasContext && !m_correlatedSockets.contains(socket))
+                    m_legacyClearSockets.insert(socket);
+                m_correlatedSockets.insert(socket);
+                emit setAuthenticationContext(socket, serial, hasContext == 1, user, session);
+                break;
+            case GreeterMessages::Login:
+                emit login(socket, user, password, session);
+                break;
+            case GreeterMessages::StartAuthenticationMethod:
+                emit startFingerprint(socket, serial);
+                break;
+            case GreeterMessages::CancelAuthenticationMethod:
+                emit cancelFingerprint(socket, serial, requestId);
+                break;
+            case GreeterMessages::PowerOff:
+            case GreeterMessages::Reboot:
+            case GreeterMessages::Suspend:
+            case GreeterMessages::Hibernate:
+            case GreeterMessages::HybridSleep:
+                emit powerRequested(message);
+                break;
+            default:
+                Q_UNREACHABLE();
+            }
+            if (socket->state() != QLocalSocket::ConnectedState)
                 return;
         }
-
     }
 
     void SocketServer::loginFailed(QLocalSocket *socket) {
-        SocketWriter(socket) << quint32(DaemonMessages::LoginFailed);
+        if (socket && (!m_correlatedSockets.contains(socket) || m_legacyClearSockets.contains(socket)))
+            SocketWriter(socket) << quint32(DaemonMessages::LoginFailed);
     }
 
     void SocketServer::loginSucceeded(QLocalSocket *socket) {
-        SocketWriter(socket) << quint32(DaemonMessages::LoginSucceeded);
+        // The real legacy attempt may finish while its clear barrier is pending.
+        // GreeterProxy retains that completion until an exact committed rejection;
+        // an accepted clear discards it. Intermediate/raw feedback stays suppressed.
+        if (socket && (!m_correlatedSockets.contains(socket) || m_legacyClearSockets.contains(socket)))
+            SocketWriter(socket) << quint32(DaemonMessages::LoginSucceeded);
     }
 
     void SocketServer::informationMessage(QLocalSocket *socket, const QString &message) {
-        SocketWriter(socket) << quint32(DaemonMessages::InformationMessage) << message;
+        if (socket && !m_correlatedSockets.contains(socket))
+            SocketWriter(socket) << quint32(DaemonMessages::InformationMessage) << message;
     }
 
-    void SocketServer::authenticationCapabilities(QLocalSocket *socket, quint32 capabilities) {
-        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationCapabilities) << capabilities;
+    void SocketServer::authenticationContext(QLocalSocket *socket, quint64 serial, quint32 accepted,
+                                             const QString &requestId, const QString &user, const Session &session,
+                                             quint32 availability, quint32 phase, const QString &detailCode) {
+        if (!m_correlatedSockets.contains(socket))
+            return;
+        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationContext) << serial << accepted
+                             << requestId << user << session << availability << phase << detailCode;
+        if ((accepted == 1 && user.isEmpty() && detailCode == QLatin1String("cleared"))
+            || (accepted == 0 && m_legacyClearSockets.contains(socket))) {
+            m_correlatedSockets.remove(socket);
+            m_legacyClearSockets.remove(socket);
+        }
     }
 
-    void SocketServer::authenticationMethodState(QLocalSocket *socket, const QString &requestId, quint32 state, const QString &detail) {
-        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationMethodState) << requestId << state << detail;
+    void SocketServer::authenticationMethodState(QLocalSocket *socket, quint64 serial, const QString &requestId,
+                                                  quint32 method, const QString &user, const Session &session,
+                                                  quint32 state, quint32 phase, const QString &detailCode) {
+        if (m_correlatedSockets.contains(socket))
+            SocketWriter(socket) << quint32(DaemonMessages::AuthenticationMethodState) << serial
+                                 << requestId << method << user << session << state << phase << detailCode;
     }
 
-    void SocketServer::authenticationAttemptFinished(QLocalSocket *socket, const QString &requestId, bool success, quint32 method) {
-        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationAttemptFinished) << requestId << quint32(success) << method;
+    void SocketServer::authenticationAttemptFinished(QLocalSocket *socket, quint64 serial, const QString &requestId,
+                                                      const QString &user, const Session &session,
+                                                      quint32 result, quint32 winningMethod) {
+        if (m_correlatedSockets.contains(socket))
+            SocketWriter(socket) << quint32(DaemonMessages::AuthenticationAttemptFinished) << serial
+                                 << requestId << user << session << result << winningMethod;
     }
 }

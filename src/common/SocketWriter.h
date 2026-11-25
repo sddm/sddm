@@ -34,6 +34,7 @@ namespace SDDM {
         ~SocketWriter();
 
         SocketWriter &operator << (const quint32 &u);
+        SocketWriter &operator << (const quint64 &u);
         SocketWriter &operator << (const QString &s);
         SocketWriter &operator << (const Session &s);
 

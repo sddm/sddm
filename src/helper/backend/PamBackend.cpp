@@ -227,23 +227,44 @@ namespace SDDM {
             service = QStringLiteral("sddm-autologin");
         result = m_pam->start(service, user);
 
-        if (!result)
-            m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
+        if (!result) {
+            if (m_fingerprint)
+                m_app->methodState(FingerprintState::Unavailable, QStringLiteral("authentication_unavailable"));
+            else
+                m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
+        }
 
         return result;
     }
 
+    void PamBackend::authenticationStarted() {
+        m_authenticating = true;
+        if (m_fingerprint)
+            m_app->methodState(FingerprintState::Scanning, QStringLiteral("scanning"));
+    }
+
     bool PamBackend::authenticate() {
-        if (!m_pam->authenticate()) {
-            m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
-            return false;
+        const bool authenticated = m_pam->authenticate();
+        m_authenticating = false;
+        if (!authenticated) {
+            if (m_fingerprint) {
+                // PAM_AUTHINFO_UNAVAIL also covers module timeouts. Only the
+                // daemon's own deadline can assert TimedOut.
+                if (m_pam->result() == PAM_AUTHINFO_UNAVAIL)
+                    m_app->methodState(FingerprintState::Unavailable, QStringLiteral("authentication_unavailable"));
+                else
+                    m_app->methodState(FingerprintState::Failed, QStringLiteral("authentication_failed"));
+            } else {
+                m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
+            }
         }
-        return true;
+        return authenticated;
     }
 
     bool PamBackend::accountManagement() {
         if (!m_pam->acctMgmt()) {
-            m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
+            if (!m_fingerprint)
+                m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
             return false;
         }
         return true;
@@ -251,7 +272,8 @@ namespace SDDM {
 
     bool PamBackend::openSession() {
         if (!m_pam->setCred(PAM_ESTABLISH_CRED)) {
-            m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
+            if (!m_fingerprint)
+                m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
             return false;
         }
 
@@ -274,11 +296,13 @@ namespace SDDM {
         }
 
         if (!m_pam->putEnv(sessionEnv)) {
-            m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
+            if (!m_fingerprint)
+                m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
             return false;
         }
         if (!m_pam->openSession()) {
-            m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
+            if (!m_fingerprint)
+                m_app->error(m_pam->errorString(), Auth::ERROR_INTERNAL);
             return false;
         }
         sessionEnv.insert(m_pam->getEnv());
@@ -316,11 +340,18 @@ namespace SDDM {
                     newRequest = m_data->insertPrompt(msg[i], n == 1);
                     break;
                 case PAM_ERROR_MSG:
-                    m_app->error(QString::fromLocal8Bit(msg[i]->msg), Auth::ERROR_AUTHENTICATION);
+                    if (m_fingerprint) {
+                        if (m_authenticating)
+                            m_app->methodState(FingerprintState::Retry, QStringLiteral("try_again"));
+                    } else {
+                        m_app->error(QString::fromLocal8Bit(msg[i]->msg), Auth::ERROR_AUTHENTICATION);
+                    }
                     break;
                 case PAM_TEXT_INFO:
-                    // if there's only the info message, let's predict the prompts too
-                    m_app->info(QString::fromLocal8Bit(msg[i]->msg), m_data->handleInfo(msg[i], n == 1));
+                    if (!m_fingerprint) {
+                        // if there's only the info message, let's predict the prompts too
+                        m_app->info(QString::fromLocal8Bit(msg[i]->msg), m_data->handleInfo(msg[i], n == 1));
+                    }
                     break;
                 default:
                     break;

@@ -121,6 +121,7 @@ namespace SDDM {
     }
 }
 
+#ifndef SDDM_DAEMON_APP_TEST
 int main(int argc, char **argv) {
     QStringList arguments;
 
@@ -149,3 +150,4 @@ int main(int argc, char **argv) {
     // run application
     return app.exec();
 }
+#endif
