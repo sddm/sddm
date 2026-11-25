@@ -58,6 +58,14 @@ namespace SDDM {
         m_greeter = on;
     }
 
+    void Backend::setFingerprint(bool on) {
+        m_fingerprint = on;
+    }
+
+    bool Backend::accountManagement() {
+        return true;
+    }
+
     bool Backend::openSession() {
         QProcessEnvironment env = m_app->session()->processEnvironment();
         struct passwd *pw;

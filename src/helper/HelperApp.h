@@ -46,7 +46,7 @@ namespace SDDM {
         Request request(const Request &request);
         void info(const QString &message, Auth::Info type);
         void error(const QString &message, Auth::Error type);
-        QProcessEnvironment authenticated(const QString &user);
+        bool authenticated(const QString &user, QProcessEnvironment &environment);
         void displayServerStarted(const QString &displayName);
         void sessionOpened(bool success);
 
@@ -62,6 +62,10 @@ namespace SDDM {
         UserSession *m_session { nullptr };
         QLocalSocket *m_socket { nullptr };
         QString m_user { };
+        QString m_requestedUser { };
+        QString m_requestId { };
+        AuthMethod m_method { AuthMethod::Password };
+        bool m_deferredAuthorization { false };
         // TODO: get rid of this in a nice clean way along the way with moving to user session X server
         QByteArray m_cookie { };
 

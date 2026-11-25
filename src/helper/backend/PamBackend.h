@@ -65,6 +65,7 @@ namespace SDDM {
     public slots:
         virtual bool start(const QString &user = QString());
         virtual bool authenticate();
+        virtual bool accountManagement();
         virtual bool openSession();
         virtual bool closeSession();
 

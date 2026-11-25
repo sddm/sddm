@@ -25,8 +25,10 @@
 #include <QObject>
 #include <QPointer>
 #include <QDir>
+#include <QSet>
 
 #include "Auth.h"
+#include "AuthAttemptGate.h"
 #include "Session.h"
 
 class QLocalSocket;
@@ -72,6 +74,8 @@ namespace SDDM {
         void login(QLocalSocket *socket,
                    const QString &user, const QString &password,
                    const Session &session);
+        void startFingerprint(QLocalSocket *socket, const QString &user, const Session &session);
+        void cancelFingerprint(QLocalSocket *socket, const QString &requestId);
         void displayServerStarted();
 
     signals:
@@ -86,7 +90,12 @@ namespace SDDM {
         bool findSessionEntry(const QStringList &dirPaths, const QString &name) const;
 
         bool startAuth(const QString &user, const QString &password,
-                       const Session &session);
+                       const Session &session, AuthMethod method = AuthMethod::Password);
+        void stopInternal(bool destroying);
+        void cancelMethodAttempt(bool destroying = false);
+        void authorizeWinner();
+        void finishMethodAttempt(bool success);
+        void startPendingLogin();
 
         void startSocketServerAndGreeter();
         bool handleAutologinFailure();
@@ -101,10 +110,30 @@ namespace SDDM {
         QString m_passPhrase;
         QString m_sessionName;
         QString m_reuseSessionId;
+        QString m_attemptReuseSessionId;
+        bool m_reuseSessionSelected { false };
 
         Session m_autologinSession;
 
         Auth *m_auth { nullptr };
+        Auth *m_fingerprintAuth { nullptr };
+        QPointer<Auth> m_winnerAuth;
+        QPointer<Auth> m_loserAuth;
+        QPointer<Auth> m_sessionAuth;
+        QSet<Auth *> m_cancelledHelpers;
+        AuthAttemptGate m_attemptGate;
+        QPointer<QLocalSocket> m_attemptSocket;
+        QString m_requestId;
+        QString m_attemptUser;
+        Session m_attemptSession;
+        bool m_methodAttemptActive { false };
+        bool m_methodWinnerChosen { false };
+        bool m_waitingForLoser { false };
+        bool m_pendingLogin { false };
+        QPointer<QLocalSocket> m_pendingSocket;
+        QString m_pendingUser;
+        QString m_pendingPassword;
+        Session m_pendingSession;
         DisplayServer *m_displayServer { nullptr };
         Seat *m_seat { nullptr };
         SocketServer *m_socketServer { nullptr };

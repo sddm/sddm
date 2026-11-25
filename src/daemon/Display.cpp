@@ -34,6 +34,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QTimer>
+#include <QUuid>
 #include <QLocalSocket>
 
 #include <pwd.h>
@@ -109,6 +110,7 @@ namespace SDDM {
         : QObject(parent),
         m_displayServerType(serverType),
         m_auth(new Auth(this)),
+        m_fingerprintAuth(new Auth(this)),
         m_seat(parent),
         m_socketServer(new SocketServer(this)),
         m_greeter(new Greeter(this))
@@ -147,6 +149,13 @@ namespace SDDM {
         connect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
         connect(m_auth, &Auth::info, this, &Display::slotAuthInfo);
         connect(m_auth, &Auth::error, this, &Display::slotAuthError);
+        m_fingerprintAuth->setVerbose(true);
+        connect(m_fingerprintAuth, &Auth::requestChanged, this, &Display::slotRequestChanged);
+        connect(m_fingerprintAuth, &Auth::authentication, this, &Display::slotAuthenticationFinished);
+        connect(m_fingerprintAuth, &Auth::sessionStarted, this, &Display::slotSessionStarted);
+        connect(m_fingerprintAuth, &Auth::finished, this, &Display::slotHelperFinished);
+        connect(m_fingerprintAuth, &Auth::info, this, &Display::slotAuthInfo);
+        connect(m_fingerprintAuth, &Auth::error, this, &Display::slotAuthError);
 
         // restart display after display server ended
         connect(m_displayServer, &DisplayServer::started, this, &Display::displayServerStarted);
@@ -154,6 +163,8 @@ namespace SDDM {
 
         // connect login signal
         connect(m_socketServer, &SocketServer::login, this, &Display::login);
+        connect(m_socketServer, &SocketServer::startFingerprint, this, &Display::startFingerprint);
+        connect(m_socketServer, &SocketServer::cancelFingerprint, this, &Display::cancelFingerprint);
 
         // connect login result signals
         connect(this, &Display::loginFailed, m_socketServer, &SocketServer::loginFailed);
@@ -195,8 +206,12 @@ namespace SDDM {
     }
 
     Display::~Display() {
-        disconnect(m_auth, &Auth::finished, this, &Display::slotHelperFinished);
-        stop();
+        // Destruction can run after the main-thread event dispatcher is gone.
+        for (Auth *auth : {m_auth, m_fingerprintAuth})
+            disconnect(auth, nullptr, this, nullptr);
+        stopInternal(true);
+        for (Auth *auth : {m_auth, m_fingerprintAuth})
+            auth->stop();
     }
 
     Display::DisplayServerType Display::displayServerType() const
@@ -210,7 +225,7 @@ namespace SDDM {
     }
 
     int Display::terminalId() const {
-        return m_auth->isActive() ? m_sessionTerminalId : m_terminalId;
+        return (m_auth->isActive() || m_fingerprintAuth->isActive()) ? m_sessionTerminalId : m_terminalId;
     }
 
     const QString &Display::name() const {
@@ -304,14 +319,39 @@ namespace SDDM {
     }
 
     void Display::stop() {
+        stopInternal(false);
+    }
+
+    void Display::stopInternal(bool destroying) {
         // check flag
         if (!m_started)
             return;
 
+        m_pendingLogin = false;
+        m_pendingPassword.clear();
+        m_pendingSocket.clear();
+        cancelMethodAttempt(destroying);
+
         // stop the greeter
         m_greeter->stop();
 
-        m_auth->stop();
+        auto stopHelper = [destroying](Auth *auth) {
+            if (!auth->isActive())
+                return;
+            auth->authorizeSession(false);
+            if (destroying) {
+                auth->stop();
+                return;
+            }
+            QPointer<Auth> guarded(auth);
+            const quint64 generation = auth->launchGeneration();
+            QTimer::singleShot(5000, auth, [guarded, generation] {
+                if (guarded && guarded->launchGeneration() == generation && guarded->isActive())
+                    guarded->kill();
+            });
+        };
+        stopHelper(m_auth);
+        stopHelper(m_fingerprintAuth);
 
         // stop socket server
         m_socketServer->stop();
@@ -331,6 +371,10 @@ namespace SDDM {
     void Display::login(QLocalSocket *socket,
                         const QString &user, const QString &password,
                         const Session &session) {
+        if (m_methodAttemptActive && socket != m_attemptSocket) {
+            emit loginFailed(socket);
+            return;
+        }
         m_socket = socket;
 
         //the SDDM user has special privileges that skip password checking so that we can load the greeter
@@ -340,8 +384,192 @@ namespace SDDM {
             return;
         }
 
-        // authenticate
-        startAuth(user, password, session);
+        if (m_methodAttemptActive) {
+            if (m_methodWinnerChosen) {
+                return;
+            }
+            if (user != m_attemptUser || session.type() != m_attemptSession.type()
+                || session.fileName() != m_attemptSession.fileName()) {
+                m_pendingLogin = true;
+                m_pendingSocket = socket;
+                m_pendingUser = user;
+                m_pendingPassword = password;
+                m_pendingSession = session;
+                cancelMethodAttempt();
+                startPendingLogin();
+                return;
+            }
+            if (m_auth->isActive()) {
+                return;
+            }
+        } else {
+            m_requestId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+            m_attemptUser = user;
+            m_attemptSession = session;
+            m_attemptSocket = socket;
+            m_methodAttemptActive = true;
+            m_methodWinnerChosen = false;
+            m_attemptGate.begin(m_requestId, user);
+            m_waitingForLoser = false;
+            const QString requestId = m_requestId;
+            connect(socket, &QLocalSocket::disconnected, this, [this, requestId] {
+                if (m_methodAttemptActive && m_requestId == requestId)
+                    cancelMethodAttempt();
+            });
+        }
+        if (!startAuth(user, password, session, AuthMethod::Password)) {
+            emit loginFailed(m_attemptSocket);
+            finishMethodAttempt(false);
+        }
+    }
+
+    void Display::startFingerprint(QLocalSocket *socket, const QString &user, const Session &session) {
+        if (user.isEmpty() || user == QLatin1String("sddm") || !session.isValid()
+            || !m_started || (m_fingerprintAuth->isActive() && !m_methodAttemptActive)) {
+            emit loginFailed(socket);
+            return;
+        }
+        if (m_methodAttemptActive) {
+            if (socket != m_attemptSocket)
+                return;
+            if (user != m_attemptUser || session.type() != m_attemptSession.type()
+                || session.fileName() != m_attemptSession.fileName()) {
+                cancelMethodAttempt();
+                return;
+            }
+            if (m_methodWinnerChosen) {
+                m_socketServer->authenticationMethodState(socket, m_requestId, 4, QStringLiteral("matched"));
+                return;
+            }
+            if (m_fingerprintAuth->isActive()) {
+                m_socketServer->authenticationMethodState(socket, m_requestId, 1, QStringLiteral("scanning"));
+                return;
+            }
+            if (!startAuth(user, QString(), session, AuthMethod::Fingerprint))
+                m_socketServer->authenticationMethodState(socket, m_requestId, 5, QStringLiteral("failed"));
+            return;
+        }
+
+        m_socket = socket;
+        m_requestId = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        m_attemptUser = user;
+        m_attemptSession = session;
+        m_attemptSocket = socket;
+        m_methodAttemptActive = true;
+        m_methodWinnerChosen = false;
+        m_attemptGate.begin(m_requestId, user);
+        m_waitingForLoser = false;
+        const QString requestId = m_requestId;
+        connect(socket, &QLocalSocket::disconnected, this, [this, requestId] {
+            if (m_methodAttemptActive && m_requestId == requestId)
+                cancelMethodAttempt();
+        });
+        if (!startAuth(user, QString(), session, AuthMethod::Fingerprint)) {
+            finishMethodAttempt(false);
+            return;
+        }
+        m_socketServer->authenticationMethodState(socket, m_requestId, 1, QStringLiteral("scanning"));
+    }
+
+    void Display::cancelFingerprint(QLocalSocket *socket, const QString &requestId) {
+        if (!m_methodAttemptActive || m_methodWinnerChosen || socket != m_attemptSocket
+            || requestId != m_requestId || !m_fingerprintAuth->isActive()
+            || m_fingerprintAuth->requestId() != requestId)
+            return;
+        m_attemptGate.cancel(AuthMethod::Fingerprint);
+        m_cancelledHelpers.insert(m_fingerprintAuth);
+        m_fingerprintAuth->authorizeSession(false);
+        QPointer<Auth> guarded(m_fingerprintAuth);
+        const quint64 generation = m_fingerprintAuth->launchGeneration();
+        QTimer::singleShot(5000, m_fingerprintAuth, [guarded, generation] {
+            if (guarded && guarded->launchGeneration() == generation && guarded->isActive())
+                guarded->kill();
+        });
+        m_fingerprintAuth->terminate();
+    }
+
+    void Display::cancelMethodAttempt(bool destroying) {
+        if (!m_methodAttemptActive)
+            return;
+        const QString requestId = m_requestId;
+        QPointer<QLocalSocket> socket = m_attemptSocket;
+        m_attemptGate.invalidate();
+        m_methodAttemptActive = false;
+        m_methodWinnerChosen = false;
+        m_waitingForLoser = false;
+        if (socket) {
+            m_socketServer->authenticationMethodState(socket, requestId, 6, QStringLiteral("cancelled"));
+            m_socketServer->authenticationAttemptFinished(socket, requestId, false, 0);
+        }
+        for (Auth *auth : {m_auth, m_fingerprintAuth}) {
+            if (!auth->isActive() || auth->requestId() != requestId)
+                continue;
+            m_cancelledHelpers.insert(auth);
+            auth->authorizeSession(false);
+            if (destroying) {
+                auth->stop();
+            } else {
+                auth->terminate();
+                QPointer<Auth> guarded(auth);
+                const quint64 generation = auth->launchGeneration();
+                QTimer::singleShot(5000, auth, [guarded, generation] {
+                    if (guarded && guarded->launchGeneration() == generation && guarded->isActive())
+                        guarded->kill();
+                });
+            }
+        }
+        m_winnerAuth.clear();
+        m_loserAuth.clear();
+        m_attemptReuseSessionId.clear();
+        m_reuseSessionSelected = false;
+        m_attemptSocket.clear();
+    }
+
+    void Display::authorizeWinner() {
+        if (!m_methodAttemptActive || !m_winnerAuth || m_waitingForLoser
+            || !m_attemptGate.authorize(m_winnerAuth->method()))
+            return;
+        if (qobject_cast<XorgDisplayServer *>(m_displayServer))
+            m_winnerAuth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+        m_winnerAuth->authorizeSession(true);
+        m_socketServer->authenticationMethodState(m_attemptSocket, m_requestId, 4, QStringLiteral("matched"));
+    }
+
+    void Display::startPendingLogin() {
+        if (!m_pendingLogin || m_auth->isActive() || m_fingerprintAuth->isActive())
+            return;
+        QPointer<QLocalSocket> socket = m_pendingSocket;
+        const QString user = m_pendingUser;
+        const QString password = m_pendingPassword;
+        Session session;
+        session = m_pendingSession;
+        m_pendingLogin = false;
+        m_pendingSocket.clear();
+        m_pendingUser.clear();
+        m_pendingPassword.clear();
+        m_pendingSession = Session();
+        if (socket && socket->state() == QLocalSocket::ConnectedState)
+            login(socket, user, password, session);
+    }
+
+    void Display::finishMethodAttempt(bool success) {
+        if (!m_methodAttemptActive)
+            return;
+        const auto socket = m_attemptSocket;
+        const QString requestId = m_requestId;
+        const quint32 method = m_winnerAuth ? qint32(m_winnerAuth->method()) : 0;
+        m_socketServer->authenticationMethodState(socket, requestId, success ? 4 : 5,
+                                                   success ? QStringLiteral("matched") : QStringLiteral("failed"));
+        m_socketServer->authenticationAttemptFinished(socket, requestId, success, method);
+        m_methodAttemptActive = false;
+        m_methodWinnerChosen = false;
+        m_attemptGate.invalidate();
+        m_waitingForLoser = false;
+        m_winnerAuth.clear();
+        m_loserAuth.clear();
+        m_attemptSocket.clear();
+        m_attemptReuseSessionId.clear();
+        m_reuseSessionSelected = false;
     }
 
     QString Display::findGreeterTheme() const {
@@ -385,14 +613,22 @@ namespace SDDM {
         return false;
     }
 
-    bool Display::startAuth(const QString &user, const QString &password, const Session &session) {
-
-        if (m_auth->isActive()) {
+    bool Display::startAuth(const QString &user, const QString &password, const Session &session, AuthMethod method) {
+        Auth *auth = method == AuthMethod::Fingerprint ? m_fingerprintAuth : m_auth;
+        if (auth->isActive()) {
+            qWarning() << "Existing authentication method is still active";
+            return false;
+        }
+        if (!m_methodAttemptActive && (m_auth->isActive() || m_fingerprintAuth->isActive())) {
             qWarning() << "Existing authentication ongoing, aborting";
             return false;
         }
 
-        m_passPhrase = password;
+        if (method == AuthMethod::Password)
+            m_passPhrase = password;
+        auth->setMethod(method);
+        auth->setRequestId(m_methodAttemptActive ? m_requestId : QUuid::createUuid().toString(QUuid::WithoutBraces));
+        auth->setDeferredAuthorization(m_methodAttemptActive);
 
         // sanity check
         if (!session.isValid()) {
@@ -419,9 +655,11 @@ namespace SDDM {
             for(const SessionInfo &s : reply.value()) {
                 if (s.userName == user) {
                     OrgFreedesktopLogin1SessionInterface session(Logind::serviceName(), s.sessionPath.path(), QDBusConnection::systemBus());
-                    if ((session.service() == QLatin1String("sddm")
-                        || session.service() == QLatin1String("sddm-autologin"))
-                            && session.state() == QLatin1String("online")) {
+                    const QString service = session.service();
+                    if ((service == QLatin1String("sddm")
+                        || service == QLatin1String("sddm-autologin")
+                        || service == QLatin1String("sddm-fingerprint"))
+                        && session.state() == QLatin1String("online")) {
                         m_reuseSessionId = s.sessionId;
                         break;
                     }
@@ -466,21 +704,72 @@ namespace SDDM {
           if (m_displayServerType == X11DisplayServerType)
             env.insert(QStringLiteral("DISPLAY"), name());
           else
-            m_auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
+            auth->setDisplayServerCommand(XorgUserDisplayServer::command(this));
         } else {
-            m_auth->setDisplayServerCommand(QStringLiteral());
+            auth->setDisplayServerCommand(QStringLiteral());
 	}
-        m_auth->setUser(user);
-        if (m_reuseSessionId.isNull()) {
-            m_auth->setSession(session.exec());
+        auth->setUser(user);
+        if (m_methodAttemptActive && !m_reuseSessionSelected) {
+            m_attemptReuseSessionId = m_reuseSessionId;
+            m_reuseSessionSelected = true;
         }
-        m_auth->insertEnvironment(env);
-        m_auth->start();
+        auth->setSession((m_methodAttemptActive ? m_attemptReuseSessionId : m_reuseSessionId).isNull()
+                             ? session.exec() : QString());
+        if (m_methodAttemptActive)
+            m_attemptGate.resume(method);
+        auth->insertEnvironment(env);
+        auth->start();
 
         return true;
     }
 
     void Display::slotAuthenticationFinished(const QString &user, bool success) {
+        Auth *auth = qobject_cast<Auth *>(sender());
+        if (auth && (m_cancelledHelpers.contains(auth) || m_attemptGate.cancelled(auth->method()))) {
+            auth->authorizeSession(false);
+            return;
+        }
+        if (m_methodAttemptActive && auth && auth->requestId() == m_requestId) {
+            if (!success) {
+                if (auth->method() == AuthMethod::Fingerprint)
+                    m_socketServer->authenticationMethodState(m_attemptSocket, m_requestId, 5, QStringLiteral("failed"));
+                return; // helper exit reports password failure; keep the other method available
+            }
+            if (m_methodWinnerChosen && auth == m_winnerAuth && user == m_attemptUser)
+                return;
+            if (!m_attemptGate.select(auth->requestId(), user, auth->method())) {
+                auth->authorizeSession(false);
+                auth->terminate();
+                return;
+            }
+
+            m_methodWinnerChosen = true;
+            m_winnerAuth = auth;
+            Auth *other = auth == m_auth ? m_fingerprintAuth : m_auth;
+            if (other->isActive() && other->requestId() == m_requestId) {
+                m_loserAuth = other;
+                m_attemptGate.waitFor(other->method());
+                m_waitingForLoser = true;
+                other->authorizeSession(false);
+                other->terminate();
+                QPointer<Auth> guarded(other);
+                const quint64 generation = other->launchGeneration();
+                QTimer::singleShot(5000, other, [guarded, generation] {
+                    if (guarded && guarded->launchGeneration() == generation && guarded->isActive())
+                        guarded->kill();
+                });
+            } else {
+                authorizeWinner();
+            }
+            return;
+        }
+        // Deferred method helpers must never fall through to stock password handling,
+        // including after cancellation or when their request is stale.
+        if (auth && auth->isDeferredAuthorization()) {
+            auth->authorizeSession(false);
+            return;
+        }
+
         if (m_auth->autologin() && !success) {
             handleAutologinFailure();
             return;
@@ -495,7 +784,7 @@ namespace SDDM {
                 manager.ActivateSession(m_reuseSessionId);
             } else {
                 if (qobject_cast<XorgDisplayServer *>(m_displayServer))
-                    m_auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
+                    auth->setCookie(qobject_cast<XorgDisplayServer *>(m_displayServer)->cookie());
             }
 
             // save last user and last session
@@ -520,25 +809,124 @@ namespace SDDM {
 
     void Display::slotAuthInfo(const QString &message, Auth::Info info) {
         qWarning() << "Authentication information:" << info << message;
-
-        if (!m_socket)
+        Auth *auth = qobject_cast<Auth *>(sender());
+        QLocalSocket *socket = m_methodAttemptActive ? m_attemptSocket.data() : m_socket.data();
+        if (!socket)
             return;
-
-        m_socketServer->informationMessage(m_socket, message);
+        if (m_methodAttemptActive && auth && auth->method() == AuthMethod::Fingerprint) {
+            m_socketServer->authenticationMethodState(socket, m_requestId, 1, QStringLiteral("scanning"));
+            return;
+        }
+        m_socketServer->informationMessage(socket, message);
     }
 
     void Display::slotAuthError(const QString &message, Auth::Error error) {
         qWarning() << "Authentication error:" << error << message;
-
-        if (!m_socket)
+        Auth *auth = qobject_cast<Auth *>(sender());
+        QLocalSocket *socket = m_methodAttemptActive ? m_attemptSocket.data() : m_socket.data();
+        if (!socket)
             return;
-
-        m_socketServer->informationMessage(m_socket, message);
+        if (auth && auth->isDeferredAuthorization()) {
+            if (m_methodAttemptActive && auth->requestId() == m_requestId
+                && auth->method() == AuthMethod::Fingerprint)
+                m_socketServer->authenticationMethodState(socket, m_requestId, 5, QStringLiteral("failed"));
+            else if (m_methodAttemptActive && auth->requestId() == m_requestId
+                     && auth->method() == AuthMethod::Password)
+                m_socketServer->informationMessage(socket, message);
+            return;
+        }
+        m_socketServer->informationMessage(socket, message);
+        if (m_methodAttemptActive && auth == m_winnerAuth)
+            return; // the helper-exit path reports a post-authorization failure once
         if (error == Auth::ERROR_AUTHENTICATION)
-            emit loginFailed(m_socket);
+            emit loginFailed(socket);
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
+        Auth *auth = qobject_cast<Auth *>(sender());
+        if (auth && auth == m_sessionAuth) {
+            m_sessionAuth.clear();
+            stop();
+            return;
+        }
+        if (m_cancelledHelpers.remove(auth)) {
+            if (auth && auth->method() == AuthMethod::Fingerprint && m_methodAttemptActive
+                && auth->requestId() == m_requestId && m_attemptSocket)
+                m_socketServer->authenticationMethodState(m_attemptSocket, m_requestId, 6, QStringLiteral("cancelled"));
+            if (auth && auth == m_loserAuth && m_methodAttemptActive && auth->requestId() == m_requestId) {
+                m_loserAuth.clear();
+                m_attemptGate.exited(auth->method());
+                m_waitingForLoser = false;
+                authorizeWinner();
+            }
+            startPendingLogin();
+            return;
+        }
+        if (auth && auth->isDeferredAuthorization()) {
+            if (!m_methodAttemptActive || auth->requestId() != m_requestId)
+                return;
+            if (m_methodAttemptActive && auth->requestId() == m_requestId) {
+            if (auth == m_loserAuth) {
+                m_loserAuth.clear();
+                m_attemptGate.exited(auth->method());
+                m_waitingForLoser = false;
+                authorizeWinner();
+                return;
+            }
+            if (auth != m_winnerAuth) {
+                if (auth->method() == AuthMethod::Fingerprint)
+                    m_socketServer->authenticationMethodState(m_attemptSocket, m_requestId, 5, QStringLiteral("failed"));
+                else if (m_attemptSocket)
+                    emit loginFailed(m_attemptSocket);
+                return; // one method failed; keep the other method available
+            }
+            if (status != Auth::HELPER_SUCCESS) {
+                if (m_attemptSocket)
+                    emit loginFailed(m_attemptSocket);
+                finishMethodAttempt(false);
+                return;
+            }
+            if (!m_attemptReuseSessionId.isNull()) {
+                OrgFreedesktopLogin1ManagerInterface manager(Logind::serviceName(), Logind::managerPath(), QDBusConnection::systemBus());
+                auto unlocked = manager.UnlockSession(m_attemptReuseSessionId);
+                unlocked.waitForFinished();
+                if (unlocked.isError()) {
+                    qWarning() << "Failed to unlock existing logind session:" << unlocked.error();
+                    if (m_attemptSocket)
+                        emit loginFailed(m_attemptSocket);
+                    finishMethodAttempt(false);
+                    return;
+                }
+                auto activated = manager.ActivateSession(m_attemptReuseSessionId);
+                activated.waitForFinished();
+                if (activated.isError()) {
+                    qWarning() << "Failed to activate existing logind session:" << activated.error();
+                    if (m_attemptSocket)
+                        emit loginFailed(m_attemptSocket);
+                    finishMethodAttempt(false);
+                    return;
+                }
+                m_started = true;
+                if (mainConfig.Users.RememberLastUser.get())
+                    stateConfig.Last.User.set(m_attemptUser);
+                else
+                    stateConfig.Last.User.setDefault();
+                if (mainConfig.Users.RememberLastSession.get())
+                    stateConfig.Last.Session.set(m_attemptSession.fileName());
+                else
+                    stateConfig.Last.Session.setDefault();
+                stateConfig.save();
+                if (m_attemptSocket)
+                    emit loginSucceeded(m_attemptSocket);
+                finishMethodAttempt(true);
+                // Reuse activates the existing session; retire this greeter's
+                // display server so logout can create a fresh greeter.
+                QTimer::singleShot(0, this, &Display::stop);
+            }
+            return;
+            }
+        }
+
         // Don't restart greeter and display server unless sddm-helper exited
         // with an internal error or the user session finished successfully,
         // we want to avoid greeter from restarting when an authentication
@@ -549,20 +937,44 @@ namespace SDDM {
     }
 
     void Display::slotRequestChanged() {
-        if (m_auth->request()->prompts().length() == 1) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_passPhrase));
-            m_auth->request()->done();
-        } else if (m_auth->request()->prompts().length() == 2) {
-            m_auth->request()->prompts()[0]->setResponse(qPrintable(m_auth->user()));
-            m_auth->request()->prompts()[1]->setResponse(qPrintable(m_passPhrase));
-            m_auth->request()->done();
+        Auth *auth = qobject_cast<Auth *>(sender());
+        if (!auth || auth->method() != AuthMethod::Password)
+            return;
+        if (auth->request()->prompts().length() == 1) {
+            auth->request()->prompts()[0]->setResponse(qPrintable(m_passPhrase));
+            auth->request()->done();
+        } else if (auth->request()->prompts().length() == 2) {
+            auth->request()->prompts()[0]->setResponse(qPrintable(auth->user()));
+            auth->request()->prompts()[1]->setResponse(qPrintable(m_passPhrase));
+            auth->request()->done();
         }
     }
 
     void Display::slotSessionStarted(bool success) {
-        qDebug() << "Session started" << success;
-        if (success) {
-            QTimer::singleShot(5000, m_greeter, &Greeter::stop);
+        Auth *auth = qobject_cast<Auth *>(sender());
+        if (m_methodAttemptActive && auth == m_winnerAuth) {
+            if (success) {
+                m_sessionAuth = auth;
+                if (mainConfig.Users.RememberLastUser.get())
+                    stateConfig.Last.User.set(m_attemptUser);
+                else
+                    stateConfig.Last.User.setDefault();
+                if (mainConfig.Users.RememberLastSession.get())
+                    stateConfig.Last.Session.set(m_attemptSession.fileName());
+                else
+                    stateConfig.Last.Session.setDefault();
+                stateConfig.save();
+                if (m_attemptSocket)
+                    emit loginSucceeded(m_attemptSocket);
+                finishMethodAttempt(true);
+            } else {
+                if (m_attemptSocket)
+                    emit loginFailed(m_attemptSocket);
+                finishMethodAttempt(false);
+            }
         }
+        qDebug() << "Session started" << success;
+        if (success)
+            QTimer::singleShot(5000, m_greeter, &Greeter::stop);
     }
 }

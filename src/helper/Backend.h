@@ -38,10 +38,14 @@ namespace SDDM {
         void setAutologin(bool on = true);
         void setDisplayServer(bool on = true);
         void setGreeter(bool on = true);
+        void setFingerprint(bool on = true);
+        bool isGreeter() const { return m_greeter; }
+        bool isAutologin() const { return m_autologin; }
 
     public slots:
         virtual bool start(const QString &user = QString()) = 0;
         virtual bool authenticate() = 0;
+        virtual bool accountManagement();
         virtual bool openSession();
         virtual bool closeSession();
 
@@ -53,6 +57,7 @@ namespace SDDM {
         bool m_autologin { false };
         bool m_displayServer = false;
         bool m_greeter { false };
+        bool m_fingerprint { false };
     };
 }
 

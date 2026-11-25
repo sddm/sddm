@@ -28,6 +28,11 @@
 #include <QtCore/QProcessEnvironment>
 
 namespace SDDM {
+    enum class AuthMethod : qint32 {
+        Password = 0,
+        Fingerprint = 1,
+    };
+
     /**
     * \brief
     * Main class triggering the authentication and handling all communication
@@ -99,6 +104,10 @@ namespace SDDM {
         const QString &user() const;
         const QString &session() const;
         AuthRequest *request();
+        AuthMethod method() const;
+        const QString &requestId() const;
+        quint64 launchGeneration() const;
+        bool isDeferredAuthorization() const;
         /**
          * True if an authentication or session is in progress
          */
@@ -155,6 +164,10 @@ namespace SDDM {
         * @param path Path of the session executable to be started
         */
         void setSession(const QString &path);
+        void setMethod(AuthMethod method);
+        void setRequestId(const QString &requestId);
+        void setDeferredAuthorization(bool deferred = true);
+        void authorizeSession(bool proceed);
 
         /**
          * Set the display server cookie, to be inserted into the user's $XAUTHORITY
@@ -172,6 +185,8 @@ namespace SDDM {
          * Indicates that we do not need the process anymore.
          */
         void stop();
+        void terminate();
+        void kill();
 
     Q_SIGNALS:
         void autologinChanged();
@@ -182,6 +197,8 @@ namespace SDDM {
         void displayServerCommandChanged();
         void sessionChanged();
         void requestChanged();
+        void methodChanged();
+        void requestIdChanged();
 
         /**
         * Emitted when authentication phase finishes

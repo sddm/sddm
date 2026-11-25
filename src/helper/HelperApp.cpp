@@ -29,6 +29,7 @@
 #include "SignalHandler.h"
 
 #include <QtCore/QTimer>
+#include <QtCore/QUuid>
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 #include <QtNetwork/QLocalSocket>
@@ -83,6 +84,19 @@ namespace SDDM {
             m_id = QString(args[pos + 1]).toLongLong();
         }
 
+        if ((pos = args.indexOf(QStringLiteral("--request-id"))) >= 0 && pos < args.length() - 1)
+            m_requestId = args[pos + 1];
+        if ((pos = args.indexOf(QStringLiteral("--method"))) >= 0 && pos < args.length() - 1) {
+            bool ok = false;
+            const int method = args[pos + 1].toInt(&ok);
+            if (!ok || (method != qint32(AuthMethod::Password) && method != qint32(AuthMethod::Fingerprint))) {
+                qCritical() << "Invalid authentication method";
+                exit(Auth::HELPER_OTHER_ERROR);
+                return;
+            }
+            m_method = AuthMethod(method);
+        }
+
         if ((pos = args.indexOf(QStringLiteral("--start"))) >= 0) {
             if (pos >= args.length() - 1) {
                 qCritical() << "This application is not supposed to be executed manually";
@@ -114,16 +128,20 @@ namespace SDDM {
         if ((pos = args.indexOf(QStringLiteral("--autologin"))) >= 0) {
             m_backend->setAutologin(true);
         }
+        m_deferredAuthorization = args.contains(QStringLiteral("--defer-auth"));
 
         if ((pos = args.indexOf(QStringLiteral("--greeter"))) >= 0) {
             m_backend->setGreeter(true);
         }
 
-        if (server.isEmpty() || m_id <= 0) {
-            qCritical() << "This application is not supposed to be executed manually";
+        if (server.isEmpty() || m_id <= 0 || QUuid(m_requestId).isNull()
+            || (m_method == AuthMethod::Fingerprint && (m_user.isEmpty() || m_backend->isGreeter() || m_backend->isAutologin()))) {
+            qCritical() << "Invalid authentication helper request";
             exit(Auth::HELPER_OTHER_ERROR);
             return;
         }
+        m_requestedUser = m_user;
+        m_backend->setFingerprint(m_method == AuthMethod::Fingerprint);
 
         connect(m_socket, &QLocalSocket::connected, this, &HelperApp::doAuth);
         connect(m_session, &UserSession::finished, this, &HelperApp::sessionFinished);
@@ -132,13 +150,14 @@ namespace SDDM {
 
     void HelperApp::doAuth() {
         SafeDataStream str(m_socket);
-        str << Msg::HELLO << m_id;
+        str << Msg::HELLO << m_id << m_requestId << m_method;
         str.send();
         if (str.status() != QDataStream::Ok)
             qCritical() << "Couldn't write initial message:" << str.status();
 
         if (!m_backend->start(m_user)) {
-            authenticated(QString());
+            QProcessEnvironment ignored;
+            authenticated(QString(), ignored);
 
             // write failed login to btmp
             const QProcessEnvironment env = m_session->processEnvironment();
@@ -152,7 +171,8 @@ namespace SDDM {
 
         Q_ASSERT(getuid() == 0);
         if (!m_backend->authenticate()) {
-            authenticated(QString());
+            QProcessEnvironment ignored;
+            authenticated(QString(), ignored);
 
             // write failed login to btmp
             const QProcessEnvironment env = m_session->processEnvironment();
@@ -165,7 +185,26 @@ namespace SDDM {
         }
 
         m_user = m_backend->userName();
-        QProcessEnvironment env = authenticated(m_user);
+        if (m_user.isEmpty() || (!m_requestedUser.isEmpty() && m_user != m_requestedUser)) {
+            error(QStringLiteral("Authentication user mismatch"), Auth::ERROR_AUTHENTICATION);
+            exit(Auth::HELPER_AUTH_ERROR);
+            return;
+        }
+
+        if (!m_deferredAuthorization && !m_backend->accountManagement()) {
+            exit(Auth::HELPER_AUTH_ERROR);
+            return;
+        }
+
+        QProcessEnvironment env;
+        if (!authenticated(m_user, env)) {
+            exit(Auth::HELPER_AUTH_ERROR);
+            return;
+        }
+        if (m_deferredAuthorization && !m_backend->accountManagement()) {
+            exit(Auth::HELPER_AUTH_ERROR);
+            return;
+        }
 
         if (!m_session->path().isEmpty()) {
             env.insert(m_session->processEnvironment());
@@ -199,14 +238,14 @@ namespace SDDM {
 
     void HelperApp::info(const QString& message, Auth::Info type) {
         SafeDataStream str(m_socket);
-        str << Msg::INFO << message << type;
+        str << Msg::INFO << m_requestId << m_method << message << type;
         str.send();
         m_socket->waitForBytesWritten();
     }
 
     void HelperApp::error(const QString& message, Auth::Error type) {
         SafeDataStream str(m_socket);
-        str << Msg::ERROR << message << type;
+        str << Msg::ERROR << m_requestId << m_method << message << type;
         str.send();
         m_socket->waitForBytesWritten();
     }
@@ -215,43 +254,50 @@ namespace SDDM {
         Msg m = Msg::MSG_UNKNOWN;
         Request response;
         SafeDataStream str(m_socket);
-        str << Msg::REQUEST << request;
+        str << Msg::REQUEST << m_requestId << m_method << request;
         str.send();
         str.receive();
-        str >> m >> response;
-        if (m != REQUEST) {
+        QString requestId;
+        AuthMethod method = AuthMethod::Password;
+        str >> m >> requestId >> method >> response;
+        if (m != REQUEST || requestId != m_requestId || method != m_method) {
             response = Request();
             qCritical() << "Received a wrong opcode instead of REQUEST:" << m;
         }
         return response;
     }
 
-    QProcessEnvironment HelperApp::authenticated(const QString &user) {
+    bool HelperApp::authenticated(const QString &user, QProcessEnvironment &environment) {
         Msg m = Msg::MSG_UNKNOWN;
-        QProcessEnvironment env;
+        bool proceed = false;
         SafeDataStream str(m_socket);
-        str << Msg::AUTHENTICATED << user;
+        str << Msg::AUTHENTICATED << m_requestId << m_method << user;
         str.send();
         if (user.isEmpty())
-            return env;
+            return false;
         str.receive();
-        str >> m >> env >> m_cookie;
-        if (m != AUTHENTICATED) {
-            env = QProcessEnvironment();
-            m_cookie = {};
-            qCritical() << "Received a wrong opcode instead of AUTHENTICATED:" << m;
+        QString requestId;
+        AuthMethod method = AuthMethod::Password;
+        str >> m >> requestId >> method >> proceed;
+        if (m == SESSION_AUTHORIZATION && requestId == m_requestId && method == m_method && proceed) {
+            str >> environment >> m_cookie;
+            return str.status() == QDataStream::Ok;
         }
-        return env;
+        if (m != SESSION_AUTHORIZATION || requestId != m_requestId || method != m_method)
+            qCritical() << "Rejected invalid session authorization";
+        return false;
     }
 
     void HelperApp::sessionOpened(bool success) {
         Msg m = Msg::MSG_UNKNOWN;
         SafeDataStream str(m_socket);
-        str << Msg::SESSION_STATUS << success;
+        str << Msg::SESSION_STATUS << m_requestId << m_method << success;
         str.send();
         str.receive();
-        str >> m;
-        if (m != SESSION_STATUS) {
+        QString requestId;
+        AuthMethod method = AuthMethod::Password;
+        str >> m >> requestId >> method;
+        if (m != SESSION_STATUS || requestId != m_requestId || method != m_method) {
             qCritical() << "Received a wrong opcode instead of SESSION_STATUS:" << m;
         }
     }
@@ -260,11 +306,13 @@ namespace SDDM {
     {
         Msg m = Msg::MSG_UNKNOWN;
         SafeDataStream str(m_socket);
-        str << Msg::DISPLAY_SERVER_STARTED << displayName;
+        str << Msg::DISPLAY_SERVER_STARTED << m_requestId << m_method << displayName;
         str.send();
         str.receive();
-        str >> m;
-        if (m != DISPLAY_SERVER_STARTED) {
+        QString requestId;
+        AuthMethod method = AuthMethod::Password;
+        str >> m >> requestId >> method;
+        if (m != DISPLAY_SERVER_STARTED || requestId != m_requestId || method != m_method) {
             qCritical() << "Received a wrong opcode instead of DISPLAY_SERVER_STARTED:" << m;
         }
     }

@@ -38,6 +38,9 @@ namespace SDDM {
         bool canSuspend { false };
         bool canHibernate { false };
         bool canHybridSleep { false };
+        bool authenticationMethodsAvailable { false };
+        QString fingerprintState;
+        QString fingerprintRequestId;
     };
 
     GreeterProxy::GreeterProxy(const QString &socket, QObject *parent) : QObject(parent), d(new GreeterProxyPrivate()) {
@@ -84,6 +87,18 @@ namespace SDDM {
         return d->canHybridSleep;
     }
 
+    bool GreeterProxy::authenticationMethodsAvailable() const {
+        return d->authenticationMethodsAvailable;
+    }
+
+    const QString &GreeterProxy::fingerprintState() const {
+        return d->fingerprintState;
+    }
+
+    const QString &GreeterProxy::fingerprintRequestId() const {
+        return d->fingerprintRequestId;
+    }
+
     bool GreeterProxy::isConnected() const {
         return d->socket->state() == QLocalSocket::ConnectedState;
     }
@@ -125,6 +140,21 @@ namespace SDDM {
         QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
         Session session(type, name);
         SocketWriter(d->socket) << quint32(GreeterMessages::Login) << user << password << session;
+    }
+
+    void GreeterProxy::startFingerprint(const QString &user, const int sessionIndex) const {
+        if (!d->sessionModel || !d->authenticationMethodsAvailable)
+            return;
+        const QModelIndex index = d->sessionModel->index(sessionIndex, 0);
+        const auto type = static_cast<Session::Type>(d->sessionModel->data(index, SessionModel::TypeRole).toInt());
+        const QString name = d->sessionModel->data(index, SessionModel::FileRole).toString();
+        SocketWriter(d->socket) << quint32(GreeterMessages::StartFingerprint) << user << Session(type, name);
+    }
+
+    void GreeterProxy::cancelFingerprint() const {
+        if (d->fingerprintRequestId.isEmpty())
+            return;
+        SocketWriter(d->socket) << quint32(GreeterMessages::CancelFingerprint) << d->fingerprintRequestId;
     }
 
     void GreeterProxy::connected() {
@@ -204,6 +234,44 @@ namespace SDDM {
 
                     // emit signal
                     emit loginFailed();
+                }
+                break;
+                case DaemonMessages::AuthenticationCapabilities: {
+                    quint32 capabilities;
+                    input >> capabilities;
+                    const bool available = capabilities & 0x1;
+                    if (d->authenticationMethodsAvailable != available) {
+                        d->authenticationMethodsAvailable = available;
+                        emit authenticationMethodsAvailableChanged(available);
+                    }
+                }
+                break;
+                case DaemonMessages::AuthenticationMethodState: {
+                    QString requestId, detail;
+                    quint32 state;
+                    input >> requestId >> state >> detail;
+                    if (d->fingerprintRequestId != requestId) {
+                        d->fingerprintRequestId = requestId;
+                        emit fingerprintRequestIdChanged(requestId);
+                    }
+                    Q_UNUSED(state);
+                    if (d->fingerprintState != detail) {
+                        d->fingerprintState = detail;
+                        emit fingerprintStateChanged(detail);
+                    }
+                }
+                break;
+                case DaemonMessages::AuthenticationAttemptFinished: {
+                    QString requestId;
+                    quint32 success;
+                    quint32 method;
+                    input >> requestId >> success >> method;
+                    Q_UNUSED(success);
+                    Q_UNUSED(method);
+                    if (d->fingerprintRequestId == requestId) {
+                        d->fingerprintRequestId.clear();
+                        emit fingerprintRequestIdChanged(d->fingerprintRequestId);
+                    }
                 }
                 break;
                 case DaemonMessages::InformationMessage: {

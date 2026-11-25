@@ -49,11 +49,16 @@ namespace SDDM {
         void informationMessage(QLocalSocket *socket, const QString &message);
         void loginFailed(QLocalSocket *socket);
         void loginSucceeded(QLocalSocket *socket);
+        void authenticationCapabilities(QLocalSocket *socket, quint32 capabilities);
+        void authenticationMethodState(QLocalSocket *socket, const QString &requestId, quint32 state, const QString &detail);
+        void authenticationAttemptFinished(QLocalSocket *socket, const QString &requestId, bool success, quint32 method);
 
     signals:
         void login(QLocalSocket *socket,
                    const QString &user, const QString &password,
                    const Session &session);
+        void startFingerprint(QLocalSocket *socket, const QString &user, const Session &session);
+        void cancelFingerprint(QLocalSocket *socket, const QString &requestId);
         void connected();
 
     private:

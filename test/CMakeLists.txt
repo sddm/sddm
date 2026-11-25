@@ -19,3 +19,35 @@ add_executable(SessionTest ${SessionTest_SRCS})
 target_include_directories(SessionTest PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/../src/common)
 add_test(NAME Session COMMAND SessionTest)
 target_link_libraries(SessionTest Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Test)
+
+include_directories(../src/auth)
+add_executable(AuthMessagesTest AuthMessagesTest.cpp)
+add_test(NAME AuthMessages COMMAND AuthMessagesTest)
+target_link_libraries(AuthMessagesTest Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Qml Qt${QT_MAJOR_VERSION}::Test)
+
+add_executable(AuthAttemptGateTest AuthAttemptGateTest.cpp)
+target_include_directories(AuthAttemptGateTest PRIVATE ../src/daemon)
+target_link_libraries(AuthAttemptGateTest Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Test)
+add_test(NAME AuthAttemptGate COMMAND AuthAttemptGateTest)
+
+# Compile the real Auth transport against a private fake helper executable.
+# This path is local to the test binary; production sddm keeps its configured libexec path.
+set(AUTH_TEST_HELPER_DIR "${CMAKE_CURRENT_BINARY_DIR}/transport-helper")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/auth-test-constants")
+file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/auth-test-constants/Constants.h"
+    CONTENT "#define LIBEXEC_INSTALL_DIR \"${AUTH_TEST_HELPER_DIR}\"\n")
+add_executable(AuthTransportHelper AuthTransportHelper.cpp)
+set_target_properties(AuthTransportHelper PROPERTIES
+    OUTPUT_NAME sddm-helper RUNTIME_OUTPUT_DIRECTORY "${AUTH_TEST_HELPER_DIR}")
+target_link_libraries(AuthTransportHelper Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Network Qt${QT_MAJOR_VERSION}::Qml)
+
+add_executable(AuthTransportTest AuthTransportTest.cpp
+    ../src/auth/Auth.cpp ../src/auth/AuthRequest.cpp ../src/auth/AuthPrompt.cpp
+    ../src/common/SafeDataStream.cpp)
+target_include_directories(AuthTransportTest BEFORE PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/auth-test-constants")
+add_dependencies(AuthTransportTest AuthTransportHelper)
+target_link_libraries(AuthTransportTest
+    Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Network
+    Qt${QT_MAJOR_VERSION}::Qml Qt${QT_MAJOR_VERSION}::Test)
+add_test(NAME AuthTransport COMMAND AuthTransportTest)

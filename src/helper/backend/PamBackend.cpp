@@ -219,7 +219,9 @@ namespace SDDM {
 
         QString service = QStringLiteral("sddm");
 
-        if (user == QStringLiteral("sddm") && m_greeter)
+        if (m_fingerprint && !m_greeter && !m_autologin)
+            service = QStringLiteral("sddm-fingerprint");
+        else if (user == QStringLiteral("sddm") && m_greeter)
             service = QStringLiteral("sddm-greeter");
         else if (m_autologin)
             service = QStringLiteral("sddm-autologin");
@@ -236,6 +238,10 @@ namespace SDDM {
             m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
             return false;
         }
+        return true;
+    }
+
+    bool PamBackend::accountManagement() {
         if (!m_pam->acctMgmt()) {
             m_app->error(m_pam->errorString(), Auth::ERROR_AUTHENTICATION);
             return false;

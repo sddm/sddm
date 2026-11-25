@@ -38,6 +38,9 @@ namespace SDDM {
         Q_PROPERTY(bool     canSuspend      READ canSuspend     NOTIFY canSuspendChanged)
         Q_PROPERTY(bool     canHibernate    READ canHibernate   NOTIFY canHibernateChanged)
         Q_PROPERTY(bool     canHybridSleep  READ canHybridSleep NOTIFY canHybridSleepChanged)
+        Q_PROPERTY(bool     authenticationMethodsAvailable READ authenticationMethodsAvailable NOTIFY authenticationMethodsAvailableChanged)
+        Q_PROPERTY(QString  fingerprintState READ fingerprintState NOTIFY fingerprintStateChanged)
+        Q_PROPERTY(QString  fingerprintRequestId READ fingerprintRequestId NOTIFY fingerprintRequestIdChanged)
 
     public:
         explicit GreeterProxy(const QString &socket, QObject *parent = 0);
@@ -50,6 +53,9 @@ namespace SDDM {
         bool canSuspend() const;
         bool canHibernate() const;
         bool canHybridSleep() const;
+        bool authenticationMethodsAvailable() const;
+        const QString &fingerprintState() const;
+        const QString &fingerprintRequestId() const;
 
         bool isConnected() const;
 
@@ -63,6 +69,8 @@ namespace SDDM {
         void hybridSleep();
 
         void login(const QString &user, const QString &password, const int sessionIndex) const;
+        void startFingerprint(const QString &user, const int sessionIndex) const;
+        void cancelFingerprint() const;
 
     private slots:
         void connected();
@@ -78,6 +86,9 @@ namespace SDDM {
         void canSuspendChanged(bool canSuspend);
         void canHibernateChanged(bool canHibernate);
         void canHybridSleepChanged(bool canHybridSleep);
+        void authenticationMethodsAvailableChanged(bool available);
+        void fingerprintStateChanged(const QString &state);
+        void fingerprintRequestIdChanged(const QString &requestId);
 
         void socketDisconnected();
         void loginFailed();

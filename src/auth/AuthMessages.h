@@ -98,8 +98,26 @@ namespace SDDM {
         AUTHENTICATED,
         SESSION_STATUS,
         DISPLAY_SERVER_STARTED,
+        METHOD_STATE,
+        SESSION_AUTHORIZATION,
         MSG_LAST,
     };
+
+    inline QDataStream& operator<<(QDataStream &s, const AuthMethod &method) {
+        s << qint32(method);
+        return s;
+    }
+
+    inline QDataStream& operator>>(QDataStream &s, AuthMethod &method) {
+        qint32 value;
+        s >> value;
+        if (value < qint32(AuthMethod::Password) || value > qint32(AuthMethod::Fingerprint)) {
+            s.setStatus(QDataStream::ReadCorruptData);
+            return s;
+        }
+        method = AuthMethod(value);
+        return s;
+    }
 
     inline QDataStream& operator<<(QDataStream &s, const Msg &m) {
         s << qint32(m);

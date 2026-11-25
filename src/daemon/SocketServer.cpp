@@ -93,6 +93,7 @@ namespace SDDM {
     void SocketServer::newConnection() {
         // get pending connection
         QLocalSocket *socket = m_server->nextPendingConnection();
+        socket->setReadBufferSize(1024 * 1024);
 
         // connect signals
         connect(socket, &QLocalSocket::readyRead, this, &SocketServer::readyRead);
@@ -109,12 +110,18 @@ namespace SDDM {
         // input stream
         QDataStream input(socket);
 
-        // Qt's QLocalSocket::readyRead is not designed to be called at every socket.write(), 
+        // Qt's QLocalSocket::readyRead is not designed to be called at every socket.write(),
         // so we need to use a loop to read all the signals.
-        while(socket->bytesAvailable()) {
-            // read message
+        if (socket->bytesAvailable() >= 1024 * 1024) { socket->abort(); return; }
+        while(socket->bytesAvailable() >= qint64(sizeof(quint32))) {
+            input.startTransaction();
             quint32 message;
             input >> message;
+            if (input.status() == QDataStream::ReadPastEnd) {
+                input.rollbackTransaction();
+                return;
+            }
+            if (input.status() != QDataStream::Ok) { socket->abort(); return; }
 
             switch (GreeterMessages(message)) {
                 case GreeterMessages::Connect: {
@@ -126,22 +133,37 @@ namespace SDDM {
 
                     // send host name
                     SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
+                    SocketWriter(socket) << quint32(DaemonMessages::AuthenticationCapabilities) << quint32(0x1);
 
                     // emit signal
                     emit connected();
                 }
                 break;
                 case GreeterMessages::Login: {
-                    // log message
                     qDebug() << "Message received from greeter: Login";
-
-                    // read username, pasword etc.
-                    QString user, password, filename;
+                    QString user, password;
                     Session session;
                     input >> user >> password >> session;
-
-                    // emit signal
+                    if (input.status() == QDataStream::ReadPastEnd) { input.rollbackTransaction(); return; }
+                    if (input.status() != QDataStream::Ok) { socket->abort(); return; }
                     emit login(socket, user, password, session);
+                }
+                break;
+                case GreeterMessages::StartFingerprint: {
+                    QString user;
+                    Session session;
+                    input >> user >> session;
+                    if (input.status() == QDataStream::ReadPastEnd) { input.rollbackTransaction(); return; }
+                    if (input.status() != QDataStream::Ok) { socket->abort(); return; }
+                    emit startFingerprint(socket, user, session);
+                }
+                break;
+                case GreeterMessages::CancelFingerprint: {
+                    QString requestId;
+                    input >> requestId;
+                    if (input.status() == QDataStream::ReadPastEnd) { input.rollbackTransaction(); return; }
+                    if (input.status() != QDataStream::Ok || requestId.isEmpty()) { socket->abort(); return; }
+                    emit cancelFingerprint(socket, requestId);
                 }
                 break;
                 case GreeterMessages::PowerOff: {
@@ -188,6 +210,8 @@ namespace SDDM {
                     qWarning() << "Unknown message" << message;
                 }
             }
+            if (!input.commitTransaction())
+                return;
         }
 
     }
@@ -202,5 +226,17 @@ namespace SDDM {
 
     void SocketServer::informationMessage(QLocalSocket *socket, const QString &message) {
         SocketWriter(socket) << quint32(DaemonMessages::InformationMessage) << message;
+    }
+
+    void SocketServer::authenticationCapabilities(QLocalSocket *socket, quint32 capabilities) {
+        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationCapabilities) << capabilities;
+    }
+
+    void SocketServer::authenticationMethodState(QLocalSocket *socket, const QString &requestId, quint32 state, const QString &detail) {
+        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationMethodState) << requestId << state << detail;
+    }
+
+    void SocketServer::authenticationAttemptFinished(QLocalSocket *socket, const QString &requestId, bool success, quint32 method) {
+        SocketWriter(socket) << quint32(DaemonMessages::AuthenticationAttemptFinished) << requestId << quint32(success) << method;
     }
 }
