@@ -74,6 +74,7 @@ namespace SDDM {
 
     private:
         QLocalServer *m_server { nullptr };
+        QSet<QLocalSocket *> m_activeSockets;
         QSet<QLocalSocket *> m_correlatedSockets;
         QSet<QLocalSocket *> m_queriedSockets;
         QSet<QLocalSocket *> m_legacyClearSockets;

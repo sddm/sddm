@@ -224,6 +224,51 @@ private slots:
         QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 1, 6000);
         QCOMPARE(authenticated.count(), 0);
     }
+
+    void helperSocketPermissionsAndHandshakeFlood() {
+        Auth auth;
+        auth.setUser(QStringLiteral("socket-audit-flood"));
+        auth.setMethod(AuthMethod::Fingerprint);
+        auth.setDeferredAuthorization(true);
+        QSignalSpy authenticated(&auth, &Auth::authentication);
+        QSignalSpy finished(&auth, &Auth::finished);
+        auth.start();
+        QTRY_COMPARE_WITH_TIMEOUT(authenticated.count(), 1, 4000);
+        QCOMPARE(authenticated.at(0).at(0).toString(), QStringLiteral("socket-audit-flood"));
+        QVERIFY(authenticated.at(0).at(1).toBool());
+        auth.authorizeSession(false);
+        auth.kill();
+        QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 1, 2000);
+    }
+
+    void sameChildCannotReconnectAfterHello() {
+        Auth auth;
+        auth.setUser(QStringLiteral("reconnect-after-hello"));
+        auth.setMethod(AuthMethod::Password);
+        auth.setDeferredAuthorization(true);
+        QSignalSpy authenticated(&auth, &Auth::authentication);
+        QSignalSpy finished(&auth, &Auth::finished);
+        auth.start();
+        QTRY_COMPARE_WITH_TIMEOUT(authenticated.count(), 1, 3000);
+        QCOMPARE(authenticated.at(0).at(0).toString(), QStringLiteral("reconnect-after-hello"));
+        auth.authorizeSession(false);
+        auth.kill();
+        QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 1, 2000);
+    }
+
+    void postHelloMalformedFramesKillHelperWithoutAuthorizing() {
+        for (int i = 0; i < 12; ++i) {
+            Auth auth;
+            auth.setUser(QStringLiteral("fuzz-post-hello-%1").arg(i));
+            auth.setMethod(i % 2 == 0 ? AuthMethod::Fingerprint : AuthMethod::Password);
+            auth.setDeferredAuthorization(true);
+            QSignalSpy authenticated(&auth, &Auth::authentication);
+            QSignalSpy finished(&auth, &Auth::finished);
+            auth.start();
+            QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 1, 3000);
+            QCOMPARE(authenticated.count(), 0);
+        }
+    }
 };
 
 QTEST_GUILESS_MAIN(AuthTransportTest)

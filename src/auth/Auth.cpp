@@ -44,6 +44,14 @@ namespace SDDM {
     public:
         static SocketServer *instance();
 
+        void releasePendingHandshake(QLocalSocket *socket) {
+            if (socket && socket->property("sddm-auth-handshake-pending").toBool()) {
+                socket->setProperty("sddm-auth-handshake-pending", false);
+                if (pendingHandshakes > 0)
+                    --pendingHandshakes;
+            }
+        }
+
         QMap<qint64, Auth::Private*> helpers;
         int pendingHandshakes { 0 };
     private:
@@ -113,8 +121,7 @@ namespace SDDM {
             QTimer::singleShot(5000, socket, [this, socket] {
                 if (!socket->property("sddm-auth-handshake-pending").toBool())
                     return;
-                socket->setProperty("sddm-auth-handshake-pending", false);
-                --pendingHandshakes;
+                releasePendingHandshake(socket);
                 socket->abort();
             });
             connect(socket, &QLocalSocket::readyRead, this, [this, socket] {
@@ -123,6 +130,7 @@ namespace SDDM {
                 qint64 length = -1;
                 if (socket->peek(reinterpret_cast<char *>(&length), sizeof(length)) != sizeof(length)
                     || length < 0 || length > 1024 * 1024) {
+                    releasePendingHandshake(socket);
                     socket->abort();
                     socket->deleteLater();
                     return;
@@ -139,33 +147,27 @@ namespace SDDM {
                 str >> message >> id >> requestId >> method;
                 if (str.status() != QDataStream::Ok || !str.atEnd() || message != Msg::HELLO || !id
                     || !helpers.contains(id) || !helpers[id]->acceptHello(socket)) {
-                    socket->setProperty("sddm-auth-handshake-pending", false);
-                    --pendingHandshakes;
+                    releasePendingHandshake(socket);
                     socket->abort();
                     socket->deleteLater();
                     return;
                 }
                 Auth::Private *helper = helpers[id];
                 if (helper->helloAccepted || helper->requestId != requestId || helper->method != method) {
-                    socket->setProperty("sddm-auth-handshake-pending", false);
-                    --pendingHandshakes;
+                    releasePendingHandshake(socket);
                     socket->abort();
                     socket->deleteLater();
                     return;
                 }
                 helper->helloAccepted = true;
                 socket->setProperty("sddm-auth-hello-accepted", true);
-                socket->setProperty("sddm-auth-handshake-pending", false);
-                --pendingHandshakes;
+                releasePendingHandshake(socket);
                 QObject::disconnect(socket, &QLocalSocket::readyRead, this, nullptr);
                 helper->setSocket(socket);
                 helper->dataPending();
             });
             connect(socket, &QLocalSocket::disconnected, this, [this, socket] {
-                if (socket->property("sddm-auth-handshake-pending").toBool()) {
-                    socket->setProperty("sddm-auth-handshake-pending", false);
-                    --pendingHandshakes;
-                }
+                releasePendingHandshake(socket);
                 socket->deleteLater();
             });
         }
@@ -175,6 +177,7 @@ namespace SDDM {
         static std::unique_ptr<Auth::SocketServer> self;
         if (!self) {
             self.reset(new SocketServer());
+            self->setSocketOptions(QLocalServer::UserAccessOption);
             self->listen(QStringLiteral("sddm-auth-%1").arg(QUuid::createUuid().toString(QUuid::WithoutBraces)));
         }
         return self.get();

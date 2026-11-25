@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <csignal>
 #include <cstring>
+#include <unistd.h>
 
 using namespace SDDM;
 
@@ -84,6 +85,13 @@ int main(int argc, char **argv) {
                 break;
             case 'A':
                 send(SESSION_STATUS, [](QDataStream &stream) { stream << false; });
+                break;
+            case 'P':
+                control.write("PID " + QByteArray::number(qint64(::getpid())) + '\n');
+                control.flush();
+                break;
+            case 'K':
+                std::raise(SIGKILL);
                 break;
             case 'E':
                 app.exit(Auth::HELPER_AUTH_ERROR);

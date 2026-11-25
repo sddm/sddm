@@ -7,6 +7,7 @@
 #include <QLocalSocket>
 #include <QTimer>
 #include <csignal>
+#include <sys/stat.h>
 
 using namespace SDDM;
 
@@ -53,6 +54,112 @@ int main(int argc, char **argv) {
             }
         }
         first << HELLO << value(QStringLiteral("--id")).toLongLong() << id << method;
+        if (user == QStringLiteral("socket-audit-flood")) {
+            const QByteArray sockPath = value(QStringLiteral("--socket")).toLocal8Bit();
+            struct stat st { };
+            if (::stat(sockPath.constData(), &st) != 0 || (st.st_mode & 0777) != 0700) {
+                app.exit(20);
+                return;
+            }
+            for (int i = 0; i < 24; ++i) {
+                QLocalSocket rogue;
+                rogue.connectToServer(value(QStringLiteral("--socket")));
+                if (!rogue.waitForConnected(1000)) {
+                    app.exit(21);
+                    return;
+                }
+                if (i % 4 == 0) {
+                    const qint64 negLen = -1;
+                    rogue.write(reinterpret_cast<const char *>(&negLen), sizeof(negLen));
+                } else if (i % 4 == 1) {
+                    const qint64 hugeLen = 2 * 1024 * 1024;
+                    rogue.write(reinterpret_cast<const char *>(&hugeLen), sizeof(hugeLen));
+                } else if (i % 4 == 2) {
+                    QByteArray bad;
+                    QDataStream bs(&bad, QIODevice::WriteOnly);
+                    bs << qint32(9999) << qint64(999999) << QStringLiteral("bogus") << qint32(99);
+                    rogue.write(frame(bad));
+                } else {
+                    rogue.write(QByteArray("\x01\x02\x03", 3));
+                }
+                rogue.flush();
+                rogue.waitForDisconnected(200);
+                rogue.abort();
+            }
+            QByteArray authPayload;
+            QDataStream as(&authPayload, QIODevice::WriteOnly);
+            as << AUTHENTICATED << id << method << user;
+            socket.write(frame(hello) + frame(authPayload));
+            return;
+        }
+        if (user == QStringLiteral("reconnect-after-hello")) {
+            socket.write(frame(hello));
+            socket.flush();
+            QTimer::singleShot(40, &app, [&, hello, id, method, user] {
+                QLocalSocket second;
+                second.connectToServer(value(QStringLiteral("--socket")));
+                if (!second.waitForConnected(1000)) {
+                    app.exit(22);
+                    return;
+                }
+                second.write(frame(hello));
+                second.flush();
+                if (!second.waitForDisconnected(1000)) {
+                    app.exit(23);
+                    return;
+                }
+                QByteArray authPayload;
+                QDataStream as(&authPayload, QIODevice::WriteOnly);
+                as << AUTHENTICATED << id << method << user;
+                socket.write(frame(authPayload));
+            });
+            return;
+        }
+        if (user.startsWith(QStringLiteral("fuzz-post-hello-"))) {
+            const int variant = user.mid(16).toInt();
+            socket.write(frame(hello));
+            QByteArray bad;
+            switch (variant % 6) {
+            case 0: {
+                const qint64 negLen = -42;
+                bad.append(reinterpret_cast<const char *>(&negLen), sizeof(negLen));
+                break;
+            }
+            case 1: {
+                const qint64 hugeLen = 1024 * 1024 + 7;
+                bad.append(reinterpret_cast<const char *>(&hugeLen), sizeof(hugeLen));
+                break;
+            }
+            case 2: {
+                QByteArray p;
+                QDataStream ps(&p, QIODevice::WriteOnly);
+                ps << Msg(77) << id << method << QStringLiteral("junk");
+                bad = frame(p);
+                break;
+            }
+            case 3: {
+                QByteArray p;
+                QDataStream ps(&p, QIODevice::WriteOnly);
+                ps << AUTHENTICATED << id << method << user << quint32(0xdeadbeef);
+                bad = frame(p);
+                break;
+            }
+            case 4: {
+                QByteArray p;
+                QDataStream ps(&p, QIODevice::WriteOnly);
+                ps << ERROR << id << method; // truncated payload
+                bad = frame(p);
+                break;
+            }
+            default: {
+                QByteArray p(32, char(0xA5 ^ variant));
+                bad = frame(p);
+                break;
+            }
+            }
+            socket.write(bad);
+            return;
+        }
         if (user == QStringLiteral("stop-late-success")) {
             std::signal(SIGTERM, SIG_IGN);
             QByteArray info;

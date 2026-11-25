@@ -18,8 +18,41 @@
 #include <QDBusReply>
 #include <QDBusPendingReply>
 #include <QProcess>
+#include <QDir>
+#include <QStandardPaths>
 #include <memory>
 #include <functional>
+#include <random>
+#include <sys/stat.h>
+
+namespace {
+class MockLogindManager final : public QObject {
+    Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "org.freedesktop.login1.Manager")
+public:
+    explicit MockLogindManager(QObject *parent = nullptr) : QObject(parent) {}
+signals:
+    void PrepareForSleep(bool sleeping);
+};
+
+int countOpenFds() {
+    return QDir(QStringLiteral("/proc/self/fd")).entryList(QDir::NoDotAndDotDot | QDir::AllEntries).size();
+}
+
+qint64 currentRssKb() {
+    QFile f(QStringLiteral("/proc/self/status"));
+    if (!f.open(QIODevice::ReadOnly))
+        return -1;
+    for (const QByteArray &line : f.readAll().split('\n')) {
+        if (line.startsWith("VmRSS:")) {
+            const auto parts = line.simplified().split(' ');
+            if (parts.size() >= 2)
+                return parts.at(1).toLongLong();
+        }
+    }
+    return -1;
+}
+}
 
 namespace SDDM {
 class DaemonContextTest : public QObject {
@@ -100,6 +133,7 @@ class DaemonContextTest : public QObject {
         QPointer<QLocalSocket> socket;
         QString request;
         bool authorized = false;
+        qint64 pid = 0;
     };
     class Harness final : public Display {
     public:
@@ -119,7 +153,12 @@ class DaemonContextTest : public QObject {
                         if (line.startsWith("READY ")) {
                             const auto fields = line.split(' ');
                             if (fields.size() == 3)
-                                peers.insert(fields.at(1).toInt(), {socket, QString::fromUtf8(fields.at(2)), false});
+                                peers.insert(fields.at(1).toInt(), {socket, QString::fromUtf8(fields.at(2)), false, 0});
+                        } else if (line.startsWith("PID ")) {
+                            const qint64 pid = line.mid(4).toLongLong();
+                            for (auto it = peers.begin(); it != peers.end(); ++it)
+                                if (it->socket == socket)
+                                    it->pid = pid;
                         } else if (line == "AUTHORIZED") {
                             for (auto it = peers.begin(); it != peers.end(); ++it)
                                 if (it->socket == socket)
@@ -264,6 +303,8 @@ class DaemonContextTest : public QObject {
     }
 private slots:
     void initTestCase() {
+        if (QStandardPaths::findExecutable(QStringLiteral("dbus-daemon")).isEmpty())
+            QSKIP("dbus-daemon is required for private D-Bus availability tests");
         busDirectory = std::make_unique<QTemporaryDir>(QDir::currentPath() + QStringLiteral("/availability-bus-XXXXXX"));
         QVERIFY(busDirectory->isValid());
         QVERIFY(QDir().mkdir(busDirectory->filePath(QStringLiteral("services"))));
@@ -324,8 +365,10 @@ private slots:
             qFatal("Private availability fixture still owns its service after cleanup");
     }
     void cleanupTestCase() {
-        privateBus.terminate();
-        QVERIFY(privateBus.waitForFinished());
+        if (privateBus.state() != QProcess::NotRunning) {
+            privateBus.terminate();
+            QVERIFY(privateBus.waitForFinished());
+        }
     }
     void init() {
         directory = std::make_unique<QTemporaryDir>(QDir::currentPath() + QStringLiteral("/daemon-context-XXXXXX"));
@@ -1080,6 +1123,387 @@ private slots:
         emit display.m_fingerprintAuth->authentication(QStringLiteral("a"), true);
         QVERIFY(!display.m_methodWinnerChosen && !display.m_contextCommitted);
         QVERIFY(!client.state(FingerprintState::Matched));
+    }
+
+    void greeterSocketFuzzAndConnectionCap() {
+        Harness display(directory->filePath(QStringLiteral("control")));
+        QVERIFY(display.m_socketServer->start(QStringLiteral("security-fuzz-socket")));
+        const QString addr = display.m_socketServer->socketAddress();
+        struct stat st { };
+        QCOMPARE(::stat(addr.toLocal8Bit().constData(), &st), 0);
+        QCOMPARE(int(st.st_mode & 0777), 0700);
+
+        // Verify active connection cap (16): 17th..20th sockets must be aborted cleanly.
+        std::vector<std::unique_ptr<QLocalSocket>> held;
+        for (int i = 0; i < 16; ++i) {
+            auto s = std::make_unique<QLocalSocket>();
+            s->connectToServer(addr);
+            QVERIFY(s->waitForConnected(1000));
+            held.push_back(std::move(s));
+        }
+        QTest::qWait(30);
+        for (int i = 0; i < 4; ++i) {
+            QLocalSocket excess;
+            excess.connectToServer(addr);
+            if (excess.waitForConnected(500))
+                QTRY_COMPARE_WITH_TIMEOUT(excess.state(), QLocalSocket::UnconnectedState, 1000);
+        }
+        held.clear();
+        QCoreApplication::processEvents();
+        QTest::qWait(30);
+
+        // Adversarial fuzzing corpus: 250 malformed/oversized/replayed/out-of-order frames.
+        std::mt19937 rng(0x5F610C01u);
+        for (int i = 0; i < 250; ++i) {
+            QLocalSocket fuzzer;
+            fuzzer.connectToServer(addr);
+            QVERIFY(fuzzer.waitForConnected(1000));
+            QByteArray wire;
+            QDataStream out(&wire, QIODevice::WriteOnly);
+            switch (i % 10) {
+            case 0: // unknown opcode
+                out << quint32(0xdead0000u + i) << quint64(i);
+                break;
+            case 1: // SetAuthenticationContext before QueryAuthenticationCapabilities
+                out << quint32(GreeterMessages::SetAuthenticationContext) << quint64(1) << quint32(1)
+                    << QStringLiteral("a") << quint32(Session::X11Session) << QStringLiteral("test.desktop");
+                break;
+            case 2: // StartAuthenticationMethod without correlated context
+                out << quint32(GreeterMessages::StartAuthenticationMethod) << quint64(1)
+                    << quint32(AuthenticationMethod::Fingerprint);
+                break;
+            case 3: // CancelAuthenticationMethod with oversized requestId
+                out << quint32(GreeterMessages::CancelAuthenticationMethod) << quint64(1)
+                    << QString(128, QLatin1Char('x')) << quint32(AuthenticationMethod::Fingerprint);
+                break;
+            case 4: // Login with oversized username (>256)
+                out << quint32(GreeterMessages::Login) << QString(300, QLatin1Char('u'))
+                    << QStringLiteral("pw") << quint32(Session::X11Session) << QStringLiteral("test.desktop");
+                break;
+            case 5: // Login with invalid sessionType (>WaylandSession)
+                out << quint32(GreeterMessages::Login) << QStringLiteral("a")
+                    << QStringLiteral("pw") << quint32(99) << QStringLiteral("test.desktop");
+                break;
+            case 6: // QueryCapabilities then SetAuthenticationContext with hasContext=2
+                out << quint32(GreeterMessages::QueryAuthenticationCapabilities)
+                    << quint32(GreeterMessages::SetAuthenticationContext) << quint64(1) << quint32(2);
+                break;
+            case 7: // QueryCapabilities then SetAuthenticationContext with serial=0
+                out << quint32(GreeterMessages::QueryAuthenticationCapabilities)
+                    << quint32(GreeterMessages::SetAuthenticationContext) << quint64(0) << quint32(0);
+                break;
+            case 8: // Truncated frame / bogus QString length header
+                wire.append(QByteArray::fromHex("000000027fffffff00000000"));
+                break;
+            default: { // Seeded random byte garbage (prefix non-power opcode to keep fuzz storm non-teardown)
+                const int len = int(rng() % 128) + 8;
+                wire.resize(len);
+                wire[0] = char(0x80 | (rng() & 0x7fu));
+                for (int b = 1; b < len; ++b)
+                    wire[b] = char(rng() & 0xffu);
+                break;
+            }
+            }
+            fuzzer.write(wire);
+            fuzzer.flush();
+            QCoreApplication::processEvents();
+            fuzzer.abort();
+            QCoreApplication::processEvents();
+        }
+        QTest::qWait(30);
+        QVERIFY(!display.m_methodWinnerChosen && !display.m_contextCommitted);
+        QCOMPARE(display.m_auth->launchGeneration(), quint64(0));
+        QCOMPARE(display.m_fingerprintAuth->launchGeneration(), quint64(0));
+
+        // Prove legitimate password login still works immediately after the fuzz storm.
+        Client client;
+        client.socket.connectToServer(addr);
+        QTRY_COMPARE(client.socket.state(), QLocalSocket::ConnectedState);
+        {
+            QByteArray q; QDataStream out(&q, QIODevice::WriteOnly);
+            out << quint32(GreeterMessages::QueryAuthenticationCapabilities);
+            client.socket.write(q);
+            client.socket.flush();
+        }
+        QTRY_COMPARE(client.count(DaemonMessages::AuthenticationCapabilities), 1);
+        select(client, 1, QStringLiteral("a"));
+        QTRY_COMPARE(display.m_contextSerial, quint64(1));
+        password(client, QStringLiteral("a"));
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Password)));
+        display.command(AuthMethod::Password, "S");
+        QTRY_VERIFY(display.peers.value(int(AuthMethod::Password)).authorized);
+        display.command(AuthMethod::Password, "E");
+        QTRY_VERIFY(!display.m_auth->isActive());
+    }
+
+    void simultaneousCompletionStartsExactlyOneSession() {
+        Harness display(directory->filePath(QStringLiteral("control")));
+        display.fingerprintMode = QStringLiteral("normal");
+        display.passwordMode = QStringLiteral("normal");
+        Client client;
+        activate(display, client, QStringLiteral("a"));
+        password(client, QStringLiteral("a"));
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Password)));
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Fingerprint)));
+
+        // Deliver simultaneous AUTHENTICATED from both helpers back-to-back.
+        display.command(AuthMethod::Fingerprint, "S");
+        display.command(AuthMethod::Password, "S");
+
+        QTRY_VERIFY(display.m_contextCommitted);
+        const bool fpAuth = display.peers.value(int(AuthMethod::Fingerprint)).authorized;
+        const bool pwAuth = display.peers.value(int(AuthMethod::Password)).authorized;
+        QCOMPARE(int(fpAuth) + int(pwAuth), 1);
+
+        // Ensure loser exited and cannot later authorize.
+        const AuthMethod winner = fpAuth ? AuthMethod::Fingerprint : AuthMethod::Password;
+        const AuthMethod loser = fpAuth ? AuthMethod::Password : AuthMethod::Fingerprint;
+        QTRY_VERIFY(!(loser == AuthMethod::Fingerprint ? display.m_fingerprintAuth : display.m_auth)->isActive());
+        display.command(winner, "E");
+        QTRY_VERIFY(!(winner == AuthMethod::Fingerprint ? display.m_fingerprintAuth : display.m_auth)->isActive());
+        QCOMPARE(int(display.peers.value(int(AuthMethod::Fingerprint)).authorized)
+               + int(display.peers.value(int(AuthMethod::Password)).authorized), 1);
+    }
+
+    void fprintdCrashMidScanPreservesPasswordAndNoLoop() {
+        mainConfig.FingerprintAuthTimeout.set(30);
+        enableService();
+        Harness display(directory->filePath(QStringLiteral("control")));
+        display.realAvailability = true;
+        display.fingerprintMode = QStringLiteral("normal");
+        display.passwordMode = QStringLiteral("normal");
+        Client client;
+        connectClient(display, client);
+        select(client, 1, QStringLiteral("a"));
+        start(client, 1);
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Fingerprint)));
+        QTRY_VERIFY(client.state(FingerprintState::Scanning));
+        const QString owner = fixtureOwner();
+        QVERIFY(!owner.isEmpty());
+
+        // Start concurrent password attempt while fingerprint helper is scanning.
+        password(client, QStringLiteral("a"));
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Password)));
+
+        // Kill fprintd mid-scan.
+        fixtureCall(owner, QStringLiteral("Quit"));
+        QTRY_VERIFY(fixtureOwner().isEmpty());
+        // Fingerprint helper must be stopped immediately (well before 30s timeout) with no restart loop.
+        QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive(), 2000);
+        QTRY_VERIFY(client.state(FingerprintState::Unavailable));
+        QCOMPARE(display.m_fingerprintAuth->launchGeneration(), quint64(1));
+
+        // Password fallback must remain unaffected and authorize cleanly.
+        QVERIFY(display.m_auth->isActive());
+        display.command(AuthMethod::Password, "S");
+        QTRY_VERIFY(display.peers.value(int(AuthMethod::Password)).authorized);
+        QVERIFY(display.m_contextCommitted);
+        display.command(AuthMethod::Password, "E");
+        QTRY_VERIFY(!display.m_auth->isActive());
+        QCOMPARE(display.m_fingerprintAuth->launchGeneration(), quint64(1));
+    }
+
+    void sensorRemovedMidLifecycleDegradesAndRecoversOnRetry() {
+        enableService();
+        Harness display(directory->filePath(QStringLiteral("control")));
+        display.realAvailability = true;
+        display.fingerprintMode = QStringLiteral("normal");
+        Client client;
+        connectClient(display, client);
+        select(client, 1, QStringLiteral("a"));
+        start(client, 1);
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Fingerprint)));
+        const QString owner = fixtureOwner();
+        QVERIFY(!owner.isEmpty());
+
+        // Simulate reader unplug before explicit Retry.
+        auto setEmpty = [&](bool empty) {
+            auto call = QDBusMessage::createMethodCall(owner, QStringLiteral("/net/reactivated/Fprint/Manager"),
+                    QStringLiteral("net.reactivated.Fprint.Manager"), QStringLiteral("SetDevicesEmpty"));
+            call << empty;
+            QDBusReply<void> reply = QDBusConnection::systemBus().call(call);
+            QVERIFY(reply.isValid());
+        };
+        setEmpty(true);
+        display.command(AuthMethod::Fingerprint, "UE");
+        QTRY_VERIFY(!display.m_fingerprintAuth->isActive());
+        QTRY_VERIFY(client.state(FingerprintState::Unavailable));
+
+        // Explicit Retry sees empty device list -> reader_unavailable, no helper spawned.
+        start(client, 1);
+        QTRY_COMPARE(client.count(DaemonMessages::AuthenticationContext, QStringLiteral("reader_unavailable")), 1);
+        QCOMPARE(display.m_fingerprintAuth->launchGeneration(), quint64(1));
+
+        // Reattach reader -> explicit Retry recovers cleanly.
+        setEmpty(false);
+        start(client, 1);
+        QTRY_COMPARE(display.m_fingerprintAuth->launchGeneration(), quint64(2));
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Fingerprint)));
+        display.command(AuthMethod::Fingerprint, "E");
+        QTRY_VERIFY(!display.m_fingerprintAuth->isActive());
+    }
+
+    void externalPrepareForSleepCancelsScanAndBlocksHiddenResume() {
+        auto bus = QDBusConnection::systemBus();
+        MockLogindManager logind;
+        QVERIFY(bus.registerService(QStringLiteral("org.freedesktop.login1")));
+        QVERIFY(bus.registerObject(QStringLiteral("/org/freedesktop/login1"), &logind,
+                                   QDBusConnection::ExportAllSignals));
+
+        Harness display(directory->filePath(QStringLiteral("control")));
+        display.fingerprintMode = QStringLiteral("normal");
+        display.passwordMode = QStringLiteral("normal");
+        Client client;
+        activate(display, client, QStringLiteral("a"));
+        QCOMPARE(display.m_fingerprintAuth->launchGeneration(), quint64(1));
+
+        // External suspend arrives via systemd-logind PrepareForSleep(true).
+        emit logind.PrepareForSleep(true);
+        QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive(), 2000);
+        QTRY_VERIFY(client.state(FingerprintState::Cancelled));
+        QVERIFY(!display.m_contextCommitted);
+
+        // Resume arrives: must NOT auto-start a hidden fingerprint scan.
+        emit logind.PrepareForSleep(false);
+        QTest::qWait(200);
+        QCOMPARE(display.m_fingerprintAuth->launchGeneration(), quint64(1));
+        QVERIFY(!display.m_fingerprintAuth->isActive());
+
+        // Password login works immediately after resume.
+        password(client, QStringLiteral("a"));
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Password)));
+        display.command(AuthMethod::Password, "S");
+        QTRY_VERIFY(display.peers.value(int(AuthMethod::Password)).authorized);
+        display.command(AuthMethod::Password, "E");
+        QTRY_VERIFY(!display.m_auth->isActive());
+
+        bus.unregisterObject(QStringLiteral("/org/freedesktop/login1"));
+        bus.unregisterService(QStringLiteral("org.freedesktop.login1"));
+    }
+
+    void secretHygieneZeroesPasswordAndExcludesFromProcAndLogs() {
+        static QStringList capturedLogs;
+        capturedLogs.clear();
+        const auto prevHandler = qInstallMessageHandler([](QtMsgType, const QMessageLogContext &, const QString &msg) {
+            capturedLogs.append(msg);
+        });
+
+        const QString sentinel = QStringLiteral("FPLOGIN_SENTINEL_SECRET_9f8e7d6c");
+        Harness display(directory->filePath(QStringLiteral("control")));
+        display.fingerprintMode = QStringLiteral("normal");
+        display.passwordMode = QStringLiteral("normal");
+        Client client;
+        connectClient(display, client);
+        select(client, 1, QStringLiteral("a"));
+        QTRY_COMPARE(display.m_contextSerial, quint64(1));
+        {
+            QByteArray bytes; QDataStream out(&bytes, QIODevice::WriteOnly);
+            out << quint32(GreeterMessages::Login) << QStringLiteral("a") << sentinel
+                << quint32(Session::X11Session) << QStringLiteral("test.desktop");
+            client.socket.write(bytes);
+            client.socket.flush();
+        }
+        QTRY_VERIFY(display.peers.contains(int(AuthMethod::Password)));
+        display.command(AuthMethod::Password, "P");
+        QTRY_VERIFY(display.peers.value(int(AuthMethod::Password)).pid > 0);
+        const qint64 helperPid = display.peers.value(int(AuthMethod::Password)).pid;
+
+        // Inspect /proc/<pid>/cmdline and /proc/<pid>/environ while helper is live.
+        for (const char *procFile : {"cmdline", "environ"}) {
+            QFile f(QStringLiteral("/proc/%1/%2").arg(helperPid).arg(QLatin1String(procFile)));
+            QVERIFY(f.open(QIODevice::ReadOnly));
+            const QByteArray raw = f.readAll();
+            QVERIFY2(!raw.contains(sentinel.toUtf8()), procFile);
+        }
+
+        display.command(AuthMethod::Password, "S");
+        QTRY_VERIFY(display.peers.value(int(AuthMethod::Password)).authorized);
+        display.finishMethodAttempt(true);
+        QVERIFY(display.m_passPhrase.isEmpty());
+        QVERIFY(display.m_pendingPassword.isEmpty());
+        display.command(AuthMethod::Password, "E");
+        QTRY_VERIFY(!display.m_auth->isActive());
+
+        qInstallMessageHandler(prevHandler);
+        for (const QString &line : capturedLogs)
+            QVERIFY2(!line.contains(sentinel), qPrintable(line));
+    }
+
+    void helperLifecycleEndurance500Cycles() {
+        Harness display(directory->filePath(QStringLiteral("control")));
+        display.fingerprintMode = QStringLiteral("normal");
+        display.passwordMode = QStringLiteral("normal");
+        Client client;
+        connectClient(display, client);
+
+        int fdWarmup = 0;
+        qint64 rssWarmupKb = 0;
+        quint64 serial = 0;
+        const int totalCycles = 500;
+
+        for (int i = 0; i < totalCycles; ++i) {
+            const QString user = (i % 2 == 0) ? QStringLiteral("a") : QStringLiteral("b");
+            select(client, ++serial, user);
+            QTRY_COMPARE_WITH_TIMEOUT(display.m_contextSerial, serial, 2000);
+            QTRY_VERIFY_WITH_TIMEOUT(!display.m_pendingContext, 2000);
+            display.setFingerprintAvailability(display.m_contextSerial, display.m_requestId, true, QStringLiteral("available"));
+            display.peers.clear();
+            start(client, serial);
+            QTRY_VERIFY_WITH_TIMEOUT(display.peers.contains(int(AuthMethod::Fingerprint)), 2000);
+
+            switch (i % 5) {
+            case 0: // fingerprint wins cleanly
+                display.command(AuthMethod::Fingerprint, "S");
+                QTRY_VERIFY_WITH_TIMEOUT(display.peers.value(int(AuthMethod::Fingerprint)).authorized, 2000);
+                display.finishMethodAttempt(true);
+                display.m_contextCommitted = false;
+                display.command(AuthMethod::Fingerprint, "E");
+                QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive(), 2000);
+                break;
+            case 1: // password wins, cancelling active fingerprint loser
+                password(client, user);
+                QTRY_VERIFY_WITH_TIMEOUT(display.peers.contains(int(AuthMethod::Password)), 2000);
+                display.command(AuthMethod::Password, "S");
+                QTRY_VERIFY_WITH_TIMEOUT(display.peers.value(int(AuthMethod::Password)).authorized, 2000);
+                QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive(), 2000);
+                display.finishMethodAttempt(true);
+                display.m_contextCommitted = false;
+                display.command(AuthMethod::Password, "E");
+                QTRY_VERIFY_WITH_TIMEOUT(!display.m_auth->isActive(), 2000);
+                break;
+            case 2: // explicit cancel mid-scan
+                cancel(client, serial, display.m_requestId);
+                QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive(), 2000);
+                break;
+            case 3: // abrupt helper crash (SIGKILL)
+                display.command(AuthMethod::Fingerprint, "K");
+                QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive(), 2000);
+                break;
+            default: // user-switch invalidation while scanning
+                select(client, ++serial, user == QLatin1String("a") ? QStringLiteral("b") : QStringLiteral("a"));
+                QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive(), 2000);
+                QTRY_VERIFY_WITH_TIMEOUT(!display.m_pendingContext, 2000);
+                break;
+            }
+            if (i == 19) {
+                fdWarmup = countOpenFds();
+                rssWarmupKb = currentRssKb();
+            }
+        }
+        clear(client, ++serial);
+        QTRY_VERIFY_WITH_TIMEOUT(!display.m_fingerprintAuth->isActive() && !display.m_auth->isActive(), 2000);
+        QTest::qWait(50);
+
+        const int fdFinal = countOpenFds();
+        const qint64 rssFinalKb = currentRssKb();
+        qInfo("ENDURANCE_METRICS cycles=%d fd_warmup=%d fd_final=%d fd_delta=%d rss_warmup_kb=%lld rss_final_kb=%lld rss_delta_kb=%lld",
+              totalCycles, fdWarmup, fdFinal, fdFinal - fdWarmup,
+              static_cast<long long>(rssWarmupKb), static_cast<long long>(rssFinalKb),
+              static_cast<long long>(rssFinalKb - rssWarmupKb));
+        QVERIFY2(rssWarmupKb > 0 && rssFinalKb > 0, "Failed to read VmRSS from /proc/self/status");
+        QVERIFY2(fdFinal - fdWarmup <= 4, qPrintable(QStringLiteral("FD leak detected: %1 -> %2").arg(fdWarmup).arg(fdFinal)));
+        QVERIFY2(rssFinalKb - rssWarmupKb < 32768, qPrintable(QStringLiteral("Excessive RSS growth: %1 -> %2 KB").arg(rssWarmupKb).arg(rssFinalKb)));
+        QVERIFY(!display.m_fingerprintAuth->isActive() && !display.m_auth->isActive());
     }
 };
 }

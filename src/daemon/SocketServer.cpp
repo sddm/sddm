@@ -27,8 +27,18 @@
 #include "Utils.h"
 
 #include <QLocalServer>
+#include <cstring>
 
 namespace SDDM {
+    namespace {
+        void wipeSecretString(QString &secret) {
+            if (!secret.isEmpty()) {
+                secret.detach();
+                explicit_bzero(secret.data(), size_t(secret.size()) * sizeof(QChar));
+                secret.clear();
+            }
+        }
+    }
     SocketServer::SocketServer(QObject *parent) : QObject(parent) {
     }
 
@@ -87,6 +97,10 @@ namespace SDDM {
         qDebug() << "Socket server stopping...";
 
         // delete server
+        m_activeSockets.clear();
+        m_correlatedSockets.clear();
+        m_queriedSockets.clear();
+        m_legacyClearSockets.clear();
         m_server->deleteLater();
         m_server = nullptr;
 
@@ -95,18 +109,29 @@ namespace SDDM {
     }
 
     void SocketServer::newConnection() {
-        // get pending connection
-        QLocalSocket *socket = m_server->nextPendingConnection();
-        socket->setReadBufferSize(1024 * 1024);
+        constexpr int maxActiveConnections = 16;
+        while (m_server && m_server->hasPendingConnections()) {
+            QLocalSocket *socket = m_server->nextPendingConnection();
+            if (!socket)
+                continue;
+            if (m_activeSockets.size() >= maxActiveConnections) {
+                socket->abort();
+                socket->deleteLater();
+                continue;
+            }
+            m_activeSockets.insert(socket);
+            socket->setReadBufferSize(1024 * 1024);
 
-        connect(socket, &QLocalSocket::readyRead, this, &SocketServer::readyRead);
-        connect(socket, &QLocalSocket::disconnected, this, [this, socket] {
-            m_correlatedSockets.remove(socket);
-            m_queriedSockets.remove(socket);
-            m_legacyClearSockets.remove(socket);
-            emit disconnected(socket);
-            socket->deleteLater();
-        });
+            connect(socket, &QLocalSocket::readyRead, this, &SocketServer::readyRead);
+            connect(socket, &QLocalSocket::disconnected, this, [this, socket] {
+                m_activeSockets.remove(socket);
+                m_correlatedSockets.remove(socket);
+                m_queriedSockets.remove(socket);
+                m_legacyClearSockets.remove(socket);
+                emit disconnected(socket);
+                socket->deleteLater();
+            });
+        }
     }
 
     void SocketServer::readyRead() {
@@ -175,9 +200,11 @@ namespace SDDM {
             // Dispatch only after the complete transaction has been committed.
             switch (message) {
             case GreeterMessages::Connect:
-                SocketWriter(socket) << quint32(DaemonMessages::Capabilities)
-                                     << quint32(daemonApp->powerManager()->capabilities());
-                SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
+                if (daemonApp && daemonApp->powerManager()) {
+                    SocketWriter(socket) << quint32(DaemonMessages::Capabilities)
+                                         << quint32(daemonApp->powerManager()->capabilities());
+                    SocketWriter(socket) << quint32(DaemonMessages::HostName) << daemonApp->hostName();
+                }
                 emit connected();
                 break;
             case GreeterMessages::QueryAuthenticationCapabilities:
@@ -193,6 +220,7 @@ namespace SDDM {
                 break;
             case GreeterMessages::Login:
                 emit login(socket, user, password, session);
+                wipeSecretString(password);
                 break;
             case GreeterMessages::StartAuthenticationMethod:
                 emit startFingerprint(socket, serial);

@@ -41,6 +41,7 @@
 #include <pwd.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <cstring>
 
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -61,6 +62,16 @@
 
 static int s_ttyFailures = 0;
 #define STRINGIFY(x) #x
+
+namespace {
+    void wipeSecretString(QString &secret) {
+        if (!secret.isEmpty()) {
+            secret.detach();
+            explicit_bzero(secret.data(), size_t(secret.size()) * sizeof(QChar));
+            secret.clear();
+        }
+    }
+}
 
 namespace SDDM {
     bool isTtyInUse(const QString &desiredTty) {
@@ -144,7 +155,27 @@ namespace SDDM {
             if (m_contextOptedIn && !m_pendingContext && !m_contextFinished)
                 setFingerprintAvailability(m_contextSerial, m_requestId, false,
                                            QStringLiteral("service_unavailable"));
+            // If fprintd vanishes mid-scan, stop the uncommitted fingerprint
+            // helper immediately without touching any concurrent password attempt.
+            if (newOwner.isEmpty() && !m_tearingDown && !m_contextCommitted && !m_methodWinnerChosen
+                && m_fingerprintAuth->isActive() && isCurrentHelper(m_fingerprintAuth)
+                && !m_cancelledHelpers.contains(m_fingerprintAuth)) {
+                m_fingerprintStartRequested = false;
+                m_pendingFingerprintRetryGeneration = 0;
+                m_attemptGate.cancel(AuthMethod::Fingerprint);
+                disarmFingerprintDeadline();
+                m_fingerprintTerminal = true;
+                m_fingerprintTerminalState = FingerprintState::Unavailable;
+                m_fingerprintTerminalDetail = QStringLiteral("service_unavailable");
+                stopAuthenticationHelper(m_fingerprintAuth);
+            }
         });
+        QDBusConnection::systemBus().connect(
+                QStringLiteral("org.freedesktop.login1"),
+                QStringLiteral("/org/freedesktop/login1"),
+                QStringLiteral("org.freedesktop.login1.Manager"),
+                QStringLiteral("PrepareForSleep"),
+                this, SLOT(slotPrepareForSleep(bool)));
         // Create display server
         switch (m_displayServerType) {
         case X11DisplayServerType:
@@ -236,6 +267,8 @@ namespace SDDM {
         for (Auth *auth : {m_auth, m_fingerprintAuth})
             disconnect(auth, nullptr, this, nullptr);
         stopInternal(true);
+        wipeSecretString(m_passPhrase);
+        wipeSecretString(m_pendingPassword);
         for (Auth *auth : {m_auth, m_fingerprintAuth})
             auth->stop();
     }
@@ -709,7 +742,7 @@ namespace SDDM {
         m_reuseSessionSelected = false;
         m_attemptSocket.clear();
         m_socket.clear();
-        m_passPhrase.clear();
+        wipeSecretString(m_passPhrase);
     }
 
     void Display::authorizeWinner() {
@@ -745,11 +778,12 @@ namespace SDDM {
         }
         const QPointer<QLocalSocket> socket = m_pendingSocket;
         const QString user = m_pendingUser;
-        const QString password = m_pendingPassword;
+        QString password = m_pendingPassword;
         const Session session = m_pendingSession;
         clearPendingLogin();
         if (socket && socket->state() == QLocalSocket::ConnectedState)
             login(socket, user, password, session);
+        wipeSecretString(password);
     }
 
     void Display::finishMethodAttempt(bool success) {
@@ -778,7 +812,7 @@ namespace SDDM {
         m_contextFinished = m_contextOptedIn;
         m_contextCommitted = success;
         m_socket.clear();
-        m_passPhrase.clear();
+        wipeSecretString(m_passPhrase);
     }
     void Display::publishMethodState(AuthenticationMethod method, FingerprintState state,
                                      AuthenticationPhase phase, const QString &detailCode) {
@@ -860,7 +894,7 @@ namespace SDDM {
         m_pendingPasswordGeneration = 0;
         m_pendingSocket.clear();
         m_pendingUser.clear();
-        m_pendingPassword.clear();
+        wipeSecretString(m_pendingPassword);
         m_pendingSession = Session();
     }
 
@@ -1034,14 +1068,16 @@ namespace SDDM {
         const auto action = GreeterMessages(m_pendingPower);
         m_pendingPower = -1;
         QTimer::singleShot(0, this, [this, action] {
-            auto *power = daemonApp->powerManager();
-            switch (action) {
-            case GreeterMessages::PowerOff: power->powerOff(); break;
-            case GreeterMessages::Reboot: power->reboot(); break;
-            case GreeterMessages::Suspend: power->suspend(); break;
-            case GreeterMessages::Hibernate: power->hibernate(); break;
-            case GreeterMessages::HybridSleep: power->hybridSleep(); break;
-            default: Q_UNREACHABLE();
+            auto *power = daemonApp ? daemonApp->powerManager() : nullptr;
+            if (power) {
+                switch (action) {
+                case GreeterMessages::PowerOff: power->powerOff(); break;
+                case GreeterMessages::Reboot: power->reboot(); break;
+                case GreeterMessages::Suspend: power->suspend(); break;
+                case GreeterMessages::Hibernate: power->hibernate(); break;
+                case GreeterMessages::HybridSleep: power->hybridSleep(); break;
+                default: Q_UNREACHABLE();
+                }
             }
             // Resume needs a fresh visible context, never a hidden restart.
             m_tearingDown = false;
@@ -1103,8 +1139,10 @@ namespace SDDM {
             return false;
         }
 
-        if (method == AuthMethod::Password)
+        if (method == AuthMethod::Password) {
+            wipeSecretString(m_passPhrase);
             m_passPhrase = password;
+        }
         auth->setMethod(method);
         auth->setRequestId(m_methodAttemptActive ? m_requestId : QUuid::createUuid().toString(QUuid::WithoutBraces));
         auth->setDeferredAuthorization(m_methodAttemptActive);
@@ -1480,6 +1518,41 @@ namespace SDDM {
             startFingerprint(m_contextSocket, m_contextSerial);
         }
         performPendingPower();
+    }
+
+    void Display::slotPrepareForSleep(bool sleeping) {
+        if (m_tearingDown || m_contextCommitted || m_sessionAuth)
+            return;
+        if (sleeping) {
+            invalidateProbe();
+            m_fingerprintStartRequested = false;
+            m_pendingFingerprintRetryGeneration = 0;
+            if (m_pendingContext) {
+                m_pendingFingerprintStart = false;
+                m_pendingFingerprintCancelled = true;
+            }
+            if (m_fingerprintAuth->isActive() && isCurrentHelper(m_fingerprintAuth)
+                && !m_methodWinnerChosen && !m_cancelledHelpers.contains(m_fingerprintAuth)) {
+                m_attemptGate.cancel(AuthMethod::Fingerprint);
+                disarmFingerprintDeadline();
+                m_fingerprintTerminal = true;
+                m_fingerprintTerminalState = FingerprintState::Cancelled;
+                m_fingerprintTerminalDetail = QStringLiteral("system_suspend");
+                stopAuthenticationHelper(m_fingerprintAuth);
+            } else if (m_contextOptedIn && !m_pendingContext && !m_contextFinished
+                       && !m_methodWinnerChosen && !m_fingerprintTerminal) {
+                m_fingerprintTerminal = true;
+                m_fingerprintTerminalState = FingerprintState::Cancelled;
+                m_fingerprintTerminalDetail = QStringLiteral("system_suspend");
+                publishMethodState(AuthenticationMethod::Fingerprint, FingerprintState::Cancelled,
+                                   m_contextPhase, QStringLiteral("system_suspend"));
+            }
+        } else {
+            // Never auto-start a hidden biometric scan on resume; require explicit
+            // Retry or fresh user context selection while keeping password usable.
+            m_fingerprintStartRequested = false;
+            m_pendingFingerprintRetryGeneration = 0;
+        }
     }
 
     void Display::slotRequestChanged() {

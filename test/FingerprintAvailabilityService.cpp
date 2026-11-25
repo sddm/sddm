@@ -42,10 +42,15 @@ public slots:
 class Manager final : public QObject {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "net.reactivated.Fprint.Manager")
+public:
+    bool devicesEmpty = false;
 public slots:
     QList<QDBusObjectPath> GetDevices() const {
+        if (devicesEmpty)
+            return {};
         return {QDBusObjectPath(QStringLiteral("/net/reactivated/Fprint/Device/0"))};
     }
+    void SetDevicesEmpty(bool empty) { devicesEmpty = empty; }
     void Quit() { QTimer::singleShot(0, QCoreApplication::instance(), &QCoreApplication::quit); }
 };
 

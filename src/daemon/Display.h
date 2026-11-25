@@ -213,6 +213,7 @@ namespace SDDM {
         Greeter *m_greeter { nullptr };
 
     private slots:
+        void slotPrepareForSleep(bool sleeping);
         void slotRequestChanged();
         void slotAuthenticationFinished(const QString &user, bool success);
         void slotAuthenticationMethodState(const QString &requestId, AuthMethod method,
