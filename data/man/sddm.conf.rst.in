@@ -241,8 +241,8 @@ The `UserAuthFile=` option was removed, the file is always created as
 	Default value is empty.
 
 `Relogin=`
-	If true and User and Session are set automatic login will
-	kick in again on session exit, otherwise it will work
+	If true and User and Session are set, automatic login will
+	kick in again on session exit; otherwise, it will work
 	only the first time.
 	Default value is false.
 
