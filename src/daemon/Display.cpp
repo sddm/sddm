@@ -554,8 +554,9 @@ namespace SDDM {
                         QStringLiteral("/org/freedesktop/DBus"), QStringLiteral("org.freedesktop.DBus"),
                         QStringLiteral("StartServiceByName"));
                 activate << QStringLiteral("net.reactivated.Fprint") << quint32(0);
+                // The overall probe deadline owns the budget; a second 5s timer races its terminal reason.
                 auto *activationWatcher = new QDBusPendingCallWatcher(
-                        QDBusConnection::systemBus().asyncCall(activate, 5000), this);
+                        QDBusConnection::systemBus().asyncCall(activate), this);
                 m_probeWatchers.insert(activationWatcher);
                 connect(activationWatcher, &QDBusPendingCallWatcher::finished, this,
                         [this, activationWatcher, generation, serial, requestId] {

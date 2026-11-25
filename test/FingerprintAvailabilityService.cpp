@@ -80,6 +80,8 @@ int main(int argc, char **argv) {
         const auto path = args.at(gateIndex + 1);
         QFile waiting(path + QStringLiteral(".waiting"));
         if (!waiting.open(QIODevice::WriteOnly)) return 5;
+        const auto identity = bus.baseService().toUtf8();
+        if (waiting.write(identity) != identity.size()) return 5;
         waiting.close();
         QObject::connect(&gate, &QTimer::timeout, &app, [&, path] {
             if (QFile::exists(path)) { gate.stop(); acquire(); }
