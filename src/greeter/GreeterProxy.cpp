@@ -157,6 +157,9 @@ namespace SDDM {
     const QString &GreeterProxy::fingerprintState() const { return d->snapshot.state; }
     const QString &GreeterProxy::fingerprintRequestId() const { return d->snapshot.requestId; }
     bool GreeterProxy::isConnected() const { return d->socket->state() == QLocalSocket::ConnectedState; }
+    bool GreeterProxy::hasAuthenticationActivity() const {
+        return d->correlated || d->pending != GreeterProxyPrivate::None || d->passwordPending;
+    }
 
     void GreeterProxy::setSessionModel(SessionModel *model) {
         if (d->sessionModel) disconnect(d->sessionModel, nullptr, this, nullptr);

@@ -21,6 +21,7 @@
 #ifndef GREETERAPP_H
 #define GREETERAPP_H
 
+#include <QKeySequence>
 #include <QObject>
 #include <QPointer>
 #include <QScreen>
@@ -58,6 +59,7 @@ namespace SDDM {
 
     protected:
         void customEvent(QEvent *event) override;
+        bool eventFilter(QObject *watched, QEvent *event) override;
 
     private slots:
         void addViewForScreen(QScreen *screen);
@@ -81,17 +83,30 @@ namespace SDDM {
         KeyboardModel *m_keyboard { nullptr };
         QPointer<QQuickView> m_controllerView;
         QPointer<QQuickView> m_pendingController;
+        QPointer<QQuickItem> m_legacyOverlay;
         bool m_clearPending { false };
         bool m_committedPromotion { false };
         bool m_replacingRoots { false };
         bool m_fallbackStarted { false };
         bool m_embeddedFallback { false };
+        bool m_legacyAutoScheduled { false };
+        bool m_legacyAutoStarted { false };
+        QString m_legacyUser;
+        int m_legacySessionIndex { -1 };
+        QKeySequence m_retryKey;
+        QString m_retryKeyLabel;
         QString m_fallbackErrors;
 
         void startup();
         void activatePrimary();
         void promoteController();
         void beginFallback(const QString &errors);
+        void scheduleLegacyFingerprint();
+        void maybeStartLegacyFingerprint();
+        void configureRetryKey();
+        bool retryLegacyFingerprint();
+        void attachLegacyOverlay();
+        void destroyLegacyOverlay();
     };
 
     class StartupEvent : public QEvent

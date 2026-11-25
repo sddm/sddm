@@ -47,6 +47,9 @@ namespace SDDM {
                                                                                                    "NOTE: Currently ignored if autologin is enabled."));
         Entry(InputMethod,         QString,     QStringLiteral("qtvirtualkeyboard"),                   _S("Input method module"));
         Entry(FingerprintAuthTimeout, int, 30, _S("Fingerprint authentication phase deadline in seconds"));
+        Entry(AutoFingerprintForLegacyThemes, bool, true, _S("Automatically start concurrent fingerprint authentication for themes that do not call the fingerprint API"));
+        Entry(FingerprintStatusOverlay, bool, false, _S("Show a minimal non-intrusive fingerprint status pill over legacy themes"));
+        Entry(FingerprintRetryKey, QString, _S("F4"), _S("Key shortcut (e.g. F4, F8, Ctrl+R, or none) to retry fingerprint scan on legacy themes"));
         Entry(Namespaces,          QStringList, QStringList(),                                  _S("Comma-separated list of Linux namespaces for user session to enter"));
         Entry(GreeterEnvironment,  QStringList, QStringList(),                                  _S("Comma-separated list of environment variables to be set"));
         //  Name   Entries (but it's a regular class again)

@@ -69,6 +69,7 @@ namespace SDDM {
         const QString &fingerprintState() const;
         const QString &fingerprintRequestId() const;
         bool isConnected() const;
+        bool hasAuthenticationActivity() const;
         void setSessionModel(SessionModel *model);
         void setAuthenticationController(bool controller);
         void disableAuthenticationMethods();

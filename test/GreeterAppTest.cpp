@@ -294,6 +294,131 @@ Rectangle {
         QVERIFY(m_app->m_proxy->authenticationBusy());
         QCOMPARE(m_startCount, 1);
     }
+
+    void legacyThemeAutoStartsFingerprint() {
+        const QString prevLastUser = stateConfig.Last.User.get();
+        const bool prevAuto = mainConfig.AutoFingerprintForLegacyThemes.get();
+        m_app.reset();
+        delete m_peer;
+        m_peer = nullptr;
+        m_startCount = 0;
+        m_requests.clear();
+        m_decodeError = false;
+        QVERIFY(writeFile(QStringLiteral("Main.qml"), R"QML(
+import QtQuick 2.15
+Rectangle {
+    width: 640; height: 480
+}
+)QML"));
+        stateConfig.Last.User.set(QStringLiteral("alice"));
+        mainConfig.AutoFingerprintForLegacyThemes.set(true);
+        m_app = std::make_unique<GreeterApp>();
+        m_app->setTestModeEnabled(true);
+        m_app->setSocketName(m_server.fullServerName());
+        m_app->setThemePath(m_dir->path());
+        m_app->startup();
+        QTRY_COMPARE(m_startCount, 1);
+        QCOMPARE(count(GreeterMessages::SetAuthenticationContext), 1);
+        QCOMPARE(m_binding.user, QStringLiteral("alice"));
+        // Overlay is disabled by default so user themes remain 100% visually untouched.
+        QVERIFY(m_app->m_legacyOverlay.isNull());
+        // Concurrent password submission from the legacy theme remains allowed.
+        m_app->m_proxy->login(QStringLiteral("alice"), QStringLiteral("pw"), 0);
+        QTRY_COMPARE(count(GreeterMessages::Login), 1);
+        QCOMPARE(m_startCount, 1);
+        stateConfig.Last.User.set(prevLastUser);
+        mainConfig.AutoFingerprintForLegacyThemes.set(prevAuto);
+    }
+
+    void legacyThemeOverlayAndF4Retry() {
+        const QString prevLastUser = stateConfig.Last.User.get();
+        const bool prevAuto = mainConfig.AutoFingerprintForLegacyThemes.get();
+        const bool prevOverlay = mainConfig.FingerprintStatusOverlay.get();
+        const QString prevKey = mainConfig.FingerprintRetryKey.get();
+        m_app.reset();
+        delete m_peer;
+        m_peer = nullptr;
+        m_startCount = 0;
+        m_requests.clear();
+        m_decodeError = false;
+        QVERIFY(writeFile(QStringLiteral("Main.qml"), R"QML(
+import QtQuick 2.15
+Rectangle {
+    width: 640; height: 480
+}
+)QML"));
+        stateConfig.Last.User.set(QStringLiteral("alice"));
+        mainConfig.AutoFingerprintForLegacyThemes.set(true);
+        mainConfig.FingerprintStatusOverlay.set(true);
+        mainConfig.FingerprintRetryKey.set(QStringLiteral("F8"));
+        m_app = std::make_unique<GreeterApp>();
+        m_app->setTestModeEnabled(true);
+        m_app->setSocketName(m_server.fullServerName());
+        m_app->setThemePath(m_dir->path());
+        m_app->startup();
+        QTRY_COMPARE(m_startCount, 1);
+        QVERIFY(!m_app->m_legacyOverlay.isNull());
+        QVERIFY(!m_app->m_legacyOverlay->hasActiveFocus());
+
+        // Publish scanning -> timed_out states and verify custom retry key label + F8 retry.
+        send(packet([&](QDataStream &s) {
+            s << quint32(DaemonMessages::AuthenticationMethodState) << m_binding.serial << requestId
+              << quint32(AuthenticationMethod::Fingerprint) << m_binding.user << m_binding.type << m_binding.file
+              << quint32(FingerprintState::Scanning) << quint32(AuthenticationPhase::Active) << QStringLiteral("scanning");
+        }));
+        QTRY_VERIFY(m_app->m_legacyOverlay->isVisible());
+        QVERIFY(m_app->m_legacyOverlay->property("labelText").toString().contains(QStringLiteral("touch sensor")));
+
+        send(packet([&](QDataStream &s) {
+            s << quint32(DaemonMessages::AuthenticationMethodState) << m_binding.serial << requestId
+              << quint32(AuthenticationMethod::Fingerprint) << m_binding.user << m_binding.type << m_binding.file
+              << quint32(FingerprintState::TimedOut) << quint32(AuthenticationPhase::Idle) << QStringLiteral("timed_out");
+        }));
+        QTRY_VERIFY(m_app->m_legacyOverlay->property("labelText").toString().contains(QStringLiteral("F8")));
+
+        // Default F4 must NOT fire when rebound to F8.
+        QTest::keyClick(m_app->m_controllerView, Qt::Key_F4);
+        QTest::qWait(50);
+        QCOMPARE(m_startCount, 1);
+
+        QTest::keyClick(m_app->m_controllerView, Qt::Key_F8);
+        QTRY_COMPARE(m_startCount, 2);
+
+        stateConfig.Last.User.set(prevLastUser);
+        mainConfig.AutoFingerprintForLegacyThemes.set(prevAuto);
+        mainConfig.FingerprintStatusOverlay.set(prevOverlay);
+        mainConfig.FingerprintRetryKey.set(prevKey);
+    }
+
+    void legacyThemeRespectsDisableConfig() {
+        const QString prevLastUser = stateConfig.Last.User.get();
+        const bool prevAuto = mainConfig.AutoFingerprintForLegacyThemes.get();
+        m_app.reset();
+        delete m_peer;
+        m_peer = nullptr;
+        m_startCount = 0;
+        m_requests.clear();
+        m_decodeError = false;
+        QVERIFY(writeFile(QStringLiteral("Main.qml"), R"QML(
+import QtQuick 2.15
+Rectangle {
+    width: 640; height: 480
+}
+)QML"));
+        stateConfig.Last.User.set(QStringLiteral("alice"));
+        mainConfig.AutoFingerprintForLegacyThemes.set(false);
+        m_app = std::make_unique<GreeterApp>();
+        m_app->setTestModeEnabled(true);
+        m_app->setSocketName(m_server.fullServerName());
+        m_app->setThemePath(m_dir->path());
+        m_app->startup();
+        QTRY_VERIFY(m_app->m_proxy->authenticationMethodsAvailable());
+        QTest::qWait(200);
+        QCOMPARE(count(GreeterMessages::SetAuthenticationContext), 0);
+        QCOMPARE(m_startCount, 0);
+        stateConfig.Last.User.set(prevLastUser);
+        mainConfig.AutoFingerprintForLegacyThemes.set(prevAuto);
+    }
 };
 }
 
