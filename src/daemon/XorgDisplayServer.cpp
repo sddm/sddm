@@ -335,4 +335,8 @@ namespace SDDM {
                 qWarning() << "Failed to change owner of the auth file.";
         }
     }
+
+    void XorgDisplayServer::setDisplayName(const QString& displayName) {
+        Q_UNUSED(displayName);
+    }
 }
