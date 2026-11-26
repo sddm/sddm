@@ -3,7 +3,7 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/src/auth"
     "${CMAKE_BINARY_DIR}/src/common"
     ${LIBXAU_INCLUDE_DIRS}
-    "${LIBXCB_INCLUDE_DIR}"
+    ${LIBXCB_INCLUDE_DIR}
 )
 
 configure_file(config.h.in config.h IMMEDIATE @ONLY)
@@ -15,7 +15,6 @@ set(DAEMON_SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/ThemeMetadata.cpp
     ${CMAKE_SOURCE_DIR}/src/common/Session.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SocketWriter.cpp
-    ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
     ${CMAKE_SOURCE_DIR}/src/common/SignalHandler.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/Auth.cpp
     ${CMAKE_SOURCE_DIR}/src/auth/AuthPrompt.cpp
@@ -31,12 +30,18 @@ set(DAEMON_SOURCES
     Seat.cpp
     SeatManager.cpp
     SocketServer.cpp
-    XorgDisplayServer.cpp
-    XorgUserDisplayServer.cpp
-    XorgUserDisplayServer.h
     WaylandDisplayServer.cpp
     WaylandDisplayServer.h
 )
+
+if(BUILD_WITH_X11)
+list(APPEND DAEMON_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/common/XAuth.cpp
+
+    XorgDisplayServer.cpp
+    XorgUserDisplayServer.cpp
+)
+endif()
 
 list(APPEND DAEMON_SOURCES ${CMAKE_SOURCE_DIR}/src/common/VirtualTerminal.cpp)
 

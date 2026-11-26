@@ -45,7 +45,7 @@ void XorgUserDisplayServer::setDisplayName(const QString &displayName)
     m_display = displayName;
 }
 
-QString XorgUserDisplayServer::command(Display *display)
+QString XorgUserDisplayServer::getCommand(Display *display) const
 {
     QStringList args;
 
@@ -65,6 +65,14 @@ QString XorgUserDisplayServer::command(Display *display)
     }
 
     return args.join(QLatin1Char(' '));
+}
+
+QByteArray XorgUserDisplayServer::getCookie() const {
+    return {};
+}
+
+QString XorgUserDisplayServer::authPath() const {
+    return {};
 }
 
 bool XorgUserDisplayServer::start()

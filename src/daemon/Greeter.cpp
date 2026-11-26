@@ -27,9 +27,7 @@
 #include "ThemeConfig.h"
 #include "ThemeMetadata.h"
 #include "Display.h"
-#include "XorgDisplayServer.h"
-#include "XorgUserDisplayServer.h"
-#include "WaylandDisplayServer.h"
+#include "DisplayServer.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
@@ -147,7 +145,7 @@ namespace SDDM {
                 // set process environment
                 QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
-                env.insert(QStringLiteral("XAUTHORITY"), qobject_cast<XorgDisplayServer*>(displayServer)->authPath());
+                env.insert(QStringLiteral("XAUTHORITY"), displayServer->authPath());
                 env.insert(QStringLiteral("XCURSOR_THEME"), xcursorTheme);
                 if (!xcursorSize.isEmpty())
                     env.insert(QStringLiteral("XCURSOR_SIZE"), xcursorSize);
@@ -218,7 +216,8 @@ namespace SDDM {
             if (m_display->displayServerType() == Display::X11DisplayServerType) {
                 env.insert(QStringLiteral("DISPLAY"), m_display->name());
                 env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("xcb"));
-                m_auth->setCookie(qobject_cast<XorgDisplayServer*>(displayServer)->cookie());
+                const QByteArray cookie = displayServer->getCookie();
+                m_auth->setCookie(cookie);
             } else if (m_display->displayServerType() == Display::WaylandDisplayServerType) {
                 env.insert(QStringLiteral("QT_QPA_PLATFORM"), QStringLiteral("wayland"));
                 env.insert(QStringLiteral("QT_WAYLAND_SHELL_INTEGRATION"), QStringLiteral("xdg-shell"));
@@ -302,14 +301,7 @@ namespace SDDM {
     void Greeter::onDisplayServerReady(const QString &displayName)
     {
         auto *displayServer = m_display->displayServer();
-
-        auto *xorgUser = qobject_cast<XorgUserDisplayServer *>(displayServer);
-        if (xorgUser)
-            xorgUser->setDisplayName(displayName);
-
-        auto *wayland = qobject_cast<WaylandDisplayServer *>(displayServer);
-        if (wayland)
-            wayland->setDisplayName(displayName);
+        displayServer->setDisplayName(displayName);
     }
 
     void Greeter::onHelperFinished(Auth::HelperExitStatus status) {

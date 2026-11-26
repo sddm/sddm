@@ -26,7 +26,9 @@
 #include "UserSession.h"
 #include "HelperApp.h"
 #include "VirtualTerminal.h"
+#if BUILD_WITH_X11 == 1
 #include "XAuth.h"
+#endif
 
 #include <functional>
 #include <sys/types.h>
@@ -64,6 +66,7 @@ namespace SDDM {
         // so that it can clean up the file on session end.
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")
             && m_displayServerCmd.isEmpty()) {
+#if BUILD_WITH_X11 == 1
             // Create the Xauthority file
             QByteArray cookie = helper->cookie();
             if (cookie.isEmpty()) {
@@ -91,6 +94,10 @@ namespace SDDM {
 
             env.insert(QStringLiteral("XAUTHORITY"), m_xauthFile.fileName());
             setProcessEnvironment(env);
+#else
+            qCritical() << "Build does not support X11 sessions without display server command.";
+            return false;
+#endif
         }
 
         if (env.value(QStringLiteral("XDG_SESSION_TYPE")) == QLatin1String("x11")) {
