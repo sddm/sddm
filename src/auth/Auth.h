@@ -230,6 +230,13 @@ namespace SDDM {
         */
         void info(QString message, Auth::Info type);
 
+        /**
+        * Event to indicate that a wrong password lockout has been started, with a certain duration.
+        *
+        * @param uSecDelay: The duration of the lockout delay (in MicroSeconds)
+        */
+        void loginFailedDelayStarted(const uint uSecDelay);
+
     private:
         class Private;
         class SocketServer;

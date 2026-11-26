@@ -152,8 +152,6 @@ namespace SDDM {
 
         Q_ASSERT(getuid() == 0);
         if (!m_backend->authenticate()) {
-            authenticated(QString());
-
             // write failed login to btmp
             const QProcessEnvironment env = m_session->processEnvironment();
             const QString displayId = env.value(QStringLiteral("DISPLAY"));
@@ -207,6 +205,14 @@ namespace SDDM {
     void HelperApp::error(const QString& message, Auth::Error type) {
         SafeDataStream str(m_socket);
         str << Msg::ERROR << message << type;
+        str.send();
+        m_socket->waitForBytesWritten();
+    }
+
+    void HelperApp::loginFailedDelayStarted(const uint uSecDelay)
+    {
+        SafeDataStream str(m_socket);
+        str << Msg::LOGIN_FAILED_DELAY_STARTED << uSecDelay;
         str.send();
         m_socket->waitForBytesWritten();
     }

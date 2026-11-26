@@ -98,6 +98,7 @@ namespace SDDM {
         AUTHENTICATED,
         SESSION_STATUS,
         DISPLAY_SERVER_STARTED,
+        LOGIN_FAILED_DELAY_STARTED,
         MSG_LAST,
     };
 

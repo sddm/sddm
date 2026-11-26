@@ -214,6 +214,13 @@ namespace SDDM {
                     emit informationMessage(message);
                 }
                 break;
+                case DaemonMessages::LoginFailedDelayStarted: {
+                    uint delay {0};
+                    input >> delay;
+                    qDebug() << "Login failed delay started notification received from daemon; delay duration:" << delay;
+                    Q_EMIT loginFailedDelayStarted(delay);
+                    break;
+                }
                 default: {
                     // log message
                     qWarning() << "Unknown message received from daemon.";
