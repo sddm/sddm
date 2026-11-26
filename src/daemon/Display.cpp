@@ -513,7 +513,14 @@ namespace SDDM {
                 emit loginSucceeded(m_socket);
         } else if (m_socket) {
             qDebug() << "Authentication for user " << user << " failed";
-            emit loginFailed(m_socket);
+
+            // Avoid to emit loginFailed twice
+            // maybe we already sent it when handle auth error
+            if (!m_loginFailedOnErrorSent) {
+                emit loginFailed(m_socket);
+            } else {
+                m_loginFailedOnErrorSent = false;
+            }
         }
         m_socket = nullptr;
     }
@@ -534,8 +541,10 @@ namespace SDDM {
             return;
 
         m_socketServer->informationMessage(m_socket, message);
-        if (error == Auth::ERROR_AUTHENTICATION)
+        if (error == Auth::ERROR_AUTHENTICATION) {
+            m_loginFailedOnErrorSent = true;
             emit loginFailed(m_socket);
+        }
     }
 
     void Display::slotHelperFinished(Auth::HelperExitStatus status) {
