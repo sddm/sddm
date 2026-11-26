@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 # Xsession - run as user
 # Copyright (C) 2016 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
 
@@ -57,13 +57,14 @@ USERXSESSIONRC=$HOME/.xsessionrc
 ALTUSERXSESSION=$HOME/.Xsession
 
 if [ -d "$xsessionddir" ]; then
-    for i in `ls $xsessionddir`; do
-        script="$xsessionddir/$i"
-        echo "Loading X session script $script"
-        if [ -r "$script"  -a -f "$script" ] && expr "$i" : '^[[:alnum:]_-]\{1,\}$' > /dev/null; then
-            . "$script"
+    pushd "$xsessionddir"
+    for s in ./*; do
+        if [[ -r "$s" ]] && [[ -f "$s" ]] && [[ "$s" =~ ^[.]/[a-zA-Z0-9_-]+$ ]]; then
+            echo "Loading X session script $xsessionddir/$s"
+            . "$s"
         fi
     done
+    popd
 fi
 
 if [ -d /etc/X11/Xresources ]; then
