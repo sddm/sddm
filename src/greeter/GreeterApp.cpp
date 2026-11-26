@@ -339,6 +339,17 @@ int main(int argc, char **argv)
         qDebug() << "High-DPI autoscaling not Enabled";
     }
 
+    // GreeterApp: Use shared contexts like in plasmashell from KDE 6
+    //
+    // This fixes loading Qt6 themes that using QtWebEngine, which otherwise
+    // will crash with message:
+    // "QtWebEngineQuick::initialize() must be called from the Qt gui thread."
+    //
+    // According to Qt's docs setting the Qt::AA_ShareOpenGLContexts
+    // attribute before constructing a QGuiApplication, has the same effect as
+    // QtWebEngineQuick::initialize() but avoids pulling this dependency.
+    QGuiApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
     if (QLibraryInfo::version() >= QVersionNumber(5, 13, 0)) {
         auto format(QSurfaceFormat::defaultFormat());
         format.setOption(QSurfaceFormat::ResetNotification);
