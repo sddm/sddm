@@ -181,6 +181,23 @@ namespace SDDM {
 
     void SDDM::SeatManager::logindSeatAdded(const QString& name, const QDBusObjectPath& objectPath)
     {
+        // Optionally restrict which logind seats SDDM manages. Configure via the
+        // SDDM_SEATS environment variable (comma-separated, e.g. "seat0") in the
+        // service unit; if unset or empty, all seats are managed.
+        static const QString sddmSeats = QString::fromLocal8Bit(qgetenv("SDDM_SEATS")).trimmed();
+        if (!sddmSeats.isEmpty()) {
+            const QStringList allowedSeats = sddmSeats.split(QLatin1Char(','), Qt::SkipEmptyParts);
+            bool managed = false;
+            for (const QString& allowed : allowedSeats) {
+                if (name == allowed.trimmed()) {
+                    managed = true;
+                    break;
+                }
+            }
+            if (!managed)
+                return;
+        }
+
         auto logindSeat = new LogindSeat(name, objectPath);
         connect(logindSeat, &LogindSeat::canGraphicalChanged, this, [=]() {
             if (logindSeat->canGraphical()) {
