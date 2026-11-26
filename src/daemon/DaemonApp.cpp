@@ -47,6 +47,9 @@ namespace SDDM {
         // log message
         qDebug() << "Initializing...";
 
+        // setup lockfile
+        m_firstloginLockFile.setFileName(QStringLiteral(RUNTIME_DIR) + QStringLiteral("/firstlogin.lock"));
+
         // set testing parameter
         m_testing = (arguments().indexOf(QStringLiteral("--test-mode")) != -1);
 
@@ -119,6 +122,14 @@ namespace SDDM {
     int DaemonApp::newSessionId() {
         return m_lastSessionId++;
     }
+
+    bool DaemonApp::tryLockFirstLogin() {
+        if(!m_firstloginLockFile.open(QIODevice::NewOnly)) {
+            return false;
+        }
+        m_firstloginLockFile.close();
+        return true;
+    };
 }
 
 int main(int argc, char **argv) {
