@@ -34,6 +34,18 @@ LogindPathInternal::LogindPathInternal()
     qRegisterMetaType<NamedSessionPathList>("NamedSessionPathList");
     qDBusRegisterMetaType<NamedSessionPathList>();
 
+    qRegisterMetaType<ScheduledShutdownInfo>("ScheduledShutdownInfo");
+    qDBusRegisterMetaType<ScheduledShutdownInfo>();
+
+    qRegisterMetaType<ScheduledShutdownInfoList>("ScheduledShutdownInfoList");
+    qDBusRegisterMetaType<ScheduledShutdownInfoList>();
+
+    qRegisterMetaType<CreateSessionPropertiesInfo>("CreateSessionPropertiesInfo");
+    qDBusRegisterMetaType<CreateSessionPropertiesInfo>();
+
+    qRegisterMetaType<CreateSessionPropertiesInfoList>("CreateSessionPropertiesInfoList");
+    qDBusRegisterMetaType<CreateSessionPropertiesInfoList>();
+
     qRegisterMetaType<SessionInfo>("SessionInfo");
     qDBusRegisterMetaType<SessionInfo>();
 

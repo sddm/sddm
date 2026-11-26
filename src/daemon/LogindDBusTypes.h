@@ -15,6 +15,71 @@ struct Logind
     static QString userIfaceName();
 };
 
+struct ScheduledShutdownInfo
+{
+    QString type;
+    quint64 microseconds;
+};
+
+typedef QList<ScheduledShutdownInfo> ScheduledShutdownInfoList;
+
+inline QDBusArgument &operator<<(QDBusArgument &argument, const ScheduledShutdownInfo& scheduledShutdownInfo)
+{
+    argument.beginStructure();
+    argument << scheduledShutdownInfo.type;
+    argument << scheduledShutdownInfo.microseconds;
+    argument.endStructure();
+
+    return argument;
+}
+
+inline const QDBusArgument &operator>>(const QDBusArgument &argument, ScheduledShutdownInfo &scheduledShutdownInfo)
+{
+    argument.beginStructure();
+    argument >> scheduledShutdownInfo.type;
+    argument >> scheduledShutdownInfo.microseconds;
+    argument.endStructure();
+
+    return argument;
+}
+
+Q_DECLARE_METATYPE(ScheduledShutdownInfo);
+Q_DECLARE_METATYPE(QList<ScheduledShutdownInfo>);
+
+/*  <arg type="a(sv)" name="properties" direction="in"/>
+  <annotion name="org.qtproject.QtDBus.QtTypeName.In0" value="CreateSessionPropertiesInfoList"/>
+*/
+
+struct CreateSessionPropertiesInfo
+{
+    QString key;
+    QVariantMap value;
+};
+
+typedef QList<CreateSessionPropertiesInfo> CreateSessionPropertiesInfoList;
+
+inline QDBusArgument &operator<<(QDBusArgument &argument, const CreateSessionPropertiesInfo& createSessionPropertiesInfo)
+{
+    argument.beginStructure();
+    argument << createSessionPropertiesInfo.key;
+    argument << createSessionPropertiesInfo.value;
+    argument.endStructure();
+
+    return argument;
+}
+
+inline const QDBusArgument &operator>>(const QDBusArgument &argument, CreateSessionPropertiesInfo &createSessionPropertiesInfo)
+{
+    argument.beginStructure();
+    argument >> createSessionPropertiesInfo.key;
+    argument >> createSessionPropertiesInfo.value;
+    argument.endStructure();
+
+    return argument;
+}
+
+Q_DECLARE_METATYPE(CreateSessionPropertiesInfo);
+Q_DECLARE_METATYPE(QList<CreateSessionPropertiesInfo>);
 
 struct SessionInfo
 {
